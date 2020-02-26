@@ -2,8 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
+const debug = require('debug')('zilliqa-social-pay:sequelize');
 const Sequelize = require('sequelize');
-const morgan = require('morgan');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
@@ -33,7 +33,8 @@ Object.keys(db).forEach(modelName => {
 });
 
 sequelize.authenticate().then(() => {
-  console.log(`\x1b[32mSequelize: Connection ${config.database} successfully.\x1b[0m`);
+  debug(`Sequelize: Connection ${config.database} successfully.`);
+
   if (env === 'development' && config.sync && config.sync.enable) {
     return sequelize.sync(config.sync);
   }

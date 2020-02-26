@@ -13,6 +13,7 @@
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-scripts": "3.4.0",
+    "react-twitter-auth": "0.0.13",
     "styled-components": "^5.0.1",
     "typescript": "~3.7.2"
   },
