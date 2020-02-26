@@ -1,5 +1,5 @@
 const expressJwt = require('express-jwt');
-const { models } = require('../models').models.sequelize;
+const models = require('../models').sequelize.models;
 const header = 'x-auth-token';
 
 module.exports = expressJwt({

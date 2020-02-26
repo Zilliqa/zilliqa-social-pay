@@ -7,7 +7,11 @@ module.exports = (sequelize, DataTypes) => {
     username: DataTypes.STRING,
     profileId: DataTypes.STRING,
     token: DataTypes.STRING,
-    tokenSecret: DataTypes.STRING
+    tokenSecret: DataTypes.STRING,
+    zilAddress: {
+      type: DataTypes.STRING,
+      unique: true
+    }
   }, {});
   User.prototype.sign = function () {
     const payload = {
@@ -39,6 +43,11 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.associate = function(models) {
     // associations can be defined here
+    User.hasMany(models.Twittes, {
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+      allowNull: false
+    })
   };
   return User;
 };

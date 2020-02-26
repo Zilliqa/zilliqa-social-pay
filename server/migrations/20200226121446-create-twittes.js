@@ -1,28 +1,15 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Users', {
+    return queryInterface.createTable('Twittes', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      username: {
+      twittId: {
         type: Sequelize.STRING
-      },
-      profileId: {
-        type: Sequelize.STRING
-      },
-      token: {
-        type: Sequelize.STRING
-      },
-      tokenSecret: {
-        type: Sequelize.STRING
-      },
-      zilAddress: {
-        type: Sequelize.STRING,
-        unique: true
       },
       createdAt: {
         allowNull: false,
@@ -35,6 +22,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Users');
+    return queryInterface.dropTable('Twittes');
   }
 };
