@@ -1,0 +1,18 @@
+{
+  "development": {
+    "database": "dev_social_pay",
+    "dialect": "sqlite",
+    "operatorsAliases": false,
+    "logging": true,
+    "storage": ":memory:"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_social_pay",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "operatorsAliases": false,
+    "logging": false
+  }
+}
