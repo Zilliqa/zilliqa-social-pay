@@ -1,0 +1,232 @@
+scilla_version 0
+
+import BoolUtils IntUtils
+
+(* Twitter contract *)
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+library Twitter
+
+let one_msg =
+    fun (msg : Message) =>
+    let nil_msg = Nil {Message} in
+    Cons {Message} msg nil_msg
+
+let one = Uint32 1
+
+let register_allowed =
+  fun (sender : ByStr20) =>
+  fun (owner : ByStr20) =>
+  fun (user_exists : Bool) =>
+    let sender_is_owner = builtin eq owner sender in
+    let user_does_not_exist = negb user_exists in
+    andb sender_is_owner user_does_not_exist
+
+let is_valid_substring =
+  fun (tweet_text : String) =>
+  fun (start_pos : Uint32) =>
+  fun (hashtag_len : Uint32) =>
+    let string_length = builtin strlen tweet_text in
+    let valid_start_pos = builtin lt start_pos string_length in
+    let end_pos = builtin add start_pos hashtag_len in
+    let valid_end_pos = uint32_le end_pos string_length in
+    andb valid_start_pos valid_end_pos
+
+let not_owner_code = Uint32 0
+let deposit_success_code = Uint32 1
+let registration_error_code = Uint32 2
+let registered_success_code = Uint32 3
+let user_not_exists_code = Uint32 4
+let tweet_exists_code = Uint32 5
+let tweet_not_valid_code = Uint32 6
+let tweet_within_day_code = Uint32 7
+let verify_tweet_success_code = Uint32 8
+
+let mk_deposit_failed_event =
+  fun (sender : ByStr20) =>
+    {_eventname : "deposit_failed";
+     sender: sender;
+     code: not_owner_code }
+
+let mk_deposit_success_event =
+  fun(sender : ByStr20) =>
+    {_eventname : "deposit_successful";
+     sender: sender;
+     code: deposit_success_code }
+
+let mk_registration_failed_event =
+  fun (user_address : ByStr20) =>
+  fun (twitter_username : String) =>
+  fun (sender : ByStr20) =>
+  {_eventname : "user_registration_failed";
+   user_address: user_address;
+   twitter_username: twitter_username;
+   sender: sender;
+   code: registration_error_code }
+
+let mk_registration_success_event =
+  fun (user_address : ByStr20) =>
+  fun (twitter_username : String) =>
+  fun (sender : ByStr20) =>
+  {_eventname : "user_registration_successful";
+   user_address: user_address;
+   twitter_username: twitter_username;
+   sender: sender;
+   code: registered_success_code }
+
+let mk_verify_failed_event =
+  fun (sender : ByStr20) =>
+  fun (twitter_username : String) =>
+  fun (tweet_id : String) =>
+  fun (code : Uint32) =>
+    {_eventname : "verify_tweet_failed";
+     sender: sender;
+     twitter_username: twitter_username;
+     tweet_id: tweet_id;
+     code: code }
+
+let mk_verify_tweet_success_event =
+  fun (sender : ByStr20) =>
+  fun (recipient : ByStr20) =>
+  fun (reward_amount : Uint128) =>
+  fun (tweet_id : String) =>
+   {_eventname : "verify_tweet_successful";
+    sender: sender;
+    recipient: recipient;
+    reward_amount: reward_amount;
+    tweet_id: tweet_id;
+    code: verify_tweet_success_code }
+
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract Twitter
+(owner: ByStr20,
+hashtag: String,
+zils_per_tweet : Uint128,
+blocks_per_day : Uint32)
+
+field users: Map String ByStr20
+    = Emp String ByStr20
+
+field verified_tweets: Map String ByStr20
+    = Emp String ByStr20
+
+field last_withdrawal: Map ByStr20 BNum
+    = Emp ByStr20 BNum
+
+(* Only owner can deposit ZIL *)
+transition deposit()
+    sender_is_owner = builtin eq owner _sender;
+    match sender_is_owner with
+    | False =>
+        e = mk_deposit_failed_event _sender;
+        event e
+    | True =>
+        accept;
+        e = mk_deposit_success_event _sender;
+        event e
+    end
+end
+
+(* The owner can register a user (twitter_username) with an address *)
+transition register_user(user_address: ByStr20, twitter_username: String)
+    user_exists <- exists users[twitter_username];
+    can_register = register_allowed _sender owner user_exists;
+    match can_register with
+    | False =>
+        e = mk_registration_failed_event user_address twitter_username _sender;
+        event e
+    | True =>
+        users[twitter_username] := user_address;
+        e = mk_registration_success_event user_address twitter_username _sender;
+      event e
+    end
+end
+
+(* this is sent by the owner *)
+(* The following conditions are checked for (in that order): *)
+(*   1. Owner initiates the transition. *)
+(*   2. The tweeter is already registered before. *)
+(*   3. The tweet hasn't been awarded before. *)
+(*   4. Substring specs (start_pos) is valid. *)
+(*   5. The substring matches the preset hashtag. *)
+(*   6. Sufficient time (blocks) have passed since the user was awarded before. *)
+transition verify_tweet_pay (
+    twitter_username: String,
+    tweet_id: String, tweet_text: String,
+    start_pos: Uint32)
+
+    is_owner = builtin eq _sender owner;
+
+    match is_owner with
+    | False =>
+        e = mk_verify_failed_event _sender twitter_username tweet_id not_owner_code;
+        event e
+    | True =>
+        recipient_address_opt <- users[twitter_username];
+        match recipient_address_opt with
+        | None =>
+            e = mk_verify_failed_event _sender twitter_username tweet_id user_not_exists_code;
+            event e
+        | Some recipient_address =>
+            already_verified <- exists verified_tweets[tweet_id];
+            not_already_verified = negb already_verified;
+            hashtag_len = builtin strlen hashtag;
+            valid_substring = is_valid_substring tweet_text start_pos hashtag_len;
+            is_valid = andb valid_substring not_already_verified;
+            match is_valid with
+            | False =>
+                match already_verified with
+                | True =>
+                    e = mk_verify_failed_event _sender twitter_username tweet_id tweet_exists_code;
+                    event e
+                | False =>
+                    e = mk_verify_failed_event _sender twitter_username tweet_id tweet_not_valid_code;
+                    event e
+                end
+            | True =>
+                match_hashtag = builtin substr tweet_text start_pos hashtag_len;
+                is_hashtag = builtin eq match_hashtag hashtag;
+                match is_hashtag with
+                | False =>
+                    e = mk_verify_failed_event _sender twitter_username tweet_id tweet_not_valid_code;
+                    event e
+                | True =>
+                    withdrawal <- last_withdrawal[recipient_address];
+                    current_block <- & BLOCKNUMBER;
+                    not_next_day_yet =
+                    match withdrawal with
+                    | Some last_withdraw_block =>
+                        let next_day_block = builtin badd last_withdraw_block blocks_per_day in
+                        let not_next_day_yet = builtin blt current_block next_day_block in
+                        not_next_day_yet
+                    | None =>
+                      False
+                    end
+                    ;
+                    match not_next_day_yet with
+                    | True =>
+                        e = mk_verify_failed_event _sender twitter_username tweet_id tweet_within_day_code;
+                        event e
+                    | False =>
+                        verified_tweets[tweet_id] := recipient_address;
+                        last_withdrawal[recipient_address] := current_block;
+                        e = mk_verify_tweet_success_event _sender recipient_address zils_per_tweet tweet_id;
+                        event e;
+                        msg = {_tag: "";
+                               _recipient: recipient_address;
+                               _amount: zils_per_tweet;
+                               code: verify_tweet_success_code };
+                        msgs = one_msg msg;
+                        send msgs
+                    end
+                end
+            end
+        end
+    end
+end
