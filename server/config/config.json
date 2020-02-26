@@ -2,8 +2,11 @@
   "development": {
     "database": "dev_social_pay",
     "dialect": "sqlite",
-    "operatorsAliases": false,
-    "logging": true,
+    "logging": false,
+    "sync": {
+      "enable": false,
+      "force": false
+    },
     "storage": ":memory:"
   },
   "production": {
@@ -12,7 +15,6 @@
     "database": "database_social_pay",
     "host": "127.0.0.1",
     "dialect": "mysql",
-    "operatorsAliases": false,
     "logging": false
   }
 }

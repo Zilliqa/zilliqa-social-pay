@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
+const morgan = require('morgan');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
@@ -29,6 +30,17 @@ Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
   }
+});
+
+sequelize.authenticate().then(() => {
+  console.log(`\x1b[32mSequelize: Connection ${config.database} successfully.\x1b[0m`);
+  if (env === 'development' && config.sync && config.sync.enable) {
+    return sequelize.sync(config.sync);
+  }
+}).catch(error => {
+  console.error('\x1b[31mSequelize: Unable to connect to the database:\x1b[0m', error);
+}).catch(error => {
+  console.error('\x1b[31mSequelize: Sync models failed:\x1b[0m', error);
 });
 
 db.sequelize = sequelize;
