@@ -1,7 +1,15 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Twittes = sequelize.define('Twittes', {
-    twittId: DataTypes.STRING
+    twittId: DataTypes.STRING,
+    approved: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    txId: {
+      type: DataTypes.STRING,
+      unique: true
+    }
   }, {});
   Twittes.associate = function(models) {
     // associations can be defined here

@@ -7,7 +7,7 @@
       "enable": false,
       "force": false
     },
-    "storage": ":memory:"
+    "storage": "storage.sql"
   },
   "production": {
     "username": "root",

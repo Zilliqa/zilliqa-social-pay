@@ -11,6 +11,14 @@ module.exports = {
       twittId: {
         type: Sequelize.STRING
       },
+      approved: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      txId: {
+        type: Sequelize.STRING,
+        unique: true
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
