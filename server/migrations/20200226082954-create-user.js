@@ -11,7 +11,13 @@ module.exports = {
       username: {
         type: Sequelize.STRING
       },
+      screenName: {
+        type: Sequelize.STRING
+      },
       profileId: {
+        type: Sequelize.STRING
+      },
+      profileImageUrl: {
         type: Sequelize.STRING
       },
       token: {

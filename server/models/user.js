@@ -5,7 +5,9 @@ const secret = process.env.JWT_SECRET;
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     username: DataTypes.STRING,
+    screenName: DataTypes.STRING,
     profileId: DataTypes.STRING,
+    profileImageUrl: DataTypes.STRING,
     token: DataTypes.STRING,
     tokenSecret: DataTypes.STRING,
     zilAddress: {
