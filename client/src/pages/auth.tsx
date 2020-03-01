@@ -48,8 +48,8 @@ const SignForm = styled(Container)`
   width: 100%;
   max-width: 400px;
   display: grid;
-  grid-gap: 15px;
-  justify-items: right;
+  grid-gap: 30px;
+  justify-items: center;
 `;
 const TopImg = styled(Img)`
   position: fixed;
@@ -84,7 +84,7 @@ export const AuthPage: React.SFC<Prop> = ({
 }) => {
   const handleContinue = React.useCallback(() => {
     history.push(MainPagePath);
-  }, []);
+  }, [history]);
 
   return (
     <React.Fragment>

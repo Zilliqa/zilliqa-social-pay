@@ -59,6 +59,7 @@ export const GuidePage: React.SFC<Prop> = ({
       <Carousel
         {...CAROUSEL_PROPS}
         selectedItem={selectedItem}
+        onChange={setSelectedItem}
       >
         {SLIDES.map((sldie, index) => (
           <GuideContainer

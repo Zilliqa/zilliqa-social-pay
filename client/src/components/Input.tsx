@@ -1,16 +1,16 @@
-import React from 'react';
 import styled from 'styled-components';
 
-import { SizeComponent } from 'src/config';
+import { SizeComponent, Fonts } from 'src/config';
 
 type Prop = {
   sizeVariant: SizeComponent;
+  fontVariant?: Fonts | string;
 };
 
 export const Input = styled.input`
+  font-family: ${(props: Prop) => props.fontVariant};
   text-align: inherit;
   font-size: inherit;
-  font-family: inherit;
   resize: none;
   text-indent: 15px;
 
@@ -30,5 +30,6 @@ export const Input = styled.input`
 `;
 
 Input.defaultProps = {
-  sizeVariant: SizeComponent.xs
+  sizeVariant: SizeComponent.xs,
+  fontVariant: Fonts.AvenirNextLTProRegular
 };

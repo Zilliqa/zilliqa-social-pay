@@ -1,13 +1,14 @@
 import styled from 'styled-components';
 
-import { FontSize } from 'src/config';
+import { FontSize, Fonts } from 'src/config';
 
 type Prop = {
   size?: FontSize | string;
+  fontVariant?: Fonts | string;
 }
 
 export const Text = styled.p`
-  font-family: Roboto;
+  font-family: ${(props: Prop) => props.fontVariant};
   font-style: normal;
   font-weight: normal;
 
@@ -16,5 +17,6 @@ export const Text = styled.p`
 `;
 
 Text.defaultProps = {
-  size: FontSize.xs
+  size: FontSize.xs,
+  fontVariant: Fonts.AvenirNextLTProRegular
 };
