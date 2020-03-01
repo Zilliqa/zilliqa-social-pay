@@ -4,6 +4,10 @@ import { History } from 'history';
 
 import { Img } from 'src/components/img';
 import { Container } from 'src/components/container';
+import { Input } from 'src/components/Input';
+import { Button } from 'src/components/button';
+
+import { SizeComponent } from 'src/config';
 
 const FormContainer = styled(Container)`
   display: grid;
@@ -20,6 +24,11 @@ const Center = styled(Container)`
   margin: 10%;
 `;
 const LeftPanel = styled(Container)`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 15px;
   width: 40vw;
   min-width: 300px;
   background: #F5F5F5;
@@ -32,6 +41,12 @@ const RightPanel = styled(Container)`
   min-width: 300px;
   border-top-right-radius: 5px;
   background: #057A8E;
+`;
+const SignForm = styled(Container)`
+  width: 100%;
+  display: grid;
+  grid-gap: 15px;
+  justify-items: right;
 `;
 const TopImg = styled(Img)`
   position: fixed;
@@ -69,7 +84,17 @@ export const AuthPage: React.SFC<Prop> = ({
     <React.Fragment>
       <FormContainer>
         <Center>
-          <LeftPanel />
+          <LeftPanel>
+            <SignForm>
+              <Input
+                sizeVariant={SizeComponent.md}
+                placeholder="Zilliqa address (zil1) or ZNS."
+              />
+              <Button sizeVariant={SizeComponent.md}>
+                Continue
+              </Button>
+            </SignForm>
+          </LeftPanel>
           <RightPanel>
             <SignImg src="/imgs/sign.svg"/>
           </RightPanel>
