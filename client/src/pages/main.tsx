@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Container } from 'src/components/container';
 
+export const MainPagePath = '/';
 export const MainPage: React.FC = () => {
   const [address, setAddress] = React.useState();
 

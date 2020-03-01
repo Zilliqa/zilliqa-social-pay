@@ -1,8 +1,20 @@
 import React from 'react';
+import styled from 'styled-components';
 
-import { Container } from 'src/components/container';
 import { Text } from 'src/components/text';
 import { Button } from 'src/components/button';
+import { Img } from 'src/components/img';
+
+const Container = styled.div`
+  margin-top: 40px;
+`;
+const Flex = styled.div`
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+
+  margin-top: 30px;
+`;
 
 type Prop = {
   imgSrc: string;
@@ -17,17 +29,15 @@ export const GuideContainer: React.FC<Prop> = ({
 }) => {
   return (
     <Container>
-      <img
-        src={imgSrc}
-        alt="ilus"
-        height="100"
-      />
-      <Text>
-        {text}
-      </Text>
-      <Button onClick={onNext}>
-        Next
-      </Button>
+      <Img src={imgSrc} />
+      <Flex>
+        <Text>
+          {text}
+        </Text>
+        <Button onClick={onNext}>
+          Next
+        </Button>
+      </Flex>
     </Container>
   );
 }
