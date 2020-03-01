@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { History } from 'history';
 
+import { MainPagePath } from 'src/pages/main';
+
 import { Img } from 'src/components/img';
 import { Container } from 'src/components/container';
 import { Input } from 'src/components/Input';
@@ -44,6 +46,7 @@ const RightPanel = styled(Container)`
 `;
 const SignForm = styled(Container)`
   width: 100%;
+  max-width: 400px;
   display: grid;
   grid-gap: 15px;
   justify-items: right;
@@ -79,6 +82,9 @@ export const AuthPagePath = '/auth';
 export const AuthPage: React.SFC<Prop> = ({
   history
 }) => {
+  const handleContinue = React.useCallback(() => {
+    history.push(MainPagePath);
+  }, []);
 
   return (
     <React.Fragment>
@@ -90,7 +96,10 @@ export const AuthPage: React.SFC<Prop> = ({
                 sizeVariant={SizeComponent.md}
                 placeholder="Zilliqa address (zil1) or ZNS."
               />
-              <Button sizeVariant={SizeComponent.md}>
+              <Button
+                sizeVariant={SizeComponent.md}
+                onClick={handleContinue}
+              >
                 Continue
               </Button>
             </SignForm>
