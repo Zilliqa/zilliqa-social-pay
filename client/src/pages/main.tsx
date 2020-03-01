@@ -4,6 +4,20 @@ import styled from 'styled-components';
 import { Container } from 'src/components/container';
 import { TopBar } from 'src/components/top-bar';
 import { LeftBar } from 'src/components/left-bar';
+import { Input } from 'src/components/Input';
+
+import { SizeComponent } from 'src/config';
+
+const LINKS = [
+  {
+    img: '/icons/twitter.svg',
+    name: 'Twittes'
+  },
+  {
+    img: '/icons/setup.svg',
+    name: 'Settings'
+  }
+];
 
 const MainPageContainer = styled.main`
   display: grid;
@@ -35,6 +49,7 @@ export const MainPage: React.FC = () => {
   return (
     <MainPageContainer>
       <LeftBar
+        items={LINKS}
         profileName="warden"
       />
       <TopBar
@@ -43,7 +58,7 @@ export const MainPage: React.FC = () => {
         profileName="warden"
       />
       <Container area="container">
-        dasdsa
+        <Input sizeVariant={SizeComponent.xl} />
       </Container>
     </MainPageContainer>
   );
