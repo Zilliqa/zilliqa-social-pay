@@ -34,8 +34,14 @@ export const MainPage: React.FC = () => {
 
   return (
     <MainPageContainer>
-      <LeftBar area="left-bar" />
-      <TopBar area="header" />
+      <LeftBar
+        profileName="warden"
+      />
+      <TopBar
+        zilAddress="zil1zxvjnkxr3r0rv582rv7u0w07pnh0ap30td4thr"
+        profileImg="/default_profile_normal.png"
+        profileName="warden"
+      />
       <Container area="container">
         dasdsa
       </Container>
