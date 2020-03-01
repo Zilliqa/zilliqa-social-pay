@@ -4,11 +4,11 @@ type Prop = {
   area?: string;
 }
 
-export const Container = styled.div`
-  max-width: 100vw;
+export const LeftBar = styled.header`
+  height: 100%;
+  width: 150px;
 
-  margin-right: auto;
-  margin-left:  auto;
+  background: blue;
 
   ${(props: Prop) => props.area ? `grid-area: ${props.area};` : ''}
 `;
