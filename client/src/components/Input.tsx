@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { SizeComponent, Fonts } from 'src/config';
 
 type Prop = {
-  sizeVariant: SizeComponent;
+  sizeVariant?: SizeComponent;
   fontVariant?: Fonts | string;
 };
 
