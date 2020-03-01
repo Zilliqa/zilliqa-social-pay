@@ -11,11 +11,15 @@ passport.serializeUser((user, done) => {
 
 // deserialize the cookieUserId to user in the database
 passport.deserializeUser((id, done) => {
-  User.findById(id)
+  models
+    .sequelize
+    .models
+    .User
+    .findByPk(id)
     .then(user => {
       done(null, user);
     })
-    .catch(e => {
+    .catch(() => {
       done(new Error('Failed to deserialize an user'));
     });
 });
