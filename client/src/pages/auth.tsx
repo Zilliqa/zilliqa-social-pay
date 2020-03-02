@@ -97,7 +97,7 @@ export const AuthPage: React.SFC<Prop> = ({
                 placeholder="Zilliqa address (zil1) or ZNS."
               />
               <Button
-                sizeVariant={SizeComponent.md}
+                sizeVariant={SizeComponent.lg}
                 onClick={handleContinue}
               >
                 Continue
