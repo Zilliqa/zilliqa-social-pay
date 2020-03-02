@@ -24,7 +24,7 @@ const SLIDES = [
   },
   {
     img: 'guide-2.svg',
-    text: 'slide 2'
+    text: 'Every time you publish Zilliqa-related tweets, you are able to earn reward. These rewards can vary depending on the campaign Zilliqa is running. Make sure to always check out what campaign is running while you help Zilliqa grow!'
   }
 ];
 
