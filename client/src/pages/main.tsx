@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Container } from 'src/components/container';
 import { TopBar } from 'src/components/top-bar';
 import { LeftBar } from 'src/components/left-bar';
-import { Input } from 'src/components/Input';
+import { Search } from 'src/components/Input';
 
 import { SizeComponent } from 'src/config';
 
@@ -58,7 +58,10 @@ export const MainPage: React.FC = () => {
         profileName="warden"
       />
       <Container area="container">
-        <Input sizeVariant={SizeComponent.xl} />
+        <Search
+          sizeVariant={SizeComponent.xl}
+          type="search"
+        />
       </Container>
     </MainPageContainer>
   );

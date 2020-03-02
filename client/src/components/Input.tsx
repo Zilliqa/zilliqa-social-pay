@@ -29,6 +29,11 @@ export const Input = styled.input`
   }
 `;
 
+export const Search = styled(Input)`
+  background: #ededed url(/icons/search-icon.svg) no-repeat 9px center;
+  text-align: center;
+`;
+
 Input.defaultProps = {
   sizeVariant: SizeComponent.xs,
   fontVariant: Fonts.AvenirNextLTProRegular
