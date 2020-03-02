@@ -31,7 +31,7 @@ passport.use(
       consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
       callbackURL: '/auth/twitter/redirect'
     },
-    async (token, tokenSecret, profile, done) => {
+    (token, tokenSecret, profile, done) => {
       models
         .sequelize
         .models

@@ -1,12 +1,18 @@
 // const router = require('express').Router();
 const Twitter = require('twitter');
 
-async function getTwitts(accessToken, accessTokenSecret, userId) {
+/**
+ * More infor [twitter doc](https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-user_timeline).
+ * @param {*} token User token.
+ * @param {*} tokenSecret User secret token.
+ * @param {*} userId User profile id.
+ */
+async function getTwitts(token, tokenSecret, userId) {
   const client = new Twitter({
     consumer_key: process.env.TWITTER_CONSUMER_KEY,
     consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-    access_token_key: accessToken,
-    access_token_secret: accessTokenSecret
+    access_token_key: token,
+    access_token_secret: tokenSecret
   });
   const url = `/statuses/user_timeline.json?user_id=${userId}`;
 
