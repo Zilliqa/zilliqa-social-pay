@@ -20,7 +20,7 @@ const CAROUSEL_PROPS = {
 const SLIDES = [
   {
     img: 'guide-1.svg',
-    text: 'slide 1'
+    text: 'SocialPay is an innovative new solution that allows you to earn $ZIL by sharing social media updates on Twitter. To use SocialPay you need to login with your Twitter account and use specific hashtags in your tweets.'
   },
   {
     img: 'guide-2.svg',
