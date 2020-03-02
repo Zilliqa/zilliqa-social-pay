@@ -2,9 +2,6 @@ const express = require('express');
 const router = express.Router();
 
 const authenticate = require('./auth');
-
-router.use('/auth', authenticate);
-
 const authCheck = (req, res, next) => {
   if (!req.user) {
     res.status(401).json({
@@ -27,5 +24,7 @@ router.get('/', authCheck, (req, res) => {
     cookies: req.cookies
   });
 });
+
+router.use('/auth', authenticate);
 
 module.exports = router;
