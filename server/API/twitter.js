@@ -7,7 +7,7 @@ const Twitter = require('twitter');
  * @param {*} tokenSecret User secret token.
  * @param {*} userId User profile id.
  */
-async function getTwitts(token, tokenSecret, userId) {
+async function getTweets(token, tokenSecret, userId) {
   const client = new Twitter({
     consumer_key: process.env.TWITTER_CONSUMER_KEY,
     consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
@@ -28,5 +28,5 @@ async function getTwitts(token, tokenSecret, userId) {
 }
 
 module.exports = {
-  getTwitts
+  getTweets
 };
