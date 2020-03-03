@@ -19,7 +19,7 @@ export const AppRoutes: React.FC = () => (
     />
     <Route
       path={MainPagePath}
-      component={MainPage}
+      component={AuthPage}
       exact
     />
   </Switch>

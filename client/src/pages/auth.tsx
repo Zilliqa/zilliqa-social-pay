@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { History } from 'history';
+import TwitterLogin from 'react-twitter-auth';
 
 import { MainPagePath } from 'src/pages/main';
 
@@ -85,6 +86,13 @@ export const AuthPage: React.SFC<Prop> = ({
   const handleContinue = React.useCallback(() => {
     history.push(MainPagePath);
   }, [history]);
+  const handleSuccess = React.useCallback((res: any) => {
+    window.test = res;
+    // console.log('handleSuccess', res);
+  }, []);
+  const handleFailed = React.useCallback(() => {
+    // console.log('handleFailed');
+  }, []);
 
   return (
     <React.Fragment>
@@ -95,6 +103,13 @@ export const AuthPage: React.SFC<Prop> = ({
               <Input
                 sizeVariant={SizeComponent.md}
                 placeholder="Zilliqa address (zil1) or ZNS."
+              />
+              <TwitterLogin
+                loginUrl="http://localhost:4000/api/v1/auth/twitter"
+                onFailure={handleFailed}
+                onSuccess={handleSuccess}
+                requestTokenUrl="http://localhost:4000/api/v1/auth/twitter/reverse"
+                showIcon
               />
               <Button
                 sizeVariant={SizeComponent.lg}

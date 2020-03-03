@@ -1,5 +1,5 @@
 const passport = require('passport');
-const TwitterStrategy = require('passport-twitter');
+const TwitterTokenStrategy = require('passport-twitter-token');
 
 const models = require('./models');
 
@@ -25,11 +25,10 @@ passport.deserializeUser((id, done) => {
 });
 
 passport.use(
-  new TwitterStrategy(
+  new TwitterTokenStrategy(
     {
       consumerKey: process.env.TWITTER_CONSUMER_KEY,
-      consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-      callbackURL: '/auth/twitter/redirect'
+      consumerSecret: process.env.TWITTER_CONSUMER_SECRET
     },
     (token, tokenSecret, profile, done) => {
       models
