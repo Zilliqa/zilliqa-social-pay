@@ -25,7 +25,7 @@ const userSign = (req, res) => {
     .catch((err) => res.status(400).json({ message: err.message }));
 }
 
-router.all('/auth/twitter', (req, res, next) => {
+router.post('/auth/twitter', (req, res, next) => {
   request.post({
     url: `${API_URL}/access_token?oauth_verifier`,
     oauth: {
@@ -99,8 +99,8 @@ router.post('/auth/twitter/reverse', (req, res) => {
   });
 });
 
-router
-  .route('/auth/token')
-  .post(userSign);
+router.post('/auth/twitter/callback', (req, res) => {
+  return res.status(200).send('');
+});
 
 module.exports = router;

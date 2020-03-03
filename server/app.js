@@ -5,7 +5,6 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const passport = require('passport');
-const cors = require('cors');
 
 require('./passport-setup');
 
@@ -14,17 +13,9 @@ const models = require('./models');
 const indexRouter = require('./routes/index');
 
 const app = express();
-// enable cors
-const corsOption = {
-  origin: true,
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-  exposedHeaders: ['x-auth-token']
-};
 
 app.set('models', models.sequelize.models);
 
-app.use(cors(corsOption));
 // initalize passport
 app.use(passport.initialize());
 // deserialize cookie from the browser
