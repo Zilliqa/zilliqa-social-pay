@@ -3,6 +3,9 @@ import { NextPage } from 'next';
 import styled from 'styled-components';
 import TwitterLogin from 'react-twitter-auth';
 import { useRouter } from 'next/router';
+// import * as Effector from 'effector-react';
+
+import UserStore from 'store/user';
 
 import { Img } from 'components/img';
 import { Container } from 'components/container';
@@ -75,17 +78,27 @@ const SignImg =  styled(Img)`
 `;
 
 export const AuthPage: NextPage = () => {
+  // Next hooks //
   const router = useRouter();
+  // Next hooks //
 
+  // Effector hooks //
+  // const userState = Effector.useStore(UserStore.store);
+  // Effector hooks //
+
+  // React hooks //
   const handleContinue = React.useCallback(() => {
     router.push('/');
   }, []);
-  const handleSuccess = React.useCallback((res: any) => {
-    console.log('handleSuccess', res.json());
+  const handleSuccess = React.useCallback(async (res: any) => {
+    const userData = await res.json();
+
+    UserStore.setUser(userData);
   }, []);
   const handleFailed = React.useCallback(() => {
     console.log('handleFailed');
   }, []);
+  // React hooks //
 
   return (
     <React.Fragment>

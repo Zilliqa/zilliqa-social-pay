@@ -11,7 +11,9 @@ module.exports = {
     c.resolve.alias = {
       ...c.resolve.alias,
       components: path.resolve(__dirname, './components'),
-      config: path.resolve(__dirname, './config')
+      config: path.resolve(__dirname, './config'),
+      store: path.resolve(__dirname, './store'),
+      interfaces: path.resolve(__dirname, './interfaces')
     };
 
     return c;

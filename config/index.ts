@@ -3,4 +3,4 @@ export * from './button-variants';
 export * from './fonts';
 export * from './font-colors';
 export * from './position';
-export * from './status-code';
+export * from './local-storage-keys';

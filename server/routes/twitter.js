@@ -3,7 +3,6 @@ const request = require('request');
 const passport = require('passport');
 
 const API_URL = 'https://api.twitter.com/oauth';
-const JWT_TOKEN_KEY = 'x-auth-token';
 
 const userSign = (req, res) => {
   if (!req.user) {
@@ -14,7 +13,6 @@ const userSign = (req, res) => {
     .user
     .sign()
     .then(({ token }) => req.token = token)
-    .then(() => res.setHeader(JWT_TOKEN_KEY, req.token))
     .then(() => res.json({
       username: req.user.username,
       screenName: req.user.screenName,
@@ -70,7 +68,7 @@ router.post('/auth/twitter', (req, res, next) => {
 
     next();
   });
-}, passport.authenticate('twitter-token', { session: false }), userSign);
+}, passport.authenticate('twitter-token'), userSign);
 
 router.post('/auth/twitter/reverse', (req, res) => {
   request.post({
@@ -97,6 +95,10 @@ router.post('/auth/twitter/reverse', (req, res) => {
       res.send(JSON.parse(jsonStr));
     }
   });
+});
+
+router.get('/user', (req, res) => {
+  return res.status(200).json({});
 });
 
 router.post('/auth/twitter/callback', (req, res) => {

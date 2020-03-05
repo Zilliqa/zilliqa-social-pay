@@ -4,6 +4,7 @@ const express = require('express');
 const http = require('http');
 const next = require('next');
 const passport = require('passport');
+const cookieParser = require('cookie-parser');
 
 const port = process.env.PORT || 3000;
 const dev = process.env.NODE_ENV !== 'production';
@@ -20,9 +21,12 @@ require('./passport-setup');
 app.prepare().then(() => {
   const server = express();
 
+  server.use(cookieParser());
 
   // initalize passport
   server.use(passport.initialize());
+  server.use(passport.session());
+
   server.use(express.json());
   server.use(express.urlencoded({ extended: false }));
 
