@@ -8,3 +8,18 @@ SocialPay is advertising platform, for each tweet with #zilliqa shoreham you can
  * TWITTER_CONSUMER_SECRET
  * JWT_SECRET
  * OWNER_PRIVATE_KEY
+
+## Run:
+
+Runing for dev mode.
+```bash
+npm run dev
+```
+
+Runing for prod mode.
+```bash
+npm run start
+```
+
+## setup database:
+  * sequelize config - `server/config/config.json`
