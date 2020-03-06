@@ -1,10 +1,11 @@
 require('dotenv').config();
 
 const express = require('express');
+const cookieSession = require('cookie-session');
 const http = require('http');
 const next = require('next');
 const passport = require('passport');
-const cookieParser = require('cookie-parser');
+const uuidv4 = require('uuid').v4;
 
 const port = process.env.PORT || 3000;
 const dev = process.env.NODE_ENV !== 'production';
@@ -21,7 +22,17 @@ require('./passport-setup');
 app.prepare().then(() => {
   const server = express();
 
-  server.use(cookieParser());
+  server.use(cookieSession({
+    name: process.env.SESSION,
+    keys: [
+      uuidv4(),
+      uuidv4()
+    ],
+  
+    // Cookie Options
+    maxAge: (24 * 60 * 60 * 1000), // 24 hours
+    httpOnly: true
+  }));
 
   // initalize passport
   server.use(passport.initialize());

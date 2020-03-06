@@ -2,7 +2,7 @@
 const jwt = require('jsonwebtoken');
 const uuidv4 = require('uuid').v4;
 
-const secret = process.env.JWT_SECRET + uuidv4();
+const secret = process.env.JWT_SECRET;
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {

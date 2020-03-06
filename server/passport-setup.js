@@ -5,23 +5,19 @@ const models = require('./models');
 
 // serialize the user.id to save in the cookie session
 // so the browser will remember the user when login
-passport.serializeUser((user, done) => {
-  done(null, user.id);
+passport.serializeUser((id, done) => {
+  done(null, id);
 });
 
 // deserialize the cookieUserId to user in the database
-passport.deserializeUser((id, done) => {
-  models
-    .sequelize
-    .models
-    .User
-    .findByPk(id)
-    .then(user => {
-      done(null, user);
-    })
-    .catch(() => {
-      done(new Error('Failed to deserialize an user'));
-    });
+passport.deserializeUser((user, done) => {
+  if (!user.id || !user.username || !user.profileId) {
+    done(new Error('Incorect user object'));
+
+    return null;
+  }
+
+  done(null, user.id);
 });
 
 passport.use(

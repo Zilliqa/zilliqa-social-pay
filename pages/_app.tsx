@@ -3,7 +3,6 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { createGlobalStyle } from 'styled-components';
 import Head from 'next/head';
 import App from 'next/app';
-import fetch from 'isomorphic-unfetch';
 
 import UserStore from 'store/user';
 
@@ -52,6 +51,10 @@ const GlobalStyle = createGlobalStyle`
 class SocialPay extends App {
 
   public componentDidMount() {
+    if (!this.props.pageProps.user) {
+      this.props.router.push('/auth');
+    }
+
     UserStore.update();
   }
 
@@ -72,13 +75,18 @@ class SocialPay extends App {
   }
 }
 
-SocialPay.getInitialProps = async () => {
-  const res = await fetch('http://localhost:3000/api/v1/user');
-  const json = await res.text();
+SocialPay.getInitialProps = async ({ ctx }: any) => {
+  if (ctx && ctx.req && ctx.req.session && ctx.req.session.passport) {
+    return {
+      pageProps: {
+        ...ctx.req.session.passport
+      }
+    };
+  }
 
   return {
     pageProps: {
-      stars: json
+      user: null
     }
   };
 };
