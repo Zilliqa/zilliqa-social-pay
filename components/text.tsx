@@ -8,7 +8,8 @@ type Prop = {
   fontColors?: FontColors | string;
   nowrap?: boolean;
   align?: Sides;
-}
+  upperCase?: boolean;
+};
 
 export const Text = styled.p`
   font-family: ${(props: Prop) => props.fontVariant};
@@ -16,6 +17,7 @@ export const Text = styled.p`
   color: ${(props: Prop) => props.fontColors};
   white-space: ${(props: Prop) => props.nowrap ? 'nowrap' : 'normal'};
   text-align: ${(props: Prop) => Sides[props.align || Sides.left]};
+  text-transform: ${(props: Prop) => props.upperCase ? 'uppercase' : 'initial'};
 
   font-style: normal;
   font-weight: normal;
@@ -29,5 +31,6 @@ Text.defaultProps = {
   fontVariant: Fonts.AvenirNextLTProRegular,
   fontColors: FontColors.black,
   nowrap: false,
-  align: Sides.left
+  align: Sides.left,
+  upperCase: false
 };

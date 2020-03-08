@@ -5,6 +5,7 @@
 // import User from 'path/to/interfaces';
 
 export interface User {
+  id?: number;
   username: string;
   screenName: string;
   profileImageUrl: string;
@@ -20,4 +21,18 @@ export interface FetchUpdateAddress {
 export interface Twitte {
   id?: number;
   id_str: string;
+}
+
+export interface Contract {
+  contract: string;
+  owner: string;
+  hashtag: string;
+  zilsPerTweet: string;
+  blocksPerDay: string;
+  blocksPerWeek: string;
+}
+
+export interface PageProp {
+  user: User;
+  contract: Contract;
 }

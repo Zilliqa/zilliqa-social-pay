@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
-import { TwitterTweetEmbed } from 'react-twitter-embed';
+import { TwitterTweetEmbed, TwitterHashtagButton } from 'react-twitter-embed';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
@@ -9,6 +9,10 @@ import TwitterStore from 'store/twitter';
 import { Container } from 'components/container';
 import { TopBar } from 'components/top-bar';
 import { LeftBar } from 'components/left-bar';
+import { Text } from 'components/text';
+import { Card } from 'components/card';
+
+import { PageProp } from 'interfaces';
 
 const LINKS = [
   {
@@ -29,10 +33,38 @@ const MainPageContainer = styled.main`
   grid-template-areas: "left-bar header"
                        "left-bar container";
 `;
+const OverviewContainer = styled(Container)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+const TweetContainer = styled(Container)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 30px;
+`;
 
-export const MainPage: React.FC = () => {
+export const MainPage: React.FC<PageProp> = ({ ...pageProps }) => {
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
+
+  const overviews = React.useMemo(() => {
+    return [
+      {
+        title: 'Block per day.',
+        value: pageProps.contract.blocksPerDay
+      },
+      {
+        title: 'Block per week.',
+        value: pageProps.contract.blocksPerWeek
+      },
+      {
+        title: 'ZILs per tweet.',
+        value: pageProps.contract.zilsPerTweet
+      }
+    ];
+  }, []);
 
   React.useEffect(() => {
     if (twitterState.tweets.length < 1 && !twitterState.error) {
@@ -58,6 +90,33 @@ export const MainPage: React.FC = () => {
         profileName={userState.screenName}
       />
       <Container area="container">
+        <Text upperCase>
+            Overview
+        </Text>
+        <OverviewContainer>
+          {overviews.map((overflow, index) => (
+            <Card
+              title={overflow.title}
+              key={index}
+            >
+              {overflow.value}
+            </Card>
+          ))}
+        </OverviewContainer>
+        <TweetContainer>
+          <Text upperCase>
+            Tweetes
+          </Text>
+          <TwitterHashtagButton
+            tag={pageProps.contract.hashtag}
+            options={{
+              size: 'large',
+              screenName: userState.screenName,
+              buttonHashtag: null
+            }}
+            placeholder="Loading"
+          />
+        </TweetContainer>
         {twitterState.tweets.map((tweet, index) => (
           <TwitterTweetEmbed
             key={index}

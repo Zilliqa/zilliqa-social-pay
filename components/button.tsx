@@ -6,7 +6,7 @@ type Prop = {
   variant?: ButtonVariants;
   sizeVariant?: SizeComponent;
   fontVariant?: Fonts | string;
-}
+};
 
 export const Button = styled.button`
   cursor: pointer;

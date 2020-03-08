@@ -61,6 +61,6 @@ export const GuideContainer: React.FC<Prop> = ({
       </Flex>
     </Container>
   );
-}
+};
 
 export default GuideContainer;
