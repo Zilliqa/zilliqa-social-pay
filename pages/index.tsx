@@ -64,7 +64,7 @@ export const MainPage: React.FC<PageProp> = ({ ...pageProps }) => {
         value: pageProps.contract.zilsPerTweet
       }
     ];
-  }, []);
+  }, [pageProps.contract]);
 
   React.useEffect(() => {
     if (twitterState.tweets.length < 1 && !twitterState.error) {

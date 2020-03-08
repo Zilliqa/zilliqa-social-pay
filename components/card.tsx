@@ -10,7 +10,7 @@ export const CardContainer = styled.div`
   width: fit-content;
   min-width: 100px;
   border-radius: 5px;
-  box-shadow: 1px 1px 5px #aaaaaa;
+  box-shadow: 1px 5px 6px -2px #ccc;
 `;
 
 type Prop = {
