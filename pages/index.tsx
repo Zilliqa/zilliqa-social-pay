@@ -1,12 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
+import * as Effector from 'effector-react';
+import { TwitterTweetEmbed } from 'react-twitter-embed';
+
+import UserStore from 'store/user';
+import TwitterStore from 'store/twitter';
 
 import { Container } from 'components/container';
 import { TopBar } from 'components/top-bar';
 import { LeftBar } from 'components/left-bar';
-import { Search } from 'components/Input';
-
-import { SizeComponent } from 'config';
 
 const LINKS = [
   {
@@ -31,22 +33,36 @@ const MainPageContainer = styled.main`
 `;
 
 export const MainPage: React.FC = () => {
+  const userState = Effector.useStore(UserStore.store);
+  const twitterState = Effector.useStore(TwitterStore.store);
+
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!mounted) {
+      TwitterStore.updateTweets(null);
+      setMounted(true);
+    }
+  }, [twitterState, mounted, setMounted]);
+
   return (
     <MainPageContainer>
       <LeftBar
         items={LINKS}
-        profileName="warden"
+        profileName={userState.screenName}
       />
       <TopBar
-        zilAddress="zil1zxvjnkxr3r0rv582rv7u0w07pnh0ap30td4thr"
-        profileImg="/default_profile_normal.png"
-        profileName="warden"
+        zilAddress={userState.zilAddress}
+        profileImg={userState.profileImageUrl}
+        profileName={userState.screenName}
       />
       <Container area="container">
-        <Search
-          sizeVariant={SizeComponent.xl}
-          type="search"
-        />
+        {twitterState.map((tweet, index) => (
+          <TwitterTweetEmbed
+            key={index}
+            tweetId={tweet.id_str}
+          />
+        ))}
       </Container>
     </MainPageContainer>
   );

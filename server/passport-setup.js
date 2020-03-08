@@ -5,8 +5,8 @@ const models = require('./models');
 
 // serialize the user.id to save in the cookie session
 // so the browser will remember the user when login
-passport.serializeUser((id, done) => {
-  done(null, id);
+passport.serializeUser((user, done) => {
+  done(null, user);
 });
 
 // deserialize the cookieUserId to user in the database
@@ -17,7 +17,7 @@ passport.deserializeUser((user, done) => {
     return null;
   }
 
-  done(null, user.id);
+  done(null, user);
 });
 
 passport.use(
@@ -42,7 +42,14 @@ passport.use(
             profileId: profile.id,
             screenName: profile._json.screen_name,
             profileImageUrl: profile._json.profile_image_url
-          }
+          },
+          attributes: [
+            'id',
+            'username',
+            'profileId',
+            'screenName',
+            'profileImageUrl'
+          ]
         })
         .then(([user]) => done(null, user))
         .catch((err) => done(err, null));

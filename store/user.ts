@@ -12,9 +12,15 @@ export const updateAddress = UserDomain.effect<FetchUpdateAddress, User, Error>(
 
 updateAddress.use(fetchUpdateAddress);
 
-const initalState: User | object = {};
+const initalState: User = {
+  username: '',
+  screenName: '',
+  profileImageUrl: '',
+  zilAddress: '',
+  jwtToken: ''
+};
 
-export const store = UserDomain.store<User | object>(initalState)
+export const store = UserDomain.store<User>(initalState)
   .on(setUser, (state, user) => {
     const storage = window.localStorage;
     const updated = {

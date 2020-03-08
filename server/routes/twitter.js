@@ -1,8 +1,11 @@
 const router = require('express').Router();
+const Twitter = require('twitter');
 const request = require('request');
 const passport = require('passport');
+const models = require('../models');
 
-const API_URL = 'https://api.twitter.com/oauth';
+const API_URL = 'https://api.twitter.com';
+const User = models.sequelize.models.User;
 
 const userSign = (req, res) => {
   if (!req.user) {
@@ -25,7 +28,7 @@ const userSign = (req, res) => {
 
 router.post('/auth/twitter', (req, res, next) => {
   request.post({
-    url: `${API_URL}/access_token?oauth_verifier`,
+    url: `${API_URL}/oauth/access_token?oauth_verifier`,
     oauth: {
       consumerKey: process.env.TWITTER_CONSUMER_KEY,
       consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
@@ -72,7 +75,7 @@ router.post('/auth/twitter', (req, res, next) => {
 
 router.post('/auth/twitter/reverse', (req, res) => {
   request.post({
-    url: `${API_URL}/request_token`,
+    url: `${API_URL}/oauth/request_token`,
     oauth: {
       oauth_callback: "http%3A%2F%2Flocalhost%3A3001%2Ftwitter-callback",
       consumer_key: process.env.TWITTER_CONSUMER_KEY,
@@ -97,12 +100,44 @@ router.post('/auth/twitter/reverse', (req, res) => {
   });
 });
 
-router.get('/user', (req, res) => {
-  return res.status(200).json({});
-});
-
 router.post('/auth/twitter/callback', (req, res) => {
   return res.status(200).send('');
+});
+
+router.get('/get/tweets', async (req, res) => {
+  if (!req.session || !req.session.passport || !req.session.passport.user) {
+    return res.status(400).json({
+      message: 'Unauthorized'
+    });
+  }
+
+  try {
+    const url = `${API_URL}/1.1/search/tweets.json`;
+    const user = await User.findByPk(req.session.passport.user.id);
+    const client = new Twitter({
+      consumer_key: process.env.TWITTER_CONSUMER_KEY,
+      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+      access_token_key: user.token,
+      access_token_secret: user.tokenSecret
+    });
+    const params = {
+      q: `@zilliqa`,
+      count: 10
+    };
+
+    client.get(url, params, (error, tweets) => {
+      if (error) {
+        return res.status(401).json({ message: error.message });
+      }
+
+      return res.json(tweets);
+    });
+
+  } catch (err) {
+    return res.status(401).json({
+      message: err.message
+    });
+  }
 });
 
 module.exports = router;

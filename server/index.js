@@ -7,8 +7,9 @@ const next = require('next');
 const passport = require('passport');
 const uuidv4 = require('uuid').v4;
 
+const ENV = process.env.NODE_ENV;
 const port = process.env.PORT || 3000;
-const dev = process.env.NODE_ENV !== 'production';
+const dev = ENV !== 'production';
 const models = require('./models');
 const app = next({
   dev,
@@ -25,8 +26,8 @@ app.prepare().then(() => {
   server.use(cookieSession({
     name: process.env.SESSION,
     keys: [
-      uuidv4(),
-      uuidv4()
+      dev ? 'key0' : uuidv4(),
+      dev ? 'key1' : uuidv4()
     ],
   
     // Cookie Options
