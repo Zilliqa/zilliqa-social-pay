@@ -23,8 +23,6 @@ const LINKS = [
 
 const MainPageContainer = styled.main`
   display: grid;
-  height: 100vh;
-  width: 100vw;
 
   grid-template-columns: max-content;
   grid-template-rows: max-content;
@@ -60,6 +58,7 @@ export const MainPage: React.FC = () => {
         {twitterState.map((tweet, index) => (
           <TwitterTweetEmbed
             key={index}
+            screenName={userState.screenName}
             tweetId={tweet.id_str}
           />
         ))}
