@@ -105,6 +105,8 @@ router.post('/auth/twitter/callback', (req, res) => {
 });
 
 router.get('/get/tweets', async (req, res) => {
+  const contract = ctx.req.app.get('contract');
+
   if (!req.session || !req.session.passport || !req.session.passport.user) {
     return res.status(400).json({
       message: 'Unauthorized'
@@ -121,7 +123,7 @@ router.get('/get/tweets', async (req, res) => {
       access_token_secret: user.tokenSecret
     });
     const params = {
-      q: `@zilliqa`,
+      q: `${contract.hashtag}`,
       count: 10
     };
 

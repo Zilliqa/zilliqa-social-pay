@@ -76,16 +76,20 @@ class SocialPay extends App {
 }
 
 SocialPay.getInitialProps = async ({ ctx }: any) => {
+  const contract = ctx.req.app.get('contract');
+
   if (ctx && ctx.req && ctx.req.session && ctx.req.session.passport) {
     return {
       pageProps: {
-        ...ctx.req.session.passport
+        ...ctx.req.session.passport,
+        contract
       }
     };
   }
 
   return {
     pageProps: {
+      contract,
       user: null
     }
   };

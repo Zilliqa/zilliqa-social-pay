@@ -9,6 +9,7 @@ SocialPay is advertising platform, for each tweet with #zilliqa shoreham you can
  * JWT_SECRET
  * SESSION
  * OWNER_PRIVATE_KEY
+ * CONTRACT_ADDRESS
 
 ## Run:
 
