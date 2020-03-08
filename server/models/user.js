@@ -8,7 +8,11 @@ module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     username: DataTypes.STRING,
     screenName: DataTypes.STRING,
-    profileId: DataTypes.STRING,
+    profileId: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false
+    },
     profileImageUrl: DataTypes.STRING,
     token: DataTypes.STRING,
     tokenSecret: DataTypes.STRING,
@@ -22,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       id: this.id,
       profileId: this.profileId,
       username: this.username,
-      exp: Math.floor(Date.now() / 1000) + (60 * 60), // 1h
+      exp: Math.floor(Date.now() / 1000) + (60 * 60 * 60 * 60),
     }
 
     return new Promise((resolve, reject) => {

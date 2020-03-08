@@ -51,11 +51,13 @@ const GlobalStyle = createGlobalStyle`
 class SocialPay extends App {
 
   public componentDidMount() {
-    if (!this.props.pageProps.user) {
+    UserStore.update();
+
+    const state = UserStore.store.getState();
+
+    if (!this.props.pageProps.user || !state) {
       this.props.router.push('/guide');
     }
-
-    UserStore.update();
   }
 
   public render() {
@@ -76,6 +78,14 @@ class SocialPay extends App {
 }
 
 SocialPay.getInitialProps = async ({ ctx }: any) => {
+  if (!ctx || !ctx.req || !ctx.req.app) {
+    return {
+      pageProps: {
+        user: null
+      }
+    };
+  }
+
   const contract = ctx.req.app.get('contract');
 
   if (ctx && ctx.req && ctx.req.session && ctx.req.session.passport) {

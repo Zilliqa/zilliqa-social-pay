@@ -8,8 +8,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      twittId: {
-        type: Sequelize.STRING
+      idStr: {
+        type: Sequelize.STRING,
+        field: 'id_str',
+        unique: true,
+        allowNull: false
       },
       approved: {
         type: Sequelize.BOOLEAN,

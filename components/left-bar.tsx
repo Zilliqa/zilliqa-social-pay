@@ -8,7 +8,7 @@ import { Img } from 'components/img';
 import { FontSize, Fonts, FontColors, Sides } from 'config';
 
 const LeftBarContainer = styled.header`
-  height: 100%;
+  height: 100vh;
   width: 250px;
 
   border-right: 1px solid ${FontColors.gray};

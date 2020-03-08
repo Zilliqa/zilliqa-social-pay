@@ -10,5 +10,6 @@ export const APIs = {
   updateAddress: `${API_V1}/${Methods.update}/address`,
   twitterAuth: `${API_V1}/${Methods.auth}/twitter`,
   twitterAuthReverse: `${API_V1}/${Methods.auth}/twitter/reverse`,
-  getTweets: `${API_V1}/${Methods.get}/tweets`
+  getTweets: `${API_V1}/${Methods.get}/tweets`,
+  tweetsUpdate: `${API_V1}/${Methods.update}/tweets`,
 };

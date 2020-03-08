@@ -6,6 +6,7 @@ const models = require('../models');
 
 const API_URL = 'https://api.twitter.com';
 const User = models.sequelize.models.User;
+const Twittes = models.sequelize.models.Twittes;
 
 const userSign = (req, res) => {
   if (!req.user) {
@@ -104,18 +105,32 @@ router.post('/auth/twitter/callback', (req, res) => {
   return res.status(200).send('');
 });
 
-router.get('/get/tweets', async (req, res) => {
-  const contract = ctx.req.app.get('contract');
+router.put('/update/tweets', async (req, res) => {
+  const contract = req.app.get('contract');
+  const jwtToken = req.headers.authorization;
+  const url = `${API_URL}/1.1/statuses/user_timeline.json`;
+  let user = null;
 
   if (!req.session || !req.session.passport || !req.session.passport.user) {
-    return res.status(400).json({
+    res.clearCookie(process.env.SESSION);
+
+    return res.status(401).json({
       message: 'Unauthorized'
     });
   }
 
   try {
-    const url = `${API_URL}/1.1/search/tweets.json`;
-    const user = await User.findByPk(req.session.passport.user.id);
+    const decoded = await new User().verify(jwtToken);
+    user = await User.findByPk(decoded.id);
+  } catch (err) {
+    res.clearCookie(process.env.SESSION);
+
+    return res.status(401).json({
+      message: err.message
+    });
+  }
+
+  try {
     const client = new Twitter({
       consumer_key: process.env.TWITTER_CONSUMER_KEY,
       consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
@@ -123,20 +138,36 @@ router.get('/get/tweets', async (req, res) => {
       access_token_secret: user.tokenSecret
     });
     const params = {
-      q: `${contract.hashtag}`,
-      count: 10
+      user_id: user.profileId,
+      count: 100
     };
 
-    client.get(url, params, (error, tweets) => {
+    client.get(url, params, async (error, tweets) => {
       if (error) {
-        return res.status(401).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
+      }
+
+      const transaction = await models.sequelize.transaction();
+
+      try {
+        const filteredTweets = tweets
+          .filter((tweet) => tweet.text.includes(contract.hashtag))
+          .map((tweet) => Twittes.create({
+            twittId: tweet.id_str,
+            UserId: user.id
+          }, { transaction }).catch(() => null));
+
+        await Promise.all(filteredTweets);
+      } catch (err) {
+        // Skip
+      } finally {
+        await transaction.commit();
       }
 
       return res.json(tweets);
     });
-
   } catch (err) {
-    return res.status(401).json({
+    return res.status(400).json({
       message: err.message
     });
   }

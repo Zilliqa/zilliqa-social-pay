@@ -1,7 +1,12 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Twittes = sequelize.define('Twittes', {
-    twittId: DataTypes.STRING,
+    idStr: {
+      type: DataTypes.STRING,
+      field: 'id_str',
+      unique: true,
+      allowNull: false
+    },
     approved: {
       type: DataTypes.BOOLEAN,
       defaultValue: false

@@ -16,3 +16,8 @@ export interface FetchUpdateAddress {
   address: string;
   jwt: string;
 }
+
+export interface Twitte {
+  id?: number;
+  id_str: string;
+}

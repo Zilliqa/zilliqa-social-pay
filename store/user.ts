@@ -32,7 +32,7 @@ export const store = UserDomain.store<User>(initalState)
 
     return updated;
   })
-  .on(update, (state) => {
+  .on(update, () => {
     const storage = window.localStorage;
     const userAsString = storage.getItem(LocalStorageKeys.user);
 
@@ -40,12 +40,7 @@ export const store = UserDomain.store<User>(initalState)
       return {};
     }
 
-    const user = JSON.parse(userAsString) || {};
-
-    return {
-      ...state,
-      ...user
-    };
+    return JSON.parse(userAsString) || {};
   })
   .on(updateAddress.done, (state, { result }) => {
     return {

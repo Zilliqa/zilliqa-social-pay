@@ -34,14 +34,17 @@ export const MainPage: React.FC = () => {
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
 
-  const [mounted, setMounted] = React.useState(false);
-
   React.useEffect(() => {
-    if (!mounted) {
-      TwitterStore.updateTweets(null);
-      setMounted(true);
+    if (twitterState.tweets.length < 1 && !twitterState.error) {
+      UserStore.update();
+
+      TwitterStore.getTweets(null);
     }
-  }, [twitterState, mounted, setMounted]);
+
+    if (userState.jwtToken && twitterState.error) {
+      TwitterStore.updateTweets(userState.jwtToken);
+    }
+  }, [twitterState, userState]);
 
   return (
     <MainPageContainer>
@@ -55,7 +58,7 @@ export const MainPage: React.FC = () => {
         profileName={userState.screenName}
       />
       <Container area="container">
-        {twitterState.map((tweet, index) => (
+        {twitterState.tweets.map((tweet, index) => (
           <TwitterTweetEmbed
             key={index}
             screenName={userState.screenName}
