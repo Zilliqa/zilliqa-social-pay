@@ -3,16 +3,15 @@ import { NextPage } from 'next';
 import styled from 'styled-components';
 import TwitterLogin from 'react-twitter-auth';
 import { useRouter } from 'next/router';
-// import * as Effector from 'effector-react';
+import { validation } from '@zilliqa-js/util';
 
 import UserStore from 'store/user';
 
 import { Img } from 'components/img';
 import { Container } from 'components/container';
-import { Input } from 'components/Input';
-import { Button } from 'components/button';
+import { FieldInput } from 'components/Input';
 
-import { SizeComponent } from 'config';
+import { SizeComponent, APIs } from 'config';
 
 const FormContainer = styled(Container)`
   display: grid;
@@ -82,47 +81,67 @@ export const AuthPage: NextPage = () => {
   const router = useRouter();
   // Next hooks //
 
-  // Effector hooks //
-  // const userState = Effector.useStore(UserStore.store);
-  // Effector hooks //
-
   // React hooks //
-  const handleContinue = React.useCallback(() => {
-    router.push('/');
-  }, []);
+  const twitterLoginRef = React.useRef<HTMLDivElement>(null);
+
+  const [addressErr, setAddressErr] = React.useState<string | null>(null);
+  const [address, setAddress] = React.useState<string | null>(null);
+
   const handleSuccess = React.useCallback(async (res: any) => {
+    if (!address) {
+      return null;
+    }
+
     const userData = await res.json();
 
+    await UserStore.updateAddress({
+      address,
+      jwt: userData.jwtToken
+    });
     UserStore.setUser(userData);
-  }, []);
-  const handleFailed = React.useCallback(() => {
-    console.log('handleFailed');
-  }, []);
+    router.push('/');
+  }, [address]);
+  // const handleFailed = React.useCallback(() => {
+  //   console.log('handleFailed');
+  // }, []);
+  const handleAddressChange = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.value) {
+      return null;
+    } else if (!validation.isBech32(event.target.value)) {
+      setAddressErr('Incorect address format.');
+
+      return null;
+    }
+
+    twitterLoginRef.current?.click();
+
+    setAddress(event.target.value);
+  }, [validation, setAddressErr, addressErr]);
   // React hooks //
 
   return (
     <React.Fragment>
+      <TwitterLogin
+        style={{ display: 'none' }}
+        loginUrl={APIs.twitterAuth}
+        requestTokenUrl={APIs.twitterAuthReverse}
+        onSuccess={handleSuccess}
+        onFailure={() => null}
+        showIcon
+      >
+        <div ref={twitterLoginRef} />
+      </TwitterLogin>
       <FormContainer>
         <Center>
           <LeftPanel>
             <SignForm>
-              <Input
+              <FieldInput
                 sizeVariant={SizeComponent.md}
+                error={addressErr}
                 placeholder="Zilliqa address (zil1) or ZNS."
+                onBlur={handleAddressChange}
+                onChange={() => setAddressErr(null)}
               />
-              <TwitterLogin
-                loginUrl="/api/v1/auth/twitter"
-                onFailure={handleFailed}
-                onSuccess={handleSuccess}
-                requestTokenUrl="/api/v1/auth/twitter/reverse"
-                showIcon
-              />
-              <Button
-                sizeVariant={SizeComponent.lg}
-                onClick={handleContinue}
-              >
-                Continue
-              </Button>
             </SignForm>
           </LeftPanel>
           <RightPanel>

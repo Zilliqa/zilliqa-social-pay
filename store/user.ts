@@ -1,15 +1,20 @@
 import { createDomain } from 'effector';
 
-import { User } from 'interfaces';
+import { User, FetchUpdateAddress } from 'interfaces';
 import { LocalStorageKeys } from 'config';
+import { fetchUpdateAddress } from 'utils/user-api';
 
-export const AppSettingsDomain = createDomain();
-export const setUser = AppSettingsDomain.event<User>();
-export const update = AppSettingsDomain.event();
+export const UserDomain = createDomain();
+export const setUser = UserDomain.event<User>();
+export const update = UserDomain.event();
+
+export const updateAddress = UserDomain.effect<FetchUpdateAddress, User, Error>();
+
+updateAddress.use(fetchUpdateAddress);
 
 const initalState: User | object = {};
 
-export const store = AppSettingsDomain.store<User | object>(initalState)
+export const store = UserDomain.store<User | object>(initalState)
   .on(setUser, (state, user) => {
     const storage = window.localStorage;
     const updated = {
@@ -35,10 +40,17 @@ export const store = AppSettingsDomain.store<User | object>(initalState)
       ...state,
       ...user
     };
+  })
+  .on(updateAddress.done, (state, { result }) => {
+    return {
+      ...state,
+      zilAddress: result.zilAddress
+    };
   });
 
 export default {
   store,
   update,
-  setUser
+  setUser,
+  updateAddress
 };

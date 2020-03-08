@@ -13,6 +13,7 @@ module.exports = {
       components: path.resolve(__dirname, './components'),
       config: path.resolve(__dirname, './config'),
       store: path.resolve(__dirname, './store'),
+      utils: path.resolve(__dirname, './utils'),
       interfaces: path.resolve(__dirname, './interfaces')
     };
 

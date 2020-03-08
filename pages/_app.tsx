@@ -52,7 +52,7 @@ class SocialPay extends App {
 
   public componentDidMount() {
     if (!this.props.pageProps.user) {
-      this.props.router.push('/auth');
+      this.props.router.push('/guide');
     }
 
     UserStore.update();

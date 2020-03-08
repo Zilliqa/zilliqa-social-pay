@@ -11,3 +11,8 @@ export interface User {
   zilAddress: string;
   jwtToken: string;
 }
+
+export interface FetchUpdateAddress {
+  address: string;
+  jwt: string;
+}

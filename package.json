@@ -29,6 +29,7 @@
     }
   },
   "dependencies": {
+    "@zilliqa-js/zilliqa": "^0.8.9",
     "cookie-session": "^1.4.0",
     "dotenv": "^8.2.0",
     "effector": "^20.12.1",

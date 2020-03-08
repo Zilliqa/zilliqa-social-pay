@@ -1,6 +1,7 @@
+import React from 'react';
 import styled from 'styled-components';
 
-import { SizeComponent, Fonts } from 'config';
+import { SizeComponent, Fonts, FontColors } from 'config';
 
 type Prop = {
   sizeVariant?: SizeComponent;
@@ -28,13 +29,47 @@ export const Input = styled.input`
     outline: none;
   }
 `;
-
+Input.defaultProps = {
+  sizeVariant: SizeComponent.xs,
+  fontVariant: Fonts.AvenirNextLTProRegular
+};
+export const FieldLabel = styled.label`
+  display: grid;
+  justify-items: left;
+  width: 100%;
+`;
+export const InputTitle = styled.div`
+  text-indent: 15px;
+`;
+export const InputError = styled.div`
+  text-indent: 15px;
+  color: ${FontColors.danger};
+`;
 export const Search = styled(Input)`
   background: #ededed url(/icons/search-icon.svg) no-repeat 9px center;
   text-align: center;
 `;
 
-Input.defaultProps = {
-  sizeVariant: SizeComponent.xs,
-  fontVariant: Fonts.AvenirNextLTProRegular
+type FieldProp = {
+  error?: string;
+  title?: string;
+} & Prop & any & React.HTMLProps<HTMLInputElement>;
+
+export const FieldInput: React.FC<FieldProp> = ({
+  error,
+  title,
+  ...parentProps
+}) => {
+
+  return (
+    <FieldLabel>
+      <InputTitle>
+        {title}
+      </InputTitle>
+      <Input {...parentProps} />
+      <InputError>
+        {error}
+      </InputError>
+    </FieldLabel>
+  );
 };
