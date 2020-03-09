@@ -53,26 +53,24 @@ export const MainPage: React.FC<PageProp> = ({ ...pageProps }) => {
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
 
-  const overviews = React.useMemo(() => {
-    return [
-      {
-        title: 'Block per day.',
-        value: pageProps.contract.blocksPerDay
-      },
-      {
-        title: 'Block per week.',
-        value: pageProps.contract.blocksPerWeek
-      },
-      {
-        title: 'ZILs per tweet.',
-        value: fromZil(pageProps.contract.zilsPerTweet, false)
-      },
-      {
-        title: 'Current DSEpoch.',
-        value: pageProps.blockchain.CurrentDSEpoch
-      }
-    ];
-  }, [pageProps.contract]);
+  const overviews = React.useMemo(() => [
+    {
+      title: 'Block per day.',
+      value: pageProps.contract.blocksPerDay
+    },
+    {
+      title: 'Block per week.',
+      value: pageProps.contract.blocksPerWeek
+    },
+    {
+      title: 'ZILs per tweet.',
+      value: fromZil(pageProps.contract.zilsPerTweet, false)
+    },
+    {
+      title: 'Current DSEpoch.',
+      value: pageProps.blockchain.CurrentDSEpoch
+    }
+  ], [pageProps.contract]);
 
   React.useEffect(() => {
     if (twitterState.tweets.length < 1 && !twitterState.error) {
