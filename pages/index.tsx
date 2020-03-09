@@ -13,6 +13,7 @@ import { Text } from 'components/text';
 import { Card } from 'components/card';
 
 import { PageProp } from 'interfaces';
+import { fromZil } from 'utils/from-zil';
 
 const LINKS = [
   {
@@ -61,7 +62,7 @@ export const MainPage: React.FC<PageProp> = ({ ...pageProps }) => {
       },
       {
         title: 'ZILs per tweet.',
-        value: pageProps.contract.zilsPerTweet
+        value: fromZil(pageProps.contract.zilsPerTweet, false)
       }
     ];
   }, [pageProps.contract]);
@@ -69,7 +70,6 @@ export const MainPage: React.FC<PageProp> = ({ ...pageProps }) => {
   React.useEffect(() => {
     if (twitterState.tweets.length < 1 && !twitterState.error) {
       UserStore.update();
-
       TwitterStore.getTweets(null);
     }
 
@@ -114,7 +114,6 @@ export const MainPage: React.FC<PageProp> = ({ ...pageProps }) => {
               screenName: userState.screenName,
               buttonHashtag: null
             }}
-            placeholder="Loading"
           />
         </TweetContainer>
         {twitterState.tweets.map((tweet, index) => (
