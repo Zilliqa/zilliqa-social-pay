@@ -54,6 +54,15 @@ app
     // handling everything else with Next.js
     server.get('*', handle);
 
+    setInterval(() => {
+      zilliqa
+        .blockchainInfo()
+        .then((info) => server.set('blockchain', info));
+    }, 5000);
+    zilliqa
+        .blockchainInfo()
+        .then((info) => server.set('blockchain', info));
+
     http.createServer(server).listen(port, () => {
       console.log(`listening on port ${port}`);
     });

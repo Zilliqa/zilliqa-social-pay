@@ -14,15 +14,18 @@ import { Card } from 'components/card';
 
 import { PageProp } from 'interfaces';
 import { fromZil } from 'utils/from-zil';
+import { Events } from 'config';
 
 const LINKS = [
   {
     img: '/icons/twitter.svg',
-    name: 'Twittes'
+    name: 'Twittes',
+    event: Events.None
   },
   {
     img: '/icons/setup.svg',
-    name: 'Settings'
+    name: 'Settings',
+    event: Events.Settings
   }
 ];
 
@@ -63,6 +66,10 @@ export const MainPage: React.FC<PageProp> = ({ ...pageProps }) => {
       {
         title: 'ZILs per tweet.',
         value: fromZil(pageProps.contract.zilsPerTweet, false)
+      },
+      {
+        title: 'Current DSEpoch.',
+        value: pageProps.blockchain.CurrentDSEpoch
       }
     ];
   }, [pageProps.contract]);

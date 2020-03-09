@@ -40,5 +40,10 @@ module.exports = {
       blocksPerDay: blocks_per_day.value,
       blocksPerWeek: blocks_per_week.value
     }
+  },
+  async blockchainInfo() {
+    const { result } = await zilliqa.blockchain.getBlockChainInfo();
+
+    return result;
   }
 };

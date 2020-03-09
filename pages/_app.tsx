@@ -7,6 +7,7 @@ import App from 'next/app';
 import UserStore from 'store/user';
 
 import { Container } from 'components/container';
+import { FixedWrapper } from 'components/fixed-wrapper';
 
 import { Fonts } from 'config';
 
@@ -92,6 +93,7 @@ class SocialPay extends App {
         </Head>
         <GlobalStyle />
         <Component {...pageProps} />
+        <FixedWrapper />
       </Container>
     );
   }
@@ -101,18 +103,22 @@ SocialPay.getInitialProps = async ({ ctx }: any) => {
   if (!ctx || !ctx.req || !ctx.req.app) {
     return {
       pageProps: {
-        user: null
+        user: null,
+        contract: null,
+        blockchain: null
       }
     };
   }
 
   const contract = ctx.req.app.get('contract');
+  const blockchain = ctx.req.app.get('blockchain');
 
   if (ctx && ctx.req && ctx.req.session && ctx.req.session.passport) {
     return {
       pageProps: {
         ...ctx.req.session.passport,
-        contract
+        contract,
+        blockchain
       }
     };
   }
@@ -120,6 +126,7 @@ SocialPay.getInitialProps = async ({ ctx }: any) => {
   return {
     pageProps: {
       contract,
+      blockchain,
       user: null
     }
   };

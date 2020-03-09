@@ -9,9 +9,11 @@ export const CardContainer = styled.div`
   border: 1px solid #ececec;
   padding: 0 .5rem 0;
   width: fit-content;
-  min-width: 100px;
+  min-width: 120px;
   border-radius: 5px;
+  background-color: #fff;
   box-shadow: 1px 5px 6px -2px #ccc;
+  flex-basis: 15px;
 `;
 
 type Prop = {

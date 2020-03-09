@@ -5,7 +5,9 @@ import { Container } from 'components/container';
 import { Text } from 'components/text';
 import { Img } from 'components/img';
 
-import { FontSize, Fonts, FontColors, Sides } from 'config';
+import EventStore from 'store/event';
+
+import { FontSize, Fonts, FontColors, Sides, Events } from 'config';
 
 const LeftBarContainer = styled.header`
   height: 100vh;
@@ -41,14 +43,13 @@ type Prop = {
   items: {
     img: string;
     name: string;
+    event: Events;
   }[];
-  onClick?: (index: number) => void;
 }
 
 export const LeftBar: React.FC<Prop> = ({
   profileName,
-  items,
-  onClick = () => null
+  items
 }) => {
   return (
     <LeftBarContainer>
@@ -82,7 +83,7 @@ export const LeftBar: React.FC<Prop> = ({
       {items.map((item, index) => (
         <ItemsContainer
           key={index}
-          onClick={() => onClick(index)}
+          onClick={() => EventStore.setEvent(item.event)}
         >
           <ItemImg
             src={item.img}
