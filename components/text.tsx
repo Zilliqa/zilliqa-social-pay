@@ -11,7 +11,7 @@ type Prop = {
   upperCase?: boolean;
 };
 
-export const Text = styled.p`
+export const Text = styled.div`
   font-family: ${(props: Prop) => props.fontVariant};
   font-size: ${(props: Prop) => props.size};
   color: ${(props: Prop) => props.fontColors};
@@ -24,6 +24,9 @@ export const Text = styled.p`
 
   overflow: hidden;
   text-overflow: ellipsis;
+
+  margin-block-start: 1em;
+  margin-block-end: 1em;
 `;
 
 Text.defaultProps = {

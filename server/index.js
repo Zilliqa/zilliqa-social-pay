@@ -6,7 +6,7 @@ const http = require('http');
 const next = require('next');
 const passport = require('passport');
 const uuidv4 = require('uuid').v4;
-const models = require('./models');
+const cookieParser = require('cookie-parser');
 const zilliqa = require('./zilliqa');
 
 const ENV = process.env.NODE_ENV;
@@ -30,6 +30,7 @@ app
 
     server.set('contract', contracInit);
 
+    server.use(cookieParser());
     server.use(cookieSession({
       name: process.env.SESSION,
       keys: [

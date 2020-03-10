@@ -76,8 +76,12 @@ class SocialPay extends App {
 
     const state = UserStore.store.getState();
 
-    if (!this.props.pageProps.user || !state) {
-      this.props.router.push('/guide');
+    if (!this.props.pageProps.user || !state || !state.jwtToken) {
+      if (this.props.pageProps.firstStart) {
+        return this.props.router.push('/guide');
+      }
+
+      this.props.router.push('/auth');
     }
   }
 
@@ -99,7 +103,15 @@ class SocialPay extends App {
   }
 }
 
-SocialPay.getInitialProps = async ({ ctx }: any) => {
+SocialPay.getInitialProps = async ({ ctx, pageProps }: any) => {
+  let firstStart = true;
+
+  if (pageProps) {
+    return {
+      pageProps
+    };
+  }
+
   if (!ctx || !ctx.req || !ctx.req.app) {
     return {
       pageProps: {
@@ -110,6 +122,10 @@ SocialPay.getInitialProps = async ({ ctx }: any) => {
     };
   }
 
+  if (ctx.req.cookies && (ctx.req.cookies['session.sig'] || ctx.req.cookies['session'])) {
+    firstStart = false;
+  }
+
   const contract = ctx.req.app.get('contract');
   const blockchain = ctx.req.app.get('blockchain');
 
@@ -117,6 +133,7 @@ SocialPay.getInitialProps = async ({ ctx }: any) => {
     return {
       pageProps: {
         ...ctx.req.session.passport,
+        firstStart,
         contract,
         blockchain
       }
@@ -127,6 +144,7 @@ SocialPay.getInitialProps = async ({ ctx }: any) => {
     pageProps: {
       contract,
       blockchain,
+      firstStart,
       user: null
     }
   };

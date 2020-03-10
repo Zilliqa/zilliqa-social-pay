@@ -1,4 +1,5 @@
 import React from 'react';
+import { NextPage } from 'next';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
 import { TwitterTweetEmbed, TwitterHashtagButton } from 'react-twitter-embed';
@@ -49,28 +50,34 @@ const TweetContainer = styled(Container)`
   padding-top: 30px;
 `;
 
-export const MainPage: React.FC<PageProp> = ({ ...pageProps }) => {
+export const MainPage: NextPage<PageProp> = ({ ...pageProps }) => {
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
 
-  const overviews = React.useMemo(() => [
-    {
-      title: 'Block per day.',
-      value: pageProps.contract.blocksPerDay
-    },
-    {
-      title: 'Block per week.',
-      value: pageProps.contract.blocksPerWeek
-    },
-    {
-      title: 'ZILs per tweet.',
-      value: fromZil(pageProps.contract.zilsPerTweet, false)
-    },
-    {
-      title: 'Current DSEpoch.',
-      value: pageProps.blockchain.CurrentDSEpoch
+  const overviews = React.useMemo(() => {
+    try {
+      return [
+        {
+          title: 'Block per day.',
+          value: pageProps.contract.blocksPerDay
+        },
+        {
+          title: 'Block per week.',
+          value: pageProps.contract.blocksPerWeek
+        },
+        {
+          title: 'ZILs per tweet.',
+          value: fromZil(pageProps.contract.zilsPerTweet, false)
+        },
+        {
+          title: 'Current DSEpoch.',
+          value: pageProps.blockchain.CurrentDSEpoch || 0
+        }
+      ];
+    } catch (err) {
+      return [];
     }
-  ], [pageProps.contract]);
+  }, [pageProps.contract]);
 
   React.useEffect(() => {
     if (twitterState.tweets.length < 1 && !twitterState.error) {
@@ -110,16 +117,17 @@ export const MainPage: React.FC<PageProp> = ({ ...pageProps }) => {
         </OverviewContainer>
         <TweetContainer>
           <Text upperCase>
-            Tweetes
+            Verified tweetes
           </Text>
-          <TwitterHashtagButton
-            tag={pageProps.contract.hashtag}
-            options={{
-              size: 'large',
-              screenName: userState.screenName,
-              buttonHashtag: null
-            }}
-          />
+          {Boolean(pageProps.contract && pageProps.contract.hashtag) ?
+            <TwitterHashtagButton
+              tag={pageProps.contract.hashtag}
+              options={{
+                size: 'large',
+                screenName: userState.screenName,
+                buttonHashtag: null
+              }}
+            /> : null}
         </TweetContainer>
         {twitterState.tweets.map((tweet, index) => (
           <TwitterTweetEmbed

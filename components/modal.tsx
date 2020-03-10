@@ -10,9 +10,11 @@ export const ModalContent = styled.aside`
 
   position: fixed;
   bottom: 50%;
-  left: 50%;
-  right: 50%;
+  left: 40%;
+  right: 40%;
   top: 20%;
+
+  height: 100%;
 
   z-index: 10;
   background-color: gray;

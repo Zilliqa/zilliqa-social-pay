@@ -44,6 +44,8 @@ export const InputTitle = styled.div`
 export const InputError = styled.div`
   text-indent: 15px;
   color: ${FontColors.danger};
+  font-size: 15px;
+  margin-top: 5px;
 `;
 export const Search = styled(Input)`
   background: #ededed url(/icons/search-icon.svg) no-repeat 9px center;

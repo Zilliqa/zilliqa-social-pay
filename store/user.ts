@@ -43,10 +43,15 @@ export const store = UserDomain.store<User>(initalState)
     return JSON.parse(userAsString) || {};
   })
   .on(updateAddress.done, (state, { result }) => {
-    return {
+    const storage = window.localStorage;
+    const newState = {
       ...state,
       zilAddress: result.zilAddress
     };
+
+    storage.setItem(LocalStorageKeys.user, JSON.stringify(newState));
+
+    return newState;
   });
 
 export default {

@@ -101,9 +101,6 @@ export const AuthPage: NextPage = () => {
     UserStore.setUser(userData);
     router.push('/');
   }, [address]);
-  // const handleFailed = React.useCallback(() => {
-  //   console.log('handleFailed');
-  // }, []);
   const handleAddressChange = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.value) {
       return null;
