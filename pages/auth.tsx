@@ -4,14 +4,17 @@ import styled from 'styled-components';
 import TwitterLogin from 'react-twitter-auth';
 import { useRouter } from 'next/router';
 import { validation } from '@zilliqa-js/util';
+import * as Effector from 'effector-react';
 
 import UserStore from 'store/user';
 
 import { Img } from 'components/img';
 import { Container } from 'components/container';
 import { FieldInput } from 'components/Input';
+import { Button } from 'components/button';
+import { Text } from 'components/text';
 
-import { SizeComponent, APIs } from 'config';
+import { SizeComponent, APIs, FontSize, Sides, FontColors } from 'config';
 
 const FormContainer = styled(Container)`
   display: grid;
@@ -81,27 +84,29 @@ export const AuthPage: NextPage = () => {
   const router = useRouter();
   // Next hooks //
 
+  // Effector hooks //
+  const userState = Effector.useStore(UserStore.store);
+  // Effector hooks //
+
   // React hooks //
   const twitterLoginRef = React.useRef<HTMLDivElement>(null);
 
+  const [mounted, setMounted] = React.useState(false);
   const [addressErr, setAddressErr] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string | null>(null);
 
   const handleSuccess = React.useCallback(async (res: any) => {
-    if (!address) {
-      return null;
-    }
-
     const userData = await res.json();
 
-    await UserStore.updateAddress({
-      address,
-      jwt: userData.jwtToken
-    });
     UserStore.setUser(userData);
-    router.push('/');
+
+    if (userData.zilAddress && validation.isBech32(userData.zilAddress)) {
+      router.push('/');
+
+      return null;
+    }
   }, [address]);
-  const handleAddressChange = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddressChange = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.value) {
       return null;
     } else if (!validation.isBech32(event.target.value)) {
@@ -110,10 +115,37 @@ export const AuthPage: NextPage = () => {
       return null;
     }
 
-    twitterLoginRef.current?.click();
-
     setAddress(event.target.value);
-  }, [validation, setAddressErr, addressErr]);
+
+    if (!address) {
+      return null;
+    }
+
+    const result = await UserStore.updateAddress({
+      address,
+      jwt: userState.jwtToken
+    });
+
+    if (result.message) {
+      setAddressErr(result.message);
+    }
+
+    if (result.zilAddress) {
+      router.push('/');
+    }
+  }, [validation, setAddressErr, addressErr, address, userState]);
+
+  React.useEffect(() => {
+    if (!mounted && !userState.jwtToken) {
+      try {
+        twitterLoginRef.current?.click();
+
+        setMounted(true);
+      } catch (err) {
+        //
+      }
+    }
+  }, [setMounted, mounted, twitterLoginRef, userState]);
   // React hooks //
 
   return (
@@ -132,13 +164,31 @@ export const AuthPage: NextPage = () => {
         <Center>
           <LeftPanel>
             <SignForm>
-              <FieldInput
+              {!userState.zilAddress ? (
+                <React.Fragment>
+                  <Text
+                    size={FontSize.md}
+                    align={Sides.center}
+                    fontColors={FontColors.info}
+                  >
+                    You need to tie your Zilliqa address.
+                  </Text>
+                  <FieldInput
+                    sizeVariant={SizeComponent.md}
+                    error={addressErr}
+                    placeholder="Zilliqa address (zil1) or ZNS."
+                    onBlur={handleAddressChange}
+                    onChange={() => setAddressErr(null)}
+                  />
+                </React.Fragment>
+              ) : null}
+              <Button
                 sizeVariant={SizeComponent.md}
-                error={addressErr}
-                placeholder="Zilliqa address (zil1) or ZNS."
-                onBlur={handleAddressChange}
-                onChange={() => setAddressErr(null)}
-              />
+                disabled={Boolean(!userState || !userState.zilAddress)}
+                onClick={() => router.push('/')}
+              >
+                Next
+              </Button>
             </SignForm>
           </LeftPanel>
           <RightPanel>
