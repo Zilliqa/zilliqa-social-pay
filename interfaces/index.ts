@@ -13,6 +13,7 @@ export interface User {
   profileImageUrl: string;
   zilAddress: string;
   jwtToken: string;
+  message?: string;
 }
 
 export interface FetchUpdateAddress {
