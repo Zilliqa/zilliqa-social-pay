@@ -3,6 +3,7 @@ const Twitter = require('twitter');
 const request = require('request');
 const passport = require('passport');
 const models = require('../models');
+const checkSession = require('../middleware/check-session');
 
 const API_URL = 'https://api.twitter.com';
 const User = models.sequelize.models.User;
@@ -105,19 +106,11 @@ router.post('/auth/twitter/callback', (req, res) => {
   return res.status(200).send('');
 });
 
-router.put('/update/tweets', async (req, res) => {
+router.put('/update/tweets', checkSession, async (req, res) => {
   const contract = req.app.get('contract');
   const jwtToken = req.headers.authorization;
   const url = `${API_URL}/1.1/statuses/user_timeline.json`;
   let user = null;
-
-  if (!req.session || !req.session.passport || !req.session.passport.user) {
-    res.clearCookie(process.env.SESSION);
-
-    return res.status(401).json({
-      message: 'Unauthorized'
-    });
-  }
 
   try {
     const decoded = await new User().verify(jwtToken);
@@ -144,27 +137,93 @@ router.put('/update/tweets', async (req, res) => {
 
     client.get(url, params, async (error, tweets) => {
       if (error) {
-        return res.status(400).json({ message: error.message });
+        return res.status(400).json(error);
       }
 
       const transaction = await models.sequelize.transaction();
+      let filteredTweets = [];
 
       try {
-        const filteredTweets = tweets
-          .filter((tweet) => tweet.text.includes(contract.hashtag))
-          .map((tweet) => Twittes.create({
-            twittId: tweet.id_str,
-            UserId: user.id
-          }, { transaction }).catch(() => null));
+        filteredTweets = tweets
+          .filter((tweet) => tweet.text.includes(contract.hashtag));
 
-        await Promise.all(filteredTweets);
+        await Promise.all(filteredTweets.map((tweet) => Twittes.create({
+          twittId: tweet.id_str,
+          UserId: user.id
+        }, { transaction }).catch(() => null)));
       } catch (err) {
         // Skip
       } finally {
         await transaction.commit();
       }
 
-      return res.json(tweets);
+      return res.json(filteredTweets);
+    });
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    });
+  }
+});
+
+router.post('/search/tweets/:query', checkSession, async (req, res) => {
+  const contract = req.app.get('contract');
+  const { query } = req.params;
+  const jwtToken = req.headers.authorization;
+  const urlById = `${API_URL}/1.1/statuses/show.json`;
+  const isId = !isNaN(Number(query)) && (query.length === 19);
+  let user = null;
+
+  try {
+    const decoded = await new User().verify(jwtToken);
+
+    user = await User.findByPk(decoded.id);
+  } catch (err) {
+    res.clearCookie(process.env.SESSION);
+
+    return res.status(401).json({
+      message: err.message
+    });
+  }
+
+  try {
+    const client = new Twitter({
+      consumer_key: process.env.TWITTER_CONSUMER_KEY,
+      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+      access_token_key: user.token,
+      access_token_secret: user.tokenSecret
+    });
+    const params = {
+      id: query
+    };
+
+    client.get(urlById, params, async (error, tweets) => {
+      if (error && Array.isArray(error)) {
+        return res.status(404).json({
+          ...error[0]
+        });
+      }
+
+      if (!tweets.text.includes(contract.hashtag)) {
+        return res.status(404).json({
+          message: `This tweet hasn't ${contract.hashtag} hashtag.`
+        });
+      } else if (tweets.user.id_str !== user.profileId) {
+        return res.status(404).json({
+          message: 'User is not owner'
+        });
+      }
+
+      try {
+        await Twittes.create({
+          twittId: tweet.id_str,
+          UserId: user.id
+        })
+      } catch (err) {
+        //
+      } finally {
+        return res.status(302).json(tweets);
+      }
     });
   } catch (err) {
     return res.status(400).json({

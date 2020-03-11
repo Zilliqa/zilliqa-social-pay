@@ -1,11 +1,12 @@
 const router = require('express').Router();
 const { validation } = require('@zilliqa-js/util');
+const checkSession = require('../middleware/check-session');
 
 const models = require('../models');
 const User = models.sequelize.models.User;
 const Twittes = models.sequelize.models.Twittes;
 
-router.put('/update/address/:address', async (req, res) => {
+router.put('/update/address/:address', checkSession, async (req, res) => {
   const bech32Address = req.params.address;
   const jwtToken = req.headers.authorization;
 
@@ -30,23 +31,13 @@ router.put('/update/address/:address', async (req, res) => {
       zilAddress: bech32Address
     });
   } catch (err) {
-    res.clearCookie(process.env.SESSION);
-
     return res.status(501).json({
-      message: err.message
+      message: 'Address must be unique!'
     });
   }
 });
 
-router.get('/get/tweets', async (req, res) => {
-  if (!req.session || !req.session.passport || !req.session.passport.user) {
-    res.clearCookie(process.env.SESSION);
-
-    return res.status(401).json({
-      message: 'Unauthorized'
-    });
-  }
-
+router.get('/get/tweets', checkSession, async (req, res) => {
   const userId = req.session.passport.user.id;
 
   try {
