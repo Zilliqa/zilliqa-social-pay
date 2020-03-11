@@ -23,7 +23,7 @@ export interface FetchUpdateAddress {
 
 export interface Twitte {
   id?: number;
-  id_str: string;
+  idStr: string;
 }
 
 export interface Contract {

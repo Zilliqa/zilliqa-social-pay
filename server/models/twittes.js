@@ -3,7 +3,6 @@ module.exports = (sequelize, DataTypes) => {
   const Twittes = sequelize.define('Twittes', {
     idStr: {
       type: DataTypes.STRING,
-      field: 'id_str',
       unique: true,
       allowNull: false
     },

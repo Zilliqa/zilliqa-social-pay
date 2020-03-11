@@ -21,21 +21,9 @@ const initalState: { error?: boolean; tweets: Twitte[]; } = {
 
 export const store = TwitterDomain.store(initalState)
   .on(update, (state, tweets) => ({ ...state, tweets }))
-  .on(updateTweets.done, (state, { result }) => {
-    if (Array.isArray(result) && result.length > 0) {
-      return {
-        error: undefined,
-        tweets: result
-      };
-    }
-
-    return {
-      ...state,
-      error: true
-    };
-  })
+  .on(updateTweets.done, (state) => state)
   .on(getTweets.done, (state, { result }) => {
-    if (Array.isArray(result) && result.length > 0) {
+    if (Array.isArray(result)) {
       return {
         error: undefined,
         tweets: result

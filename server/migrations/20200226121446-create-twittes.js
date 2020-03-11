@@ -10,7 +10,6 @@ module.exports = {
       },
       idStr: {
         type: Sequelize.STRING,
-        field: 'id_str',
         unique: true,
         allowNull: false
       },

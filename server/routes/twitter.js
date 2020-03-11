@@ -153,14 +153,17 @@ router.put('/update/tweets', checkSession, async (req, res) => {
       filteredTweets = tweets
         .filter((tweet) => tweet.text.includes(blockchain.hashtag));
 
-      await Promise.all(filteredTweets.map((tweet) => Twittes.create({
-        twittId: tweet.id_str,
+      const newTweetes = filteredTweets.map((tweet) => Twittes.create({
+        idStr: tweet.id_str,
         UserId: user.id
-      }, { transaction }).catch(() => null)));
+      }, { transaction }).catch(() => null));
 
+      await Promise.all(newTweetes);
       await transaction.commit();
 
-      return res.json(filteredTweets);
+      return res.json({
+        message: 'updated'
+      });
     });
   } catch (err) {
     return res.status(400).json({

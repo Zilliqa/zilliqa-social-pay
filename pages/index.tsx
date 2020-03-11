@@ -135,7 +135,7 @@ export const MainPage: NextPage = () => {
           <TwitterTweetEmbed
             key={index}
             screenName={userState.screenName}
-            tweetId={tweet.id_str}
+            tweetId={tweet.idStr}
           />
         ))}
         {twitterState.tweets.length < 1 ? (
