@@ -19,6 +19,7 @@ export const ModalContent = styled.aside`
   z-index: 10;
   background-color: gray;
   height: fit-content;
+  width: fit-content;
   animation: fadeInUp 0.4s;
   animation-timing-function: cubic-bezier(.3,.17,.23,.96);
 `;
