@@ -2,9 +2,11 @@ const router = require('express').Router();
 const { validation } = require('@zilliqa-js/util');
 const checkSession = require('../middleware/check-session');
 
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const models = require('../models');
 const User = models.sequelize.models.User;
 const Twittes = models.sequelize.models.Twittes;
+const Blockchain = models.sequelize.models.blockchain;
 
 router.put('/update/address/:address', checkSession, async (req, res) => {
   const bech32Address = req.params.address;
@@ -42,6 +44,13 @@ router.get('/get/tweets', checkSession, async (req, res) => {
 
   try {
     const user = await User.findByPk(userId);
+
+    if (!user) {
+      res.clearCookie(process.env.SESSION);
+
+      throw new Error('No found user.');
+    }
+
     const twittes = await Twittes.findAll({
       where: {
         UserId: user.id
@@ -49,6 +58,23 @@ router.get('/get/tweets', checkSession, async (req, res) => {
     });
 
     return res.status(200).json(twittes);
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({
+      message: err.message
+    });
+  }
+});
+
+router.get('/get/blockchain', checkSession, async (req, res) => {
+  try {
+    const blockchain = await Blockchain.findOne({
+      where: {
+        contract: CONTRACT_ADDRESS
+      }
+    });
+
+    return res.status(200).json(blockchain);
   } catch (err) {
     return res.status(400).json({
       message: err.message
