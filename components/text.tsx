@@ -9,6 +9,7 @@ type Prop = {
   nowrap?: boolean;
   align?: Sides;
   upperCase?: boolean;
+  css?: string;
 };
 
 export const Text = styled.div`
@@ -27,6 +28,8 @@ export const Text = styled.div`
 
   margin-block-start: 1em;
   margin-block-end: 1em;
+
+  ${(props: Prop) => props.css}
 `;
 
 Text.defaultProps = {
@@ -35,5 +38,6 @@ Text.defaultProps = {
   fontColors: FontColors.black,
   nowrap: false,
   align: Sides.left,
-  upperCase: false
+  upperCase: false,
+  css: ''
 };
