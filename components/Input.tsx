@@ -6,6 +6,7 @@ import { SizeComponent, Fonts, FontColors } from 'config';
 type Prop = {
   sizeVariant?: SizeComponent;
   fontVariant?: Fonts | string;
+  css?: string;
 };
 
 export const Input = styled.input`
@@ -25,14 +26,18 @@ export const Input = styled.input`
 
   transition: all .5s ease-out;
 
+  ${(props: Prop) => props.css}
+
   :focus {
     outline: none;
   }
 `;
 Input.defaultProps = {
   sizeVariant: SizeComponent.xs,
-  fontVariant: Fonts.AvenirNextLTProRegular
+  fontVariant: Fonts.AvenirNextLTProRegular,
+  css: ''
 };
+
 export const FieldLabel = styled.label`
   display: grid;
   justify-items: left;
