@@ -36,8 +36,8 @@ export interface Contract {
 }
 
 export interface Blockchain {
-  contract: string;
-  hashtag: string;
+  contract: string | null;
+  hashtag: string | null;
   zilsPerTweet: string;
   blocksPerDay: string;
   blocksPerWeek: string;

@@ -89,9 +89,6 @@ export const AuthPage: NextPage = () => {
   // Effector hooks //
 
   // React hooks //
-  const twitterLoginRef = React.useRef<HTMLDivElement>(null);
-
-  const [mounted, setMounted] = React.useState(false);
   const [addressErr, setAddressErr] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string | null>(null);
 
@@ -134,32 +131,10 @@ export const AuthPage: NextPage = () => {
       router.push('/');
     }
   }, [validation, setAddressErr, addressErr, address, userState]);
-
-  React.useEffect(() => {
-    if (!mounted && !userState.jwtToken) {
-      try {
-        twitterLoginRef.current?.click();
-
-        setMounted(true);
-      } catch (err) {
-        //
-      }
-    }
-  }, [setMounted, mounted, twitterLoginRef, userState]);
   // React hooks //
 
   return (
     <React.Fragment>
-      <TwitterLogin
-        style={{ display: 'none' }}
-        loginUrl={APIs.twitterAuth}
-        requestTokenUrl={APIs.twitterAuthReverse}
-        onSuccess={handleSuccess}
-        onFailure={() => null}
-        showIcon
-      >
-        <div ref={twitterLoginRef} />
-      </TwitterLogin>
       <FormContainer>
         <Center>
           <LeftPanel>
@@ -173,6 +148,13 @@ export const AuthPage: NextPage = () => {
                   >
                     You need to tie your Zilliqa address.
                   </Text>
+                  <TwitterLogin
+                    loginUrl={APIs.twitterAuth}
+                    requestTokenUrl={APIs.twitterAuthReverse}
+                    onSuccess={handleSuccess}
+                    onFailure={() => null}
+                    showIcon
+                  />
                   <FieldInput
                     sizeVariant={SizeComponent.md}
                     error={addressErr}

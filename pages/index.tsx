@@ -79,14 +79,17 @@ export const MainPage: NextPage = () => {
   ], [blockchainState]);
 
   React.useEffect(() => {
-    if (twitterState.tweets.length < 1 && !twitterState.error) {
+    if (!mounted && twitterState.tweets.length < 1 && !twitterState.error) {
       UserStore.update();
-      TwitterStore.getTweets(null);
-    }
 
-    if (!mounted) {
-      BlockchainStore.updateBlockchain(null);
-      setMounted(true);
+      if (userState.jwtToken && userState.jwtToken.length > 1) {
+        BlockchainStore.updateBlockchain(null);
+
+        TwitterStore.getTweets(null);
+        TwitterStore.updateTweets(userState.jwtToken);
+
+        setMounted(true);
+      }
     }
   }, [twitterState, userState, mounted, setMounted]);
 
@@ -119,14 +122,14 @@ export const MainPage: NextPage = () => {
           <Text upperCase>
             Verified tweetes
           </Text>
-          <TwitterHashtagButton
+          {blockchainState.hashtag ? <TwitterHashtagButton
             tag={blockchainState.hashtag}
             options={{
               size: 'large',
               screenName: userState.screenName,
               buttonHashtag: null
             }}
-          />
+          /> : null}
         </TweetContainer>
         {twitterState.tweets.map((tweet, index) => (
           <TwitterTweetEmbed

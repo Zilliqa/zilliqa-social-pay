@@ -6,8 +6,10 @@ const models = require('../models');
 const checkSession = require('../middleware/check-session');
 
 const API_URL = 'https://api.twitter.com';
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const User = models.sequelize.models.User;
 const Twittes = models.sequelize.models.Twittes;
+const Blockchain = models.sequelize.models.blockchain;
 
 const userSign = (req, res) => {
   if (!req.user) {
@@ -142,20 +144,21 @@ router.put('/update/tweets', checkSession, async (req, res) => {
 
       const transaction = await models.sequelize.transaction();
       let filteredTweets = [];
+      const blockchain = await Blockchain.findOne({
+        where: {
+          contract: CONTRACT_ADDRESS
+        }
+      });
 
-      try {
-        filteredTweets = tweets
-          .filter((tweet) => tweet.text.includes(contract.hashtag));
+      filteredTweets = tweets
+        .filter((tweet) => tweet.text.includes(blockchain.hashtag));
 
-        await Promise.all(filteredTweets.map((tweet) => Twittes.create({
-          twittId: tweet.id_str,
-          UserId: user.id
-        }, { transaction }).catch(() => null)));
-      } catch (err) {
-        // Skip
-      } finally {
-        await transaction.commit();
-      }
+      await Promise.all(filteredTweets.map((tweet) => Twittes.create({
+        twittId: tweet.id_str,
+        UserId: user.id
+      }, { transaction }).catch(() => null)));
+
+      await transaction.commit();
 
       return res.json(filteredTweets);
     });

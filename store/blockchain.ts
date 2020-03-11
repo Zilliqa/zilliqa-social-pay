@@ -9,8 +9,8 @@ export const updateBlockchain = blockchainDomain.effect<null, Blockchain, Error>
 updateBlockchain.use(fetchBlockchainData);
 
 const initalState: Blockchain = {
-  contract: '',
-  hashtag: '',
+  contract: null,
+  hashtag: null,
   zilsPerTweet: '0',
   blocksPerDay: '0',
   blocksPerWeek: '0',

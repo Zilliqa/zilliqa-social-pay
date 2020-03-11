@@ -7,7 +7,7 @@ import { Twitte } from 'interfaces';
 
 export const TwitterDomain = createDomain();
 export const update = TwitterDomain.event<any[]>();
-export const getTweets = TwitterDomain.effect<null, any[], Error>();
+export const getTweets = TwitterDomain.effect<null, any[] | any, Error>();
 
 export const updateTweets = TwitterDomain.effect<string, any[], Error>();
 
