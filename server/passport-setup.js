@@ -48,7 +48,8 @@ passport.use(
             'username',
             'profileId',
             'screenName',
-            'profileImageUrl'
+            'profileImageUrl',
+            'zilAddress'
           ]
         })
         .then(([user]) => done(null, user))
