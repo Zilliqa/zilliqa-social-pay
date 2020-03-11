@@ -7,7 +7,6 @@ const next = require('next');
 const passport = require('passport');
 const uuidv4 = require('uuid').v4;
 const cookieParser = require('cookie-parser');
-const zilliqa = require('./zilliqa');
 
 const ENV = process.env.NODE_ENV;
 const port = process.env.PORT || 3000;
@@ -24,11 +23,8 @@ require('./passport-setup');
 
 app
   .prepare()
-  .then(() => zilliqa.getInit())
-  .then((contracInit) => {
+  .then(() => {
     const server = express();
-
-    server.set('contract', contracInit);
 
     server.use(cookieParser());
     server.use(cookieSession({
@@ -55,16 +51,11 @@ app
     // handling everything else with Next.js
     server.get('*', handle);
 
-    setInterval(() => {
-      zilliqa
-        .blockchainInfo()
-        .then((info) => server.set('blockchain', info));
-    }, 5000);
-    zilliqa
-        .blockchainInfo()
-        .then((info) => server.set('blockchain', info));
-
     http.createServer(server).listen(port, () => {
       console.log(`listening on port ${port}`);
     });
   });
+
+if (dev) {
+  require('./scheduler');
+}

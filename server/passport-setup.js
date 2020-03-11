@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const passport = require('passport');
 const TwitterTokenStrategy = require('passport-twitter-token');
 
