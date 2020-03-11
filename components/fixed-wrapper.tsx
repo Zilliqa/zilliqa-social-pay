@@ -1,21 +1,18 @@
 import React from 'react';
-import styled from 'styled-components';
 import * as Effector from 'effector-react';
 import { validation } from '@zilliqa-js/util';
+import { TwitterTweetEmbed } from 'react-twitter-embed';
 
 import EventStore from 'store/event';
 import UserStore from 'store/user';
 
 import { Modal } from 'components/modal';
 import { Card } from 'components/card';
-import { FieldInput } from 'components/Input';
+import { FieldInput, Search } from 'components/Input';
 import { Text } from 'components/text';
 
-import { Events, SizeComponent } from 'config';
-
-export const SettingsModal = styled(Card)`
-  width: 300px;
-`;
+import { Events, SizeComponent, FontSize, Fonts, FontColors } from 'config';
+import { SearchTweet } from 'utils/get-tweets';
 
 export const FixedWrapper: React.FC = () => {
   const eventState = Effector.useStore(EventStore.store);
@@ -23,6 +20,8 @@ export const FixedWrapper: React.FC = () => {
 
   const [addressErr, setAddressErr] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string>(userState.zilAddress);
+  const [foundTweet, setFoundTweet] = React.useState<any | null>();
+  const [searchErr, setSearchErr] = React.useState<string | null>();
 
   const handleAddressChange = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.value) {
@@ -35,11 +34,29 @@ export const FixedWrapper: React.FC = () => {
 
     setAddress(event.target.value);
 
+    if (address === userState.zilAddress) {
+      return null;
+    }
+
     await UserStore.updateAddress({
       address,
       jwt: userState.jwtToken
     });
   }, [address, validation, setAddressErr, addressErr]);
+  const handeSearchTweet = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const tweet = await SearchTweet(
+      event.target.value,
+      userState.jwtToken
+    );
+
+    if (tweet.message) {
+      setSearchErr(tweet.message);
+
+      return null;
+    }
+
+    setFoundTweet(tweet);
+  }, [userState, setFoundTweet, setSearchErr]);
 
   React.useEffect(() => {
     if (!address || address.length < 1) {
@@ -53,7 +70,7 @@ export const FixedWrapper: React.FC = () => {
         show={eventState.current === Events.Settings}
         onBlur={() => EventStore.reset()}
       >
-        <SettingsModal title="Settings">
+        <Card title="Settings">
           <Text>
             Your Zilliqa address
           </Text>
@@ -65,7 +82,36 @@ export const FixedWrapper: React.FC = () => {
             onBlur={handleAddressChange}
             onChange={() => setAddressErr(null)}
           />
-        </SettingsModal>
+        </Card>
+      </Modal>
+      <Modal
+        show={eventState.current === Events.Twitter}
+        onBlur={() => EventStore.reset()}
+      >
+        <Card title="Search tweets.">
+          <Text
+            size={FontSize.sm}
+            fontVariant={Fonts.AvenirNextLTProBold}
+          >
+            Search your tweet with #zilliqa.
+          </Text>
+          <Search
+            sizeVariant={SizeComponent.lg}
+            css="width: 350px;"
+            onBlur={handeSearchTweet}
+            onChange={() => setSearchErr(null)}
+          />
+          <Text
+            fontColors={FontColors.danger}
+            css="text-indent: 15px;"
+          >
+            {searchErr}
+          </Text>
+          {foundTweet ? <TwitterTweetEmbed
+            screenName={userState.screenName}
+            tweetId={foundTweet.id_str}
+          /> : null}
+        </Card>
       </Modal>
     </React.Fragment>
   );
