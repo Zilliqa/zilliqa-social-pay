@@ -1,5 +1,5 @@
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
-const { validation } = require('@zilliqa-js/util');
+const { validation, BN, Long, bytes, units } = require('@zilliqa-js/util');
 const { toBech32Address } = require('@zilliqa-js/crypto');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
@@ -8,6 +8,9 @@ const PROVIDERS = {
   textnet: 'https://dev-api.zilliqa.com'
 };
 const ENV = process.env.NODE_ENV;
+const CHAIN_ID = 333;
+const MSG_VERSION = 1;
+const VERSION = bytes.pack(CHAIN_ID, MSG_VERSION);
 
 let httpNode = PROVIDERS.mainnet;
 
@@ -16,6 +19,9 @@ if (ENV !== 'production') {
 }
 
 const zilliqa = new Zilliqa(httpNode);
+const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
+
+zilliqa.wallet.addByPrivateKey(process.env.ADMIN_PRIVATE_KEY);
 
 if (!validation.isBech32(CONTRACT_ADDRESS)) {
   throw new Error('contract address: ', CONTRACT_ADDRESS, 'must be Bech32 format.');
@@ -23,7 +29,6 @@ if (!validation.isBech32(CONTRACT_ADDRESS)) {
 
 module.exports = {
   async getInit() {
-    const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
     const [
       owner,
       hashtag,
@@ -45,5 +50,69 @@ module.exports = {
     const { result } = await zilliqa.blockchain.getBlockChainInfo();
 
     return result;
+  },
+  async configureUsers(profileId, address) {
+    const params = [
+      {
+        vname: 'twitter_id',
+        type: 'String',
+        value: `${profileId}`
+      },
+      {
+        vname: 'recipient_address',
+        type: 'ByStr20',
+        value: `${address}`
+      }
+    ];
+    const tx = await contract.call('ConfigureUsers', params, {
+      version: VERSION,
+      amount: new BN(0),
+      gasPrice: new BN('1000000000'),
+      gasLimit: Long.fromNumber(50000)
+    });
+
+    return tx;
+  },
+  async verifyTweet(data) {
+    const params = [
+      {
+        vname: 'twitter_id',
+        type: 'String',
+        value: `${data.profileId}`
+      },
+      {
+        vname: 'tweet_id',
+        type: 'String',
+        value: `${data.tweetId}`
+      },
+      {
+        vname: 'tweet_text',
+        type: 'String',
+        value: `${data.tweetText}`
+      },
+      {
+        vname: 'start_pos',
+        type: 'Uint32',
+        value: `${data.startPos}`
+      }
+    ];
+    const tx = await contract.call('VerifyTweet', params, {
+      version: VERSION,
+      amount: new BN(0),
+      gasPrice: new BN('1000000000'),
+      gasLimit: Long.fromNumber(50000)
+    });
+
+    return tx;
+  },
+  async depositToContract() {
+    const tx = await contract.call('Deposit', [], {
+      version: VERSION,
+      amount: new BN(units.toQa('10000', units.Units.Zil)),
+      gasPrice: new BN('1000000000'),
+      gasLimit: Long.fromNumber(1000)
+    });
+
+    return tx;
   }
 };
