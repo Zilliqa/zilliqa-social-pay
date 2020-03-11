@@ -15,13 +15,13 @@ import { Card } from 'components/card';
 
 import { PageProp } from 'interfaces';
 import { fromZil } from 'utils/from-zil';
-import { Events } from 'config';
+import { Events, FontSize, Fonts } from 'config';
 
 const LINKS = [
   {
     img: '/icons/twitter.svg',
     name: 'Twittes',
-    event: Events.None
+    event: Events.Twitter
   },
   {
     img: '/icons/setup.svg',
@@ -84,10 +84,6 @@ export const MainPage: NextPage<PageProp> = ({ ...pageProps }) => {
       UserStore.update();
       TwitterStore.getTweets(null);
     }
-
-    if (userState.jwtToken && twitterState.error) {
-      TwitterStore.updateTweets(userState.jwtToken);
-    }
   }, [twitterState, userState]);
 
   return (
@@ -136,6 +132,14 @@ export const MainPage: NextPage<PageProp> = ({ ...pageProps }) => {
             tweetId={tweet.id_str}
           />
         ))}
+        {twitterState.tweets.length < 1 ? (
+          <Text
+            size={FontSize.md}
+            fontVariant={Fonts.AvenirNextLTProBold}
+          >
+            You haven't verified tweets yet.
+          </Text>
+        ) : null}
       </Container>
     </MainPageContainer>
   );
