@@ -70,7 +70,6 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 class SocialPay extends App {
-
   public componentDidMount() {
     UserStore.update();
 
@@ -103,21 +102,14 @@ class SocialPay extends App {
   }
 }
 
-SocialPay.getInitialProps = async ({ ctx, pageProps }: any) => {
+SocialPay.getInitialProps = async ({ ctx }: any) => {
   let firstStart = true;
-
-  if (pageProps) {
-    return {
-      pageProps
-    };
-  }
 
   if (!ctx || !ctx.req || !ctx.req.app) {
     return {
       pageProps: {
         user: null,
-        contract: null,
-        blockchain: null
+        firstStart: false
       }
     };
   }
@@ -126,24 +118,17 @@ SocialPay.getInitialProps = async ({ ctx, pageProps }: any) => {
     firstStart = false;
   }
 
-  const contract = ctx.req.app.get('contract');
-  const blockchain = ctx.req.app.get('blockchain');
-
   if (ctx && ctx.req && ctx.req.session && ctx.req.session.passport) {
     return {
       pageProps: {
         ...ctx.req.session.passport,
-        firstStart,
-        contract,
-        blockchain
+        firstStart
       }
     };
   }
 
   return {
     pageProps: {
-      contract,
-      blockchain,
       firstStart,
       user: null
     }

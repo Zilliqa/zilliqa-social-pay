@@ -6,6 +6,7 @@ import { TwitterTweetEmbed, TwitterHashtagButton } from 'react-twitter-embed';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
+import BlockchainStore from 'store/blockchain';
 
 import { Container } from 'components/container';
 import { TopBar } from 'components/top-bar';
@@ -13,7 +14,6 @@ import { LeftBar } from 'components/left-bar';
 import { Text } from 'components/text';
 import { Card } from 'components/card';
 
-import { PageProp } from 'interfaces';
 import { fromZil } from 'utils/from-zil';
 import { Events, FontSize, Fonts } from 'config';
 
@@ -39,7 +39,9 @@ const MainPageContainer = styled.main`
                        "left-bar container";
 `;
 const OverviewContainer = styled(Container)`
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-gap: 15px;
   justify-content: space-between;
   align-items: center;
 `;
@@ -50,41 +52,43 @@ const TweetContainer = styled(Container)`
   padding-top: 30px;
 `;
 
-export const MainPage: NextPage<PageProp> = ({ ...pageProps }) => {
+export const MainPage: NextPage = () => {
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
+  const blockchainState = Effector.useStore(BlockchainStore.store);
 
-  const overviews = React.useMemo(() => {
-    try {
-      return [
-        {
-          title: 'Block per day.',
-          value: pageProps.contract.blocksPerDay
-        },
-        {
-          title: 'Block per week.',
-          value: pageProps.contract.blocksPerWeek
-        },
-        {
-          title: 'ZILs per tweet.',
-          value: fromZil(pageProps.contract.zilsPerTweet, false)
-        },
-        {
-          title: 'Current DSEpoch.',
-          value: pageProps.blockchain.CurrentDSEpoch || 0
-        }
-      ];
-    } catch (err) {
-      return [];
+  const [mounted, setMounted] = React.useState(false);
+
+  const overviews = React.useMemo(() => [
+    {
+      title: 'Block per day.',
+      value: blockchainState.blocksPerDay
+    },
+    {
+      title: 'Block per week.',
+      value: blockchainState.blocksPerWeek
+    },
+    {
+      title: 'ZILs per tweet.',
+      value: fromZil(blockchainState.zilsPerTweet, false)
+    },
+    {
+      title: 'Current DSEpoch.',
+      value: blockchainState.CurrentDSEpoch || 0
     }
-  }, [pageProps.contract]);
+  ], [blockchainState]);
 
   React.useEffect(() => {
     if (twitterState.tweets.length < 1 && !twitterState.error) {
       UserStore.update();
       TwitterStore.getTweets(null);
     }
-  }, [twitterState, userState]);
+
+    if (!mounted) {
+      BlockchainStore.updateBlockchain(null);
+      setMounted(true);
+    }
+  }, [twitterState, userState, mounted, setMounted]);
 
   return (
     <MainPageContainer>
@@ -115,15 +119,14 @@ export const MainPage: NextPage<PageProp> = ({ ...pageProps }) => {
           <Text upperCase>
             Verified tweetes
           </Text>
-          {Boolean(pageProps.contract && pageProps.contract.hashtag) ?
-            <TwitterHashtagButton
-              tag={pageProps.contract.hashtag}
-              options={{
-                size: 'large',
-                screenName: userState.screenName,
-                buttonHashtag: null
-              }}
-            /> : null}
+          <TwitterHashtagButton
+            tag={blockchainState.hashtag}
+            options={{
+              size: 'large',
+              screenName: userState.screenName,
+              buttonHashtag: null
+            }}
+          />
         </TweetContainer>
         {twitterState.tweets.map((tweet, index) => (
           <TwitterTweetEmbed
