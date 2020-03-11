@@ -39,6 +39,14 @@ router.put('/update/address/:address', checkSession, async (req, res) => {
   }
 });
 
+router.put('/sing/out', checkSession, (req, res) => {
+  res.clearCookie(process.env.SESSION);
+
+  return res.status(200).json({
+    message: 'cleared'
+  });
+});
+
 router.get('/get/tweets', checkSession, async (req, res) => {
   const userId = req.session.passport.user.id;
 

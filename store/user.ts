@@ -7,6 +7,7 @@ import { fetchUpdateAddress } from 'utils/user-api';
 export const UserDomain = createDomain();
 export const setUser = UserDomain.event<User>();
 export const update = UserDomain.event();
+export const clear = UserDomain.event();
 
 export const updateAddress = UserDomain.effect<FetchUpdateAddress, User, Error>();
 
@@ -52,11 +53,17 @@ export const store = UserDomain.store<User>(initalState)
     storage.setItem(LocalStorageKeys.user, JSON.stringify(newState));
 
     return newState;
+  })
+  .on(clear, () => {
+    window.localStorage.clear();
+
+    return initalState;
   });
 
 export default {
   store,
   update,
   setUser,
-  updateAddress
+  updateAddress,
+  clear
 };

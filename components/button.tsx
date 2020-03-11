@@ -6,6 +6,7 @@ type Prop = {
   variant?: ButtonVariants;
   sizeVariant?: SizeComponent;
   fontVariant?: Fonts | string;
+  css?: string;
 };
 
 export const Button = styled.button`
@@ -19,6 +20,7 @@ export const Button = styled.button`
   font-family: ${(props: Prop) => props.fontVariant};
   ${(props: Prop) => props.variant}
   padding: ${(props: Prop) => props.sizeVariant};
+  ${(props: Prop) => props.css}
 
   :focus {
     outline: none;
@@ -33,5 +35,6 @@ export const Button = styled.button`
 Button.defaultProps = {
   variant: ButtonVariants.primary,
   sizeVariant: SizeComponent.xs,
-  fontVariant: Fonts.AvenirNextLTProDemi
+  fontVariant: Fonts.AvenirNextLTProDemi,
+  css: ''
 };

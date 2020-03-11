@@ -2,6 +2,7 @@ import React from 'react';
 import * as Effector from 'effector-react';
 import { validation } from '@zilliqa-js/util';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
+import { useRouter } from 'next/router';
 
 import EventStore from 'store/event';
 import UserStore from 'store/user';
@@ -10,14 +11,29 @@ import { Modal } from 'components/modal';
 import { Card } from 'components/card';
 import { FieldInput, Search } from 'components/Input';
 import { Text } from 'components/text';
+import { Button } from 'components/button';
 
-import { Events, SizeComponent, FontSize, Fonts, FontColors } from 'config';
+import {
+  ButtonVariants,
+  Events,
+  SizeComponent,
+  FontSize,
+  Fonts,
+  FontColors
+} from 'config';
 import { SearchTweet } from 'utils/get-tweets';
 
 export const FixedWrapper: React.FC = () => {
+  // Next hooks //
+  const router = useRouter();
+  // Next hooks //
+
+  // Effector hooks //
   const eventState = Effector.useStore(EventStore.store);
   const userState = Effector.useStore(UserStore.store);
+  // Effector hooks //
 
+  // React hooks //
   const [addressErr, setAddressErr] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string>(userState.zilAddress);
   const [foundTweet, setFoundTweet] = React.useState<any | null>();
@@ -57,12 +73,19 @@ export const FixedWrapper: React.FC = () => {
 
     setFoundTweet(tweet);
   }, [userState, setFoundTweet, setSearchErr]);
+  const handleSignOut = React.useCallback(() => {
+    EventStore.signOut(null);
+    UserStore.clear();
+    EventStore.setEvent(Events.None);
+    router.push('/auth');
+  }, [router]);
 
   React.useEffect(() => {
     if (!address || address.length < 1) {
       setAddress(userState.zilAddress);
     }
   }, [address, setAddress, userState]);
+  // React hooks //
 
   return (
     <React.Fragment>
@@ -82,6 +105,14 @@ export const FixedWrapper: React.FC = () => {
             onBlur={handleAddressChange}
             onChange={() => setAddressErr(null)}
           />
+          <Button
+            sizeVariant={SizeComponent.md}
+            variant={ButtonVariants.danger}
+            css="margin-top: 30px;"
+            onClick={handleSignOut}
+          >
+            Sign out
+          </Button>
         </Card>
       </Modal>
       <Modal
