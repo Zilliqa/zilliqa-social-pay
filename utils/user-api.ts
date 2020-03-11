@@ -16,3 +16,10 @@ export const fetchUpdateAddress = async ({ address, jwt }: FetchUpdateAddress) =
 
   return result;
 };
+
+export const fetchUserData = async () => {
+  const res = await fetch(APIs.getAccount);
+  const result = await res.json();
+
+  return result;
+};

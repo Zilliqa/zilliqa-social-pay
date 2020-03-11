@@ -155,6 +155,7 @@ router.put('/update/tweets', checkSession, async (req, res) => {
 
       const newTweetes = filteredTweets.map((tweet) => Twittes.create({
         idStr: tweet.id_str,
+        text: tweet.text,
         UserId: user.id
       }, { transaction }).catch(() => null));
 
@@ -222,9 +223,10 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
 
       try {
         await Twittes.create({
-          twittId: tweet.id_str,
+          idStr: tweet.id_str,
+          text: tweet.text,
           UserId: user.id
-        })
+        });
       } catch (err) {
         //
       } finally {

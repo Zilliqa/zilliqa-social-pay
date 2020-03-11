@@ -6,6 +6,10 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       allowNull: false
     },
+    text: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
     approved: {
       type: DataTypes.BOOLEAN,
       defaultValue: false

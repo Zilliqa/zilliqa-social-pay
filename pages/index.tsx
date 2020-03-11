@@ -17,6 +17,7 @@ import { Card } from 'components/card';
 import { fromZil } from 'utils/from-zil';
 import { Events, FontSize, Fonts } from 'config';
 
+const ITERVAL_USER_UPDATE = 60000;
 const LINKS = [
   {
     img: '/icons/twitter.svg',
@@ -90,6 +91,9 @@ export const MainPage: NextPage = () => {
 
         setMounted(true);
       }
+
+      UserStore.updateUserState(null);
+      setInterval(() => UserStore.updateUserState(null), ITERVAL_USER_UPDATE);
     }
   }, [twitterState, userState, mounted, setMounted]);
 

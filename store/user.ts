@@ -2,7 +2,7 @@ import { createDomain } from 'effector';
 
 import { User, FetchUpdateAddress } from 'interfaces';
 import { LocalStorageKeys } from 'config';
-import { fetchUpdateAddress } from 'utils/user-api';
+import { fetchUpdateAddress, fetchUserData } from 'utils/user-api';
 
 export const UserDomain = createDomain();
 export const setUser = UserDomain.event<User>();
@@ -10,8 +10,10 @@ export const update = UserDomain.event();
 export const clear = UserDomain.event();
 
 export const updateAddress = UserDomain.effect<FetchUpdateAddress, User, Error>();
+export const updateUserState = UserDomain.effect<null, User, Error>();
 
 updateAddress.use(fetchUpdateAddress);
+updateUserState.use(fetchUserData);
 
 const initalState: User = {
   username: '',
@@ -58,6 +60,17 @@ export const store = UserDomain.store<User>(initalState)
     window.localStorage.clear();
 
     return initalState;
+  })
+  .on(updateUserState.done, (state, { result }) => {
+    const storage = window.localStorage;
+    const updated = {
+      ...state,
+      ...result
+    };
+
+    storage.setItem(LocalStorageKeys.user, JSON.stringify(updated));
+
+    return updated;
   });
 
 export default {
@@ -65,5 +78,6 @@ export default {
   update,
   setUser,
   updateAddress,
-  clear
+  clear,
+  updateUserState
 };

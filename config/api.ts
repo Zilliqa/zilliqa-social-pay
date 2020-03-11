@@ -16,5 +16,6 @@ export const APIs = {
   getTweets: `${API_V1}/${Methods.get}/tweets`,
   tweetsUpdate: `${API_V1}/${Methods.update}/tweets`,
   searchTweet: `${API_V1}/${Methods.search}/tweets`,
-  getblockchain: `${API_V1}/${Methods.get}/blockchain`
+  getblockchain: `${API_V1}/${Methods.get}/blockchain`,
+  getAccount: `${API_V1}/${Methods.get}/account`
 };

@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
 const { validation, BN, Long, bytes, units } = require('@zilliqa-js/util');
-const { toBech32Address } = require('@zilliqa-js/crypto');
+const { toBech32Address, fromBech32Address } = require('@zilliqa-js/crypto');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const PROVIDERS = {
@@ -53,7 +53,11 @@ module.exports = {
 
     return result;
   },
-  async configureUsers(profileId, address) {
+  async configureUsers(profileId, address, nonce) {
+    if (validation.isBech32(address)) {
+      address = fromBech32Address(address);
+    }
+
     const params = [
       {
         vname: 'twitter_id',
@@ -67,10 +71,11 @@ module.exports = {
       }
     ];
     const tx = await contract.call('ConfigureUsers', params, {
+      nonce,
       version: VERSION,
       amount: new BN(0),
-      gasPrice: new BN('1000000000'),
-      gasLimit: Long.fromNumber(50000)
+      gasPrice: units.toQa('5000', units.Units.Li),
+      gasLimit: Long.fromNumber(20000)
     });
 
     return tx;
@@ -102,8 +107,8 @@ module.exports = {
       nonce,
       version: VERSION,
       amount: new BN(0),
-      gasPrice: new BN('1000000000'),
-      gasLimit: Long.fromNumber(50000)
+      gasPrice: units.toQa('5000', units.Units.Li),
+      gasLimit: Long.fromNumber(20000)
     });
 
     return tx;

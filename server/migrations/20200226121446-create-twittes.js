@@ -13,6 +13,10 @@ module.exports = {
         unique: true,
         allowNull: false
       },
+      text: {
+        type: Sequelize.TEXT,
+        allowNull: false
+      },
       approved: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
