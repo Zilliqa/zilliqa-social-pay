@@ -108,7 +108,7 @@ module.exports = {
       version: VERSION,
       amount: new BN(0),
       gasPrice: units.toQa('5000', units.Units.Li),
-      gasLimit: Long.fromNumber(20000)
+      gasLimit: Long.fromNumber(100000)
     });
 
     return tx;

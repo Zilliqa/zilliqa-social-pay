@@ -12,7 +12,7 @@ function getPos(text, hashtag) {
   text = text.toLowerCase();
   hashtag = hashtag.toLowerCase();
 
-  return text.indexOf(hashtag) + 1;
+  return text.indexOf(hashtag);
 }
 
 module.exports = async function() {
@@ -35,14 +35,28 @@ module.exports = async function() {
   debug(`account: ${address}, balance: ${balanceAmount}, nonce: ${nonce}`);
   debug(`need to VerifyTweet ${twittes.count}`);
 
-  let transactions = twittes.rows.map((tweet, index) => zilliqa.verifyTweet({
-    profileId: tweet.User.profileId,
-    tweetId: tweet.idStr,
-    tweetText: tweet.text.toLowerCase(),
-    startPos: getPos(tweet.text, blockchainInfo.hashtag)
-  }, nonce + index + 1).catch((err) => console.log(err)));
+  for (let index = 0; index < twittes.rows.length; index++) {
+    const tweet = twittes.rows[index];
 
-  transactions = await Promise.all(transactions);
+    try {
+      const tx = await zilliqa.verifyTweet({
+        profileId: tweet.User.profileId,
+        tweetId: tweet.idStr,
+        tweetText: tweet.text.toLowerCase(),
+        startPos: getPos(tweet.text, blockchainInfo.hashtag)
+      }, nonce + index + 1);
 
-  // console.log(blockchainInfo.hashtag, JSON.stringify(twittes.rows[0], null, 4));
+      console.log(JSON.stringify(tx, null, 4));
+  
+      if (tx.id) {
+        await tweet.update({
+          txId: tx.id,
+          approved: true
+        });
+        debug('tweet:', tweet.idStr, 'has been verifed, tx hash:', tx.id);
+      }
+    } catch (err) {
+      debug('tweet:', tweet.idStr, 'has not verifed error:', err);
+    }
+  }
 }()
