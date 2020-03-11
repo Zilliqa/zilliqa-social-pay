@@ -36,21 +36,19 @@ export interface Contract {
 }
 
 export interface Blockchain {
+  contract: string;
+  hashtag: string;
+  zilsPerTweet: string;
+  blocksPerDay: string;
+  blocksPerWeek: string;
   CurrentDSEpoch: string;
   CurrentMiniEpoch: string;
-  DSBlockRate: number;
   NumDSBlocks: string;
-  NumPeers: number;
-  NumTransactions: string;
   NumTxBlocks: string;
-  NumTxnsDSEpoch: string;
-  NumTxnsTxEpoch: string;
 }
 
 export interface PageProp {
   user: User;
-  contract: Contract;
-  blockchain: Blockchain;
 }
 
 export interface EventState {
