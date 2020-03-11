@@ -75,7 +75,7 @@ module.exports = {
 
     return tx;
   },
-  async verifyTweet(data) {
+  async verifyTweet(data, nonce) {
     const params = [
       {
         vname: 'twitter_id',
@@ -99,6 +99,7 @@ module.exports = {
       }
     ];
     const tx = await contract.call('VerifyTweet', params, {
+      nonce,
       version: VERSION,
       amount: new BN(0),
       gasPrice: new BN('1000000000'),
@@ -116,5 +117,14 @@ module.exports = {
     });
 
     return tx;
+  },
+  async getCurrentAccount() {
+    const { address } = zilliqa.wallet.defaultAccount;
+    const { result } = await zilliqa.blockchain.getBalance(address);
+
+    return {
+      ...result,
+      address
+    };
   }
 };
