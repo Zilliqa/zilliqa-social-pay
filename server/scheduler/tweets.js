@@ -3,7 +3,6 @@ const { units, BN } = require('@zilliqa-js/util');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
 
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const Twittes = models.sequelize.models.Twittes;
 const User = models.sequelize.models.User;
 
