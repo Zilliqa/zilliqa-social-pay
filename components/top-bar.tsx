@@ -25,8 +25,8 @@ const TopBarContainer = styled.header`
 const ProfileContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: 15px;
   align-items: center;
+  justify-items: center;
 `;
 const ProfileImg = styled(Img)`
   border-radius: 50%;
@@ -36,7 +36,7 @@ type Prop = {
   profileImg: string;
   profileName: string;
   zilAddress: string;
-}
+};
 
 export const TopBar: React.FC<Prop> = ({
   zilAddress,

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
 const { validation, BN, Long, bytes, units } = require('@zilliqa-js/util');
 const { toBech32Address } = require('@zilliqa-js/crypto');
