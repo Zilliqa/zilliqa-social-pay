@@ -45,7 +45,7 @@ type Prop = {
     name: string;
     event: Events;
   }[];
-}
+};
 
 export const LeftBar: React.FC<Prop> = ({
   profileName,
