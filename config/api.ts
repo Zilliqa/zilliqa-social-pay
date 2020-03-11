@@ -13,5 +13,6 @@ export const APIs = {
   twitterAuthReverse: `${API_V1}/${Methods.auth}/twitter/reverse`,
   getTweets: `${API_V1}/${Methods.get}/tweets`,
   tweetsUpdate: `${API_V1}/${Methods.update}/tweets`,
-  searchTweet: `${API_V1}/${Methods.search}/tweets`
+  searchTweet: `${API_V1}/${Methods.search}/tweets`,
+  getblockchain: `${API_V1}/${Methods.get}/blockchain`
 };
