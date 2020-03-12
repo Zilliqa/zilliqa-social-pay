@@ -4,7 +4,7 @@
   "scripts": {
     "db:migrate": "npx sequelize db:migrate",
     "db:seed:all": "npx sequelize db:seed:all",
-    "db:create": "npx sequelize db:create",
+    "db:create": "cross-env NODE_ENV=production npx sequelize db:create",
     "dev": "npm run db:migrate && npm run db:seed:all && cross-env DEBUG=zilliqa-social-pay:* node ./server/index.js",
     "build": "next build",
     "start": "cross-env NODE_ENV=production npm run db:migrate && cross-env NODE_ENV=production npm run db:seed:all && cross-env NODE_ENV=production node ./server/index.js",
