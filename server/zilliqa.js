@@ -6,8 +6,8 @@ const { toBech32Address, fromBech32Address } = require('@zilliqa-js/crypto');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const PROVIDERS = {
-  mainnet: 'https://api.zilliqa.com',
-  textnet: 'https://dev-api.zilliqa.com'
+  mainnet: 'https://dev-api.zilliqa.com',
+  testnet: 'https://dev-api.zilliqa.com'
 };
 const ENV = process.env.NODE_ENV;
 const CHAIN_ID = 333;
@@ -17,7 +17,7 @@ const VERSION = bytes.pack(CHAIN_ID, MSG_VERSION);
 let httpNode = PROVIDERS.mainnet;
 
 if (ENV !== 'production') {
-  httpNode = PROVIDERS.textnet;
+  httpNode = PROVIDERS.testnet;
 }
 
 const zilliqa = new Zilliqa(httpNode);
