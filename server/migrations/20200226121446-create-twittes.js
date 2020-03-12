@@ -22,8 +22,7 @@ module.exports = {
         defaultValue: false
       },
       txId: {
-        type: Sequelize.STRING,
-        unique: true
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,

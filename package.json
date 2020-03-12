@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "cross-env NODE_ENV=production npm run db:migrate && cross-env NODE_ENV=production npm run db:seed:all && cross-env NODE_ENV=production node ./server/index.js",
     "type-check": "tsc",
+    "scheduler": "node server/scheduler/index.js",
     "lint:ts": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
     "lint:ts:fix": "npm run lint:ts -- --fix",
     "precommit": "npm run lint:ts"

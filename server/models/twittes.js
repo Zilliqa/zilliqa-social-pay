@@ -15,8 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false
     },
     txId: {
-      type: DataTypes.STRING,
-      unique: true
+      type: DataTypes.STRING
     }
   }, {});
   Twittes.associate = function(models) {
