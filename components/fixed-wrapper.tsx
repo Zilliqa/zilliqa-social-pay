@@ -109,7 +109,7 @@ export const FixedWrapper: React.FC = () => {
             defaultValue={address}
             sizeVariant={SizeComponent.md}
             error={addressErr}
-            disabled={userState.zilAddress.includes('padding')}
+            disabled={userState.zilAddress && userState.zilAddress.includes('padding')}
             css="font-size: 15px;width: 350px;"
             onBlur={handleAddressChange}
             onChange={() => setAddressErr(null)}

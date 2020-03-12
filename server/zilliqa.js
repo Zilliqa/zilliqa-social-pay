@@ -125,11 +125,20 @@ module.exports = {
   },
   async getCurrentAccount() {
     const { address } = zilliqa.wallet.defaultAccount;
-    const { result } = await zilliqa.blockchain.getBalance(address);
 
-    return {
-      ...result,
-      address
-    };
+    try {
+      const { result } = await zilliqa.blockchain.getBalance(address);
+
+      return {
+        ...result,
+        address
+      };
+    } catch (err) {
+      return {
+        balance: '0',
+        nonce: 0,
+        address
+      };
+    }
   }
 };
