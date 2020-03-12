@@ -74,8 +74,8 @@ module.exports = {
       nonce,
       version: VERSION,
       amount: new BN(0),
-      gasPrice: units.toQa('5000', units.Units.Li),
-      gasLimit: Long.fromNumber(20000)
+      gasPrice: units.toQa('1000', units.Units.Li),
+      gasLimit: Long.fromNumber(25000)
     });
 
     return tx;
@@ -107,8 +107,8 @@ module.exports = {
       nonce,
       version: VERSION,
       amount: new BN(0),
-      gasPrice: units.toQa('5000', units.Units.Li),
-      gasLimit: Long.fromNumber(100000)
+      gasPrice: units.toQa('1000', units.Units.Li),
+      gasLimit: Long.fromNumber(25000)
     });
 
     return tx;

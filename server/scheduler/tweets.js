@@ -12,7 +12,12 @@ function getPos(text, hashtag) {
   text = text.toLowerCase();
   hashtag = hashtag.toLowerCase();
 
-  return text.indexOf(hashtag);
+  let startIndex = text.indexOf(hashtag);
+
+  return {
+    startIndex,
+    text: text.slice(0, startIndex + hashtag.length)
+  };
 }
 
 module.exports = async function() {
@@ -39,16 +44,21 @@ module.exports = async function() {
     const tweet = twittes.rows[index];
 
     try {
+      await tweet.update({
+        txId: 'padding'
+      });
+
+      const { text, startIndex } = getPos(tweet.text, blockchainInfo.hashtag);
       const tx = await zilliqa.verifyTweet({
         profileId: tweet.User.profileId,
         tweetId: tweet.idStr,
-        tweetText: tweet.text.toLowerCase(),
-        startPos: getPos(tweet.text, blockchainInfo.hashtag)
+        tweetText: text,
+        startPos: startIndex
       }, nonce + index + 1);
 
-      console.log(JSON.stringify(tx, null, 4));
+      // console.log(JSON.stringify(tx, null, 4));
   
-      if (tx.id) {
+      if (tx.id && tx.receipt.event_logs[0]['_eventname'] === 'VerifyTweetSuccessful') {
         await tweet.update({
           txId: tx.id,
           approved: true
@@ -56,7 +66,10 @@ module.exports = async function() {
         debug('tweet:', tweet.idStr, 'has been verifed, tx hash:', tx.id);
       }
     } catch (err) {
+      await tweet.update({
+        txId: null
+      });
       debug('tweet:', tweet.idStr, 'has not verifed error:', err);
     }
   }
-}()
+}

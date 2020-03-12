@@ -155,13 +155,13 @@ export const AuthPage: NextPage = () => {
                     onFailure={() => null}
                     showIcon
                   />
-                  <FieldInput
+                  {userState.jwtToken ? <FieldInput
                     sizeVariant={SizeComponent.md}
                     error={addressErr}
                     placeholder="Zilliqa address (zil1) or ZNS."
                     onBlur={handleAddressChange}
                     onChange={() => setAddressErr(null)}
-                  />
+                  /> : null}
                 </React.Fragment>
               ) : null}
               <Button

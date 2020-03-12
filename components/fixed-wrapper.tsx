@@ -12,6 +12,7 @@ import { Card } from 'components/card';
 import { FieldInput, Search } from 'components/Input';
 import { Text } from 'components/text';
 import { Button } from 'components/button';
+import { Loader } from 'components/loader';
 
 import {
   ButtonVariants,
@@ -144,6 +145,7 @@ export const FixedWrapper: React.FC = () => {
           /> : null}
         </Card>
       </Modal>
+      <Loader load={eventState.current === Events.Load} />
     </React.Fragment>
   );
 };

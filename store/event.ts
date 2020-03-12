@@ -11,7 +11,6 @@ export const signOut = EventDomain.effect<null, null, Error>();
 
 signOut.use(fetchSignOut);
 
-
 const initalState = {
   current: Events.None
 };
