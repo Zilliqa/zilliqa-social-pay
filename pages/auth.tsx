@@ -7,6 +7,7 @@ import { validation } from '@zilliqa-js/util';
 import * as Effector from 'effector-react';
 
 import UserStore from 'store/user';
+import EventStore from 'store/event';
 
 import { Img } from 'components/img';
 import { Container } from 'components/container';
@@ -14,7 +15,7 @@ import { FieldInput } from 'components/Input';
 import { Button } from 'components/button';
 import { Text } from 'components/text';
 
-import { SizeComponent, APIs, FontSize, Sides, FontColors } from 'config';
+import { Events, SizeComponent, APIs, FontSize, Sides, FontColors } from 'config';
 
 const FormContainer = styled(Container)`
   display: grid;
@@ -118,10 +119,12 @@ export const AuthPage: NextPage = () => {
       return null;
     }
 
+    EventStore.setEvent(Events.Load);
     const result = await UserStore.updateAddress({
       address,
       jwt: userState.jwtToken
     });
+    EventStore.setEvent(Events.None);
 
     if (result.message) {
       setAddressErr(result.message);
@@ -152,15 +155,14 @@ export const AuthPage: NextPage = () => {
                     loginUrl={APIs.twitterAuth}
                     requestTokenUrl={APIs.twitterAuthReverse}
                     onSuccess={handleSuccess}
-                    onFailure={() => null}
+                    onFailure={() => EventStore.reset()}
                     showIcon
                   />
                   {userState.jwtToken ? <FieldInput
                     sizeVariant={SizeComponent.md}
                     error={addressErr}
                     placeholder="Zilliqa address (zil1) or ZNS."
-                    onBlur={handleAddressChange}
-                    onChange={() => setAddressErr(null)}
+                    onChange={handleAddressChange}
                   /> : null}
                 </React.Fragment>
               ) : null}

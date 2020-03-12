@@ -6,7 +6,7 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
   require('./blockchain')();
 });
 
-schedule.scheduleJob('42 * * * *', (fireDate) => {
+schedule.scheduleJob('* * * * *', (fireDate) => {
   debug(`run VerifyTweet job ${fireDate}`);
   require('./tweets')();
 });

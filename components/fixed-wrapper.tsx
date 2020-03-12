@@ -3,6 +3,7 @@ import * as Effector from 'effector-react';
 import { validation } from '@zilliqa-js/util';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
 import { useRouter } from 'next/router';
+import ClipLoader from "react-spinners/ClipLoader";
 
 import EventStore from 'store/event';
 import UserStore from 'store/user';
@@ -12,7 +13,7 @@ import { Card } from 'components/card';
 import { FieldInput, Search } from 'components/Input';
 import { Text } from 'components/text';
 import { Button } from 'components/button';
-import { Loader } from 'components/loader';
+import { ContainerLoader } from 'components/container-loader';
 
 import {
   ButtonVariants,
@@ -23,6 +24,8 @@ import {
   FontColors
 } from 'config';
 import { SearchTweet } from 'utils/get-tweets';
+
+const SPINER_SIZE = 150;
 
 export const FixedWrapper: React.FC = () => {
   // Next hooks //
@@ -61,6 +64,10 @@ export const FixedWrapper: React.FC = () => {
     });
   }, [address, validation, setAddressErr, addressErr]);
   const handeSearchTweet = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.value) {
+      return null;
+    }
+
     const tweet = await SearchTweet(
       event.target.value,
       userState.jwtToken
@@ -102,6 +109,7 @@ export const FixedWrapper: React.FC = () => {
             defaultValue={address}
             sizeVariant={SizeComponent.md}
             error={addressErr}
+            disabled={userState.zilAddress.includes('padding')}
             css="font-size: 15px;width: 350px;"
             onBlur={handleAddressChange}
             onChange={() => setAddressErr(null)}
@@ -145,7 +153,13 @@ export const FixedWrapper: React.FC = () => {
           /> : null}
         </Card>
       </Modal>
-      <Loader load={eventState.current === Events.Load} />
+      <ContainerLoader show={eventState.current === Events.Load}>
+        <ClipLoader
+          size={SPINER_SIZE}
+          color={FontColors.info}
+          loading={eventState.current === Events.Load}
+        />
+      </ContainerLoader>
     </React.Fragment>
   );
 };
