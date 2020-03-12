@@ -162,7 +162,7 @@ export const AuthPage: NextPage = () => {
                     sizeVariant={SizeComponent.md}
                     error={addressErr}
                     placeholder="Zilliqa address (zil1) or ZNS."
-                    onChange={handleAddressChange}
+                    onInput={handleAddressChange}
                   /> : null}
                 </React.Fragment>
               ) : null}
