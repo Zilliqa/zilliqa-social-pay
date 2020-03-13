@@ -65,7 +65,10 @@ export const Dropdown: React.FC<Prop> = ({
       {children}
       <DropdownList style={{ display: isMenu ? 'block' : 'none' }}>
         {items.map((item) => (
-          <Dropdownitem onClick={() => onClick(item)}>
+          <Dropdownitem
+            key={item}
+            onClick={() => onClick(item)}
+          >
             <Text
               size={FontSize.sm}
               fontVariant={Fonts.AvenirNextLTProBold}

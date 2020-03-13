@@ -7,3 +7,4 @@ export * from './local-storage-keys';
 export * from './api';
 export * from './http';
 export * from './events';
+export * from './regex';
