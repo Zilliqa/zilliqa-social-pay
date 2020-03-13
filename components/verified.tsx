@@ -18,6 +18,7 @@ const HaventVerified = styled.div`
   justify-content: space-around;
   align-items: center;
   width: 25rem;
+  margin-top: 30px;
 `;
 
 export const Verified: React.FC = () => {

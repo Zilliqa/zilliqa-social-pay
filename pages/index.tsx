@@ -11,6 +11,7 @@ import UserStore from 'store/user';
 import { Container } from 'components/container';
 import { TopBar } from 'components/top-bar';
 import { Verified } from 'components/verified';
+import { Controller } from 'components/controller';
 
 // import { fromZil } from 'utils/from-zil';
 // import { Events, FontSize, Fonts } from 'config';
@@ -21,6 +22,13 @@ const MainPageContainer = styled.main`
   grid-template-rows: max-content;
   grid-template-areas: "header"
                        "container";
+`;
+const DashboardContainer = styled(Container)`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: end;
+  width: 100%;
 `;
 
 export const MainPage: NextPage = () => {
@@ -35,9 +43,10 @@ export const MainPage: NextPage = () => {
         profileImg={userState.profileImageUrl}
         profileName={userState.screenName}
       />
-      <Container area="container">
+      <DashboardContainer area="container">
+        <Controller />
         <Verified />
-      </Container>
+      </DashboardContainer>
     </MainPageContainer>
   );
 };
