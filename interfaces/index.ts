@@ -59,4 +59,5 @@ export interface PageProp {
 
 export interface EventState {
   current: Events;
+  content: null | any;
 }

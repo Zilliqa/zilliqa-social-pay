@@ -1,16 +1,18 @@
 import React from 'react';
+import styled from 'styled-components';
 import * as Effector from 'effector-react';
 import { validation } from '@zilliqa-js/util';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
 import { useRouter } from 'next/router';
-import ClipLoader from "react-spinners/ClipLoader";
+import ClipLoader from 'react-spinners/ClipLoader';
+import { useMediaQuery } from 'react-responsive';
 
 import EventStore from 'store/event';
 import UserStore from 'store/user';
 
 import { Modal } from 'components/modal';
 import { Card } from 'components/card';
-import { FieldInput, Search } from 'components/Input';
+import { FieldInput } from 'components/Input';
 import { Text } from 'components/text';
 import { Button } from 'components/button';
 import { ContainerLoader } from 'components/container-loader';
@@ -19,15 +21,20 @@ import {
   ButtonVariants,
   Events,
   SizeComponent,
-  FontSize,
-  Fonts,
   FontColors
 } from 'config';
-import { SearchTweet } from 'utils/get-tweets';
+
+const TweetContainer = styled.div`
+  display: grid;
+  justify-items: center;
+`;
 
 const SPINER_SIZE = 150;
+const WIDTH_MOBILE = 250;
+const WIDTH_DEFAULT = 450;
 
 export const FixedWrapper: React.FC = () => {
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' })
   // Next hooks //
   const router = useRouter();
   // Next hooks //
@@ -40,8 +47,6 @@ export const FixedWrapper: React.FC = () => {
   // React hooks //
   const [addressErr, setAddressErr] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string>(userState.zilAddress);
-  const [foundTweet, setFoundTweet] = React.useState<any | null>();
-  const [searchErr, setSearchErr] = React.useState<string | null>();
 
   const handleAddressChange = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.value) {
@@ -63,24 +68,6 @@ export const FixedWrapper: React.FC = () => {
       jwt: userState.jwtToken
     });
   }, [address, validation, setAddressErr, addressErr]);
-  const handeSearchTweet = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.value) {
-      return null;
-    }
-
-    const tweet = await SearchTweet(
-      event.target.value,
-      userState.jwtToken
-    );
-
-    if (tweet.message) {
-      setSearchErr(tweet.message);
-
-      return null;
-    }
-
-    setFoundTweet(tweet);
-  }, [userState, setFoundTweet, setSearchErr]);
   const handleSignOut = React.useCallback(() => {
     EventStore.signOut(null);
     UserStore.clear();
@@ -128,29 +115,25 @@ export const FixedWrapper: React.FC = () => {
         show={eventState.current === Events.Twitter}
         onBlur={() => EventStore.reset()}
       >
-        <Card title="Search tweets.">
-          <Text
-            size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProBold}
-          >
-            Search your tweet with #zilliqa.
-          </Text>
-          <Search
-            sizeVariant={SizeComponent.lg}
-            css="width: 350px;"
-            onBlur={handeSearchTweet}
-            onChange={() => setSearchErr(null)}
-          />
-          <Text
-            fontColors={FontColors.danger}
-            css="text-indent: 15px;"
-          >
-            {searchErr}
-          </Text>
-          {foundTweet ? <TwitterTweetEmbed
-            screenName={userState.screenName}
-            tweetId={foundTweet.id_str}
-          /> : null}
+        <Card title="Found tweet">
+          {Boolean(eventState.content && eventState.content.id_str) ? (
+            <TweetContainer>
+              <TwitterTweetEmbed
+                screenName={userState.screenName}
+                tweetId={eventState.content.id_str}
+                options={{
+                  width: isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT
+                }}
+              />
+              <Button
+                sizeVariant={SizeComponent.lg}
+                variant={ButtonVariants.primary}
+                css="margin-top: 30px;"
+              >
+                Pay
+              </Button>
+            </TweetContainer>
+          ) : null}
         </Card>
       </Modal>
       <ContainerLoader show={eventState.current === Events.Load}>

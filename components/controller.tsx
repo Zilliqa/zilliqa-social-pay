@@ -78,8 +78,8 @@ export const Controller: React.FC = () => {
       userState.jwtToken
     );
     EventStore.reset();
-
-    console.log(tweet);
+    EventStore.setContent(tweet);
+    EventStore.setEvent(Events.Twitter);
   } , [searchValue, userState]);
 
   return (

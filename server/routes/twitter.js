@@ -174,11 +174,15 @@ router.put('/update/tweets', checkSession, async (req, res) => {
 });
 
 router.post('/search/tweets/:query', checkSession, async (req, res) => {
-  const contract = req.app.get('contract');
   const { query } = req.params;
   const jwtToken = req.headers.authorization;
   const urlById = `${API_URL}/1.1/statuses/show.json`;
   const isId = !isNaN(Number(query)) && (query.length === 19);
+  const blockchain = await Blockchain.findOne({
+    where: {
+      contract: CONTRACT_ADDRESS
+    }
+  });
   let user = null;
 
   try {
@@ -211,9 +215,9 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
         });
       }
 
-      if (!tweets.text.includes(contract.hashtag)) {
+      if (!tweets.text.includes(blockchain.hashtag)) {
         return res.status(404).json({
-          message: `This tweet hasn't ${contract.hashtag} hashtag.`
+          message: `This tweet hasn't ${blockchain.hashtag} hashtag.`
         });
       } else if (tweets.user.id_str !== user.profileId) {
         return res.status(404).json({

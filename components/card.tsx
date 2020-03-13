@@ -14,18 +14,22 @@ export const CardContainer = styled.div`
   background-color: #fff;
   box-shadow: 1px 5px 6px -2px #ccc;
   flex-basis: 15px;
+
+  ${(props: { css: string; }) => props.css}
 `;
 
 type Prop = {
   title: string;
+  css?: string;
 };
 
 export const Card: React.FC<Prop> = ({
   title,
-  children
+  children,
+  css = ''
 }) => {
   return (
-    <CardContainer>
+    <CardContainer css={css}>
       <Text fontVariant={Fonts.AvenirNextLTProDemi}>
         {title}
       </Text>
