@@ -74,7 +74,6 @@ router.get('/get/tweets', checkSession, async (req, res) => {
 
     const twittes = await Twittes.findAll({
       where: {
-        approved: true,
         UserId: user.id
       }
     });

@@ -24,6 +24,12 @@ export interface FetchUpdateAddress {
 export interface Twitte {
   id?: number;
   idStr: string;
+  text: string;
+  approved: boolean;
+  rejected: boolean;
+  txId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Contract {

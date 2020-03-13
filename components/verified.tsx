@@ -1,27 +1,39 @@
 import React from 'react';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
+import { useMediaQuery } from 'react-responsive';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
 import BlockchainStore from 'store/blockchain';
 
 import { Text } from 'components/text';
-import { TwitterHashtagButton } from 'react-twitter-embed';
+import { Img } from 'components/img';
+import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
 
 import { FontSize, Fonts } from 'config';
 
 const VerifiedContainer = styled.div`
+  margin-top: 30px;
 `;
 const HaventVerified = styled.div`
   display: flex;
   justify-content: space-around;
   align-items: center;
   width: 25rem;
-  margin-top: 30px;
+`;
+const TweetEmbedContainer = styled.div`
+  display: grid;
+  align-items: center;
+  grid-template-columns: 40px 1fr;
 `;
 
+const WIDTH_MOBILE = 250;
+const WIDTH_DEFAULT = 450;
+
 export const Verified: React.FC = () => {
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' })
+
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
   const blockchainState = Effector.useStore(BlockchainStore.store);
@@ -44,7 +56,20 @@ export const Verified: React.FC = () => {
             }}
           />
         </HaventVerified>
-      ) : null}
+      ) : twitterState.tweets.map((tweet, index) => (
+        <TweetEmbedContainer key={index}>
+          {tweet.approved ? <Img src="/icons/ok.svg"/> : null}
+          {Boolean(tweet.rejected) ? <Img src="/icons/close.svg"/> : null}
+          {Boolean(!tweet.approved && !tweet.rejected) ? <Img src="/icons/loader.svg"/> : null}
+          <TwitterTweetEmbed
+            screenName={userState.screenName}
+            tweetId={tweet.idStr}
+            options={{
+              width: isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT
+            }}
+          />
+        </TweetEmbedContainer>
+      ))}
     </VerifiedContainer>
   );
 };

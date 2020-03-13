@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { Text } from 'components/text';
 import { Img } from 'components/img';
+import { Dropdown } from 'components/dropdown';
 
 import { FontSize, Fonts, FontColors } from 'config';
 
@@ -23,7 +24,7 @@ const TopBarContainer = styled.header`
 `;
 const ProfileContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 70px 1fr;
   align-items: center;
   justify-items: center;
 `;
@@ -47,19 +48,26 @@ export const TopBar: React.FC<Prop> = ({
       <Text
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProBold}
+        css="width: 200px;"
         nowrap
       >
         {zilAddress}
       </Text>
       <ProfileContainer>
         <ProfileImg src={profileImg}/>
-        <Text
-          size={FontSize.sm}
-          fontVariant={Fonts.AvenirNextLTProBold}
-          nowrap
+        <Dropdown
+          items={['Settigns', 'SignOut']}
+          onClick={(item) => console.log(item)}
         >
-          {profileName}
-        </Text>
+          <Text
+            size={FontSize.sm}
+            fontVariant={Fonts.AvenirNextLTProBold}
+            css="width: 200px;"
+            nowrap
+          >
+            {profileName}
+          </Text>
+        </Dropdown>
       </ProfileContainer>
     </TopBarContainer>
   );

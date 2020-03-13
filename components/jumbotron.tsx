@@ -6,8 +6,9 @@ type Prop = {
 
 export const Jumbotron = styled.div`
   padding: 1rem;
-  background-color: #e9ecef;
+  background-color: transparent;
   border-radius: .3rem;
+  border: 1px solid #e9ecef;
 
   ${(props: Prop) => props.css}
 `;

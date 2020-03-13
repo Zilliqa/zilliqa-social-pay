@@ -1,4 +1,7 @@
 import React from 'react';
+import * as Effector from 'effector-react';
+
+import BlockchainStore from 'store/blockchain';
 
 import { Jumbotron } from 'components/jumbotron';
 import { Alert } from 'components/alert';
@@ -8,8 +11,11 @@ import { Search } from 'components/Input';
 import { Button } from 'components/button';
 
 import { FontSize, Fonts, SizeComponent, AlertVariants } from 'config';
+import { fromZil } from 'utils/from-zil';
 
 export const Controller: React.FC = () => {
+  const blockchainState = Effector.useStore(BlockchainStore.store);
+
   const [searchValue, setSearchValue] = React.useState<string | null>(null);
 
   const handeSearch = React.useCallback((event: React.FormEvent<HTMLFormElement>) => {
@@ -18,7 +24,7 @@ export const Controller: React.FC = () => {
   } , [searchValue]);
 
   return (
-    <Jumbotron css="min-width: 320px;margin-top: 30px;">
+    <Jumbotron css="min-width: 320px;margin-top: 40px;">
       <Container css="display: flex;justify-content: space-between;">
         <Alert variant={AlertVariants.info}>
           <Text
@@ -28,7 +34,7 @@ export const Controller: React.FC = () => {
             Wallet balance:
           </Text>
           <Text>
-            1, 0000 ZIL.
+            {fromZil(blockchainState.zilsPerTweet)} ZIL.
           </Text>
         </Alert>
         <Alert variant={AlertVariants.info}>
@@ -48,19 +54,19 @@ export const Controller: React.FC = () => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         css="white-space: nowrap;"
       >
-        Blocks till next claim: 555
+        Blocks till next claim: {blockchainState.blocksPerDay}
       </Text>
       <Text
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProDemi}
         css="white-space: nowrap;"
       >
-        Current block: 409
+        Current block: {blockchainState.NumDSBlocks}
       </Text>
       <form onSubmit={handeSearch}>
         <Search
           sizeVariant={SizeComponent.md}
-          css="background-color: #a9a9a9;color: #fff;margin-top: 30px;"
+          css="background-color: #e9ecef;color: #fff;margin-top: 30px;"
           placeholder="Input your tweet link or tweet id."
           onChange={(event) => setSearchValue(event.target.value)}
         />
