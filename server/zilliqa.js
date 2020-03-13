@@ -78,6 +78,12 @@ module.exports = {
       gasLimit: Long.fromNumber(25000)
     });
 
+    if (tx.id && tx.receipt['event_logs'] && tx.receipt['event_logs'][0]['_eventname'] !== 'ConfiguredUserAddress') {
+      throw new Error(tx.receipt['event_logs'][0]['_eventname']);
+    } else if (!tx.id) {
+      throw new Error('Tx has not confirmed.');
+    }
+
     return tx;
   },
   async verifyTweet(data, nonce) {

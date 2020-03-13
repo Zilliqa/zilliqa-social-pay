@@ -26,22 +26,24 @@ router.put('/update/address/:address', checkSession, async (req, res) => {
     const { nonce } = await zilliqa.getCurrentAccount();
 
     await foundUser.update({
-      zilAddress: 'padding...'
+      synchronization: true
     });
 
     zilliqa.configureUsers(
       foundUser.profileId,
       bech32Address,
       nonce + 1
-    ).then((tx) => {
-      return foundUser.update({
-        zilAddress: bech32Address
-      });
-    });
+    ).then(() => foundUser.update({
+      zilAddress: bech32Address,
+      synchronization: false
+    })).catch((err) => foundUser.update({
+      zilAddress: null,
+      synchronization: false
+    }));
   
     return res.status(200).json({
       ...decoded,
-      zilAddress: 'padding...'
+      message: 'ConfiguredUserAddress',
     });
   } catch (err) {
     return res.status(501).json({
@@ -79,7 +81,6 @@ router.get('/get/tweets', checkSession, async (req, res) => {
 
     return res.status(200).json(twittes);
   } catch (err) {
-    console.log(err);
     return res.status(400).json({
       message: err.message
     });

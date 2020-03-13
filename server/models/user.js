@@ -19,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
     zilAddress: {
       type: DataTypes.STRING,
       unique: true
+    },
+    synchronization: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   }, {});
   User.prototype.sign = function () {

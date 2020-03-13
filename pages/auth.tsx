@@ -80,6 +80,15 @@ const SignImg =  styled(Img)`
   height: inherit;
 `;
 
+const TwitterLoginStyles = {
+  cursor: 'pointer',
+  borderRadius: '20px',
+  padding: '0.2rem',
+
+  background: 'transparent',
+  border: `1px solid ${FontColors.info}`
+};
+
 export const AuthPage: NextPage = () => {
   // Next hooks //
   const router = useRouter();
@@ -97,6 +106,7 @@ export const AuthPage: NextPage = () => {
     const userData = await res.json();
 
     UserStore.setUser(userData);
+    EventStore.reset();
 
     if (userData.zilAddress && validation.isBech32(userData.zilAddress)) {
       router.push('/');
@@ -125,7 +135,6 @@ export const AuthPage: NextPage = () => {
       address,
       jwt: userState.jwtToken
     });
-    EventStore.setEvent(Events.None);
 
     if (result.message) {
       setAddressErr(result.message);
@@ -134,6 +143,8 @@ export const AuthPage: NextPage = () => {
     if (result.zilAddress) {
       router.push('/');
     }
+
+    EventStore.setEvent(Events.None);
   }, [setAddressErr, address]);
   // React hooks //
 
@@ -153,15 +164,20 @@ export const AuthPage: NextPage = () => {
                     You need to tie your Zilliqa address.
                   </Text>
                   <TwitterLogin
+                    style={TwitterLoginStyles}
                     loginUrl={APIs.twitterAuth}
                     requestTokenUrl={APIs.twitterAuthReverse}
                     onSuccess={handleSuccess}
                     onFailure={() => EventStore.reset()}
                     showIcon
                   >
-                    <Button sizeVariant={SizeComponent.md}>
-                      Sign in With twitter.
-                    </Button>
+                    <Text
+                      css="font-size: 15px;margin: 0.3rem;"
+                      fontColors={FontColors.info}
+                      onClick={() => EventStore.setEvent(Events.Load)}
+                    >
+                      Sign in with twitter
+                    </Text>
                   </TwitterLogin>
                   {userState.jwtToken ? (
                     <React.Fragment>
@@ -175,19 +191,12 @@ export const AuthPage: NextPage = () => {
                         sizeVariant={SizeComponent.md}
                         onClick={handleAddAddress}
                       >
-                        Next
+                        Asign
                       </Button>
                     </React.Fragment>
                   ) : null}
                 </React.Fragment>
               ) : null}
-              <Button
-                sizeVariant={SizeComponent.md}
-                disabled={Boolean(!userState || !userState.zilAddress)}
-                onClick={() => router.push('/')}
-              >
-                Next
-              </Button>
             </SignForm>
           </LeftPanel>
           <RightPanel>

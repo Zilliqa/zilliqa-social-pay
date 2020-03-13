@@ -5,4 +5,4 @@ export enum ButtonVariants {
   danger = 'background: #FA5D50;color: #fff;',
   warning = 'background: #057A8E;color: #fff;',
   outlet = 'background: transparent; border: 1px solid #29CCC4;color: #242626;'
-};
+}
