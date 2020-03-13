@@ -1,11 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useRouter } from 'next/router';
+
+import EventStore from 'store/event';
+import UserStore from 'store/user';
 
 import { Text } from 'components/text';
 import { Img } from 'components/img';
 import { Dropdown } from 'components/dropdown';
 
-import { FontSize, Fonts, FontColors } from 'config';
+import { FontSize, Fonts, FontColors, Events } from 'config';
 
 const TopBarContainer = styled.header`
   display: flex;
@@ -38,11 +42,36 @@ type Prop = {
   zilAddress: string;
 };
 
+const ITEMS = [
+  'Settings',
+  'SignOut'
+];
+
 export const TopBar: React.FC<Prop> = ({
   zilAddress,
   profileImg,
   profileName
 }) => {
+  // Next hooks //
+  const router = useRouter();
+  // Next hooks //
+
+  const handleClick = React.useCallback((event: string) => {
+    switch (event) {
+      case ITEMS[0]:
+        EventStore.setEvent(Events.Settings);
+        break;
+      case ITEMS[1]:
+        EventStore.signOut(null);
+        UserStore.clear();
+        EventStore.setEvent(Events.None);
+        router.push('/auth');
+        break;
+      default:
+        break;
+    }
+  }, [router]);
+
   return (
     <TopBarContainer>
       <Text
@@ -56,8 +85,8 @@ export const TopBar: React.FC<Prop> = ({
       <ProfileContainer>
         <ProfileImg src={profileImg}/>
         <Dropdown
-          items={['Settigns', 'SignOut']}
-          onClick={(item) => console.log(item)}
+          items={ITEMS}
+          onClick={handleClick}
         >
           <Text
             size={FontSize.sm}

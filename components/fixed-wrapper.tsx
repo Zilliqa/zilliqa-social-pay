@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import * as Effector from 'effector-react';
 import { validation } from '@zilliqa-js/util';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
-import { useRouter } from 'next/router';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { useMediaQuery } from 'react-responsive';
 import { NotificationContainer } from 'react-notifications';
- 
+
 import EventStore from 'store/event';
 import UserStore from 'store/user';
 
@@ -35,10 +34,7 @@ const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
 
 export const FixedWrapper: React.FC = () => {
-  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' })
-  // Next hooks //
-  const router = useRouter();
-  // Next hooks //
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
 
   // Effector hooks //
   const eventState = Effector.useStore(EventStore.store);
@@ -69,12 +65,6 @@ export const FixedWrapper: React.FC = () => {
       jwt: userState.jwtToken
     });
   }, [address, validation, setAddressErr, addressErr]);
-  const handleSignOut = React.useCallback(() => {
-    EventStore.signOut(null);
-    UserStore.clear();
-    EventStore.setEvent(Events.None);
-    router.push('/auth');
-  }, [router]);
 
   React.useEffect(() => {
     if (!address || address.length < 1) {
@@ -102,14 +92,6 @@ export const FixedWrapper: React.FC = () => {
             onBlur={handleAddressChange}
             onChange={() => setAddressErr(null)}
           />
-          <Button
-            sizeVariant={SizeComponent.md}
-            variant={ButtonVariants.danger}
-            css="margin-top: 30px;"
-            onClick={handleSignOut}
-          >
-            Sign out
-          </Button>
         </Card>
       </Modal>
       <Modal
