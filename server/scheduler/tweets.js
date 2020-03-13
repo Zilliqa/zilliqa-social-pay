@@ -61,9 +61,17 @@ module.exports = async function() {
       if (tx.id && tx.receipt.event_logs[0]['_eventname'] === 'VerifyTweetSuccessful') {
         await tweet.update({
           txId: tx.id,
-          approved: true
+          approved: true,
+          rejected: false
         });
         debug('tweet:', tweet.idStr, 'has been verifed, tx hash:', tx.id);
+      } else if (tx.id && tx.receipt.event_logs[0]['_eventname'] !== 'VerifyTweetSuccessful') {
+        await tweet.update({
+          txId: tx.id,
+          approved: false,
+          rejected: true
+        });
+        debug('tweet:', tweet.idStr, 'has been rejected, tx hash:', tx.id, 'error:', tx.receipt.event_logs[0]['_eventname']);
       }
     } catch (err) {
       await tweet.update({

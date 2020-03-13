@@ -114,7 +114,8 @@ export const AuthPage: NextPage = () => {
     }
 
     setAddress(event.target.value);
-
+  }, [validation, setAddressErr, addressErr]);
+  const handleAddAddress = React.useCallback(async () => {
     if (!address) {
       return null;
     }
@@ -133,7 +134,7 @@ export const AuthPage: NextPage = () => {
     if (result.zilAddress) {
       router.push('/');
     }
-  }, [validation, setAddressErr, addressErr, address, userState]);
+  }, [setAddressErr, address]);
   // React hooks //
 
   return (
@@ -157,13 +158,27 @@ export const AuthPage: NextPage = () => {
                     onSuccess={handleSuccess}
                     onFailure={() => EventStore.reset()}
                     showIcon
-                  />
-                  {userState.jwtToken ? <FieldInput
-                    sizeVariant={SizeComponent.md}
-                    error={addressErr}
-                    placeholder="Zilliqa address (zil1) or ZNS."
-                    onInput={handleAddressChange}
-                  /> : null}
+                  >
+                    <Button sizeVariant={SizeComponent.md}>
+                      Sign in With twitter.
+                    </Button>
+                  </TwitterLogin>
+                  {userState.jwtToken ? (
+                    <React.Fragment>
+                      <FieldInput
+                        sizeVariant={SizeComponent.md}
+                        error={addressErr}
+                        placeholder="Zilliqa address (zil1) or ZNS."
+                        onInput={handleAddressChange}
+                      />
+                      <Button
+                        sizeVariant={SizeComponent.md}
+                        onClick={handleAddAddress}
+                      >
+                        Next
+                      </Button>
+                    </React.Fragment>
+                  ) : null}
                 </React.Fragment>
               ) : null}
               <Button

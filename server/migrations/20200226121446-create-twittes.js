@@ -21,6 +21,10 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
+      rejected: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       txId: {
         type: Sequelize.STRING
       },
