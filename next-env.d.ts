@@ -3,3 +3,4 @@
 declare module 'react-twitter-embed';
 declare module 'rc-steps';
 declare module 'react-notifications';
+declare module 'react-responsive';
