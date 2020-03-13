@@ -5,6 +5,7 @@ import TwitterLogin from 'react-twitter-auth';
 import { useRouter } from 'next/router';
 import { validation } from '@zilliqa-js/util';
 import * as Effector from 'effector-react';
+import Steps, { Step } from 'rc-steps';
 
 import UserStore from 'store/user';
 import EventStore from 'store/event';
@@ -15,40 +16,23 @@ import { FieldInput } from 'components/Input';
 import { Button } from 'components/button';
 import { Text } from 'components/text';
 
-import { Events, SizeComponent, APIs, FontSize, Sides, FontColors } from 'config';
+import { Events, SizeComponent, APIs, FontColors } from 'config';
 
-const FormContainer = styled(Container)`
-  display: grid;
-  justify-items: center;
-
-  width: 100vw;
-  height: 100vh;
-  z-index: 2;
-`;
 const Center = styled(Container)`
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  margin: 10%;
-`;
-const LeftPanel = styled(Container)`
-  display: flex;
-  flex-direction: column;
+  display: grid;
   justify-content: center;
+  align-items: center;
+  grid-template-columns: 1fr;
+  grid-gap: 30px;
 
   padding: 15px;
-  width: 40vw;
-  min-width: 300px;
+  width: 50%;
+  min-width: 320px;
+
   background: #F5F5F5;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-`;
-const RightPanel = styled(Container)`
-  width: 40vw;
-  min-width: 300px;
-  border-top-right-radius: 5px;
-  background: #057A8E;
 `;
 const SignForm = styled(Container)`
   width: 100%;
@@ -102,6 +86,14 @@ export const AuthPage: NextPage = () => {
   const [addressErr, setAddressErr] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string | null>(null);
 
+  const stepsIndex = React.useMemo(() => {
+    if (!userState || !userState.jwtToken) {
+      return 0;
+    } else if (userState.jwtToken && !userState.zilAddress) {
+      return 1;
+    }
+  }, [userState]);
+
   const handleSuccess = React.useCallback(async (res: any) => {
     const userData = await res.json();
 
@@ -115,11 +107,9 @@ export const AuthPage: NextPage = () => {
     }
   }, [address]);
   const handleAddressChange = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.value) {
-      return null;
-    } else if (!validation.isBech32(event.target.value)) {
-      setAddressErr('Incorect address format.');
+    setAddressErr(null);
 
+    if (!event.target.value) {
       return null;
     }
 
@@ -127,6 +117,12 @@ export const AuthPage: NextPage = () => {
   }, [validation, setAddressErr, addressErr]);
   const handleAddAddress = React.useCallback(async () => {
     if (!address) {
+      setAddressErr('address must be required.');
+
+      return null;
+    } else if (!validation.isBech32(address)) {
+      setAddressErr('Incorect address format.');
+
       return null;
     }
 
@@ -136,11 +132,7 @@ export const AuthPage: NextPage = () => {
       jwt: userState.jwtToken
     });
 
-    if (result.message) {
-      setAddressErr(result.message);
-    }
-
-    if (result.zilAddress) {
+    if (result.message === 'ConfiguredUserAddress') {
       router.push('/');
     }
 
@@ -150,60 +142,63 @@ export const AuthPage: NextPage = () => {
 
   return (
     <React.Fragment>
-      <FormContainer>
-        <Center>
-          <LeftPanel>
-            <SignForm>
-              {!userState.zilAddress ? (
+      <Center>
+        <SignImg src="/imgs/sign.svg"/>
+        <Steps
+          current={stepsIndex}
+          labelPlacement="vertical"
+        >
+          <Step
+            title="Twitter"
+            description={'Sign in with twitter`'}
+          />
+          <Step
+            title="Zilliqa"
+            description={'Assign Zilliqa address.'}
+          />
+        </Steps>
+        <SignForm>
+          {!userState.zilAddress ? (
+            <React.Fragment>
+              <TwitterLogin
+                style={{
+                  ...TwitterLoginStyles,
+                  display: stepsIndex === 0 ? 'block' : 'none'
+                }}
+                loginUrl={APIs.twitterAuth}
+                requestTokenUrl={APIs.twitterAuthReverse}
+                onSuccess={handleSuccess}
+                onFailure={() => EventStore.reset()}
+                showIcon
+              >
+                <Text
+                  css="font-size: 15px;margin: 0.3rem;"
+                  fontColors={FontColors.info}
+                  onClick={() => EventStore.setEvent(Events.Load)}
+                >
+                  Sign in with twitter
+                </Text>
+              </TwitterLogin>
+              {userState.jwtToken ? (
                 <React.Fragment>
-                  <Text
-                    size={FontSize.md}
-                    align={Sides.center}
-                    fontColors={FontColors.info}
+                  <FieldInput
+                    sizeVariant={SizeComponent.md}
+                    error={addressErr}
+                    placeholder="Zilliqa address (zil1) or ZNS."
+                    onChange={handleAddressChange}
+                  />
+                  <Button
+                    sizeVariant={SizeComponent.md}
+                    onClick={handleAddAddress}
                   >
-                    You need to tie your Zilliqa address.
-                  </Text>
-                  <TwitterLogin
-                    style={TwitterLoginStyles}
-                    loginUrl={APIs.twitterAuth}
-                    requestTokenUrl={APIs.twitterAuthReverse}
-                    onSuccess={handleSuccess}
-                    onFailure={() => EventStore.reset()}
-                    showIcon
-                  >
-                    <Text
-                      css="font-size: 15px;margin: 0.3rem;"
-                      fontColors={FontColors.info}
-                      onClick={() => EventStore.setEvent(Events.Load)}
-                    >
-                      Sign in with twitter
-                    </Text>
-                  </TwitterLogin>
-                  {userState.jwtToken ? (
-                    <React.Fragment>
-                      <FieldInput
-                        sizeVariant={SizeComponent.md}
-                        error={addressErr}
-                        placeholder="Zilliqa address (zil1) or ZNS."
-                        onInput={handleAddressChange}
-                      />
-                      <Button
-                        sizeVariant={SizeComponent.md}
-                        onClick={handleAddAddress}
-                      >
-                        Asign
-                      </Button>
-                    </React.Fragment>
-                  ) : null}
+                    Assign address
+                  </Button>
                 </React.Fragment>
               ) : null}
-            </SignForm>
-          </LeftPanel>
-          <RightPanel>
-            <SignImg src="/imgs/sign.svg"/>
-          </RightPanel>
-        </Center>
-      </FormContainer>
+            </React.Fragment>
+          ) : null}
+        </SignForm>
+      </Center>
       <TopImg src="/imgs/auth-2.svg"/>
       <BottomImg src="/imgs/auth-1.svg"/>
     </React.Fragment>

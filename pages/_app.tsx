@@ -1,4 +1,6 @@
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import 'rc-steps/assets/index.css';
+import 'rc-steps/assets/iconfont.css';
 
 import { createGlobalStyle } from 'styled-components';
 import Head from 'next/head';
@@ -66,6 +68,10 @@ const GlobalStyle = createGlobalStyle`
     to {
       opacity: 0.5;
     }
+  }
+
+  .rc-steps-label-vertical .rc-steps-item-description {
+    text-align: center;
   }
 `;
 

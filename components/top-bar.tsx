@@ -10,17 +10,16 @@ const TopBarContainer = styled.header`
   display: flex;
   justify-content: space-around;
   align-items: center;
+  flex-wrap: wrap;
 
-  height: 60px;
+  min-height: 60px;
   width: 100%;
-  min-width: 300px;
 
   border-bottom: 1px solid ${FontColors.gray};
 
   grid-area: header;
 
-  padding-left: 15px;
-  padding-right: 15px;
+  padding: 15px;
 `;
 const ProfileContainer = styled.div`
   display: grid;
