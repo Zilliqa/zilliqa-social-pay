@@ -6,7 +6,8 @@ import { TwitterTweetEmbed } from 'react-twitter-embed';
 import { useRouter } from 'next/router';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { useMediaQuery } from 'react-responsive';
-
+import { NotificationContainer } from 'react-notifications';
+ 
 import EventStore from 'store/event';
 import UserStore from 'store/user';
 
@@ -143,6 +144,7 @@ export const FixedWrapper: React.FC = () => {
           loading={eventState.current === Events.Load}
         />
       </ContainerLoader>
+      {userState.jwtToken ? <NotificationContainer /> : null}
     </React.Fragment>
   );
 };

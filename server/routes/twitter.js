@@ -152,18 +152,19 @@ router.put('/update/tweets', checkSession, async (req, res) => {
 
       filteredTweets = tweets
         .filter((tweet) => tweet.text.includes(blockchain.hashtag));
-
       const newTweetes = filteredTweets.map((tweet) => Twittes.create({
         idStr: tweet.id_str,
         text: tweet.text,
         UserId: user.id
       }, { transaction }).catch(() => null));
+      let tweetsUpdated = await Promise.all(newTweetes);
 
-      await Promise.all(newTweetes);
+      tweetsUpdated = tweetsUpdated.filter(Boolean);
       await transaction.commit();
 
       return res.json({
-        message: 'updated'
+        message: tweetsUpdated.length > 1 ? 'updated' : 'not found',
+        tweets: tweetsUpdated.filter(Boolean)
       });
     });
   } catch (err) {
@@ -225,17 +226,7 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
         });
       }
 
-      try {
-        await Twittes.create({
-          idStr: tweet.id_str,
-          text: tweet.text,
-          UserId: user.id
-        });
-      } catch (err) {
-        //
-      } finally {
-        return res.status(302).json(tweets);
-      }
+      return res.status(302).json(tweets);
     });
   } catch (err) {
     return res.status(400).json({

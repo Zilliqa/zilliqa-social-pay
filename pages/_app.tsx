@@ -1,6 +1,7 @@
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import 'rc-steps/assets/index.css';
 import 'rc-steps/assets/iconfont.css';
+import 'react-notifications/lib/notifications.css';
 
 import { createGlobalStyle } from 'styled-components';
 import Head from 'next/head';

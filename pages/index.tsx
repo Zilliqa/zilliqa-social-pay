@@ -2,7 +2,7 @@ import React from 'react';
 import { NextPage } from 'next';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
-// import { TwitterTweetEmbed, TwitterHashtagButton } from 'react-twitter-embed';
+import { NotificationManager } from 'react-notifications';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
@@ -32,6 +32,8 @@ const DashboardContainer = styled(Container)`
   max-width: 900px;
 `;
 
+const ITERVAL_USER_UPDATE = 30000;
+
 export const MainPage: NextPage = () => {
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
@@ -47,18 +49,19 @@ export const MainPage: NextPage = () => {
 
         BlockchainStore.updateBlockchain(null);
 
-        TwitterStore.getTweets(null);
-        TwitterStore.updateTweets(userState.jwtToken);
+        TwitterStore
+          .getTweets(null)
+          .then(() => EventStore.reset());
+        TwitterStore
+          .updateTweets(userState.jwtToken)
+          .then(({ tweets }) => Boolean(tweets && tweets.length > 0) ? NotificationManager.info(`SocialPay has been found ${tweets.length} tweets.`) : null);
 
         setMounted(true);
       }
 
       UserStore.updateUserState(null);
-      // setInterval(() => UserStore.updateUserState(null), ITERVAL_USER_UPDATE);
-    }
 
-    if (twitterState.tweets.length > 1 || twitterState.error) {
-      EventStore.reset();
+      setInterval(() => UserStore.updateUserState(null), ITERVAL_USER_UPDATE);
     }
   }, [twitterState, userState, mounted, setMounted]);
 

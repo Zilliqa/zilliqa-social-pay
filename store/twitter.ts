@@ -9,7 +9,7 @@ export const TwitterDomain = createDomain();
 export const update = TwitterDomain.event<any[]>();
 export const getTweets = TwitterDomain.effect<null, any[] | any, Error>();
 
-export const updateTweets = TwitterDomain.effect<string, any[], Error>();
+export const updateTweets = TwitterDomain.effect<string, any, Error>();
 
 updateTweets.use(fetchTweetsUpdate);
 getTweets.use(fetchTweets);
@@ -21,7 +21,19 @@ const initalState: { error?: boolean; tweets: Twitte[]; } = {
 
 export const store = TwitterDomain.store(initalState)
   .on(update, (state, tweets) => ({ ...state, tweets }))
-  .on(updateTweets.done, (state) => state)
+  .on(updateTweets.done, (state, { result }) => {
+    if (Array.isArray(result.tweets) && result.tweets.length > 0) {
+      return {
+        ...state,
+        error: undefined,
+        tweets: result.tweets
+      };
+    }
+
+    return {
+      ...state
+    };
+  })
   .on(getTweets.done, (state, { result }) => {
     if (Array.isArray(result)) {
       return {
