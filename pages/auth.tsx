@@ -22,12 +22,14 @@ const Center = styled(Container)`
   display: grid;
   justify-content: center;
   align-items: center;
+  justify-items: center;
   grid-template-columns: 1fr;
   grid-gap: 30px;
 
   padding: 15px;
   width: 50%;
   min-width: 320px;
+  min-height: 50vh;
 
   background: #F5F5F5;
   border-top-left-radius: 5px;
@@ -57,10 +59,6 @@ const BottomImg = styled(Img)`
   z-index: -1;
 
   width: 40%;
-  height: inherit;
-`;
-const SignImg =  styled(Img)`
-  width: 100%;
   height: inherit;
 `;
 
@@ -143,7 +141,7 @@ export const AuthPage: NextPage = () => {
   return (
     <React.Fragment>
       <Center>
-        <SignImg src="/imgs/sign.svg"/>
+        <Img src="/imgs/sign.svg"/>
         <Steps
           current={stepsIndex}
           labelPlacement="vertical"
