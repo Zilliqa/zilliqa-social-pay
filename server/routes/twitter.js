@@ -109,7 +109,6 @@ router.post('/auth/twitter/callback', (req, res) => {
 });
 
 router.put('/update/tweets', checkSession, async (req, res) => {
-  const contract = req.app.get('contract');
   const jwtToken = req.headers.authorization;
   const url = `${API_URL}/1.1/statuses/user_timeline.json`;
   let user = null;
@@ -228,6 +227,40 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
 
       return res.status(302).json(tweets);
     });
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    });
+  }
+});
+
+router.get('/get/account', checkSession, async (req, res) => {
+  const userId = req.session.passport.user.id;
+  const url = `${API_URL}/1.1/users/show.json`;
+
+  try {
+    const user = await User.findByPk(userId);
+    const client = new Twitter({
+      consumer_key: process.env.TWITTER_CONSUMER_KEY,
+      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+      access_token_key: user.token,
+      access_token_secret: user.tokenSecret
+    });
+    const params = {
+      user_id: user.profileId
+    };
+    const foundUser = await client.get(url, params);
+
+    await user.update({
+      username: foundUser.name,
+      screenName: foundUser.screen_name,
+      profileImageUrl: foundUser.profile_image_url
+    });
+
+    delete user.dataValues.tokenSecret;
+    delete user.dataValues.token;
+
+    return res.status(200).json(user);
   } catch (err) {
     return res.status(400).json({
       message: err.message

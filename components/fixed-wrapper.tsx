@@ -45,26 +45,41 @@ export const FixedWrapper: React.FC = () => {
   const [addressErr, setAddressErr] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string>(userState.zilAddress);
 
-  const handleAddressChange = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.value) {
+  const handleAddressChange = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!address) {
       return null;
-    } else if (!validation.isBech32(event.target.value)) {
+    } else if (!validation.isBech32(address)) {
       setAddressErr('Incorect address format.');
 
       return null;
     }
 
-    setAddress(event.target.value);
+    setAddress(address);
 
     if (address === userState.zilAddress) {
       return null;
     }
 
+    EventStore.setEvent(Events.Load);
     await UserStore.updateAddress({
       address,
       jwt: userState.jwtToken
     });
+    EventStore.reset();
   }, [address, validation, setAddressErr, addressErr]);
+  const handleChangeAddress = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+
+    setAddressErr(null);
+
+    if (!value) {
+      return null;
+    }
+
+    setAddress(value);
+  }, [setAddressErr, setAddress]);
 
   React.useEffect(() => {
     if (!address || address.length < 1) {
@@ -83,15 +98,24 @@ export const FixedWrapper: React.FC = () => {
           <Text>
             Your Zilliqa address
           </Text>
-          <FieldInput
-            defaultValue={address}
-            sizeVariant={SizeComponent.md}
-            error={addressErr}
-            disabled={userState.zilAddress && userState.zilAddress.includes('padding')}
-            css="font-size: 15px;width: 350px;"
-            onBlur={handleAddressChange}
-            onChange={() => setAddressErr(null)}
-          />
+          <form onSubmit={handleAddressChange}>
+            <FieldInput
+              defaultValue={address}
+              sizeVariant={SizeComponent.md}
+              error={addressErr}
+              disabled={userState.zilAddress && userState.zilAddress.includes('padding')}
+              css="font-size: 15px;width: 350px;"
+              onChange={handleChangeAddress}
+            />
+            <Button
+              sizeVariant={SizeComponent.lg}
+              variant={ButtonVariants.primary}
+              disabled={Boolean(addressErr || !address || (address === userState.zilAddress))}
+              css="margin-top: 10px;"
+            >
+              Change address
+            </Button>
+          </form>
         </Card>
       </Modal>
       <Modal

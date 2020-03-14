@@ -1,4 +1,5 @@
 import { createDomain } from 'effector';
+import { NotificationManager } from 'react-notifications';
 
 import { fetchTweetsUpdate } from 'utils/update-tweets';
 import { fetchTweets } from 'utils/get-tweets';
@@ -23,10 +24,12 @@ export const store = TwitterDomain.store(initalState)
   .on(update, (state, tweets) => ({ ...state, tweets }))
   .on(updateTweets.done, (state, { result }) => {
     if (Array.isArray(result.tweets) && result.tweets.length > 0) {
+      NotificationManager.info(`SocialPay has been found ${result.tweets.length} tweets.`);
+
       return {
         ...state,
         error: undefined,
-        tweets: result.tweets
+        tweets: state.tweets.concat(result.tweets)
       };
     }
 
@@ -38,7 +41,7 @@ export const store = TwitterDomain.store(initalState)
     if (Array.isArray(result)) {
       return {
         error: undefined,
-        tweets: result
+        tweets: state.tweets.concat(result)
       };
     }
 

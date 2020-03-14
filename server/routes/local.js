@@ -86,28 +86,6 @@ router.get('/get/tweets', checkSession, async (req, res) => {
   }
 });
 
-router.get('/get/account', checkSession, async (req, res) => {
-  const userId = req.session.passport.user.id;
-
-  try {
-    const user = await User.findOne({
-      where: { id: userId },
-      attributes: [
-        'username',
-        'screenName',
-        'profileId',
-        'profileImageUrl',
-        'zilAddress'
-      ]
-    });
-    return res.status(200).json(user);
-  } catch (err) {
-    return res.status(400).json({
-      message: err.message
-    });
-  }
-});
-
 router.get('/get/blockchain', checkSession, async (req, res) => {
   try {
     const blockchain = await Blockchain.findOne({

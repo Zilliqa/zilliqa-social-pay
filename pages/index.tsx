@@ -2,7 +2,6 @@ import React from 'react';
 import { NextPage } from 'next';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
-import { NotificationManager } from 'react-notifications';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
@@ -51,10 +50,8 @@ export const MainPage: NextPage = () => {
 
         TwitterStore
           .getTweets(null)
+          .then(() => TwitterStore.updateTweets(userState.jwtToken))
           .then(() => EventStore.reset());
-        TwitterStore
-          .updateTweets(userState.jwtToken)
-          .then(({ tweets }) => Boolean(tweets && tweets.length > 0) ? NotificationManager.info(`SocialPay has been found ${tweets.length} tweets.`) : null);
 
         setMounted(true);
       }

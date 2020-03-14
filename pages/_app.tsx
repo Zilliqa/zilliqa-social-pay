@@ -83,6 +83,8 @@ class SocialPay extends App {
     const state = UserStore.store.getState();
 
     if (!this.props.pageProps.user || !state || !state.jwtToken) {
+      UserStore.clear();
+
       if (this.props.pageProps.firstStart && (this.props.router.route !== '/auth')) {
         return this.props.router.push('/guide');
       }
