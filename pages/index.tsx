@@ -31,7 +31,7 @@ const DashboardContainer = styled(Container)`
   max-width: 900px;
 `;
 
-const ITERVAL_USER_UPDATE = 30000;
+const ITERVAL_USER_UPDATE = 90000;
 
 export const MainPage: NextPage = () => {
   const userState = Effector.useStore(UserStore.store);

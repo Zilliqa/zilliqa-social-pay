@@ -8,3 +8,4 @@ export * from './api';
 export * from './http';
 export * from './events';
 export * from './regex';
+export * from './errors';

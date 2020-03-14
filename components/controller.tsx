@@ -79,6 +79,12 @@ export const Controller: React.FC = () => {
     );
     EventStore.reset();
     EventStore.setContent(tweet);
+
+    if (tweet.message) {
+      EventStore.setEvent(Events.Error);
+      return null;
+    }
+
     EventStore.setEvent(Events.Twitter);
   } , [searchValue, userState]);
 

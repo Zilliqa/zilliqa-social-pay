@@ -5,7 +5,8 @@ export enum Methods {
   auth = 'auth',
   get = 'get',
   search = 'search',
-  sing = 'sing'
+  sing = 'sing',
+  add = 'add'
 }
 
 export const APIs = {
@@ -17,5 +18,6 @@ export const APIs = {
   tweetsUpdate: `${API_V1}/${Methods.update}/tweets`,
   searchTweet: `${API_V1}/${Methods.search}/tweets`,
   getblockchain: `${API_V1}/${Methods.get}/blockchain`,
-  getAccount: `${API_V1}/${Methods.get}/account`
+  getAccount: `${API_V1}/${Methods.get}/account`,
+  addTweet: `${API_V1}/${Methods.add}/tweet`
 };

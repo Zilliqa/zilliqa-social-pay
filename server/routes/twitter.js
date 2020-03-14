@@ -207,27 +207,32 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
     const params = {
       id: query
     };
-
-    client.get(urlById, params, async (error, tweets) => {
-      if (error && Array.isArray(error)) {
-        return res.status(404).json({
-          ...error[0]
-        });
-      }
-
-      if (!tweets.text.includes(blockchain.hashtag)) {
-        return res.status(404).json({
-          message: `This tweet hasn't ${blockchain.hashtag} hashtag.`
-        });
-      } else if (tweets.user.id_str !== user.profileId) {
-        return res.status(404).json({
-          message: 'User is not owner'
-        });
-      }
-
-      return res.status(302).json(tweets);
+    const tweet = await client.get(urlById, params);
+    const foundTwittes = await Twittes.findOne({
+      where: { idStr: tweet.id_str }
     });
+
+    if (!tweet.text.includes(blockchain.hashtag)) {
+      return res.status(404).json({
+        message: `This tweet hasn't ${blockchain.hashtag} hashtag.`
+      });
+    } else if (tweet.user.id_str !== user.profileId) {
+      return res.status(404).json({
+        message: 'User is not owner'
+      });
+    } else if (foundTwittes) {
+      return res.status(400).json({
+        message: 'Such tweet already exist.'
+      });
+    }
+
+    return res.status(302).json(tweet);
   } catch (err) {
+    if (error && Array.isArray(error)) {
+      return res.status(404).json({
+        ...error[0]
+      });
+    }
     return res.status(400).json({
       message: err.message
     });

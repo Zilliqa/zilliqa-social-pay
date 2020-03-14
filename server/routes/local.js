@@ -1,8 +1,9 @@
-const router = require('express').Router();
+const express = require('express');
 const { validation } = require('@zilliqa-js/util');
 const checkSession = require('../middleware/check-session');
 const models = require('../models');
 const zilliqa = require('../zilliqa');
+const router = express.Router();
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const User = models.sequelize.models.User;
@@ -95,6 +96,37 @@ router.get('/get/blockchain', checkSession, async (req, res) => {
     });
 
     return res.status(200).json(blockchain);
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    });
+  }
+});
+
+router.post('/add/tweet', checkSession, async (req, res) => {
+  const jwtToken = req.headers.authorization;
+  const tweet = req.body;
+
+  try {
+    const user = new User();
+    const decoded = await user.verify(jwtToken);
+    const foundUser = await User.findByPk(decoded.id);
+
+    if (!foundUser || foundUser.profileId !== tweet.user.id_str) {
+      return res.status(401).json({
+        message: 'Invalid tweet data.'
+      });
+    }
+
+    await Twittes.create({
+      idStr: tweet.id_str,
+      text: tweet.text,
+      UserId: foundUser.id
+    });
+
+    return res.status(201).json({
+      message: 'Created'
+    });
   } catch (err) {
     return res.status(400).json({
       message: err.message

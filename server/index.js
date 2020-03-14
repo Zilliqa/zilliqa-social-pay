@@ -7,6 +7,8 @@ const next = require('next');
 const passport = require('passport');
 const uuidv4 = require('uuid').v4;
 const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const server = express();
 
 const ENV = process.env.NODE_ENV;
 const port = process.env.PORT || 3000;
@@ -21,33 +23,34 @@ const handle = app.getRequestHandler();
 
 require('./passport-setup');
 
+server.use(cookieParser());
+server.use(cookieSession({
+  name: process.env.SESSION,
+  keys: [
+    dev ? 'key0' : uuidv4(),
+    dev ? 'key1' : uuidv4()
+  ],
+
+  // Cookie Options
+  maxAge: (24 * 60 * 60 * 1000), // 24 hours
+  httpOnly: true
+}));
+
+// initalize passport
+server.use(passport.initialize());
+server.use(passport.session());
+
+// parse application/x-www-form-urlencoded
+server.use(bodyParser.urlencoded({ extended: true }))
+ 
+// parse application/json
+server.use(bodyParser.json());
+
+server.use('/', indexRouter);
+
 app
   .prepare()
   .then(() => {
-    const server = express();
-
-    server.use(cookieParser());
-    server.use(cookieSession({
-      name: process.env.SESSION,
-      keys: [
-        dev ? 'key0' : uuidv4(),
-        dev ? 'key1' : uuidv4()
-      ],
-    
-      // Cookie Options
-      maxAge: (24 * 60 * 60 * 1000), // 24 hours
-      httpOnly: true
-    }));
-
-    // initalize passport
-    server.use(passport.initialize());
-    server.use(passport.session());
-
-    server.use(express.json());
-    server.use(express.urlencoded({ extended: false }));
-
-    server.use('/', indexRouter);
-
     // handling everything else with Next.js
     server.get('*', handle);
 

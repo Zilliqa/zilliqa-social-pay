@@ -21,8 +21,11 @@ import {
   ButtonVariants,
   Events,
   SizeComponent,
-  FontColors
+  FontColors,
+  FontSize,
+  Fonts
 } from 'config';
+import { addTweet } from 'utils/update-tweets';
 
 const TweetContainer = styled.div`
   display: grid;
@@ -81,6 +84,12 @@ export const FixedWrapper: React.FC = () => {
     setAddress(value);
   }, [setAddressErr, setAddress]);
 
+  const handlePay = React.useCallback(async () => {
+    EventStore.setEvent(Events.Load);
+    await addTweet(userState.jwtToken, eventState.content);
+    EventStore.reset();
+  }, [addTweet, EventStore, userState, eventState]);
+
   React.useEffect(() => {
     if (!address || address.length < 1) {
       setAddress(userState.zilAddress);
@@ -136,11 +145,26 @@ export const FixedWrapper: React.FC = () => {
                 sizeVariant={SizeComponent.lg}
                 variant={ButtonVariants.primary}
                 css="margin-top: 30px;"
+                onClick={handlePay}
               >
                 Pay
               </Button>
             </TweetContainer>
           ) : null}
+        </Card>
+      </Modal>
+      <Modal
+        show={eventState.current === Events.Error}
+        onBlur={() => EventStore.reset()}
+      >
+        <Card title="Error">
+          {Boolean(eventState.content && eventState.content.message) ? <Text
+            size={FontSize.md}
+            fontColors={FontColors.danger}
+            fontVariant={Fonts.AvenirNextLTProBold}
+          >
+            {eventState.content.message}
+          </Text> : null}
         </Card>
       </Modal>
       <ContainerLoader show={eventState.current === Events.Load}>
