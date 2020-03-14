@@ -3,7 +3,7 @@ import { NotificationManager } from 'react-notifications';
 
 import { fetchTweetsUpdate } from 'utils/update-tweets';
 import { fetchTweets } from 'utils/get-tweets';
-
+import { toUnique } from 'utils/to-unique';
 import { Twitte } from 'interfaces';
 
 export const TwitterDomain = createDomain();
@@ -29,7 +29,7 @@ export const store = TwitterDomain.store(initalState)
       return {
         ...state,
         error: undefined,
-        tweets: state.tweets.concat(result.tweets)
+        tweets: toUnique(state.tweets.concat(result.tweets), 'idStr')
       };
     }
 
@@ -41,7 +41,7 @@ export const store = TwitterDomain.store(initalState)
     if (Array.isArray(result)) {
       return {
         error: undefined,
-        tweets: state.tweets.concat(result)
+        tweets: toUnique(state.tweets.concat(result), 'idStr')
       };
     }
 

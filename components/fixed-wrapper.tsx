@@ -5,10 +5,11 @@ import { validation } from '@zilliqa-js/util';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { useMediaQuery } from 'react-responsive';
-import { NotificationContainer } from 'react-notifications';
+import { NotificationContainer, NotificationManager } from 'react-notifications';
 
 import EventStore from 'store/event';
 import UserStore from 'store/user';
+import TwitterStore from 'store/twitter';
 
 import { Modal } from 'components/modal';
 import { Card } from 'components/card';
@@ -86,9 +87,16 @@ export const FixedWrapper: React.FC = () => {
 
   const handlePay = React.useCallback(async () => {
     EventStore.setEvent(Events.Load);
-    await addTweet(userState.jwtToken, eventState.content);
+    const result = await addTweet(userState.jwtToken, eventState.content);
+
+    if (result.message === 'Created') {
+      await TwitterStore.getTweets(null);
+
+      NotificationManager.info('Added new tweet.');
+    }
+
     EventStore.reset();
-  }, [addTweet, EventStore, userState, eventState]);
+  }, [addTweet, EventStore, userState, eventState, TwitterStore]);
 
   React.useEffect(() => {
     if (!address || address.length < 1) {
