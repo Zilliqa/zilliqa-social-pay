@@ -43,6 +43,11 @@ module.exports = async function() {
   for (let index = 0; index < twittes.rows.length; index++) {
     const tweet = twittes.rows[index];
 
+    if (!tweet.User.zilAddress) {
+      debug(`user with id: ${tweet.User.id}, has skipped`);
+      continue;
+    }
+
     try {
       await tweet.update({
         txId: 'padding'
