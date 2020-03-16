@@ -98,8 +98,6 @@ export const AuthPage: NextPage = () => {
     UserStore.setUser(userData);
     EventStore.reset();
 
-    console.log(userData);
-
     if (userData.synchronization || (userData.zilAddress && validation.isBech32(userData.zilAddress))) {
       router.push('/');
 

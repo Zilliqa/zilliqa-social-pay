@@ -64,6 +64,6 @@ export const GuidePage: NextPage = () => {
       <CarouselStyle />
     </React.Fragment>
   );
-}
+};
 
 export default GuidePage;
