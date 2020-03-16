@@ -126,6 +126,13 @@ router.put('/update/tweets', checkSession, async (req, res) => {
   }
 
   try {
+    const transaction = await models.sequelize.transaction();
+    let filteredTweets = [];
+    const blockchain = await Blockchain.findOne({
+      where: {
+        contract: CONTRACT_ADDRESS
+      }
+    });
     const client = new Twitter({
       consumer_key: process.env.TWITTER_CONSUMER_KEY,
       consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
@@ -136,36 +143,31 @@ router.put('/update/tweets', checkSession, async (req, res) => {
       user_id: user.profileId,
       count: 100
     };
+    const tweets = await client.get(url, params);
 
-    client.get(url, params, async (error, tweets) => {
-      if (error) {
-        return res.status(400).json(error);
-      }
-
-      const transaction = await models.sequelize.transaction();
-      let filteredTweets = [];
-      const blockchain = await Blockchain.findOne({
-        where: {
-          contract: CONTRACT_ADDRESS
-        }
+    if (!Array.isArray(tweets)) {
+      return res.status(400).json({
+        message: 'not found'
       });
+    }
 
-      filteredTweets = tweets
-        .filter((tweet) => tweet.text.includes(blockchain.hashtag));
-      const newTweetes = filteredTweets.map((tweet) => Twittes.create({
-        idStr: tweet.id_str,
-        text: tweet.text,
-        UserId: user.id
-      }, { transaction }).catch(() => null));
-      let tweetsUpdated = await Promise.all(newTweetes);
+    filteredTweets = tweets.filter(
+      (tweet) => tweet.text.includes(blockchain.hashtag)
+    );
 
-      tweetsUpdated = tweetsUpdated.filter(Boolean);
-      await transaction.commit();
+    const newTweetes = filteredTweets.map((tweet) => Twittes.create({
+      idStr: tweet.id_str,
+      text: tweet.text,
+      UserId: user.id
+    }, { transaction }).catch(() => null));
+    let tweetsUpdated = await Promise.all(newTweetes);
 
-      return res.json({
-        message: tweetsUpdated.length > 1 ? 'updated' : 'not found',
-        tweets: tweetsUpdated.filter(Boolean)
-      });
+    tweetsUpdated = tweetsUpdated.filter(Boolean);
+    await transaction.commit();
+
+    return res.json({
+      message: tweetsUpdated.length > 1 ? 'updated' : 'not found',
+      tweets: tweetsUpdated.filter(Boolean)
     });
   } catch (err) {
     return res.status(400).json({
