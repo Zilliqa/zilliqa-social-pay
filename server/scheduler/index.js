@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const schedule = require('node-schedule');
 const debug = require('debug')('zilliqa-social-pay:scheduler');
 
