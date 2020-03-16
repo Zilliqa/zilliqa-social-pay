@@ -23,6 +23,7 @@ const initalState: User = {
   profileImageUrl: '',
   zilAddress: '',
   jwtToken: '',
+  balance: '0',
   synchronization: false
 };
 

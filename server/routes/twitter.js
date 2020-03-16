@@ -3,6 +3,7 @@ const Twitter = require('twitter');
 const request = require('request');
 const passport = require('passport');
 const models = require('../models');
+const zilliqa = require('../zilliqa');
 const checkSession = require('../middleware/check-session');
 
 const API_URL = 'https://api.twitter.com';
@@ -248,6 +249,9 @@ router.get('/get/account', checkSession, async (req, res) => {
 
   try {
     const user = await User.findByPk(userId);
+    const { balance } = await zilliqa.getCurrentAccount(
+      user.zilAddress
+    );
     const client = new Twitter({
       consumer_key: process.env.TWITTER_CONSUMER_KEY,
       consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
@@ -267,6 +271,8 @@ router.get('/get/account', checkSession, async (req, res) => {
 
     delete user.dataValues.tokenSecret;
     delete user.dataValues.token;
+
+    user.dataValues.balance = balance;
 
     return res.status(200).json(user);
   } catch (err) {

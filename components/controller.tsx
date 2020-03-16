@@ -99,7 +99,7 @@ export const Controller: React.FC = () => {
             Wallet balance:
           </Text>
           <Text>
-            {fromZil(blockchainState.zilsPerTweet)} ZIL.
+            {fromZil(userState.balance)} ZIL.
           </Text>
         </Alert>
         <Alert variant={AlertVariants.info}>
@@ -107,10 +107,10 @@ export const Controller: React.FC = () => {
             size={FontSize.xs}
             fontVariant={Fonts.AvenirNextLTProDemi}
           >
-            Total Tweets made:
+            ZIL per tweet:
           </Text>
           <Text>
-            1.001
+            {fromZil(blockchainState.zilsPerTweet)} ZIL
           </Text>
         </Alert>
       </Container>
