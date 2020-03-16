@@ -15,7 +15,7 @@ module.exports = async function() {
     });
 
     if (!currenInfo) {
-      debug('cannot find to blockchain info.');
+      debug('cannot find to blockchain info. currenInfo:', currenInfo, 'contracta address', CONTRACT_ADDRESS);
 
       return null;
     }
