@@ -10,14 +10,22 @@ module.exports = async function() {
     const blockchainInfo = await zilliqa.blockchainInfo();
     const contractInfo = await zilliqa.getInit();
 
-    const currenInfo = await Blockchain.findOne({
+    let currenInfo = await Blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
 
     if (!currenInfo) {
       debug('cannot find to blockchain info. currenInfo:', currenInfo, 'contracta address', CONTRACT_ADDRESS);
 
-      return null;
+      await Blockchain.create({
+        contract: CONTRACT_ADDRESS,
+        ...blockchainInfo,
+        ...contractInfo
+      });
+
+      currenInfo = await Blockchain.findOne({
+        where: { contract: CONTRACT_ADDRESS }
+      });
     }
 
     await currenInfo.update({
