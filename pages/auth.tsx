@@ -174,7 +174,7 @@ export const AuthPage: NextPage = () => {
                   fontColors={FontColors.info}
                   onClick={() => EventStore.setEvent(Events.Load)}
                 >
-                  Sign in with twitter
+                  Sign in with Twitter
                 </Text>
               </TwitterLogin>
               {userState.jwtToken ? (
