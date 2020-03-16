@@ -148,11 +148,11 @@ export const AuthPage: NextPage = () => {
         >
           <Step
             title="Twitter"
-            description={'Sign in with twitter`'}
+            description={'Sign in with Twitter.`'}
           />
           <Step
             title="Zilliqa"
-            description={'Assign Zilliqa address.'}
+            description={'Connect Zilliqa address.'}
           />
         </Steps>
         <SignForm>
@@ -189,7 +189,7 @@ export const AuthPage: NextPage = () => {
                     sizeVariant={SizeComponent.md}
                     onClick={handleAddAddress}
                   >
-                    Assign address
+                    Connect address
                   </Button>
                 </React.Fragment>
               ) : null}
@@ -201,6 +201,6 @@ export const AuthPage: NextPage = () => {
       <BottomImg src="/imgs/auth-1.svg"/>
     </React.Fragment>
   );
-}
+};
 
 export default AuthPage;

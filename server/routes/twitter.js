@@ -153,12 +153,12 @@ router.put('/update/tweets', checkSession, async (req, res) => {
     }
 
     filteredTweets = tweets.filter(
-      (tweet) => tweet.text.includes(blockchain.hashtag)
+      (tweet) => tweet.text.includes(blockchain.hashtag.toLowerCase())
     );
 
     const newTweetes = filteredTweets.map((tweet) => Twittes.create({
       idStr: tweet.id_str,
-      text: tweet.text,
+      text: tweet.text.toLowerCase(),
       UserId: user.id
     }, { transaction }).catch(() => null));
     let tweetsUpdated = await Promise.all(newTweetes);

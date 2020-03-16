@@ -132,7 +132,7 @@ export const Controller: React.FC = () => {
         <Search
           sizeVariant={SizeComponent.md}
           css="background-color: #e9ecef;color: #000;margin-top: 30px;"
-          placeholder="Input your tweet link or tweet id."
+          placeholder="Input your Tweet link or Tweet ID"
           onChange={handleInput}
         />
         <Button

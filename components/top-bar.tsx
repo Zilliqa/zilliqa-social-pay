@@ -44,7 +44,7 @@ type Prop = {
 
 const ITEMS = [
   'Settings',
-  'SignOut'
+  'Sign Out'
 ];
 
 export const TopBar: React.FC<Prop> = ({

@@ -42,7 +42,7 @@ module.exports = {
     return {
       contract: CONTRACT_ADDRESS,
       owner: toBech32Address(owner.value),
-      hashtag: hashtag.value,
+      hashtag: hashtag.value.toLowerCase(),
       zilsPerTweet: zils_per_tweet.value,
       blocksPerDay: blocks_per_day.value,
       blocksPerWeek: blocks_per_week.value

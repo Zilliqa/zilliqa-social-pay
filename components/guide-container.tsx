@@ -2,10 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Text } from 'components/text';
-import { Button } from 'components/button';
 import { Img } from 'components/img';
 
-import { FontSize, SizeComponent } from 'config';
+import { FontSize } from 'config';
 
 const Container = styled.div`
   display: flex;
@@ -36,14 +35,12 @@ const IlluImage = styled(Img)`
 
 type Prop = {
   imgSrc: string;
-  text: string;
-  onNext?: () => void;
-}
+  text: string | JSX.Element;
+};
 
 export const GuideContainer: React.FC<Prop> = ({
   imgSrc,
-  text,
-  onNext
+  text
 }) => {
   return (
     <Container>
@@ -52,12 +49,6 @@ export const GuideContainer: React.FC<Prop> = ({
         <TextInfo size={FontSize.sm}>
           {text}
         </TextInfo>
-        <Button
-          sizeVariant={SizeComponent.md}
-          onClick={onNext}
-        >
-          Next
-        </Button>
       </Flex>
     </Container>
   );

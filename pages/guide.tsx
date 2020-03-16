@@ -1,10 +1,15 @@
 import React from 'react';
 import { NextPage } from 'next';
+import styled, { createGlobalStyle } from 'styled-components';
 import { useRouter } from 'next/router';
-import { createGlobalStyle } from 'styled-components';
 
 import { Carousel } from 'react-responsive-carousel';
 import { GuideContainer } from 'components/guide-container';
+import { Container } from 'components/container';
+import { Button } from 'components/button';
+import { Span } from 'components/blue-span';
+
+import { SizeComponent } from 'config';
 
 const CAROUSEL_PROPS = {
   showArrows: false,
@@ -17,11 +22,29 @@ const CAROUSEL_PROPS = {
 const SLIDES = [
   {
     img: 'guide-1.svg',
-    text: 'SocialPay is an innovative new solution that allows you to earn $ZIL by sharing social media updates on Twitter. To use SocialPay you need to login with your Twitter account and use specific hashtags in your tweets.'
+    text: (
+      <React.Fragment>
+        <p>
+        SocialPay is an innovative new solution that allows you to earn <Span>$ZIL</Span> by sharing social media updates on Twitter.
+        </p>
+        <p>
+          To use SocialPay you need to login with your Twitter account and use a <Span>#Zilliqa</Span> related hashtag in your tweet.
+        </p>
+      </React.Fragment>
+    )
   },
   {
     img: 'guide-2.svg',
-    text: 'Every time you publish Zilliqa-related tweets, you are able to earn reward. These rewards can vary depending on the campaign Zilliqa is running. Make sure to always check out what campaign is running while you help Zilliqa grow!'
+    text: (
+      <React.Fragment>
+        <p>
+          Every time you Tweet a Zilliqa-related message, you are able to earn rewards. These rewards can vary depending on the hashtag and campaign <Span>#Zilliqa</Span> is running.
+        </p>
+        <p>
+          Make sure to always check out what hashtag and campaign is available while you take part in our events!
+        </p>
+      </React.Fragment>
+    )
   }
 ];
 
@@ -30,23 +53,29 @@ const CarouselStyle = createGlobalStyle`
     background: transparent;
   }
 `;
+const CarouselContainer = styled(Container)`
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  justify-items: center;
+`;
 
 export const GuidePage: NextPage = () => {
   const router = useRouter();
   const [selectedItem, setSelectedItem] = React.useState<number>(0);
 
-  const handeNextSlide = React.useCallback((index: number) => {
-    if (index < SLIDES.length) {
-      setSelectedItem(index);
+  const handeNextSlide = React.useCallback(() => {
+    setSelectedItem(selectedItem + 1);
+  }, [setSelectedItem, selectedItem]);
 
-      return null;
+  React.useEffect(() => {
+    if (selectedItem === SLIDES.length) {
+      router.push('/auth');
     }
-
-    router.push('/auth');
-  }, [setSelectedItem]);
+  }, [selectedItem, SLIDES]);
 
   return (
-    <React.Fragment>
+    <CarouselContainer>
       <Carousel
         {...CAROUSEL_PROPS}
         selectedItem={selectedItem}
@@ -57,12 +86,17 @@ export const GuidePage: NextPage = () => {
             key={index}
             imgSrc={`/imgs/${sldie.img}`}
             text={sldie.text}
-            onNext={() => handeNextSlide(index + 1)}
           />
         ))}
       </Carousel>
       <CarouselStyle />
-    </React.Fragment>
+      <Button
+        sizeVariant={SizeComponent.lg}
+        onClick={handeNextSlide}
+      >
+        Next
+      </Button>
+    </CarouselContainer>
   );
 };
 

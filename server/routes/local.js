@@ -120,7 +120,7 @@ router.post('/add/tweet', checkSession, async (req, res) => {
 
     await Twittes.create({
       idStr: tweet.id_str,
-      text: tweet.text,
+      text: tweet.text.toLowerCase(),
       UserId: foundUser.id
     });
 
