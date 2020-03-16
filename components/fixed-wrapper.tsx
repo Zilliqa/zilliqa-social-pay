@@ -120,7 +120,7 @@ export const FixedWrapper: React.FC = () => {
               defaultValue={address}
               sizeVariant={SizeComponent.md}
               error={addressErr}
-              disabled={userState.zilAddress && userState.zilAddress.includes('padding')}
+              disabled={userState.synchronization}
               css="font-size: 15px;width: 350px;"
               onChange={handleChangeAddress}
             />
