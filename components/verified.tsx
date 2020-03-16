@@ -60,7 +60,9 @@ export const Verified: React.FC = () => {
         <TweetEmbedContainer key={index}>
           {tweet.approved ? <Img src="/icons/ok.svg"/> : null}
           {Boolean(tweet.rejected) ? <Img src="/icons/close.svg"/> : null}
-          {Boolean(!tweet.approved && !tweet.rejected) ? <Img src="/icons/loader.svg"/> : null}
+          {Boolean(!tweet.approved && !tweet.rejected) ? (
+            <Img src="/icons/loader.svg" css="animation:spin 4s linear infinite;"/>
+          ) : null}
           <TwitterTweetEmbed
             screenName={userState.screenName}
             tweetId={tweet.idStr}

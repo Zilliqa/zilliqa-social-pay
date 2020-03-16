@@ -71,6 +71,12 @@ const GlobalStyle = createGlobalStyle`
     }
   }
 
+  @keyframes spin {
+    100% {
+      transform:rotate(360deg);
+    }
+  }
+
   .rc-steps-label-vertical .rc-steps-item-description {
     text-align: center;
   }
