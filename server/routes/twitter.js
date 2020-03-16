@@ -25,7 +25,8 @@ const userSign = (req, res) => {
       screenName: req.user.screenName,
       profileImageUrl: req.user.profileImageUrl,
       zilAddress: req.user.zilAddress,
-      jwtToken: req.token
+      jwtToken: req.token,
+      synchronization: req.user.synchronization
     }))
     .catch((err) => res.status(400).json({ message: err.message }));
 }

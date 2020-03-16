@@ -22,7 +22,8 @@ const initalState: User = {
   screenName: '',
   profileImageUrl: '',
   zilAddress: '',
-  jwtToken: ''
+  jwtToken: '',
+  synchronization: false
 };
 
 export const store = UserDomain.store<User>(initalState)

@@ -51,7 +51,8 @@ passport.use(
             'profileId',
             'screenName',
             'profileImageUrl',
-            'zilAddress'
+            'zilAddress',
+            'synchronization'
           ]
         })
         .then(([user]) => done(null, user))

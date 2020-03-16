@@ -14,6 +14,7 @@ export interface User {
   zilAddress: string;
   jwtToken: string;
   message?: string;
+  synchronization: boolean;
 }
 
 export interface FetchUpdateAddress {
