@@ -12,6 +12,7 @@ export const Alert = styled.div`
   padding: .4rem;
   border: 1px solid transparent;
   border-radius: .25rem;
+  width: fit-content;
 
   ${(props: Prop) => props.css}
   ${(props: Prop) => props.variant}

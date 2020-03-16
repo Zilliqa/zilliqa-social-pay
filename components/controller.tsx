@@ -93,10 +93,10 @@ export const Controller: React.FC = () => {
       <Container css="display: flex;justify-content: space-between;">
         <Alert variant={AlertVariants.info}>
           <Text
-            size={FontSize.xs}
+            size={FontSize.sm}
             fontVariant={Fonts.AvenirNextLTProDemi}
           >
-            Wallet balance:
+            Balance:
           </Text>
           <Text>
             {fromZil(userState.balance)} ZIL.
@@ -104,13 +104,24 @@ export const Controller: React.FC = () => {
         </Alert>
         <Alert variant={AlertVariants.info}>
           <Text
-            size={FontSize.xs}
+            size={FontSize.sm}
             fontVariant={Fonts.AvenirNextLTProDemi}
           >
             ZIL per tweet:
           </Text>
           <Text>
             {fromZil(blockchainState.zilsPerTweet)} ZIL
+          </Text>
+        </Alert>
+        <Alert variant={AlertVariants.info}>
+          <Text
+            size={FontSize.sm}
+            fontVariant={Fonts.AvenirNextLTProDemi}
+          >
+            Hashtag:
+          </Text>
+          <Text>
+            {blockchainState.hashtag}
           </Text>
         </Alert>
       </Container>
