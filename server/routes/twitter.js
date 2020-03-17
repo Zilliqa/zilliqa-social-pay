@@ -131,7 +131,6 @@ router.put('/update/tweets', checkSession, async (req, res) => {
   }
 
   try {
-    const transaction = await models.sequelize.transaction();
     let filteredTweets = [];
     const blockchain = await Blockchain.findOne({
       where: {
@@ -175,11 +174,10 @@ router.put('/update/tweets', checkSession, async (req, res) => {
       idStr: tweet.id_str,
       text: tweet.text.toLowerCase(),
       UserId: user.id
-    }, { transaction }).catch(() => null));
+    }).catch(() => null));
     let tweetsUpdated = await Promise.all(newTweetes);
 
     tweetsUpdated = tweetsUpdated.filter(Boolean);
-    await transaction.commit();
 
     return res.json({
       message: tweetsUpdated.length > 1 ? 'updated' : 'not found',
