@@ -164,6 +164,13 @@ router.put('/update/tweets', checkSession, async (req, res) => {
       return text.includes(hashtag) && userID === user.profileId;
     });
 
+    if (!filteredTweets || filteredTweets.length < 1) {
+      return res.json({
+        message: 'not found',
+        tweets: []
+      });
+    }
+
     const newTweetes = filteredTweets.map((tweet) => Twittes.create({
       idStr: tweet.id_str,
       text: tweet.text.toLowerCase(),

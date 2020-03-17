@@ -9,6 +9,7 @@ const uuidv4 = require('uuid').v4;
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const server = express();
+const zilliqa = require('./zilliqa');
 
 const ENV = process.env.NODE_ENV;
 const port = process.env.PORT || 3000;
@@ -50,6 +51,7 @@ server.use('/', indexRouter);
 
 app
   .prepare()
+  .then(() => zilliqa.checkAdmins())
   .then(() => {
     // handling everything else with Next.js
     server.get('*', handle);

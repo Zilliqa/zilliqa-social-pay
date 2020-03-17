@@ -7,7 +7,6 @@ const {
   fromBech32Address,
   toChecksumAddress
 } = require('@zilliqa-js/crypto');
-const models = require('./models');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const PROVIDERS = {
@@ -51,9 +50,8 @@ async function checkAdmins() {
   });
 };
 
-checkAdmins();
-
 module.exports = {
+  checkAdmins,
   async getInit() {
     const [
       owner,
