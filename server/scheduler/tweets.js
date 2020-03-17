@@ -41,6 +41,10 @@ module.exports = async function() {
   debug(`account: ${address}, balance: ${balanceAmount}, nonce: ${nonce}`);
   debug(`need to VerifyTweet ${twittes.count}`);
 
+  if (new BN(balance).lt(new BN('1000000000000'))) {
+    throw new Error(`lack of funds ${balanceAmount}`);
+  }
+
   for (let index = 0; index < twittes.rows.length; index++) {
     const tweet = twittes.rows[index];
 
@@ -61,8 +65,6 @@ module.exports = async function() {
         tweetText: text,
         startPos: startIndex
       }, nonce + index + 1);
-
-      // console.log(JSON.stringify(tx, null, 4));
   
       if (tx.id && tx.receipt.event_logs[0]['_eventname'] === 'VerifyTweetSuccessful') {
         await tweet.update({
@@ -71,6 +73,7 @@ module.exports = async function() {
           rejected: false
         });
         debug('tweet:', tweet.idStr, 'has been verifed, tx hash:', tx.id);
+        continue;
       } else if (tx.id && tx.receipt.event_logs[0]['_eventname'] !== 'VerifyTweetSuccessful') {
         await tweet.update({
           txId: tx.id,
@@ -78,7 +81,14 @@ module.exports = async function() {
           rejected: true
         });
         debug('tweet:', tweet.idStr, 'has been rejected, tx hash:', tx.id, 'error:', tx.receipt.event_logs[0]['_eventname']);
+        continue;
       }
+
+      await tweet.update({
+        txId: null,
+        approved: false,
+        rejected: false
+      });
     } catch (err) {
       await tweet.update({
         txId: null

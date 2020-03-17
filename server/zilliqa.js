@@ -73,21 +73,15 @@ module.exports = {
     }
   },
   async getVerifiedTweets(tweetsID) {
-    try {
-      const result  = await contract.getSubState('verified_tweets', [tweetsID]);
+    const result = await contract.getSubState('verified_tweets', [tweetsID]);
     
-      if (!result) {
-        return {
-          not_verified_tweets: tweetsID
-        };
-      }
-
-      return result;
-    } catch (err) {
+    if (!result) {
       return {
         not_verified_tweets: tweetsID
       };
     }
+
+    return result;
   },
   async blockchainInfo() {
     const { result } = await zilliqa.blockchain.getBlockChainInfo();

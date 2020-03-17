@@ -30,6 +30,10 @@ module.exports = async function() {
 
   debug(`Need check ${twittes.count} Twittes.`);
 
+  if (twittes.count === 0) {
+    return null;
+  }
+
   const verifiedTweets = await Promise.all(needTestForVerified);
   
   await Promise.all(verifiedTweets.map((tweet) => {
