@@ -99,7 +99,7 @@ export const Controller: React.FC = () => {
             Balance:
           </Text>
           <Text>
-            {fromZil(userState.balance)} ZIL.
+            {fromZil(userState.balance)} ZIL
           </Text>
         </Alert>
         <Alert variant={AlertVariants.info}>
