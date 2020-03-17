@@ -24,6 +24,7 @@ module.exports = async function() {
   const twittes = await Twittes.findAndCountAll({
     where: {
       approved: false,
+      rejected: false,
       txId: null
     },
     include: {
@@ -50,7 +51,7 @@ module.exports = async function() {
 
     try {
       await tweet.update({
-        txId: 'padding'
+        txId: 'peddling'
       });
 
       const { text, startIndex } = getPos(tweet.text, blockchainInfo.hashtag);

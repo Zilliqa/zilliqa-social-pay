@@ -2,7 +2,12 @@ require('dotenv').config();
 
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
 const { validation, BN, Long, bytes, units } = require('@zilliqa-js/util');
-const { toBech32Address, fromBech32Address } = require('@zilliqa-js/crypto');
+const {
+  toBech32Address,
+  fromBech32Address,
+  toChecksumAddress
+} = require('@zilliqa-js/crypto');
+const models = require('./models');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const PROVIDERS = {
@@ -13,6 +18,7 @@ const ENV = process.env.NODE_ENV;
 const CHAIN_ID = 333;
 const MSG_VERSION = 1;
 const VERSION = bytes.pack(CHAIN_ID, MSG_VERSION);
+const PRIVATE_KEYS = JSON.parse(process.env.ADMIN_PRIVATE_KEY);
 
 let httpNode = PROVIDERS.mainnet;
 
@@ -23,11 +29,29 @@ if (ENV !== 'production') {
 const zilliqa = new Zilliqa(httpNode);
 const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
 
-zilliqa.wallet.addByPrivateKey(process.env.ADMIN_PRIVATE_KEY);
+PRIVATE_KEYS.forEach((key) => zilliqa.wallet.addByPrivateKey(key));
 
 if (!validation.isBech32(CONTRACT_ADDRESS)) {
   throw new Error('contract address: ', CONTRACT_ADDRESS, 'must be Bech32 format.');
 }
+
+async function checkAdmins() {
+  const { admins } = await contract.getSubState('admins');
+
+  if (Object.keys(admins).length > Object.keys(zilliqa.wallet.accounts).length) {
+    throw new Error(`Contract has ${Object.keys(admins).length} admins but use ${Object.keys(zilliqa.wallet.accounts).length}`);
+  }
+
+  Object.keys(admins).forEach((acc) => {
+    const address = toChecksumAddress(acc);
+
+    if (!(address in zilliqa.wallet.accounts)) {
+      throw new Error(`Account ${acc} is not addmin `);
+    }
+  });
+};
+
+checkAdmins();
 
 module.exports = {
   async getInit() {
@@ -38,7 +62,7 @@ module.exports = {
       blocks_per_day,
       blocks_per_week
     ] = await contract.getInit();
-    
+
     return {
       contract: CONTRACT_ADDRESS,
       owner: toBech32Address(owner.value),
@@ -46,6 +70,23 @@ module.exports = {
       zilsPerTweet: zils_per_tweet.value,
       blocksPerDay: blocks_per_day.value,
       blocksPerWeek: blocks_per_week.value
+    }
+  },
+  async getVerifiedTweets(tweetsID) {
+    try {
+      const result  = await contract.getSubState('verified_tweets', [tweetsID]);
+    
+      if (!result) {
+        return {
+          not_verified_tweets: tweetsID
+        };
+      }
+
+      return result;
+    } catch (err) {
+      return {
+        not_verified_tweets: tweetsID
+      };
     }
   },
   async blockchainInfo() {

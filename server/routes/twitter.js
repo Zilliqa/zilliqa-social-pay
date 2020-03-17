@@ -156,9 +156,13 @@ router.put('/update/tweets', checkSession, async (req, res) => {
       });
     }
 
-    filteredTweets = tweets.filter(
-      (tweet) => tweet.text.toLowerCase().includes(blockchain.hashtag.toLowerCase())
-    );
+    filteredTweets = tweets.filter((tweet) => {
+      const text = tweet.text.toLowerCase();
+      const hashtag = blockchain.hashtag.toLowerCase();
+      const userID = tweet.user.id_str;
+
+      return text.includes(hashtag) && userID === user.profileId;
+    });
 
     const newTweetes = filteredTweets.map((tweet) => Twittes.create({
       idStr: tweet.id_str,

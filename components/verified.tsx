@@ -58,7 +58,11 @@ export const Verified: React.FC = () => {
         </HaventVerified>
       ) : twitterState.tweets.map((tweet, index) => (
         <TweetEmbedContainer key={index}>
-          {tweet.approved ? <Img src="/icons/ok.svg"/> : null}
+          {tweet.approved ? (
+            <a>
+              <Img src="/icons/ok.svg"/>
+            </a>
+          ) : null}
           {Boolean(tweet.rejected) ? <Img src="/icons/close.svg"/> : null}
           {Boolean(!tweet.approved && !tweet.rejected) ? (
             <Img src="/icons/loader.svg" css="animation:spin 4s linear infinite;"/>
