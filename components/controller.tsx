@@ -120,7 +120,7 @@ export const Controller: React.FC = () => {
           >
             Hashtag:
           </Text>
-          <Text>
+          <Text css="text-transform: capitalize;">
             {blockchainState.hashtag}
           </Text>
         </Alert>
@@ -143,7 +143,7 @@ export const Controller: React.FC = () => {
         <Search
           sizeVariant={SizeComponent.md}
           css="background-color: #e9ecef;color: #000;margin-top: 30px;"
-          placeholder="Input your Tweet link or Tweet ID"
+          placeholder="Paste your Tweet link here"
           onChange={handleInput}
         />
         <Button

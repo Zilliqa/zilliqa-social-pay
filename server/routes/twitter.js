@@ -32,6 +32,10 @@ const userSign = (req, res) => {
     .catch((err) => res.status(400).json({ message: err.message }));
 }
 
+function capitalizeFirstLetter(string) {
+  return string.charAt(1).toUpperCase() + string.slice(2);
+}
+
 router.post('/auth/twitter', (req, res, next) => {
   request.post({
     url: `${API_URL}/oauth/access_token?oauth_verifier`,
@@ -153,7 +157,7 @@ router.put('/update/tweets', checkSession, async (req, res) => {
     }
 
     filteredTweets = tweets.filter(
-      (tweet) => tweet.text.includes(blockchain.hashtag.toLowerCase())
+      (tweet) => tweet.text.toLowerCase().includes(blockchain.hashtag.toLowerCase())
     );
 
     const newTweetes = filteredTweets.map((tweet) => Twittes.create({
@@ -216,9 +220,9 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
       where: { idStr: tweet.id_str }
     });
 
-    if (!tweet.text.includes(blockchain.hashtag)) {
+    if (!tweet.text.toLowerCase().includes(blockchain.hashtag.toLowerCase())) {
       return res.status(404).json({
-        message: `This tweet hasn't ${blockchain.hashtag} hashtag.`
+        message: `This tweet does not have the #${capitalizeFirstLetter(blockchain.hashtag)} hashtag in it.`
       });
     } else if (tweet.user.id_str !== user.profileId) {
       return res.status(404).json({
@@ -232,9 +236,9 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
 
     return res.status(302).json(tweet);
   } catch (err) {
-    if (error && Array.isArray(error)) {
+    if (err && Array.isArray(err)) {
       return res.status(404).json({
-        ...error[0]
+        ...err[0]
       });
     }
     return res.status(400).json({
