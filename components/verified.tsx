@@ -12,6 +12,7 @@ import { Img } from 'components/img';
 import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
 
 import { FontSize, Fonts } from 'config';
+import { viewTx } from 'utils/viewblock';
 
 const VerifiedContainer = styled.div`
   margin-top: 30px;
@@ -59,7 +60,10 @@ export const Verified: React.FC = () => {
       ) : twitterState.tweets.map((tweet, index) => (
         <TweetEmbedContainer key={index}>
           {tweet.approved ? (
-            <a>
+            <a
+              href={tweet.txId ? viewTx(tweet.txId) : undefined}
+              target="_blank"
+            >
               <Img src="/icons/ok.svg"/>
             </a>
           ) : null}

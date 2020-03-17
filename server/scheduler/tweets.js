@@ -30,7 +30,7 @@ module.exports = async function() {
     include: {
       model: User
     },
-    limit: 10
+    limit: 1
   });
   const blockchainInfo = await Blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
