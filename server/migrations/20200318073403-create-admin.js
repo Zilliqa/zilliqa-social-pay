@@ -37,8 +37,13 @@ module.exports = {
         defaultValue: statuses.enabled
       },
       inProgress: {
-        type: Sequelize.STRING,
-        allowNull: true
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue: false
+      },
+      nonce: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       },
       createdAt: {
         allowNull: false,

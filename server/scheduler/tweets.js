@@ -7,6 +7,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const Twittes = models.sequelize.models.Twittes;
 const Blockchain = models.sequelize.models.blockchain;
 const User = models.sequelize.models.User;
+const Admin = models.sequelize.models.Admin;
 
 function getPos(text, hashtag) {
   text = text.toLowerCase();
@@ -21,6 +22,20 @@ function getPos(text, hashtag) {
 }
 
 module.exports = async function() {
+  const statuses = new Admin().statuses;
+  const freeAdmins = await Admin.count({
+    where: {
+      status: statuses.enabled,
+      inProgress: false
+    }
+  });
+
+  debug('Free admin addresses:', freeAdmins);
+
+  if (freeAdmins === 0) {
+    return null;
+  }
+
   const twittes = await Twittes.findAndCountAll({
     where: {
       approved: false,
@@ -35,15 +50,7 @@ module.exports = async function() {
   const blockchainInfo = await Blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
-  const { balance, nonce, address } = await zilliqa.getCurrentAccount();
-  const balanceAmount = units.fromQa(new BN(balance), units.Units.Zil)
-
-  debug(`account: ${address}, balance: ${balanceAmount}, nonce: ${nonce}`);
   debug(`need to VerifyTweet ${twittes.count}`);
-
-  if (new BN(balance).lt(new BN('1000000000000'))) {
-    throw new Error(`lack of funds ${balanceAmount}`);
-  }
 
   for (let index = 0; index < twittes.rows.length; index++) {
     const tweet = twittes.rows[index];
@@ -64,7 +71,7 @@ module.exports = async function() {
         tweetId: tweet.idStr,
         tweetText: text,
         startPos: startIndex
-      }, nonce + index + 1);
+      });
   
       if (tx.id && tx.receipt.event_logs[0]['_eventname'] === 'VerifyTweetSuccessful') {
         await tweet.update({
@@ -91,7 +98,9 @@ module.exports = async function() {
       });
     } catch (err) {
       await tweet.update({
-        txId: null
+        txId: null,
+        approved: false,
+        rejected: false
       });
       debug('tweet:', tweet.idStr, 'has not verifed error:', err);
     }

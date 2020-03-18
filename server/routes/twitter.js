@@ -11,6 +11,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const User = models.sequelize.models.User;
 const Twittes = models.sequelize.models.Twittes;
 const Blockchain = models.sequelize.models.blockchain;
+const callback = process.env.CALLBACk || 'http://localhost:3000';
 
 const userSign = (req, res) => {
   if (!req.user) {
@@ -87,7 +88,7 @@ router.post('/auth/twitter/reverse', (req, res) => {
   request.post({
     url: `${API_URL}/oauth/request_token`,
     oauth: {
-      oauth_callback: "http%3A%2F%2Flocalhost%3A3001%2Ftwitter-callback",
+      oauth_callback: `${callback}/api/v1/auth/twitter/callback`,
       consumer_key: process.env.TWITTER_CONSUMER_KEY,
       consumer_secret: process.env.TWITTER_CONSUMER_SECRET
     }

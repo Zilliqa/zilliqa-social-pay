@@ -11,6 +11,16 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
 });
 
 schedule.scheduleJob('* * * * *', (fireDate) => {
+  debug(`run accounts update job ${fireDate}`);
+  require('./admin')();
+});
+
+schedule.scheduleJob('* * * * *', (fireDate) => {
+  debug(`run user address configure ${fireDate}`);
+  require('./user-configure')();
+});
+
+schedule.scheduleJob('* * * * *', (fireDate) => {
   debug(`run VerifyTweet job ${fireDate}`);
   require('./tweets')();
 });

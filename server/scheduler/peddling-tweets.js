@@ -5,8 +5,23 @@ const models = require('../models');
 
 const Twittes = models.sequelize.models.Twittes;
 const User = models.sequelize.models.User;
+const Admin = models.sequelize.models.Admin;
 
 module.exports = async function() {
+  const statuses = new Admin().statuses;
+  const freeAdmins = await Admin.count({
+    where: {
+      status: statuses.enabled,
+      inProgress: false
+    }
+  });
+
+  debug('Free admin addresses:', freeAdmins);
+
+  if (freeAdmins === 0) {
+    return null;
+  }
+
   const twittes = await Twittes.findAndCountAll({
     where: {
       approved: false,

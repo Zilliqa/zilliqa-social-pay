@@ -81,7 +81,7 @@ export const AuthPage: NextPage = () => {
   // Effector hooks //
 
   // React hooks //
-  const [addressErr, setAddressErr] = React.useState<string | null>(null);
+  const [addressErr, setAddressErr] = React.useState<string | null | undefined>(null);
   const [address, setAddress] = React.useState<string | null>(null);
 
   const stepsIndex = React.useMemo(() => {
@@ -132,6 +132,8 @@ export const AuthPage: NextPage = () => {
 
     if (result.message === 'ConfiguredUserAddress') {
       router.push('/');
+    } else {
+      setAddressErr(result.message);
     }
 
     EventStore.setEvent(Events.None);

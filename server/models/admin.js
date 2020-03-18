@@ -52,8 +52,13 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: statuses.enabled
     },
     inProgress: {
-      type: DataTypes.STRING,
-      allowNull: true
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: false
+    },
+    nonce: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0
     }
   }, {});
   Admin.prototype.statuses = statuses;

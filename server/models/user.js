@@ -1,9 +1,6 @@
 'use strict';
 const jwt = require('jsonwebtoken');
-const uuidv4 = require('uuid').v4;
-
 const secret = process.env.JWT_SECRET;
-
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     username: DataTypes.STRING,
@@ -19,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     zilAddress: {
       type: DataTypes.STRING,
       unique: true
+    },
+    lastAction: {
+      type: DataTypes.STRING,
+      allowNull: true
     },
     synchronization: {
       type: DataTypes.BOOLEAN,

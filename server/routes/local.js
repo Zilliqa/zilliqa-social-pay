@@ -2,13 +2,13 @@ const express = require('express');
 const { validation } = require('@zilliqa-js/util');
 const checkSession = require('../middleware/check-session');
 const models = require('../models');
-const zilliqa = require('../zilliqa');
 const router = express.Router();
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const User = models.sequelize.models.User;
 const Twittes = models.sequelize.models.Twittes;
 const Blockchain = models.sequelize.models.blockchain;
+const Admin = models.sequelize.models.Admin;
 
 router.put('/update/address/:address', checkSession, async (req, res) => {
   const bech32Address = req.params.address;
@@ -24,25 +24,13 @@ router.put('/update/address/:address', checkSession, async (req, res) => {
     const user = new User();
     const decoded = await user.verify(jwtToken);
     const foundUser = await User.findByPk(decoded.id);
-    const { nonce } = await zilliqa.getCurrentAccount();
 
     await foundUser.update({
+      zilAddress: bech32Address,
       synchronization: true
     });
-
-    zilliqa.configureUsers(
-      foundUser.profileId,
-      bech32Address,
-      nonce + 1
-    ).then(() => foundUser.update({
-      zilAddress: bech32Address,
-      synchronization: false
-    })).catch((err) => foundUser.update({
-      zilAddress: null,
-      synchronization: false
-    }));
   
-    return res.status(200).json({
+    return res.status(201).json({
       ...decoded,
       message: 'ConfiguredUserAddress',
     });
@@ -132,6 +120,21 @@ router.post('/add/tweet', checkSession, async (req, res) => {
       message: err.message
     });
   }
+});
+
+router.get('/get/accounts', checkSession, async (req, res) => {
+  const accounts = await Admin.findAll({
+    attributes: [
+      'bech32Address',
+      'address',
+      'balance',
+      'status',
+      'inProgress',
+      'nonce'
+    ]
+  });
+
+  return res.json(accounts);
 });
 
 module.exports = router;

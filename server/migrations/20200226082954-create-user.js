@@ -32,6 +32,10 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true
       },
+      lastAction: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       synchronization: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
