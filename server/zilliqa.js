@@ -162,10 +162,11 @@ module.exports = {
     }
   },
   async generateAddresses(amount) {
+    const statuses = new Admin().statuses;
     const count = await Admin.count({
       where: {
         status: {
-          [Op.not]: 'disabled'
+          [Op.not]: statuses.disabled
         }
       }
     });
@@ -174,8 +175,6 @@ module.exports = {
       const privateKey = schnorr.generatePrivateKey();
       const account = new Account(privateKey);
       let balance = '0';
-
-      console.log(account)
 
       try {
         const { result } = await zilliqa.blockchain.getBalance(account.address);
@@ -194,9 +193,15 @@ module.exports = {
     return Admin.findAll({
       where: {
         status: {
-          [Op.not]: 'disabled'
+          [Op.not]: statuses.disabled
         }
-      }
+      },
+      attributes: [
+        'bech32Address',
+        'address',
+        'balance',
+        'status'
+      ]
     });
   }
 };

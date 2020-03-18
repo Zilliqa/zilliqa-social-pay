@@ -1,5 +1,10 @@
 'use strict';
 const { validation } = require('@zilliqa-js/util');
+const statuses = {
+  disabled: 'disabled',
+  injob: 'injob',
+  free: 'free'
+};
 module.exports = (sequelize, DataTypes) => {
   const Admin = sequelize.define('Admin', {
     bech32Address: {
@@ -43,10 +48,12 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0
     },
     status: {
-      type: DataTypes.STRING,
-      allowNull: true
+      type: DataTypes.ENUM(statuses.disabled, statuses.injob, statuses.free),
+      allowNull: false,
+      defaultValue: statuses.free
     }
   }, {});
+  Admin.prototype.statuses = statuses;
   Admin.associate = function(models) {
     // associations can be defined here
   };

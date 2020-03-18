@@ -1,4 +1,9 @@
 'use strict';
+const statuses = {
+  disabled: 'disabled',
+  injob: 'injob',
+  free: 'free'
+};
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Admins', {
@@ -28,8 +33,9 @@ module.exports = {
         defaultValue: 0
       },
       status: {
-        type: Sequelize.STRING,
-        allowNull: true
+        type: Sequelize.ENUM(statuses.disabled, statuses.injob, statuses.free),
+        allowNull: false,
+        defaultValue: statuses.free
       },
       createdAt: {
         allowNull: false,
