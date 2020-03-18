@@ -2,8 +2,7 @@
 const { validation } = require('@zilliqa-js/util');
 const statuses = {
   disabled: 'disabled',
-  injob: 'injob',
-  free: 'free'
+  enabled: 'enabled'
 };
 module.exports = (sequelize, DataTypes) => {
   const Admin = sequelize.define('Admin', {
@@ -48,9 +47,13 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0
     },
     status: {
-      type: DataTypes.ENUM(statuses.disabled, statuses.injob, statuses.free),
+      type: DataTypes.ENUM(statuses.disabled, statuses.enabled),
       allowNull: false,
-      defaultValue: statuses.free
+      defaultValue: statuses.enabled
+    },
+    inProgress: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {});
   Admin.prototype.statuses = statuses;

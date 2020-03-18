@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const debug = require('debug')('zilliqa-social-pay:server');
 const express = require('express');
 const cookieSession = require('cookie-session');
 const http = require('http');
@@ -52,8 +53,12 @@ server.use('/', indexRouter);
 app
   .prepare()
   .then(() => zilliqa.generateAddresses(process.env.NUMBER_OF_ADMINS))
-  .then((address) => {
-    console.log(address)
+  .then((accounts) => {
+    accounts.forEach((account, index) => {
+      const address = account.bech32Address;
+      const balance = zilliqa.fromZil(account.balance);
+      debug(`admin ${index}: ${address}, balance: ${balance}, status: ${account.status}`);
+    });
 
     // handling everything else with Next.js
     server.get('*', handle);

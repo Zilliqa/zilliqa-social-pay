@@ -198,10 +198,15 @@ module.exports = {
       },
       attributes: [
         'bech32Address',
-        'address',
         'balance',
         'status'
       ]
     });
+  },
+  fromZil(value) {
+    const _1000 = 1000;
+    const amount = units.fromQa(new BN(value), units.Units.Zil);
+
+    return String(Math.round(Number(amount) * _1000) / _1000);
   }
 };

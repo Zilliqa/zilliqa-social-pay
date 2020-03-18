@@ -1,8 +1,7 @@
 'use strict';
 const statuses = {
   disabled: 'disabled',
-  injob: 'injob',
-  free: 'free'
+  enabled: 'enabled'
 };
 module.exports = {
   up: (queryInterface, Sequelize) => {
@@ -33,9 +32,13 @@ module.exports = {
         defaultValue: 0
       },
       status: {
-        type: Sequelize.ENUM(statuses.disabled, statuses.injob, statuses.free),
+        type: Sequelize.ENUM(statuses.disabled, statuses.enabled),
         allowNull: false,
-        defaultValue: statuses.free
+        defaultValue: statuses.enabled
+      },
+      inProgress: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
       createdAt: {
         allowNull: false,
