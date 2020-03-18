@@ -29,6 +29,10 @@ module.exports = (sequelize, DataTypes) => {
     balance: {
       type: DataTypes.BIGINT,
       defaultValue: 0
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {});
   Admin.associate = function(models) {
