@@ -51,8 +51,11 @@ server.use('/', indexRouter);
 
 app
   .prepare()
-  .then(() => zilliqa.checkAdmins())
   .then(() => {
+    const address = zilliqa.generateAddresses(process.env.NUMBER_OF_ADMINS)
+    
+    console.log(address)
+    
     // handling everything else with Next.js
     server.get('*', handle);
 

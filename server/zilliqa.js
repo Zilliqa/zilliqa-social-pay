@@ -1,12 +1,13 @@
 require('dotenv').config();
 
+const { Op } = require('sequelize');
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
+const { Account } = require('@zilliqa-js/account');
 const { validation, BN, Long, bytes, units } = require('@zilliqa-js/util');
-const {
-  toBech32Address,
-  fromBech32Address,
-  toChecksumAddress
-} = require('@zilliqa-js/crypto');
+const { toBech32Address, fromBech32Address, schnorr } = require('@zilliqa-js/crypto');
+const models = require('./models');
+
+const Admin = models.sequelize.models.Admin;
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const PROVIDERS = {
@@ -17,7 +18,6 @@ const ENV = process.env.NODE_ENV;
 const CHAIN_ID = 333;
 const MSG_VERSION = 1;
 const VERSION = bytes.pack(CHAIN_ID, MSG_VERSION);
-const PRIVATE_KEYS = JSON.parse(process.env.ADMIN_PRIVATE_KEY);
 
 let httpNode = PROVIDERS.mainnet;
 
@@ -28,30 +28,13 @@ if (ENV !== 'production') {
 const zilliqa = new Zilliqa(httpNode);
 const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
 
-PRIVATE_KEYS.forEach((key) => zilliqa.wallet.addByPrivateKey(key));
+// zilliqa.wallet.addByPrivateKey(key)
 
 if (!validation.isBech32(CONTRACT_ADDRESS)) {
   throw new Error('contract address: ', CONTRACT_ADDRESS, 'must be Bech32 format.');
 }
 
-async function checkAdmins() {
-  const { admins } = await contract.getSubState('admins');
-
-  if (Object.keys(admins).length > Object.keys(zilliqa.wallet.accounts).length) {
-    throw new Error(`Contract has ${Object.keys(admins).length} admins but use ${Object.keys(zilliqa.wallet.accounts).length}`);
-  }
-
-  Object.keys(admins).forEach((acc) => {
-    const address = toChecksumAddress(acc);
-
-    if (!(address in zilliqa.wallet.accounts)) {
-      throw new Error(`Account ${acc} is not addmin `);
-    }
-  });
-};
-
 module.exports = {
-  checkAdmins,
   async getInit() {
     const [
       owner,
@@ -177,5 +160,43 @@ module.exports = {
         address
       };
     }
+  },
+  async generateAddresses(amount) {
+    const count = await Admin.count({
+      where: {
+        status: {
+          [Op.not]: 'disabled'
+        }
+      }
+    });
+
+    for (let index = count; index < amount; index++) {
+      const privateKey = schnorr.generatePrivateKey();
+      const account = new Account(privateKey);
+      let balance = '0';
+
+      console.log(account)
+
+      try {
+        const { result } = await zilliqa.blockchain.getBalance(account.address);
+
+        balance = result.balance
+      } catch (err) {
+        //
+      }
+
+      await Admin.create({
+        ...account,
+        balance
+      });
+    }
+
+    return Admin.findAll({
+      where: {
+        status: {
+          [Op.not]: 'disabled'
+        }
+      }
+    });
   }
 };

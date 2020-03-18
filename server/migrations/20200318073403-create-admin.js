@@ -8,7 +8,12 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      bech32: {
+      bech32Address: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false
+      },
+      address: {
         type: Sequelize.STRING,
         unique: true,
         allowNull: false
