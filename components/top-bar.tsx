@@ -1,13 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useRouter } from 'next/router';
+import * as Effector from 'effector-react';
 
 import EventStore from 'store/event';
 import UserStore from 'store/user';
 
 import { Text } from 'components/text';
 import { Img } from 'components/img';
+import { MiniLoader } from 'components/min-loader';
 import { Dropdown } from 'components/dropdown';
+import ReactTooltip from 'react-tooltip';
 
 import { FontSize, Fonts, FontColors, Events } from 'config';
 
@@ -36,25 +39,21 @@ const ProfileImg = styled(Img)`
   border-radius: 50%;
 `;
 
-type Prop = {
-  profileImg: string;
-  profileName: string;
-  zilAddress: string;
-};
-
 const ITEMS = [
   'Settings',
   'Sign Out'
 ];
+const TOOLTIP_TYPES = {
+  success: 'success',
+  warning: 'warning'
+};
 
-export const TopBar: React.FC<Prop> = ({
-  zilAddress,
-  profileImg,
-  profileName
-}) => {
+export const TopBar: React.FC = () => {
   // Next hooks //
   const router = useRouter();
   // Next hooks //
+
+  const userState = Effector.useStore(UserStore.store);
 
   const handleClick = React.useCallback((event: string) => {
     switch (event) {
@@ -77,13 +76,17 @@ export const TopBar: React.FC<Prop> = ({
       <Text
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProBold}
-        css="width: 200px;"
+        css="width: 200px;display: flex;align-items: center;"
+        data-tip={userState.synchronization ? 'Synchronization' : 'Synchronized'}
         nowrap
       >
-        {zilAddress}
+        {userState.synchronization ? (
+          <MiniLoader />
+        ) : null}
+        {userState.zilAddress}
       </Text>
       <ProfileContainer>
-        <ProfileImg src={profileImg}/>
+        <ProfileImg src={userState.profileImageUrl}/>
         <Dropdown
           items={ITEMS}
           onClick={handleClick}
@@ -94,10 +97,15 @@ export const TopBar: React.FC<Prop> = ({
             css="width: 200px;"
             nowrap
           >
-            {profileName}
+            {userState.screenName}
           </Text>
         </Dropdown>
       </ProfileContainer>
+      {userState.jwtToken ? <ReactTooltip
+        type={userState.synchronization ? TOOLTIP_TYPES.warning : TOOLTIP_TYPES.success}
+        place="bottom"
+        effect="solid"
+      /> : null}
     </TopBarContainer>
   );
 };

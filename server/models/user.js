@@ -18,8 +18,9 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
     lastAction: {
-      type: DataTypes.STRING,
-      allowNull: true
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      defaultValue: 0
     },
     synchronization: {
       type: DataTypes.BOOLEAN,

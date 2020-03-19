@@ -64,11 +64,7 @@ export const MainPage: NextPage = () => {
 
   return (
     <MainPageContainer>
-      <TopBar
-        zilAddress={userState.zilAddress}
-        profileImg={userState.profileImageUrl}
-        profileName={userState.screenName}
-      />
+      <TopBar />
       <DashboardContainer area="container">
         <Verified />
         <Controller />

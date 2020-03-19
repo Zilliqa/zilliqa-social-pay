@@ -51,7 +51,8 @@ module.exports = async function() {
 
       await zilliqa.configureUsers(user.profileId, user.zilAddress);
       await user.update({
-        synchronization: false
+        synchronization: false,
+        lastAction: blockchainInfo.NumDSBlocks
       });
     } catch (err) {
       debug('FAIL to configureUser with profileID:', user.profileId, 'error', err);

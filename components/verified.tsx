@@ -8,6 +8,7 @@ import TwitterStore from 'store/twitter';
 import BlockchainStore from 'store/blockchain';
 
 import { Text } from 'components/text';
+import { MiniLoader } from 'components/min-loader';
 import { Img } from 'components/img';
 import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
 
@@ -68,9 +69,7 @@ export const Verified: React.FC = () => {
             </a>
           ) : null}
           {Boolean(tweet.rejected) ? <Img src="/icons/close.svg"/> : null}
-          {Boolean(!tweet.approved && !tweet.rejected) ? (
-            <Img src="/icons/loader.svg" css="animation:spin 4s linear infinite;"/>
-          ) : null}
+          {Boolean(!tweet.approved && !tweet.rejected) ? <MiniLoader /> : null}
           <TwitterTweetEmbed
             screenName={userState.screenName}
             tweetId={tweet.idStr}
