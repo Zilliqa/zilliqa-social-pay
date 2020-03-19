@@ -33,8 +33,7 @@ module.exports = async function() {
         [Op.not]: null
       },
       lastAction: {
-        [Op.not]: null,
-        // [Op.lte]: Number(blockchainInfo.NumDSBlocks)
+        [Op.lte]: Number(blockchainInfo.NumDSBlocks)
       }
     },
     limit: 3
@@ -52,18 +51,18 @@ module.exports = async function() {
     try {
       debug('try to configureUser with profileID:', user.profileId);
       await user.update({
-        lastAction: null
+        lastAction: blockchainInfo.NumDSBlocks
       });
       await zilliqa.configureUsers(user.profileId, user.zilAddress);
       await user.update({
-        synchronization: false,
-        lastAction: blockchainInfo.NumDSBlocks
+        synchronization: false
       });
     } catch (err) {
       debug('FAIL to configureUser with profileID:', user.profileId, 'error', err);
       await user.update({
         synchronization: false,
-        zilAddress: null
+        zilAddress: null,
+        lastAction: 0
       });
     }
   }
