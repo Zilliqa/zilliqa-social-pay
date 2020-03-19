@@ -51,7 +51,7 @@ module.exports = async function() {
     try {
       debug('try to configureUser with profileID:', user.profileId);
       await user.update({
-        lastAction: blockchainInfo.NumDSBlocks
+        lastAction: Number(blockchainInfo.NumDSBlocks) + Number(blockchainInfo.blocksPerWeek)
       });
       await zilliqa.configureUsers(user.profileId, user.zilAddress);
       await user.update({
