@@ -33,7 +33,7 @@ module.exports = async function() {
         [Op.not]: null
       },
       lastAction: {
-        [Op.gte]: Number(blockchainInfo.NumDSBlocks)
+        [Op.lte]: Number(blockchainInfo.NumDSBlocks)
       }
     },
     limit: 3
@@ -50,7 +50,9 @@ module.exports = async function() {
 
     try {
       debug('try to configureUser with profileID:', user.profileId);
-
+      await user.update({
+        lastAction: null
+      });
       await zilliqa.configureUsers(user.profileId, user.zilAddress);
       await user.update({
         synchronization: false,
