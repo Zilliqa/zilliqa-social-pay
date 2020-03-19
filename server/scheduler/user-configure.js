@@ -57,6 +57,7 @@ module.exports = async function() {
       await user.update({
         synchronization: false
       });
+      debug('User with profileID:', user.profileId, 'has been synchronized');
     } catch (err) {
       debug('FAIL to configureUser with profileID:', user.profileId, 'error', err);
       await user.update({
