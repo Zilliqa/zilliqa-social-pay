@@ -114,90 +114,106 @@ module.exports = {
       address = fromBech32Address(address);
     }
 
+    let tx = null;
     const { contract, nonce, account } = await this.getAccount();
 
     await account.update({
       inProgress: true
     });
 
-    const params = [
-      {
-        vname: 'twitter_id',
-        type: 'String',
-        value: `${profileId}`
-      },
-      {
-        vname: 'recipient_address',
-        type: 'ByStr20',
-        value: `${address}`
-      }
-    ];
-    const tx = await contract.call('ConfigureUsers', params, {
-      nonce,
-      version: VERSION,
-      amount: new BN(0),
-      gasPrice: units.toQa('1000', units.Units.Li),
-      gasLimit: Long.fromNumber(25000)
-    });
-    const result = await this.getCurrentAccount(account.address);
+    try {
+      const params = [
+        {
+          vname: 'twitter_id',
+          type: 'String',
+          value: `${profileId}`
+        },
+        {
+          vname: 'recipient_address',
+          type: 'ByStr20',
+          value: `${address}`
+        }
+      ];
+      tx = await contract.call('ConfigureUsers', params, {
+        nonce,
+        version: VERSION,
+        amount: new BN(0),
+        gasPrice: units.toQa('1000', units.Units.Li),
+        gasLimit: Long.fromNumber(25000)
+      });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      const result = await this.getCurrentAccount(account.address);
 
-    await account.update({
-      nonce: result.nonce,
-      balance: result.balance,
-      inProgress: false
-    });
+      await account.update({
+        nonce: result.nonce,
+        balance: result.balance,
+        inProgress: false
+      });
+    }
 
     if (tx.id && tx.receipt['event_logs'] && tx.receipt['event_logs'][0]['_eventname'] !== 'ConfiguredUserAddress') {
       throw new Error(tx.receipt['event_logs'][0]['_eventname']);
-    } else if (!tx.id) {
+    } else if (!tx || !tx.id) {
       throw new Error('Tx has not confirmed.');
     }
 
     return tx;
   },
   async verifyTweet(data) {
+    let tx = null;
     const { contract, nonce, account } = await this.getAccount();
 
     await account.update({
       inProgress: true
     });
 
-    const params = [
-      {
-        vname: 'twitter_id',
-        type: 'String',
-        value: `${data.profileId}`
-      },
-      {
-        vname: 'tweet_id',
-        type: 'String',
-        value: `${data.tweetId}`
-      },
-      {
-        vname: 'tweet_text',
-        type: 'String',
-        value: `${data.tweetText}`
-      },
-      {
-        vname: 'start_pos',
-        type: 'Uint32',
-        value: `${data.startPos}`
-      }
-    ];
-    const tx = await contract.call('VerifyTweet', params, {
-      nonce,
-      version: VERSION,
-      amount: new BN(0),
-      gasPrice: units.toQa('1000', units.Units.Li),
-      gasLimit: Long.fromNumber(25000)
-    });
-    const result = await this.getCurrentAccount(account.address);
+    try {
+      const params = [
+        {
+          vname: 'twitter_id',
+          type: 'String',
+          value: `${data.profileId}`
+        },
+        {
+          vname: 'tweet_id',
+          type: 'String',
+          value: `${data.tweetId}`
+        },
+        {
+          vname: 'tweet_text',
+          type: 'String',
+          value: `${data.tweetText}`
+        },
+        {
+          vname: 'start_pos',
+          type: 'Uint32',
+          value: `${data.startPos}`
+        }
+      ];
+      tx = await contract.call('VerifyTweet', params, {
+        nonce,
+        version: VERSION,
+        amount: new BN(0),
+        gasPrice: units.toQa('1000', units.Units.Li),
+        gasLimit: Long.fromNumber(25000)
+      });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      const result = await this.getCurrentAccount(account.address);
 
-    await account.update({
-      nonce: result.nonce,
-      balance: result.balance,
-      inProgress: false
-    });
+      await account.update({
+        nonce: result.nonce,
+        balance: result.balance,
+        inProgress: false
+      });
+    }
+
+    if (!tx || !tx.id) {
+      throw new Error('Tx has not confirmed.');
+    }
 
     return tx;
   },
