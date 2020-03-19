@@ -57,7 +57,7 @@ module.exports = {
     zilliqa.wallet.addByPrivateKey(account.privateKey);
     zilliqa.wallet.setDefault(account.address);
 
-    if (nonce > account.nonce) {
+    if (nonce < account.nonce) {
       nonce = account.nonce;
     }
 
