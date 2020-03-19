@@ -33,7 +33,8 @@ module.exports = async function() {
         [Op.not]: null
       },
       lastAction: {
-        [Op.lte]: Number(blockchainInfo.NumDSBlocks)
+        [Op.not]: null,
+        // [Op.lte]: Number(blockchainInfo.NumDSBlocks)
       }
     },
     limit: 3
