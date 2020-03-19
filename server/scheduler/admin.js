@@ -11,8 +11,7 @@ module.exports = async function() {
     where: {
       status: statuses.enabled,
       updatedAt: {
-        // A day.
-        [Op.lt]: new Date(new Date() - 24 * 60 * 60)
+        [Op.lt]: new Date(new Date() - 24 * 60 * 60 * 60)
       }
       // inProgress: false
     }
