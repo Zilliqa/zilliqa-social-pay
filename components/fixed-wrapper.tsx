@@ -10,6 +10,7 @@ import { NotificationContainer, NotificationManager } from 'react-notifications'
 import EventStore from 'store/event';
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
+import BlockchainStore from 'store/blockchain';
 
 import { Modal } from 'components/modal';
 import { Card } from 'components/card';
@@ -43,11 +44,20 @@ export const FixedWrapper: React.FC = () => {
   // Effector hooks //
   const eventState = Effector.useStore(EventStore.store);
   const userState = Effector.useStore(UserStore.store);
+  const blockchainState = Effector.useStore(BlockchainStore.store);
   // Effector hooks //
 
   // React hooks //
   const [addressErr, setAddressErr] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string>(userState.zilAddress);
+
+  const canCallAction = React.useMemo(() => {
+    if (Number(userState.lastAction) > Number(blockchainState.NumDSBlocks)) {
+      return false;
+    }
+
+    return true;
+  }, [userState]);
 
   const handleAddressChange = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -112,6 +122,15 @@ export const FixedWrapper: React.FC = () => {
         onBlur={() => EventStore.reset()}
       >
         <Card title="Settings">
+          {!canCallAction ? (
+            <Text
+              size={FontSize.md}
+              fontColors={FontColors.danger}
+            >
+              <p>Your last action {userState.lastAction}</p>
+              <p>Current block {blockchainState.NumDSBlocks}</p>
+            </Text>
+          ) : null}
           <Text>
             Your Zilliqa address
           </Text>
@@ -120,14 +139,14 @@ export const FixedWrapper: React.FC = () => {
               defaultValue={address}
               sizeVariant={SizeComponent.md}
               error={addressErr}
-              disabled={userState.synchronization}
+              disabled={userState.synchronization || !canCallAction}
               css="font-size: 15px;width: 350px;"
               onChange={handleChangeAddress}
             />
             <Button
               sizeVariant={SizeComponent.lg}
               variant={ButtonVariants.primary}
-              disabled={Boolean(addressErr || !address || (address === userState.zilAddress))}
+              disabled={Boolean(!canCallAction || addressErr || !address || (address === userState.zilAddress))}
               css="margin-top: 10px;"
             >
               Change address

@@ -24,7 +24,8 @@ const initalState: User = {
   zilAddress: '',
   jwtToken: '',
   balance: '0',
-  synchronization: false
+  synchronization: false,
+  lastAction: '0'
 };
 
 export const store = UserDomain.store<User>(initalState)

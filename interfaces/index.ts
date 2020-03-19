@@ -15,6 +15,7 @@ export interface User {
   jwtToken: string;
   message?: string;
   balance: string;
+  lastAction: string;
   synchronization: boolean;
 }
 
