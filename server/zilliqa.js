@@ -61,7 +61,9 @@ module.exports = {
       nonce = account.nonce;
     }
 
-    nonce++;
+    if (nonce !== 0) {
+      nonce++;
+    }
 
     return {
       account,
