@@ -40,7 +40,7 @@ module.exports = {
         status: statuses.enabled,
         inProgress: false,
         balance: {
-          [Op.gte]: '10000000000000' // 10ZILs
+          [Op.gte]: '5000000000000' // 5ZILs
         }
       },
       order: [
@@ -117,10 +117,6 @@ module.exports = {
     let tx = null;
     const { contract, nonce, account } = await this.getAccount();
 
-    await account.update({
-      inProgress: true
-    });
-
     try {
       const params = [
         {
@@ -134,6 +130,9 @@ module.exports = {
           value: `${address}`
         }
       ];
+      await account.update({
+        inProgress: true
+      });
       tx = await contract.call('ConfigureUsers', params, {
         nonce,
         version: VERSION,
