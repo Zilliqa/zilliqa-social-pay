@@ -52,18 +52,10 @@ module.exports = {
       throw new Error('Not found admin account');
     }
 
-    let { nonce } = await this.getCurrentAccount(account.address);
-
     zilliqa.wallet.addByPrivateKey(account.privateKey);
     zilliqa.wallet.setDefault(account.address);
 
-    if (nonce < account.nonce) {
-      nonce = account.nonce;
-    }
-
-    if (nonce !== 0) {
-      nonce++;
-    }
+    nonce = account.nonce + 1;
 
     return {
       account,
