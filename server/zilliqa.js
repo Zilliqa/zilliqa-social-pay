@@ -154,7 +154,7 @@ module.exports = {
       });
     }
 
-    if (tx.id && tx.receipt['event_logs'] && tx.receipt['event_logs'][0]['_eventname'] !== 'ConfiguredUserAddress') {
+    if (tx && tx.id && tx.receipt['event_logs'] && tx.receipt['event_logs'][0]['_eventname'] !== 'ConfiguredUserAddress') {
       throw new Error(tx.receipt['event_logs'][0]['_eventname']);
     } else if (!tx || !tx.id) {
       throw new Error('Tx has not confirmed.');
