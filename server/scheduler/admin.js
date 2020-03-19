@@ -9,7 +9,11 @@ module.exports = async function() {
   const accounts = await Admin.findAndCountAll({
     where: {
       status: statuses.enabled,
-      inProgress: false
+      updatedAt: {
+        // A day.
+        [Op.lt]: new Date(new Date() - 24 * 60 * 60)
+      }
+      // inProgress: false
     }
   });
 
@@ -21,7 +25,8 @@ module.exports = async function() {
 
       return acc.update({
         nonce,
-        balance
+        balance,
+        inProgress: false
       });
     });
 
@@ -29,7 +34,7 @@ module.exports = async function() {
 
     debug('Accounts has been updated.');
   } catch (err) {
-    console.log(err)
+    console.log(err);
     debug('update accounts error:', err);
   }
 }
