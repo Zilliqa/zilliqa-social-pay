@@ -55,7 +55,7 @@ module.exports = async function() {
   for (let index = 0; index < twittes.rows.length; index++) {
     const tweet = twittes.rows[index];
 
-    if (!tweet.User.zilAddress) {
+    if (!tweet.User.zilAddress || tweet.User.synchronization) {
       debug(`user with id: ${tweet.User.id}, has skipped`);
       continue;
     }
