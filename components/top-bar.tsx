@@ -77,7 +77,7 @@ export const TopBar: React.FC = () => {
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProBold}
         css="width: 200px;display: flex;align-items: center;"
-        data-tip={userState.synchronization ? 'Synchronization' : 'Synchronized'}
+        data-tip={userState.synchronization ? 'Syncing address' : 'Synchronized'}
         nowrap
       >
         {userState.synchronization ? (
