@@ -34,7 +34,7 @@ module.exports = {
       },
       lastAction: {
         type: Sequelize.BIGINT,
-        allowNull: false,
+        allowNull: true,
         defaultValue: 0
       },
       synchronization: {

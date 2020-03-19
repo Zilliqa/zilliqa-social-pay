@@ -23,11 +23,17 @@ module.exports = async function() {
     return null;
   }
 
+  const blockchainInfo = await Blockchain.findOne({
+    where: { contract: CONTRACT_ADDRESS }
+  });
   const users = await User.findAndCountAll({
     where: {
       synchronization: true,
       zilAddress: {
         [Op.not]: null
+      },
+      lastAction: {
+        [Op.gte]: Number(blockchainInfo.NumDSBlocks)
       }
     },
     limit: 3
@@ -38,10 +44,6 @@ module.exports = async function() {
   if (users.count < 1) {
     return null;
   }
-
-  const blockchainInfo = await Blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
 
   for (let index = 0; index < users.rows.length; index++) {
     const user = users.rows[index];

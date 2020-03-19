@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     lastAction: {
       type: DataTypes.BIGINT,
-      allowNull: false,
+      allowNull: true,
       defaultValue: 0
     },
     synchronization: {
