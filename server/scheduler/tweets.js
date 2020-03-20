@@ -11,7 +11,7 @@ const User = models.sequelize.models.User;
 const Admin = models.sequelize.models.Admin;
 
 function getPos(text, hashtag) {
-  text = text.toLowerCase();
+  text = encodeURI(text.toLowerCase());
   hashtag = hashtag.toLowerCase();
 
   let startIndex = text.indexOf(hashtag);
