@@ -66,6 +66,7 @@ module.exports = async function() {
     const tweet = user.Twittes[0];
 
     if (!tweet) {
+      debug('User have not any tweets');
       return null;
     }
 
