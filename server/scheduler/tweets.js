@@ -1,5 +1,6 @@
 const debug = require('debug')('zilliqa-social-pay:scheduler:VerifyTweet');
 const { units, BN } = require('@zilliqa-js/util');
+const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
 
@@ -34,29 +35,38 @@ module.exports = async function() {
   if (freeAdmins === 0) {
     return null;
   }
-
-  const twittes = await Twittes.findAndCountAll({
-    where: {
-      approved: false,
-      rejected: false,
-      txId: null
-    },
-    include: {
-      model: User
-    },
-    limit: 10
-  });
   const blockchainInfo = await Blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
-  debug(`need to VerifyTweet ${twittes.count}`);
+  const usersTweets = await User.findAndCountAll({
+    where: {
+      synchronization: false,
+      zilAddress: {
+        [Op.not]: null
+      },
+      lastAction: {
+        [Op.lte]: Number(blockchainInfo.DSBlockNum)
+      }
+    },
+    include: {
+      model: Twittes,
+      where: {
+        approved: false,
+        rejected: false,
+        txId: null
+      },
+      limit: 1
+    },
+    limit: 10
+  });
 
-  for (let index = 0; index < twittes.rows.length; index++) {
-    const tweet = twittes.rows[index];
+  debug('Need update tweet for', usersTweets.count, 'users.');
 
-    if (!tweet.User.zilAddress || tweet.User.synchronization) {
-      debug(`user with id: ${tweet.User.id}, has skipped`);
-      continue;
+  usersTweets.rows.forEach(async (user) => {
+    const tweet = user.Twittes[0];
+
+    if (!tweet) {
+      return null;
     }
 
     try {
@@ -66,6 +76,9 @@ module.exports = async function() {
         tweetId: tweet.idStr,
         tweetText: text,
         startPos: startIndex
+      });
+      await user.update({
+        lastAction: Number(blockchainInfo.DSBlockNum) + Number(blockchainInfo.blocksPerWeek)
       });
       await tweet.update({ txId: tx.TranID });
       debug('Tweet with ID:', tweet.idStr, 'sent to shard for verify.');
@@ -77,5 +90,5 @@ module.exports = async function() {
       });
       debug('tweet:', tweet.idStr, 'has not verifed error:', err);
     }
-  }
-}
+  });
+}()
