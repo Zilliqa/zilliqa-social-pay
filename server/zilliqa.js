@@ -2,28 +2,38 @@ require('dotenv').config();
 
 const { Op } = require('sequelize');
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
-const { Account, TxStatus } = require('@zilliqa-js/account');
 const { RPCMethod } = require('@zilliqa-js/core');
+const { StatusType, MessageType } = require('@zilliqa-js/subscriptions');
+const { Account } = require('@zilliqa-js/account');
 const { validation, BN, Long, bytes, units } = require('@zilliqa-js/util');
-const { toBech32Address, fromBech32Address, schnorr } = require('@zilliqa-js/crypto');
+const {
+  toChecksumAddress,
+  toBech32Address,
+  fromBech32Address,
+  schnorr
+} = require('@zilliqa-js/crypto');
 const models = require('./models');
 
 const Admin = models.sequelize.models.Admin;
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const PROVIDERS = {
+const HTTP_PROVIDERS = {
   mainnet: 'https://dev-api.zilliqa.com',
   testnet: 'https://dev-api.zilliqa.com'
 };
+const WS_PROVIDERS = {
+  mainnet: 'wss://dev-ws.zilliqa.com', //wss://api-ws.zilliqa.com
+  testnet: 'wss://dev-ws.zilliqa.com'
+};
 const ENV = process.env.NODE_ENV;
-const CHAIN_ID = 333;
 const MSG_VERSION = 1;
-const VERSION = bytes.pack(CHAIN_ID, MSG_VERSION);
 
-let httpNode = PROVIDERS.mainnet;
+let httpNode = HTTP_PROVIDERS.mainnet;
+let wsNode = WS_PROVIDERS.mainnet;
 
 if (ENV !== 'production') {
-  httpNode = PROVIDERS.testnet;
+  httpNode = HTTP_PROVIDERS.testnet;
+  wsNode = WS_PROVIDERS.testnet;
 }
 
 if (!validation.isBech32(CONTRACT_ADDRESS)) {
@@ -38,7 +48,6 @@ module.exports = {
     const account = await Admin.findOne({
       where: {
         status: statuses.enabled,
-        inProgress: false,
         balance: {
           [Op.gte]: '5000000000000' // 5ZILs
         }
@@ -52,10 +61,10 @@ module.exports = {
       throw new Error('Not found admin account');
     }
 
+    const nonce = account.nonce + 1;
+
     zilliqa.wallet.addByPrivateKey(account.privateKey);
     zilliqa.wallet.setDefault(account.address);
-
-    nonce = account.nonce + 1;
 
     return {
       account,
@@ -63,6 +72,13 @@ module.exports = {
       nonce,
       zilliqa
     };
+  },
+  async getAdmins() {
+    const zilliqa = new Zilliqa(httpNode);
+    const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
+    const { admins } = await contract.getSubState('admins');
+
+    return Object.keys(admins).map((address) => toChecksumAddress(address));
   },
   async getInit() {
     const zilliqa = new Zilliqa(httpNode);
@@ -107,12 +123,11 @@ module.exports = {
     if (validation.isBech32(address)) {
       address = fromBech32Address(address);
     }
-
-    let tx = null;
-    const { contract, nonce, account } = await this.getAccount();
-
-    try {
-      const params = [
+    const { contract, nonce, zilliqa, account } = await this.getAccount();
+    const version = await this.version();
+    const data = JSON.stringify({
+      _tag: 'ConfigureUsers',
+      params: [
         {
           vname: 'twitter_id',
           type: 'String',
@@ -123,98 +138,109 @@ module.exports = {
           type: 'ByStr20',
           value: `${address}`
         }
-      ];
-      await account.update({
-        inProgress: true
-      });
-      tx = await contract.call('ConfigureUsers', params, {
-        nonce,
-        version: VERSION,
-        amount: new BN(0),
-        gasPrice: units.toQa('1000', units.Units.Li),
-        gasLimit: Long.fromNumber(25000)
-      });
-    } catch (err) {
-      console.log(err);
-    } finally {
-      const result = await this.getCurrentAccount(account.address);
-
-      await account.update({
-        nonce: result.nonce,
-        balance: result.balance,
-        inProgress: false
-      });
-    }
-
-    if (tx && tx.id && tx.receipt['event_logs'] && tx.receipt['event_logs'][0]['_eventname'] !== 'ConfiguredUserAddress') {
-      throw new Error(tx.receipt['event_logs'][0]['_eventname']);
-    } else if (!tx || !tx.id) {
-      throw new Error('Tx has not confirmed.');
-    }
-
-    return tx;
-  },
-  async verifyTweet(data) {
-    let tx = null;
-    const { contract, nonce, account } = await this.getAccount();
-
-    await account.update({
-      inProgress: true
+      ]
     });
 
-    try {
-      const params = [
+    const zilTxData = zilliqa.transactions.new({
+      data,
+      nonce,
+      version,
+      toAddr: contract.address,
+      pubKey: zilliqa.wallet.defaultAccount.publicKey,
+      amount: new BN(0),
+      gasPrice: new BN('1000000000'),
+      gasLimit: Long.fromNumber(9000)
+    });
+    const { txParams } = await zilliqa.wallet.sign(zilTxData);
+    const tx = await zilliqa.provider.send(
+      RPCMethod.CreateTransaction,
+      txParams
+    );
+
+    if (tx.error && tx.error.message.includes(`Nonce (${nonce}) lower than current`)) {
+      const accResult = await this.getCurrentAccount(account.address);
+
+      account.update({
+        nonce: accResult.nonce,
+        balance: accResult.balance
+      });
+    }
+
+    if (tx.error && tx.error.message) {
+      throw new Error(tx.error.message);
+    }
+
+    await account.update({
+      nonce
+    });
+
+    return tx.result;
+  },
+  async verifyTweet({ profileId, tweetId, tweetText, startPos }) {
+    const { contract, nonce, account, zilliqa } = await this.getAccount();
+    const version = await this.version();
+    const data = JSON.stringify({
+      _tag: 'VerifyTweet',
+      params: [
         {
           vname: 'twitter_id',
           type: 'String',
-          value: `${data.profileId}`
+          value: `${profileId}`
         },
         {
           vname: 'tweet_id',
           type: 'String',
-          value: `${data.tweetId}`
+          value: `${tweetId}`
         },
         {
           vname: 'tweet_text',
           type: 'String',
-          value: `${data.tweetText}`
+          value: `${tweetText}`
         },
         {
           vname: 'start_pos',
           type: 'Uint32',
-          value: `${data.startPos}`
+          value: `${startPos}`
         }
-      ];
-      tx = await contract.call('VerifyTweet', params, {
-        nonce,
-        version: VERSION,
-        amount: new BN(0),
-        gasPrice: units.toQa('1000', units.Units.Li),
-        gasLimit: Long.fromNumber(25000)
-      });
-    } catch (err) {
-      console.log(err);
-    } finally {
-      const result = await this.getCurrentAccount(account.address);
+      ]
+    });
+    const zilTxData = zilliqa.transactions.new({
+      data,
+      nonce,
+      version,
+      toAddr: contract.address,
+      pubKey: zilliqa.wallet.defaultAccount.publicKey,
+      amount: new BN(0),
+      gasPrice: new BN('1000000000'),
+      gasLimit: Long.fromNumber(9000)
+    });
+    const { txParams } = await zilliqa.wallet.sign(zilTxData);
+    const tx = await zilliqa.provider.send(
+      RPCMethod.CreateTransaction,
+      txParams
+    );
 
-      await account.update({
-        nonce: result.nonce,
-        balance: result.balance,
-        inProgress: false
+    if (tx.error && tx.error.message.includes(`Nonce (${nonce}) lower than current`)) {
+      const accResult = await this.getCurrentAccount(account.address);
+
+      account.update({
+        nonce: accResult.nonce,
+        balance: accResult.balance
       });
     }
-
-    if (!tx || !tx.id) {
-      throw new Error('Tx has not confirmed.');
+    if (tx.error && tx.error.message) {
+      throw new Error(tx.error.message);
     }
 
-    return tx;
+    await account.update({ nonce });
+
+    return tx.result;
   },
   async getCurrentAccount(address) {
     const zilliqa = new Zilliqa(httpNode);
 
     try {
-      const { error, result } = await zilliqa.blockchain.getBalance(address);
+      const { result } = await zilliqa.blockchain.getBalance(address);
 
       return {
         ...result,
@@ -229,14 +255,7 @@ module.exports = {
     }
   },
   async generateAddresses(amount) {
-    const statuses = new Admin().statuses;
-    const count = await Admin.count({
-      where: {
-        status: {
-          [Op.not]: statuses.disabled
-        }
-      }
-    });
+    const count = await Admin.count();
 
     for (let index = count; index < amount; index++) {
       const privateKey = schnorr.generatePrivateKey();
@@ -258,11 +277,6 @@ module.exports = {
     }
 
     return Admin.findAll({
-      where: {
-        status: {
-          [Op.not]: statuses.disabled
-        }
-      },
       attributes: [
         'bech32Address',
         'balance',
@@ -275,5 +289,61 @@ module.exports = {
     const amount = units.fromQa(new BN(value), units.Units.Zil);
 
     return String(Math.round(Number(amount) * _1000) / _1000);
+  },
+  async blockSubscribe(cb) {
+    const zilliqa = new Zilliqa(httpNode);
+  
+    const subscriber = zilliqa.subscriptionBuilder.buildNewBlockSubscriptions(
+      wsNode
+    );
+
+    subscriber.emitter.on(MessageType.NEW_BLOCK, (event) => {
+      cb(event.value.TxBlock.header)
+    });
+
+    await subscriber.start();
+
+    return subscriber;
+  },
+  async eventSubscribe(cb, subscribed = () => null) {
+    const zilliqa = new Zilliqa(httpNode);
+    const subscriber = zilliqa.subscriptionBuilder.buildEventLogSubscriptions(
+      wsNode,
+      {
+        addresses: [
+          fromBech32Address(CONTRACT_ADDRESS)
+        ]
+      }
+    );
+    
+    subscriber.emitter.on(StatusType.SUBSCRIBE_EVENT_LOG, (event) => {
+      subscribed(event);
+    });
+    
+    subscriber.emitter.on(MessageType.EVENT_LOG, (event) => {
+      if (!event || !event.value || !event.value[0]) {
+        return null;
+      }
+
+      const contract = event.value.find(
+        (value) => toChecksumAddress(value.address) === fromBech32Address(CONTRACT_ADDRESS)
+      );
+
+      if (!contract || !contract.event_logs) {
+        return null;
+      }
+
+      contract.event_logs.forEach((log) => {
+        cb(log);
+      });
+    });
+
+    await subscriber.start();
+  },
+  async version() {
+    const zilliqa = new Zilliqa(httpNode);
+    const { result } = await zilliqa.network.GetNetworkId();
+
+    return bytes.pack(result, MSG_VERSION);
   }
 };

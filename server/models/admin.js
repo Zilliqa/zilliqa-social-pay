@@ -49,12 +49,7 @@ module.exports = (sequelize, DataTypes) => {
     status: {
       type: DataTypes.ENUM(statuses.disabled, statuses.enabled),
       allowNull: false,
-      defaultValue: statuses.enabled
-    },
-    inProgress: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-      defaultValue: false
+      defaultValue: statuses.disabled
     },
     nonce: {
       type: DataTypes.INTEGER,

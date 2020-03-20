@@ -48,12 +48,10 @@ export interface Blockchain {
   contract: string | null;
   hashtag: string | null;
   zilsPerTweet: string;
-  blocksPerDay: string;
-  blocksPerWeek: string;
-  CurrentDSEpoch: string;
-  CurrentMiniEpoch: string;
-  NumDSBlocks: string;
-  NumTxBlocks: string;
+  blocksPerDay: string | number;
+  blocksPerWeek: string | number;
+  BlockNum: string | number;
+  DSBlockNum: string | number;
 }
 
 export interface PageProp {

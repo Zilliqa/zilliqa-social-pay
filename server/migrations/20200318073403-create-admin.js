@@ -34,12 +34,7 @@ module.exports = {
       status: {
         type: Sequelize.ENUM(statuses.disabled, statuses.enabled),
         allowNull: false,
-        defaultValue: statuses.enabled
-      },
-      inProgress: {
-        type: Sequelize.BOOLEAN,
-        allowNull: true,
-        defaultValue: false
+        defaultValue: statuses.disable
       },
       nonce: {
         type: Sequelize.INTEGER,

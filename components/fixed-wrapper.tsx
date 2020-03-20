@@ -52,7 +52,7 @@ export const FixedWrapper: React.FC = () => {
   const [address, setAddress] = React.useState<string>(userState.zilAddress);
 
   const canCallAction = React.useMemo(() => {
-    if (Number(userState.lastAction) > Number(blockchainState.NumDSBlocks)) {
+    if (Number(userState.lastAction) > Number(blockchainState.DSBlockNum)) {
       return false;
     }
 
@@ -128,7 +128,7 @@ export const FixedWrapper: React.FC = () => {
               fontColors={FontColors.danger}
             >
               <p>Your last action {userState.lastAction}</p>
-              <p>Current block {blockchainState.NumDSBlocks}</p>
+              <p>Current block {blockchainState.DSBlockNum}</p>
             </Text>
           ) : null}
           <Text>

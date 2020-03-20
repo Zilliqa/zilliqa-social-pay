@@ -11,8 +11,7 @@ module.exports = async function() {
   const statuses = new Admin().statuses;
   const freeAdmins = await Admin.count({
     where: {
-      status: statuses.enabled,
-      inProgress: false
+      status: statuses.enabled
     }
   });
 

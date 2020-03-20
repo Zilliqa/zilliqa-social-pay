@@ -1,4 +1,4 @@
-const debug = require('debug')('zilliqa-social-pay:scheduler');
+const debug = require('debug')('zilliqa-social-pay:scheduler:user-configure');
 const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
@@ -12,8 +12,7 @@ module.exports = async function() {
   const statuses = new Admin().statuses;
   const freeAdmins = await Admin.count({
     where: {
-      status: statuses.enabled,
-      inProgress: false
+      status: statuses.enabled
     }
   });
 
@@ -33,7 +32,7 @@ module.exports = async function() {
         [Op.not]: null
       },
       lastAction: {
-        [Op.lte]: Number(blockchainInfo.NumDSBlocks)
+        [Op.lte]: Number(blockchainInfo.DSBlockNum)
       }
     },
     limit: 3
@@ -51,13 +50,10 @@ module.exports = async function() {
     try {
       debug('try to configureUser with profileID:', user.profileId);
       await user.update({
-        lastAction: Number(blockchainInfo.NumDSBlocks) + Number(blockchainInfo.blocksPerWeek)
+        lastAction: Number(blockchainInfo.DSBlockNum) + Number(blockchainInfo.blocksPerWeek)
       });
       await zilliqa.configureUsers(user.profileId, user.zilAddress);
-      await user.update({
-        synchronization: false
-      });
-      debug('User with profileID:', user.profileId, 'has been synchronized');
+      debug('User with profileID:', user.profileId, 'tx sent to shard.');
     } catch (err) {
       debug('FAIL to configureUser with profileID:', user.profileId, 'error', err);
       await user.update({

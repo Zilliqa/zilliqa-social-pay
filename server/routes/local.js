@@ -129,7 +129,6 @@ router.get('/get/accounts', checkSession, async (req, res) => {
       'address',
       'balance',
       'status',
-      'inProgress',
       'nonce'
     ]
   });

@@ -13,10 +13,16 @@ module.exports = (sequelize, DataTypes) => {
     zilsPerTweet: DataTypes.STRING,
     blocksPerDay: DataTypes.STRING,
     blocksPerWeek: DataTypes.STRING,
-    CurrentDSEpoch: DataTypes.STRING,
-    CurrentMiniEpoch: DataTypes.STRING,
-    NumDSBlocks: DataTypes.STRING,
-    NumTxBlocks: DataTypes.STRING
+    BlockNum: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      defaultValue: 0
+    },
+    DSBlockNum: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      defaultValue: 0
+    }
   }, {});
   blockchain.associate = function(models) {
     // associations can be defined here

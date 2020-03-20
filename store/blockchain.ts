@@ -12,12 +12,10 @@ const initalState: Blockchain = {
   contract: null,
   hashtag: null,
   zilsPerTweet: '0',
-  blocksPerDay: '0',
-  blocksPerWeek: '0',
-  CurrentDSEpoch: '0',
-  CurrentMiniEpoch: '0',
-  NumDSBlocks: '0',
-  NumTxBlocks: '0',
+  blocksPerDay: 0,
+  blocksPerWeek: 0,
+  BlockNum: 0,
+  DSBlockNum: 0
 };
 
 export const store = blockchainDomain.store<Blockchain>(initalState)

@@ -1,4 +1,4 @@
-const debug = require('debug')('zilliqa-social-pay:scheduler');
+const debug = require('debug')('zilliqa-social-pay:scheduler:VerifyTweet');
 const { units, BN } = require('@zilliqa-js/util');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
@@ -25,8 +25,7 @@ module.exports = async function() {
   const statuses = new Admin().statuses;
   const freeAdmins = await Admin.count({
     where: {
-      status: statuses.enabled,
-      inProgress: false
+      status: statuses.enabled
     }
   });
 
@@ -45,7 +44,7 @@ module.exports = async function() {
     include: {
       model: User
     },
-    limit: 1
+    limit: 10
   });
   const blockchainInfo = await Blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
@@ -61,10 +60,6 @@ module.exports = async function() {
     }
 
     try {
-      await tweet.update({
-        txId: 'peddling'
-      });
-
       const { text, startIndex } = getPos(tweet.text, blockchainInfo.hashtag);
       const tx = await zilliqa.verifyTweet({
         profileId: tweet.User.profileId,
@@ -72,30 +67,8 @@ module.exports = async function() {
         tweetText: text,
         startPos: startIndex
       });
-  
-      if (tx.id && tx.receipt.event_logs[0]['_eventname'] === 'VerifyTweetSuccessful') {
-        await tweet.update({
-          txId: tx.id,
-          approved: true,
-          rejected: false
-        });
-        debug('tweet:', tweet.idStr, 'has been verifed, tx hash:', tx.id);
-        continue;
-      } else if (tx.id && tx.receipt.event_logs[0]['_eventname'] !== 'VerifyTweetSuccessful') {
-        await tweet.update({
-          txId: tx.id,
-          approved: false,
-          rejected: true
-        });
-        debug('tweet:', tweet.idStr, 'has been rejected, tx hash:', tx.id, 'error:', tx.receipt.event_logs[0]['_eventname']);
-        continue;
-      }
-
-      await tweet.update({
-        txId: null,
-        approved: false,
-        rejected: false
-      });
+      await tweet.update({ txId: tx.TranID });
+      debug('Tweet with ID:', tweet.idStr, 'sent to shard for verify.');
     } catch (err) {
       await tweet.update({
         txId: null,
