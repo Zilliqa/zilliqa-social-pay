@@ -91,4 +91,4 @@ module.exports = async function() {
       debug('tweet:', tweet.idStr, 'has not verifed error:', err);
     }
   });
-}()
+}

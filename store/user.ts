@@ -74,7 +74,7 @@ export const store = UserDomain.store<User>(initalState)
     };
 
     try {
-      if (validation.isBech32(result.zilAddress) && (state.zilAddress !== result.zilAddress)) {
+      if (validation.isBech32(result.zilAddress) && (state.synchronization !== result.synchronization)) {
         NotificationManager.success('Your Zilliqa Address has been configured!');
       }
     } catch (err) {
