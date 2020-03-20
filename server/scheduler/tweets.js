@@ -60,6 +60,8 @@ module.exports = async function() {
     limit: freeAdmins - 1
   });
 
+  console.log(JSON.stringify(usersTweets, null, 4));
+
   debug('Need update tweet for', usersTweets.count, 'users.');
 
   usersTweets.rows.forEach(async (user) => {
