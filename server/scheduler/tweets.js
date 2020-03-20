@@ -57,7 +57,7 @@ module.exports = async function() {
       },
       limit: 1
     },
-    limit: 10
+    limit: freeAdmins - 1
   });
 
   debug('Need update tweet for', usersTweets.count, 'users.');
