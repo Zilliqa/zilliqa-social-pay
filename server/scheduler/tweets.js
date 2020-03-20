@@ -72,7 +72,7 @@ module.exports = async function() {
     try {
       const { text, startIndex } = getPos(tweet.text, blockchainInfo.hashtag);
       const tx = await zilliqa.verifyTweet({
-        profileId: tweet.User.profileId,
+        profileId: user.profileId,
         tweetId: tweet.idStr,
         tweetText: text,
         startPos: startIndex

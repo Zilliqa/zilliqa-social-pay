@@ -7,7 +7,7 @@ require('./blockchain')();
 require('./admin')();
 
 schedule.scheduleJob('* * * * *', (fireDate) => {
-  debug(`run accounts update job ${fireDate}`);
+  debug(`run admin accounts update job ${fireDate}`);
   require('./admin')();
 });
 
