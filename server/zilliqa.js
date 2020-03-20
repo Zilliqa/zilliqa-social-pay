@@ -229,7 +229,8 @@ module.exports = {
       });
     }
     if (tx.error && tx.error.message) {
-      throw new Error(tx.error.message, JSON.stringify(txParams, null, 4));
+      console.error(JSON.stringify(txParams, null, 4));
+      throw new Error(tx.error.message);
     }
 
     await account.update({ nonce });
