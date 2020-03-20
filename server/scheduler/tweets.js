@@ -60,11 +60,11 @@ module.exports = async function() {
     limit: freeAdmins - 1
   });
   const test = await Twittes.findAndCountAll({
-    where: {
-      approved: false,
-      rejected: false,
-      txId: null
-    },
+    // where: {
+    //   approved: false,
+    //   rejected: false,
+    //   txId: null
+    // },
     include: {
       model: User,
       where: {
