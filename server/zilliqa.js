@@ -229,7 +229,7 @@ module.exports = {
       });
     }
     if (tx.error && tx.error.message) {
-      throw new Error(tx.error.message);
+      throw new Error(tx.error.message, JSON.stringify(txParams, null, 4));
     }
 
     await account.update({ nonce });
