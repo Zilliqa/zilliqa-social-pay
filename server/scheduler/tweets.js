@@ -59,28 +59,6 @@ module.exports = async function() {
     },
     limit: freeAdmins - 1
   });
-  const test = await Twittes.findAndCountAll({
-    // where: {
-    //   approved: false,
-    //   rejected: false,
-    //   txId: null
-    // },
-    include: {
-      model: User,
-      where: {
-        synchronization: false,
-        zilAddress: {
-          [Op.not]: null
-        },
-        lastAction: {
-          [Op.lte]: Number(blockchainInfo.DSBlockNum)
-        }
-      }
-    },
-    limit: freeAdmins - 1
-  });
-
-  console.log(JSON.stringify(test, null, 4));
 
   debug('Need update tweet for', usersTweets.count, 'users.');
 
