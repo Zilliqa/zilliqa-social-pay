@@ -55,7 +55,7 @@ module.exports = async function() {
         rejected: false,
         txId: null
       },
-      limit: 1
+      // limit: 1
     },
     limit: freeAdmins - 1
   });
