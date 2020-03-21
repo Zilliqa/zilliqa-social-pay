@@ -12,6 +12,7 @@ const {
   fromBech32Address,
   schnorr
 } = require('@zilliqa-js/crypto');
+const eventUtils = require('./event-utils');
 const models = require('./models');
 
 const Admin = models.sequelize.models.Admin;
@@ -100,18 +101,29 @@ module.exports = {
       blocksPerWeek: blocks_per_week.value
     }
   },
-  async getVerifiedTweets(tweetsID) {
+  async getVerifiedTweets(tweetsID, hash) {
     const zilliqa = new Zilliqa(httpNode);
-    const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
-    const result = await contract.getSubState('verified_tweets', [tweetsID]);
-    
-    if (!result) {
-      return {
-        not_verified_tweets: tweetsID
-      };
+    const tx = await zilliqa.blockchain.getTransaction(hash);
+
+    if (!tx || !tx.receipt || !tx.receipt.event_logs) {
+      throw new Error('Event logs is null');
     }
 
-    return result;
+    const { _eventname, params } = tx.receipt.event_logs.find(
+      (e) => (e._eventname === eventUtils.events.VerifyTweetSuccessful) ||
+      (e._eventname === eventUtils.events.Error)
+    );
+
+    switch (_eventname) {
+      case eventUtils.events.VerifyTweetSuccessful:
+        return eventUtils.verifyTweetSuccessful(params);
+
+      case eventUtils.events.Error:
+        throw new Error(params);
+
+      default:
+        break;
+    }
   },
   async blockchainInfo() {
     const zilliqa = new Zilliqa(httpNode);

@@ -21,7 +21,7 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
   require('./tweets')();
 });
 
-// schedule.scheduleJob('* * * * *', (fireDate) => {
-//   debug(`run check broken tweets job ${fireDate}`);
-//   require('./peddling-tweets')();
-// });
+schedule.scheduleJob('* * * * *', (fireDate) => {
+  debug(`run check broken tweets job ${fireDate}`);
+  require('./peddling-tweets')();
+});

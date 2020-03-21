@@ -1,4 +1,4 @@
-const debug = require('debug')('zilliqa-social-pay:scheduler');
+const debug = require('debug')('zilliqa-social-pay:scheduler:Pedding-VerifyTweet');
 const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
@@ -26,8 +26,8 @@ module.exports = async function() {
       approved: false,
       rejected: false,
       updatedAt: {
-        // A day.
-        [Op.lt]: new Date(new Date() - 24 * 60 * 60 * 1000)
+        // Two minuts.
+        [Op.lt]: new Date(new Date() - 24 * 60 * 100)
       },
       txId: {
         [Op.not]: null
@@ -36,49 +36,33 @@ module.exports = async function() {
     include: {
       model: User
     },
-    limit: 10
+    limit: 50
   });
-  const needTestForVerified = twittes.rows.map(
-    (tweet) => zilliqa.getVerifiedTweets(tweet.idStr)
-  );
-
-  debug(`Need check ${twittes.count} Twittes.`);
 
   if (twittes.count === 0) {
     return null;
   }
 
-  const verifiedTweets = await Promise.all(needTestForVerified);
-  
-  await Promise.all(verifiedTweets.map((tweet) => {
-    if (tweet.verified_tweets) {
-      return Twittes.update(
-        {
-          approved: true,
-          rejected: false,
-          txId: null
-        },
-        {
-          where: {
-            idStr: Object.keys(tweet.verified_tweets)[0]
-          }
-        }
-      );
-    }
+  const needTestForVerified = twittes.rows.map(async (tweet) => {
+    try {
+      return await zilliqa.getVerifiedTweets(tweet.idStr, tweet.txId)
+    } catch (err) {
+      debug('FAIL to VerifyTweet with ID:', tweet.idStr, 'hash', tweet.txId, 'ERROR:', err);
 
-    return Twittes.update(
-      {
+      await Twittes.update({
         approved: false,
-        rejected: true,
+        rejected: false,
         txId: null
-      },
-      {
-        where: {
-          idStr: tweet.not_verified_tweets
-        }
-      }
-    );
-  }));
+      }, {
+        where: { idStr: tweet.idStr }
+      });
 
-  debug(`${verifiedTweets.length} Tweets has been updated.`);
+      return null
+    }
+  });
+  let verifiedTweets = await Promise.all(needTestForVerified);
+
+  verifiedTweets = verifiedTweets.filter(Boolean);
+
+  debug(`Tweets ${verifiedTweets.length} has been updated.`);
 }

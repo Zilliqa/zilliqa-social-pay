@@ -117,37 +117,32 @@ class SocialPay extends App {
   }
 }
 
-SocialPay.getInitialProps = async ({ ctx }: any) => {
-  let firstStart = true;
+SocialPay.getInitialProps = async ({ Component, ctx }: any) => {
+  let pageProps = {
+    user: null,
+    firstStart: true
+  };
 
-  if (!ctx || !ctx.req || !ctx.req.app) {
-    return {
-      pageProps: {
-        user: null,
-        firstStart: false
-      }
-    };
+  if (Component.getInitialProps) {
+    pageProps = await Component.getInitialProps(ctx);
   }
 
-  if (ctx.req.cookies && (ctx.req.cookies['session.sig'] || ctx.req.cookies['session'])) {
-    firstStart = false;
+  if (!ctx || !ctx.req || !ctx.req.app) {
+    return { pageProps };
+  }
+
+  if (ctx.req.cookies && (ctx.req.cookies['session.sig'] || ctx.req.cookies.session)) {
+    pageProps.firstStart = false;
   }
 
   if (ctx && ctx.req && ctx.req.session && ctx.req.session.passport) {
-    return {
-      pageProps: {
-        ...ctx.req.session.passport,
-        firstStart
-      }
+    pageProps = {
+      ...pageProps,
+      ...ctx.req.session.passport
     };
   }
 
-  return {
-    pageProps: {
-      firstStart,
-      user: null
-    }
-  };
+  return { pageProps };
 };
 
 export default SocialPay;
