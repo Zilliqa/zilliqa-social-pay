@@ -32,7 +32,7 @@ module.exports = async function() {
         [Op.not]: null
       },
       lastAction: {
-        [Op.lte]: Number(blockchainInfo.DSBlockNum)
+        [Op.lte]: Number(blockchainInfo.BlockNum)
       }
     },
     limit: 3
@@ -50,7 +50,7 @@ module.exports = async function() {
     try {
       debug('try to configureUser with profileID:', user.profileId);
       await user.update({
-        lastAction: Number(blockchainInfo.DSBlockNum) + Number(blockchainInfo.blocksPerWeek)
+        lastAction: Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerWeek)
       });
       await zilliqa.configureUsers(user.profileId, user.zilAddress);
       debug('User with profileID:', user.profileId, 'tx sent to shard.');

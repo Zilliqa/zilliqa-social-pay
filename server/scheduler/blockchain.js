@@ -54,7 +54,7 @@ module.exports = async function() {
 
     await currenInfo.update(newBlock);
 
-    debug('next block has been created, block:', newBlock.DSBlockNum);
+    debug('next block has been created, block:', newBlock.BlockNum);
   });
 
   await zilliqa.eventSubscribe(async (event) => {

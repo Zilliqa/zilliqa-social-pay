@@ -45,7 +45,7 @@ module.exports = async function() {
         [Op.not]: null
       },
       lastAction: {
-        [Op.lte]: Number(blockchainInfo.DSBlockNum)
+        [Op.lte]: Number(blockchainInfo.BlockNum)
       }
     },
     include: {
@@ -57,7 +57,11 @@ module.exports = async function() {
       },
       limit: 1
     },
-    limit: freeAdmins - 1
+    attributes: [
+      'id',
+      'profileId'
+    ],
+    limit: freeAdmins
   });
 
   debug('Need update tweet for', usersTweets.count, 'users.');
@@ -79,7 +83,7 @@ module.exports = async function() {
         startPos: startIndex
       });
       await user.update({
-        lastAction: Number(blockchainInfo.DSBlockNum) + Number(blockchainInfo.blocksPerWeek)
+        lastAction: Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerWeek)
       });
       await tweet.update({ txId: tx.TranID });
       debug('Tweet with ID:', tweet.idStr, 'sent to shard for verify.');

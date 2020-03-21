@@ -137,7 +137,7 @@ export const Controller: React.FC = () => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         css="white-space: nowrap;"
       >
-        Current block: {blockchainState.DSBlockNum}
+        Current block: {blockchainState.BlockNum}
       </Text>
       <form onSubmit={handleSearch}>
         <Search
