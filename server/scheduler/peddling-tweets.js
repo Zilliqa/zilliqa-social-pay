@@ -26,8 +26,8 @@ module.exports = async function() {
       approved: false,
       rejected: false,
       updatedAt: {
-        // Two minuts.
-        [Op.lt]: new Date(new Date() - 24 * 60 * 100)
+        // Ten minuts.
+        [Op.lt]: new Date(new Date() - 24 * 60 * 400)
       },
       txId: {
         [Op.not]: null
