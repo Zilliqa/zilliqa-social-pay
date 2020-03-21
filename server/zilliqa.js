@@ -54,7 +54,8 @@ module.exports = {
         }
       },
       order: [
-        ['balance', 'DESC']
+        ['balance', 'DESC'],
+        ['updatedAt', 'DESC']
       ]
     });
 
