@@ -1,6 +1,7 @@
 import React from 'react';
 import { NextPage } from 'next';
 import styled from 'styled-components';
+import { useRouter } from 'next/router';
 import * as Effector from 'effector-react';
 
 import UserStore from 'store/user';
@@ -14,6 +15,7 @@ import { Verified } from 'components/verified';
 import { Controller } from 'components/controller';
 
 import { Events } from 'config';
+import { PageProp } from 'interfaces';
 
 const MainPageContainer = styled.main`
   display: grid;
@@ -33,34 +35,42 @@ const DashboardContainer = styled(Container)`
 
 const ITERVAL_USER_UPDATE = 90000;
 
-export const MainPage: NextPage = () => {
+export const MainPage: NextPage<PageProp | any> = ({ user, firstStart }) => {
+  const router = useRouter();
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
 
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    if (!mounted && twitterState.tweets.length < 1 && !twitterState.error) {
-      UserStore.update();
-
-      if (userState.jwtToken && userState.jwtToken.length > 1) {
-        EventStore.setEvent(Events.Load);
-
-        BlockchainStore.updateBlockchain(null);
-
-        TwitterStore
-          .getTweets(null)
-          .then(() => TwitterStore.updateTweets(userState.jwtToken))
-          .then(() => EventStore.reset());
-
-        setMounted(true);
-      }
-
-      UserStore.updateUserState(null);
-
+    if (!user && firstStart && !mounted && !userState || Object.keys(userState).length < 1) {
+      router.push('/about');
+    } else if (!user && !firstStart && !mounted) {
+      router.push('/auth');
+    } else if (user && !mounted) {
+      setMounted(true);
       setInterval(() => UserStore.updateUserState(null), ITERVAL_USER_UPDATE);
     }
-  }, [twitterState, userState, mounted, setMounted]);
+
+    if (!userState || Object.keys(userState).length < 1) {
+      router.push('/auth');
+    } else if (!userState.updated) {
+      UserStore.update();
+    } else if (userState.updated && userState.jwtToken && userState.jwtToken.length > 1 && twitterState.tweets.length < 1 && !twitterState.error) {
+      EventStore.setEvent(Events.Load);
+
+      BlockchainStore.updateBlockchain(null);
+
+      TwitterStore
+        .getTweets(null)
+        .then(() => TwitterStore.updateTweets(userState.jwtToken))
+        .then(() => EventStore.reset());
+
+      UserStore.updateUserState(null);
+    } else if (userState.updated && (!userState.jwtToken || userState.jwtToken.length < 1)) {
+      router.push('/auth');
+    }
+  }, [twitterState, userState, mounted, setMounted, user]);
 
   return (
     <MainPageContainer>

@@ -1,11 +1,15 @@
 import React from 'react';
 import { NextPage } from 'next';
+import { useRouter } from 'next/router';
 import styled from 'styled-components';
-// import { useRouter } from 'next/router';
-// import { validation } from '@zilliqa-js/util';
+import * as Effector from 'effector-react';
+
+import UserStore from 'store/user';
+// import EventStore from 'store/event';
 
 import { TwitterConnect } from 'components/twitter-conecter';
 import { Container } from 'components/container';
+import { ZilliqaConnect } from 'components/zilliqa-connect';
 
 const AuthContainer = styled(Container)`
   display: flex;
@@ -24,14 +28,19 @@ const AuthContainer = styled(Container)`
 `;
 
 export const AuthPage: NextPage = () => {
-  // Next hooks //
-  // const router = useRouter();
-  // Next hooks //
+  const router = useRouter();
+  const userState = Effector.useStore(UserStore.store);
 
+  React.useEffect(() => {
+    if (userState.jwtToken && userState.zilAddress && router.pathname.includes('auth')) {
+      router.push('/');
+    }
+  }, [userState]);
 
   return (
     <AuthContainer>
-      <TwitterConnect />
+      {!userState.jwtToken ? <TwitterConnect /> : null}
+      <ZilliqaConnect show={Boolean(!userState.zilAddress && userState.jwtToken)}/>
     </AuthContainer>
   );
 };

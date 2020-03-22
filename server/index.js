@@ -68,6 +68,6 @@ app
     });
   });
 
-if (dev) {
-  require('./scheduler');
-}
+// if (dev) {
+//   require('./scheduler');
+// }

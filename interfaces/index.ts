@@ -17,6 +17,7 @@ export interface User {
   balance: string;
   lastAction: string;
   synchronization: boolean;
+  updated: boolean;
 }
 
 export interface FetchUpdateAddress {
@@ -55,7 +56,8 @@ export interface Blockchain {
 }
 
 export interface PageProp {
-  user: User;
+  user?: User | null;
+  firstStart: boolean;
 }
 
 export interface EventState {

@@ -1,11 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { SizeComponent, Fonts, FontColors } from 'config';
+import { SizeComponent, Fonts, FontColors, ButtonVariants } from 'config';
 
 type Prop = {
   sizeVariant?: SizeComponent;
   fontVariant?: Fonts | string;
+  variants?: ButtonVariants;
   css?: string;
 };
 
@@ -22,7 +23,7 @@ export const Input = styled.input`
   border: 0;
 
   border-radius: 35px;
-  background: #E5E5E5;
+  ${(props: Prop) => props.variants}
 
   transition: all .5s ease-out;
 

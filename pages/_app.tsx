@@ -96,15 +96,11 @@ class SocialPay extends App {
   }
 }
 
-SocialPay.getInitialProps = async ({ Component, ctx }: any) => {
+SocialPay.getInitialProps = async ({ ctx }: any) => {
   let pageProps = {
     user: null,
     firstStart: true
   };
-
-  if (Component.getInitialProps) {
-    pageProps = await Component.getInitialProps(ctx);
-  }
 
   if (!ctx || !ctx.req || !ctx.req.app) {
     return { pageProps };

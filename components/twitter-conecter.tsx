@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import * as Effector from 'effector-react';
 
 import UserStore from 'store/user';
 import EventStore from 'store/event';
@@ -18,7 +17,7 @@ import {
   Events
 } from 'config';
 
-const TwitterConnectContainer = styled.div`
+export const TwitterConnectContainer = styled.form`
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -32,6 +31,8 @@ const TwitterConnectContainer = styled.div`
   margin-left: 10%;
   padding-top: 70px;
   padding-bottom: 70px;
+
+  transition: all 1s ease-out;
 
   @media (max-width: 400px) {
     margin: 0;
@@ -48,11 +49,12 @@ const TwitterLoginStyles = {
 };
 
 export const TwitterConnect: React.FC = () => {
-  const userState = Effector.useStore(UserStore.store);
-
   const handleSuccess = React.useCallback(async (res: any) => {
-    console.log(res, userState);
-  }, []);
+    const userData = await res.json();
+
+    UserStore.setUser(userData);
+    EventStore.reset();
+  }, [UserStore, EventStore]);
 
   return (
     <TwitterConnectContainer>

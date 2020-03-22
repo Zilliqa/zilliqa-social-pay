@@ -33,6 +33,7 @@ router.put('/update/address/:address', checkSession, async (req, res) => {
   
     return res.status(201).json({
       ...decoded,
+      zilAddress: bech32Address,
       message: 'ConfiguredUserAddress',
     });
   } catch (err) {
