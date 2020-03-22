@@ -64,10 +64,7 @@ export const ZilliqaConnect: React.FC = () => {
   }, [setAddressErr, address]);
 
   return (
-    <TwitterConnectContainer
-      onSubmit={handleAddAddress}
-      style={{ opacity: show ? 1 : 0 }}
-    >
+    <TwitterConnectContainer onSubmit={handleAddAddress}>
       <Img
         src="/icons/zilliqa-logo.svg"
         css="width: 70px;"
