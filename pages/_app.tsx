@@ -81,6 +81,8 @@ class SocialPay extends App {
 
   public componentDidMount() {
     if (!this.props.pageProps.user) {
+      window.localStorage.clear();
+
       if (this.props.pageProps.firstStart) {
         this.props.router.push('/about');
       } else {
@@ -88,7 +90,6 @@ class SocialPay extends App {
       }
     }
   }
-
 
   public render() {
     const { Component, pageProps } = this.props;
