@@ -78,6 +78,18 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 class SocialPay extends App {
+
+  public componentDidUpdate() {
+    if (!this.props.pageProps.user) {
+      if (this.props.pageProps.firstStart) {
+        this.props.router.push('/about');
+      } else {
+        this.props.router.push('/auth');
+      }
+    }
+  }
+
+
   public render() {
     const { Component, pageProps } = this.props;
 
