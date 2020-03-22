@@ -1,13 +1,8 @@
-import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import 'rc-steps/assets/index.css';
-import 'rc-steps/assets/iconfont.css';
 import 'react-notifications/lib/notifications.css';
 
 import { createGlobalStyle } from 'styled-components';
 import Head from 'next/head';
 import App from 'next/app';
-
-import UserStore from 'store/user';
 
 import { Container } from 'components/container';
 import { FixedWrapper } from 'components/fixed-wrapper';
@@ -83,22 +78,6 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 class SocialPay extends App {
-  public componentDidMount() {
-    UserStore.update();
-
-    const state = UserStore.store.getState();
-
-    if (!this.props.pageProps.user || !state || !state.jwtToken) {
-      UserStore.clear();
-
-      if (this.props.pageProps.firstStart && (this.props.router.route !== '/auth')) {
-        return this.props.router.push('/guide');
-      }
-
-      this.props.router.push('/auth');
-    }
-  }
-
   public render() {
     const { Component, pageProps } = this.props;
 

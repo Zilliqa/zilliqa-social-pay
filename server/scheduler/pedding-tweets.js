@@ -45,14 +45,13 @@ module.exports = async function() {
 
   const needTestForVerified = twittes.rows.map(async (tweet) => {
     try {
-      return await zilliqa.getVerifiedTweets(tweet.txId)
+      return await zilliqa.getVerifiedTweets(tweet.txId);
     } catch (err) {
       debug('FAIL to VerifyTweet with ID:', tweet.idStr, 'hash', tweet.txId, 'ERROR:', err);
 
       await Twittes.update({
         approved: false,
-        rejected: false,
-        txId: null
+        rejected: true
       }, {
         where: { idStr: tweet.idStr }
       });

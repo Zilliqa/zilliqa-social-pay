@@ -26,8 +26,8 @@ export const Text = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  margin-block-start: 1em;
-  margin-block-end: 1em;
+  margin-block-start: 0.6em;
+  margin-block-end: 0.6em;
 
   ${(props: Prop) => props.css}
 `;
