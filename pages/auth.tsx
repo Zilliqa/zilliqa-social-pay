@@ -40,7 +40,7 @@ export const AuthPage: NextPage = () => {
   return (
     <AuthContainer>
       {!userState.jwtToken ? <TwitterConnect /> : null}
-      <ZilliqaConnect show={Boolean(!userState.zilAddress && userState.jwtToken)}/>
+      {!userState.zilAddress && userState.jwtToken ? <ZilliqaConnect /> : null}
     </AuthContainer>
   );
 };
