@@ -79,7 +79,7 @@ const GlobalStyle = createGlobalStyle`
 
 class SocialPay extends App {
 
-  public componentDidUpdate() {
+  public componentDidMount() {
     if (!this.props.pageProps.user) {
       if (this.props.pageProps.firstStart) {
         this.props.router.push('/about');
