@@ -22,11 +22,7 @@ import {
   Events
 } from 'config';
 
-type Prop = {
-  show?: boolean;
-};
-
-export const ZilliqaConnect: React.FC<Prop> = ({ show }) => {
+export const ZilliqaConnect: React.FC = () => {
   const userState = Effector.useStore(UserStore.store);
 
   const [addressErr, setAddressErr] = React.useState<string | null | undefined>(null);
