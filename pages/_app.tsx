@@ -83,6 +83,10 @@ class SocialPay extends App {
     if (!this.props.pageProps.user) {
       window.localStorage.clear();
 
+      if (this.props.router.route.includes('auth') || this.props.router.route.includes('about')) {
+        return null;
+      }
+
       if (this.props.pageProps.firstStart) {
         this.props.router.push('/about');
       } else {
