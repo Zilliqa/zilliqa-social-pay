@@ -39,8 +39,8 @@ export const AuthPage: NextPage = () => {
 
   return (
     <AuthContainer>
-      {!userState.jwtToken ? <TwitterConnect /> : null}
-      {!userState.zilAddress && userState.jwtToken ? <ZilliqaConnect /> : null}
+      <TwitterConnect show={!userState.jwtToken}/>
+      <ZilliqaConnect show={!userState.zilAddress && userState.jwtToken}/>
     </AuthContainer>
   );
 };

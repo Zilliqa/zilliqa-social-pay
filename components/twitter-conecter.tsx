@@ -48,7 +48,11 @@ const TwitterLoginStyles = {
   border: `1px solid ${FontColors.white}`
 };
 
-export const TwitterConnect: React.FC = () => {
+type Prop = {
+  show?: boolean;
+};
+
+export const TwitterConnect: React.FC<Prop> = ({ show }) => {
   const handleSuccess = React.useCallback(async (res: any) => {
     const userData = await res.json();
 
@@ -57,7 +61,7 @@ export const TwitterConnect: React.FC = () => {
   }, [UserStore, EventStore]);
 
   return (
-    <TwitterConnectContainer>
+    <TwitterConnectContainer style={{ display: show ? 'flex' : 'none' }}>
       <Img src="/icons/twitter.svg" />
       <Text
         fontColors={FontColors.white}

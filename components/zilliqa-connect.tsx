@@ -22,7 +22,11 @@ import {
   Events
 } from 'config';
 
-export const ZilliqaConnect: React.FC = () => {
+type Prop = {
+  show?: boolean;
+};
+
+export const ZilliqaConnect: React.FC<Prop> = ({ show }) => {
   const userState = Effector.useStore(UserStore.store);
 
   const [addressErr, setAddressErr] = React.useState<string | null | undefined>(null);
@@ -64,7 +68,10 @@ export const ZilliqaConnect: React.FC = () => {
   }, [setAddressErr, address]);
 
   return (
-    <TwitterConnectContainer onSubmit={handleAddAddress}>
+    <TwitterConnectContainer
+      style={{ display: show ? 'flex' : 'none' }}
+      onSubmit={handleAddAddress}
+    >
       <Img
         src="/icons/zilliqa-logo.svg"
         css="width: 70px;"
