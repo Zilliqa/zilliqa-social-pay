@@ -70,6 +70,8 @@ module.exports = {
       ({ vname }) => vname === this.keys.recipientAddress
     ).value;
 
+    console.log(twitterId, recipientAddress);
+
     if (!twitterId) {
       throw new Error(`Not found ${this.keys.twitterId} vname in:`, params);
     }

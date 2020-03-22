@@ -102,7 +102,7 @@ module.exports = {
       blocksPerWeek: blocks_per_week.value
     }
   },
-  async getVerifiedTweets(tweetsID, hash) {
+  async getVerifiedTweets(hash) {
     const zilliqa = new Zilliqa(httpNode);
     const tx = await zilliqa.blockchain.getTransaction(hash);
 
@@ -118,6 +118,30 @@ module.exports = {
     switch (_eventname) {
       case eventUtils.events.VerifyTweetSuccessful:
         return eventUtils.verifyTweetSuccessful(params);
+
+      case eventUtils.events.Error:
+        throw new Error(params);
+
+      default:
+        break;
+    }
+  },
+  async getVerifiedUsers(hash) {
+    const zilliqa = new Zilliqa(httpNode);
+    const tx = await zilliqa.blockchain.getTransaction(hash);
+
+    if (!tx || !tx.receipt || !tx.receipt.event_logs) {
+      throw new Error('Event logs is null');
+    }
+
+    const { _eventname, params } = tx.receipt.event_logs.find(
+      (e) => (e._eventname === eventUtils.events.ConfiguredUserAddress) ||
+      (e._eventname === eventUtils.events.Error)
+    );
+
+    switch (_eventname) {
+      case eventUtils.events.ConfiguredUserAddress:
+        return eventUtils.configuredUserAddress(params);
 
       case eventUtils.events.Error:
         throw new Error(params);

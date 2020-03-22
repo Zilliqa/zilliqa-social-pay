@@ -32,6 +32,11 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true
       },
+      hash: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: true
+      },
       lastAction: {
         type: Sequelize.BIGINT,
         allowNull: true,

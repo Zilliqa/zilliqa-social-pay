@@ -49,10 +49,11 @@ module.exports = async function() {
 
     try {
       debug('try to configureUser with profileID:', user.profileId);
+      const tx = await zilliqa.configureUsers(user.profileId, user.zilAddress);
       await user.update({
+        hash: tx.TranID,
         lastAction: Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerWeek)
       });
-      await zilliqa.configureUsers(user.profileId, user.zilAddress);
       debug('User with profileID:', user.profileId, 'tx sent to shard.');
     } catch (err) {
       debug('FAIL to configureUser with profileID:', user.profileId, 'error', err);

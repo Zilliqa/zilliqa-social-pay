@@ -17,6 +17,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       unique: true
     },
+    hash: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: true
+    },
     lastAction: {
       type: DataTypes.BIGINT,
       allowNull: true,

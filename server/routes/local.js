@@ -27,6 +27,7 @@ router.put('/update/address/:address', checkSession, async (req, res) => {
 
     await foundUser.update({
       zilAddress: bech32Address,
+      hash: null,
       synchronization: true
     });
   
