@@ -94,7 +94,7 @@ class SocialPay extends App {
 
       const state = UserStore.store.getState();
 
-      if (!state || !state.jwtToken) {
+      if (!state || !state.jwtToken || state.message === 'Unauthorized') {
         UserStore.clear();
 
         this.props.router.push('/auth');
