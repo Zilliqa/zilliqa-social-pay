@@ -12,7 +12,7 @@
   "test": {
     "username": "postgres",
     "password": "postgres",
-    "database": "database_social_pay_test",
+    "database": "database_social_pay",
     "host": "127.0.0.1",
     "dialect": "postgres",
     "logging": false,

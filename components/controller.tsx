@@ -116,7 +116,7 @@ export const Controller: React.FC = () => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         fontColors={FontColors.white}
       >
-        Next action: {timer === 0 ? 0 : moment(timer).fromNow()}
+        Next action: {timer === 0 ? timer : moment(timer).fromNow()}
       </Text>
       <Text
         size={FontSize.sm}
