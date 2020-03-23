@@ -24,17 +24,11 @@ router.put('/update/address/:address', checkSession, async (req, res) => {
     const user = new User();
     const decoded = await user.verify(jwtToken);
     const foundUser = await User.findByPk(decoded.id);
-    const blockchain = await Blockchain.findOne({
-      where: {
-        contract: CONTRACT_ADDRESS
-      }
-    });
 
     await foundUser.update({
       zilAddress: bech32Address,
       hash: null,
-      synchronization: true,
-      lastAction: Number(blockchain.BlockNum) + Number(blockchain.blocksPerWeek)
+      synchronization: true
     });
   
     return res.status(201).json({
