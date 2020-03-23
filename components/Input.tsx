@@ -40,7 +40,8 @@ export const Input = styled.input`
 Input.defaultProps = {
   sizeVariant: SizeComponent.xs,
   fontVariant: Fonts.AvenirNextLTProRegular,
-  css: ''
+  css: '',
+  variants: ButtonVariants.primary
 };
 
 export const FieldLabel = styled.label`

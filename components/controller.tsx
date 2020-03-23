@@ -1,6 +1,7 @@
 import React from 'react';
 import * as Effector from 'effector-react';
 import styled from 'styled-components';
+import moment from 'moment';
 
 import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
@@ -16,7 +17,8 @@ import {
   Fonts,
   SizeComponent,
   Events,
-  Regex
+  Regex,
+  FontColors
 } from 'config';
 import { fromZil } from 'utils/from-zil';
 import { SearchTweet } from 'utils/get-tweets';
@@ -32,6 +34,21 @@ export const Controller: React.FC = () => {
   const userState = Effector.useStore(UserStore.store);
 
   const [searchValue, setSearchValue] = React.useState<string | null>(null);
+
+  const timer = React.useMemo(() => {
+    const currentBlock = Number(blockchainState.BlockNum);
+    const nextBlockToAction = Number(userState.lastAction);
+
+    if (currentBlock > nextBlockToAction) {
+      return 0;
+    }
+
+    const ratePerBlock = new Date(Number(blockchainState.rate)).valueOf();
+    const amoutBlocks = nextBlockToAction - currentBlock;
+    const currentTimer = new Date(amoutBlocks * ratePerBlock).valueOf();
+
+    return new Date().valueOf() + currentTimer;
+  }, [blockchainState, userState]);
 
   const handleInput = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.value) {
@@ -97,18 +114,28 @@ export const Controller: React.FC = () => {
       <Text
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProDemi}
+        fontColors={FontColors.white}
+      >
+        Next action: {timer === 0 ? 0 : moment(timer).fromNow()}
+      </Text>
+      <Text
+        size={FontSize.sm}
+        fontVariant={Fonts.AvenirNextLTProDemi}
+        fontColors={FontColors.white}
       >
         ZIL per tweet: {fromZil(blockchainState.zilsPerTweet)} ZIL
       </Text>
       <Text
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProDemi}
+        fontColors={FontColors.white}
       >
         Balance: {fromZil(userState.balance)} ZIL
       </Text>
       <Text
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProDemi}
+        fontColors={FontColors.white}
       >
         Hashtag: {blockchainState.hashtag}
       </Text>

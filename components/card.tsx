@@ -3,16 +3,15 @@ import styled from 'styled-components';
 
 import { Text } from 'components/text';
 
-import { Fonts, FontSize } from 'config';
+import { Fonts, FontSize, FontColors } from 'config';
 
 export const CardContainer = styled.div`
-  border: 1px solid #ececec;
+  border: 1px solid #5c63ef;
   padding: 0 .5rem 0;
   width: fit-content;
   min-width: 120px;
-  border-radius: 5px;
-  background-color: #fff;
-  box-shadow: 1px 5px 6px -2px #ccc;
+  border-radius: 35px;
+  background-color: ${FontColors.primary};
   flex-basis: 15px;
 
   ${(props: { css: string; }) => props.css}
@@ -30,7 +29,11 @@ export const Card: React.FC<Prop> = ({
 }) => {
   return (
     <CardContainer css={css}>
-      <Text fontVariant={Fonts.AvenirNextLTProDemi}>
+      <Text
+        fontVariant={Fonts.AvenirNextLTProDemi}
+        fontColors={FontColors.white}
+        css="text-indent: 15px;"
+      >
         {title}
       </Text>
       <Text

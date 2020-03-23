@@ -36,6 +36,11 @@ module.exports = {
         allowNull: false,
         defaultValue: 0
       },
+      rate: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+        defaultValue: 85940
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

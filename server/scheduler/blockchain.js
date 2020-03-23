@@ -52,7 +52,12 @@ module.exports = async function() {
       return null;
     }
 
-    await currenInfo.update(newBlock);
+    const rate = new Date() - new Date(currenInfo.updatedAt);
+
+    await currenInfo.update({
+      ...newBlock,
+      rate
+    });
 
     debug('next block has been created, block:', newBlock.BlockNum);
   });

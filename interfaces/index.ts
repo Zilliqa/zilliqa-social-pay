@@ -53,6 +53,7 @@ export interface Blockchain {
   blocksPerWeek: string | number;
   BlockNum: string | number;
   DSBlockNum: string | number;
+  rate: string | number;
 }
 
 export interface PageProp {

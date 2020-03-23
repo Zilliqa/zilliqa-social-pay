@@ -122,17 +122,11 @@ export const FixedWrapper: React.FC = () => {
         onBlur={() => EventStore.reset()}
       >
         <Card title="Settings">
-          {!canCallAction ? (
-            <Text
-              size={FontSize.md}
-              fontColors={FontColors.danger}
-            >
-              <p>Your last action {userState.lastAction}</p>
-              <p>Current block {blockchainState.BlockNum}</p>
-            </Text>
-          ) : null}
-          <Text>
-            Your Zilliqa address
+          <Text
+            fontColors={FontColors.white}
+            size={FontSize.sm}
+          >
+            You can change address after one day 8h
           </Text>
           <form onSubmit={handleAddressChange}>
             <FieldInput
