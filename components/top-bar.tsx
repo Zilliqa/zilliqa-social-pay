@@ -55,6 +55,20 @@ export const TopBar: React.FC = () => {
 
   const userState = Effector.useStore(UserStore.store);
 
+  const trimAddress = React.useMemo(() => {
+    if (!userState.zilAddress || userState.zilAddress.length < 1) {
+      return '';
+    }
+
+    const address = userState.zilAddress;
+    const _nine = 9;
+    const _five = 5;
+    const _zero = 0;
+    const _len = userState.zilAddress.length;
+
+    return `${address.slice(_zero, _nine)}...${address.slice(_len - _five)}`;
+  }, [userState]);
+
   const handleClick = React.useCallback((event: string) => {
     switch (event) {
       case ITEMS[0]:
@@ -83,7 +97,7 @@ export const TopBar: React.FC = () => {
         {userState.synchronization ? (
           <MiniLoader />
         ) : null}
-        {userState.zilAddress}
+        {trimAddress}
       </Text>
       <ProfileContainer>
         <ProfileImg src={userState.profileImageUrl}/>
