@@ -102,7 +102,7 @@ export const FixedWrapper: React.FC = () => {
     if (result.message === 'Created') {
       await TwitterStore.getTweets(null);
 
-      NotificationManager.info('Added new tweet.');
+      NotificationManager.info('Tweet added!');
     }
 
     EventStore.reset();

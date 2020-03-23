@@ -50,7 +50,17 @@ module.exports = {
     }
 
     const address = toChecksumAddress(value);
-    const { balance, nonce } = await zilliqa.getCurrentAccount(address);
+    let balance = '0';
+    let nonce = 0;
+
+    try {
+      const res = await zilliqa.getCurrentAccount(address);
+    
+      balance = res.balance;
+      nonce = res.nonce;
+    } catch (err) {
+      // skip
+    }
 
     await Admin.update({
       balance,
