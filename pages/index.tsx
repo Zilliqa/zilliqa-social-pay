@@ -1,8 +1,7 @@
 import React from 'react';
 import { NextPage } from 'next';
 import styled from 'styled-components';
-import { useRouter } from 'next/router';
-import * as Effector from 'effector-react';
+// import { useRouter } from 'next/router';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
@@ -11,10 +10,11 @@ import EventStore from 'store/event';
 
 import { Container } from 'components/container';
 import { TopBar } from 'components/top-bar';
+import { Img } from 'components/img';
 import { Verified } from 'components/verified';
 import { Controller } from 'components/controller';
 
-import { Events } from 'config';
+// import { Events } from 'config';
 import { PageProp } from 'interfaces';
 
 const MainPageContainer = styled.main`
@@ -23,6 +23,10 @@ const MainPageContainer = styled.main`
   grid-template-rows: max-content;
   grid-template-areas: "header"
                        "container";
+
+  background: #E0E4FF;
+  width: 100%;
+  height: 100vh;
 `;
 const DashboardContainer = styled(Container)`
   display: flex;
@@ -31,46 +35,43 @@ const DashboardContainer = styled(Container)`
   align-items: end;
   width: 100%;
   max-width: 900px;
+  z-index: 1;
+`;
+const Illustration = styled(Img)`
+  position: absolute;
+  right: 0;
+  bottom:  0;
+
+  max-width: 30vw;
+  height: auto;
+  z-index: 0;
 `;
 
 const ITERVAL_USER_UPDATE = 90000;
 
-export const MainPage: NextPage<PageProp | any> = ({ user, firstStart }) => {
-  const router = useRouter();
-  const userState = Effector.useStore(UserStore.store);
-  const twitterState = Effector.useStore(TwitterStore.store);
+function updater() {
+  UserStore.updateUserState(null);
+  BlockchainStore.updateBlockchain(null);
+  TwitterStore
+    .getTweets(null)
+    .then(() => EventStore.reset());
 
+  setInterval(() => {
+    UserStore.updateUserState(null);
+    BlockchainStore.updateBlockchain(null);
+  }, ITERVAL_USER_UPDATE);
+}
+
+export const MainPage: NextPage<PageProp> = () => {
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    if (!user && firstStart && !mounted && !userState || Object.keys(userState).length < 1) {
-      router.push('/about');
-    } else if (!user && !firstStart && !mounted) {
-      router.push('/auth');
-    } else if (user && !mounted) {
+    if (!mounted) {
       setMounted(true);
-      setInterval(() => UserStore.updateUserState(null), ITERVAL_USER_UPDATE);
+
+      updater();
     }
-
-    if (!userState || Object.keys(userState).length < 1) {
-      router.push('/auth');
-    } else if (!userState.updated) {
-      UserStore.update();
-    } else if (userState.updated && userState.jwtToken && userState.jwtToken.length > 1 && twitterState.tweets.length < 1 && !twitterState.error) {
-      EventStore.setEvent(Events.Load);
-
-      BlockchainStore.updateBlockchain(null);
-
-      TwitterStore
-        .getTweets(null)
-        .then(() => TwitterStore.updateTweets(userState.jwtToken))
-        .then(() => EventStore.reset());
-
-      UserStore.updateUserState(null);
-    } else if (userState.updated && (!userState.jwtToken || userState.jwtToken.length < 1)) {
-      router.push('/auth');
-    }
-  }, [twitterState, userState, mounted, setMounted, user]);
+  }, [mounted, setMounted]);
 
   return (
     <MainPageContainer>
@@ -79,6 +80,7 @@ export const MainPage: NextPage<PageProp | any> = ({ user, firstStart }) => {
         <Verified />
         <Controller />
       </DashboardContainer>
+      <Illustration src="/imgs/illustration-4.svg"/>
     </MainPageContainer>
   );
 };

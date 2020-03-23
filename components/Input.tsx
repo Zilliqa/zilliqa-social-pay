@@ -32,6 +32,10 @@ export const Input = styled.input`
   :focus {
     outline: none;
   }
+  ::placeholder {
+    color: ${FontColors.white};
+    opacity: 0.6;
+  }
 `;
 Input.defaultProps = {
   sizeVariant: SizeComponent.xs,
@@ -54,8 +58,9 @@ export const InputError = styled.div`
   margin-top: 5px;
 `;
 export const Search = styled(Input)`
-  background: #ededed url(/icons/search-icon.svg) no-repeat 9px center;
+  background: #5C63EF url(/icons/search-icon.svg) no-repeat 9px center;
   text-align: center;
+  color: ${FontColors.white};
 `;
 
 type FieldProp = {

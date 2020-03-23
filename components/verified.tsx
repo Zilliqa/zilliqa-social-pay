@@ -22,7 +22,7 @@ const HaventVerified = styled.div`
   display: flex;
   justify-content: space-around;
   align-items: center;
-  width: 25rem;
+  width: 100%;
 `;
 const TweetEmbedContainer = styled.div`
   display: grid;
@@ -47,6 +47,7 @@ export const Verified: React.FC = () => {
           <Text
             size={FontSize.sm}
             fontVariant={Fonts.AvenirNextLTProDemi}
+            css="margin-right: 20px;"
           >
             You have not verified tweets.
           </Text>
@@ -68,7 +69,14 @@ export const Verified: React.FC = () => {
               <Img src="/icons/ok.svg"/>
             </a>
           ) : null}
-          {Boolean(tweet.rejected) ? <Img src="/icons/close.svg"/> : null}
+          {Boolean(tweet.rejected) ? (
+            <a
+              href={tweet.txId ? viewTx(tweet.txId) : undefined}
+              target="_blank"
+            >
+              <Img src="/icons/close.svg"/>
+            </a>
+          ) : null}
           {Boolean(!tweet.approved && !tweet.rejected) ? <MiniLoader /> : null}
           <TwitterTweetEmbed
             screenName={userState.screenName}

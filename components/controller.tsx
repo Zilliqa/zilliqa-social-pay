@@ -1,27 +1,31 @@
 import React from 'react';
 import * as Effector from 'effector-react';
+import styled from 'styled-components';
 
 import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
 import UserStore from 'store/user';
 
-import { Jumbotron } from 'components/jumbotron';
-import { Alert } from 'components/alert';
 import { Text } from 'components/text';
-import { Container } from 'components/container';
 import { Search } from 'components/Input';
 import { Button } from 'components/button';
+import { TwitterConnectContainer } from 'components/twitter-conecter';
 
 import {
   FontSize,
   Fonts,
   SizeComponent,
-  AlertVariants,
   Events,
   Regex
 } from 'config';
 import { fromZil } from 'utils/from-zil';
 import { SearchTweet } from 'utils/get-tweets';
+
+const ControlContainer = styled(TwitterConnectContainer)`
+  padding-left: 15px;
+  padding-right: 15px;
+  align-items: end;
+`;
 
 export const Controller: React.FC = () => {
   const blockchainState = Effector.useStore(BlockchainStore.store);
@@ -89,71 +93,38 @@ export const Controller: React.FC = () => {
   } , [searchValue, userState]);
 
   return (
-    <Jumbotron css="min-width: 320px;margin-top: 40px;">
-      <Container css="display: flex;justify-content: space-between;">
-        <Alert variant={AlertVariants.info}>
-          <Text
-            size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProDemi}
-          >
-            Balance:
-          </Text>
-          <Text>
-            {fromZil(userState.balance)} ZIL
-          </Text>
-        </Alert>
-        <Alert variant={AlertVariants.info}>
-          <Text
-            size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProDemi}
-          >
-            ZIL per tweet:
-          </Text>
-          <Text>
-            {fromZil(blockchainState.zilsPerTweet)} ZIL
-          </Text>
-        </Alert>
-        <Alert variant={AlertVariants.info}>
-          <Text
-            size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProDemi}
-          >
-            Hashtag:
-          </Text>
-          <Text css="text-transform: capitalize;">
-            {blockchainState.hashtag}
-          </Text>
-        </Alert>
-      </Container>
+    <ControlContainer onSubmit={handleSearch}>
       <Text
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProDemi}
-        css="white-space: nowrap;"
       >
-        Blocks till next claim: {blockchainState.blocksPerDay}
+        ZIL per tweet: {fromZil(blockchainState.zilsPerTweet)} ZIL
       </Text>
       <Text
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProDemi}
-        css="white-space: nowrap;"
       >
-        Current block: {blockchainState.BlockNum}
+        Balance: {fromZil(userState.balance)} ZIL
       </Text>
-      <form onSubmit={handleSearch}>
-        <Search
-          sizeVariant={SizeComponent.md}
-          css="background-color: #e9ecef;color: #000;margin-top: 30px;"
-          placeholder="Paste your Tweet link here"
-          onChange={handleInput}
-        />
-        <Button
-          sizeVariant={SizeComponent.lg}
-          disabled={Boolean(!searchValue)}
-          css="margin-top: 10px;"
-        >
-          Search Tweet
-        </Button>
-      </form>
-    </Jumbotron>
+      <Text
+        size={FontSize.sm}
+        fontVariant={Fonts.AvenirNextLTProDemi}
+      >
+        Hashtag: {blockchainState.hashtag}
+      </Text>
+      <Search
+        sizeVariant={SizeComponent.md}
+        css="margin-top: 30px;"
+        placeholder="Paste your Tweet link here"
+        onChange={handleInput}
+      />
+      <Button
+        sizeVariant={SizeComponent.lg}
+        disabled={Boolean(!searchValue)}
+        css="margin-top: 10px;"
+      >
+        Search Tweet
+      </Button>
+    </ControlContainer>
   );
 };

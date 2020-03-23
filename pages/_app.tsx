@@ -4,10 +4,13 @@ import { createGlobalStyle } from 'styled-components';
 import Head from 'next/head';
 import App from 'next/app';
 
+import UserStore from 'store/user';
+
 import { Container } from 'components/container';
 import { FixedWrapper } from 'components/fixed-wrapper';
 
 import { Fonts } from 'config';
+import { authGuard } from 'utils/guard';
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -80,12 +83,26 @@ const GlobalStyle = createGlobalStyle`
 class SocialPay extends App {
 
   public componentDidMount() {
+    if (this.props.router.route.includes('auth')) {
+      return null;
+    } else if (this.props.router.route.includes('about')) {
+      return null;
+    }
+
+    if (this.props.pageProps.isServer) {
+      UserStore.update();
+
+      const state = UserStore.store.getState();
+
+      if (!state || !state.jwtToken) {
+        UserStore.clear();
+
+        this.props.router.push('/auth');
+      }
+    }
+
     if (!this.props.pageProps.user) {
       window.localStorage.clear();
-
-      if (this.props.router.route.includes('auth') || this.props.router.route.includes('about')) {
-        return null;
-      }
 
       if (this.props.pageProps.firstStart) {
         this.props.router.push('/about');
@@ -113,25 +130,15 @@ class SocialPay extends App {
   }
 }
 
-SocialPay.getInitialProps = async ({ ctx }: any) => {
-  let pageProps = {
-    user: null,
-    firstStart: true
-  };
+SocialPay.getInitialProps = async ({ Component, ctx }: any) => {
+  //
+  // Check whether the page being rendered by the App has a
+  // static getInitialProps method and if so call it
+  //
+  let pageProps = authGuard(ctx);
 
-  if (!ctx || !ctx.req || !ctx.req.app) {
-    return { pageProps };
-  }
-
-  if (ctx.req.cookies && (ctx.req.cookies['session.sig'] || ctx.req.cookies.session)) {
-    pageProps.firstStart = false;
-  }
-
-  if (ctx && ctx.req && ctx.req.session && ctx.req.session.passport) {
-    pageProps = {
-      ...pageProps,
-      ...ctx.req.session.passport
-    };
+  if (Boolean(Component.getInitialProps)) {
+    pageProps = await Component.getInitialProps(ctx);
   }
 
   return { pageProps };

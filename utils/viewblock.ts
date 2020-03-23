@@ -1,4 +1,4 @@
-let net = 'testnet';
+let net = 'mainnet';
 
 if (process.env.NODE_ENV !== 'production') {
   net = 'testnet';
