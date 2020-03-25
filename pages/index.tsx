@@ -1,7 +1,7 @@
 import React from 'react';
 import { NextPage } from 'next';
 import styled from 'styled-components';
-// import { useRouter } from 'next/router';
+import * as Effector from 'effector-react';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
@@ -48,8 +48,9 @@ const Illustration = styled(Img)`
 `;
 
 const ITERVAL_USER_UPDATE = 90000;
+const COEFFICIENT = 1.5;
 
-function updater() {
+function updater(rate: number) {
   UserStore.updateUserState(null);
   BlockchainStore.updateBlockchain(null);
   TwitterStore
@@ -60,18 +61,22 @@ function updater() {
     UserStore.updateUserState(null);
     BlockchainStore.updateBlockchain(null);
   }, ITERVAL_USER_UPDATE);
+
+  setInterval(() => BlockchainStore.nextBlock(), rate * COEFFICIENT);
 }
 
 export const MainPage: NextPage<PageProp> = () => {
+  const blockchainState = Effector.useStore(BlockchainStore.store);
+
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
     if (!mounted) {
       setMounted(true);
 
-      updater();
+      updater(Number(blockchainState.rate));
     }
-  }, [mounted, setMounted]);
+  }, [mounted, setMounted, blockchainState]);
 
   return (
     <MainPageContainer>

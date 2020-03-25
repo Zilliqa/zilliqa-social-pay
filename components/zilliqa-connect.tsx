@@ -10,7 +10,7 @@ import { Img } from 'components/img';
 import { FieldInput } from 'components/Input';
 import { Container } from 'components/container';
 import { Button } from 'components/button';
-import { TwitterConnectContainer } from 'components/twitter-conecter';
+import { AroundedContainer } from 'components/rounded-container';
 
 import {
   FontColors,
@@ -68,7 +68,7 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show }) => {
   }, [setAddressErr, address]);
 
   return (
-    <TwitterConnectContainer
+    <AroundedContainer
       style={{ display: show ? 'flex' : 'none' }}
       onSubmit={handleAddAddress}
     >
@@ -99,6 +99,6 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show }) => {
       >
         Connect
       </Button>
-    </TwitterConnectContainer>
+    </AroundedContainer>
   );
 };

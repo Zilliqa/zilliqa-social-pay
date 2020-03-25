@@ -32,9 +32,17 @@ export const Input = styled.input`
   :focus {
     outline: none;
   }
+  :disabled {
+    opacity: 0.5;
+    cursor: unset;
+  }
   ::placeholder {
     color: ${FontColors.white};
     opacity: 0.6;
+  }
+
+  @media (max-width: 370px) {
+    max-width: 300px;
   }
 `;
 Input.defaultProps = {

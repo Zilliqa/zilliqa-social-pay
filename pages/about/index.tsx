@@ -17,7 +17,8 @@ import {
   FontColors,
   Fonts,
   FontSize,
-  SizeComponent
+  SizeComponent,
+  ButtonVariants
 } from 'config';
 
 export const FirstAboutPage: NextPage = () => {
@@ -52,6 +53,7 @@ export const FirstAboutPage: NextPage = () => {
           </DescriptionText>
           <Button
             sizeVariant={SizeComponent.lg}
+            variant={ButtonVariants.outlet}
             onClick={handleNext}
           >
             NEXT

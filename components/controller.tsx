@@ -10,7 +10,7 @@ import UserStore from 'store/user';
 import { Text } from 'components/text';
 import { Search } from 'components/Input';
 import { Button } from 'components/button';
-import { TwitterConnectContainer } from 'components/twitter-conecter';
+import { AroundedContainer } from 'components/rounded-container';
 
 import {
   FontSize,
@@ -21,9 +21,10 @@ import {
   FontColors
 } from 'config';
 import { fromZil } from 'utils/from-zil';
+import { timerCalc } from 'utils/timer';
 import { SearchTweet } from 'utils/get-tweets';
 
-const ControlContainer = styled(TwitterConnectContainer)`
+const ControlContainer = styled(AroundedContainer)`
   padding-left: 15px;
   padding-right: 15px;
   align-items: end;
@@ -35,23 +36,14 @@ export const Controller: React.FC = () => {
 
   const [searchValue, setSearchValue] = React.useState<string | null>(null);
 
-  const timer = React.useMemo(() => {
-    const currentBlock = Number(blockchainState.BlockNum);
-    const nextBlockToAction = Number(userState.lastAction);
-
-    if (currentBlock > nextBlockToAction) {
-      return 0;
-    }
-
-    const ratePerBlock = new Date(Number(blockchainState.rate)).valueOf();
-    const amoutBlocks = nextBlockToAction - currentBlock;
-    const currentTimer = new Date(amoutBlocks * ratePerBlock).valueOf();
-
-    return new Date().valueOf() + currentTimer;
-  }, [blockchainState, userState]);
+  const timer = React.useMemo(
+    () => timerCalc(blockchainState, userState),
+    [blockchainState, userState]
+  );
 
   const handleInput = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.value) {
+      setSearchValue(null);
       return null;
     }
 
@@ -116,13 +108,6 @@ export const Controller: React.FC = () => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         fontColors={FontColors.white}
       >
-        Next action: {timer === 0 ? timer : moment(timer).fromNow()}
-      </Text>
-      <Text
-        size={FontSize.sm}
-        fontVariant={Fonts.AvenirNextLTProDemi}
-        fontColors={FontColors.white}
-      >
         ZIL per tweet: {fromZil(blockchainState.zilsPerTweet)} ZIL
       </Text>
       <Text
@@ -141,17 +126,28 @@ export const Controller: React.FC = () => {
       </Text>
       <Search
         sizeVariant={SizeComponent.md}
+        disabled={timer !== 0}
         css="margin-top: 30px;"
         placeholder="Paste your Tweet link here"
         onChange={handleInput}
       />
-      <Button
-        sizeVariant={SizeComponent.lg}
-        disabled={Boolean(!searchValue)}
-        css="margin-top: 10px;"
-      >
-        Search Tweet
-      </Button>
+      {timer === 0 ? (
+        <Button
+          sizeVariant={SizeComponent.lg}
+          disabled={Boolean(!searchValue)}
+          css="margin-top: 10px;"
+        >
+          Search Tweet
+        </Button>
+      ) : (
+        <Text
+          size={FontSize.sm}
+          fontVariant={Fonts.AvenirNextLTProDemi}
+          fontColors={FontColors.white}
+        >
+          You can participate: {moment(timer).fromNow()}
+        </Text>
+      )}
     </ControlContainer>
   );
 };

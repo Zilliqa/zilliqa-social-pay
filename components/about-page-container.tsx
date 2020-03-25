@@ -6,11 +6,11 @@ import { Text } from 'components/text';
 
 export const AboutContainer = styled(Container)`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   flex-wrap: wrap;
   justify-content: space-evenly;
 
-  background-image: linear-gradient(360deg, rgb(120, 130, 243) 0%, rgb(120, 130, 243) 45%, rgb(120, 130, 243) 81%);
+  background-image: linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
   height: 100vh;
   width: 100vw;
 

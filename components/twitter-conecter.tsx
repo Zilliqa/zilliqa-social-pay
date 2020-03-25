@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 
 import UserStore from 'store/user';
 import EventStore from 'store/event';
@@ -7,6 +6,7 @@ import EventStore from 'store/event';
 import TwitterLogin from 'react-twitter-auth';
 import { Img } from 'components/img';
 import { Text } from 'components/text';
+import { AroundedContainer } from 'components/rounded-container';
 
 import {
   FontColors,
@@ -16,28 +16,6 @@ import {
   APIs,
   Events
 } from 'config';
-
-export const TwitterConnectContainer = styled.form`
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  flex-direction: column;
-
-  background-color: #5c63efb3;
-  height: 400px;
-  width: 300px;
-  border-radius: 30px;
-
-  margin-left: 10%;
-  padding-top: 70px;
-  padding-bottom: 70px;
-
-  transition: all 1s ease-out;
-
-  @media (max-width: 400px) {
-    margin: 0;
-  }
-`;
 
 const TwitterLoginStyles = {
   cursor: 'pointer',
@@ -61,7 +39,7 @@ export const TwitterConnect: React.FC<Prop> = ({ show }) => {
   }, [UserStore, EventStore]);
 
   return (
-    <TwitterConnectContainer style={{ display: show ? 'flex' : 'none' }}>
+    <AroundedContainer style={{ display: show ? 'flex' : 'none' }}>
       <Img src="/icons/twitter.svg" />
       <Text
         fontColors={FontColors.white}
@@ -88,6 +66,6 @@ export const TwitterConnect: React.FC<Prop> = ({ show }) => {
           Connect
         </Text>
       </TwitterLogin>
-    </TwitterConnectContainer>
+    </AroundedContainer>
   );
 };

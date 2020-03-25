@@ -16,6 +16,7 @@ import {
   FontColors,
   Fonts,
   FontSize,
+  ButtonVariants,
   SizeComponent
 } from 'config';
 
@@ -45,6 +46,7 @@ export const SecondAboutPage: NextPage = () => {
           </DescriptionText>
           <Button
             sizeVariant={SizeComponent.lg}
+            variant={ButtonVariants.outlet}
             onClick={handleNext}
           >
             NEXT

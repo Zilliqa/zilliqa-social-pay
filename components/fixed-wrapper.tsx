@@ -5,6 +5,7 @@ import { validation } from '@zilliqa-js/util';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { useMediaQuery } from 'react-responsive';
+import moment from 'moment';
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 
 import EventStore from 'store/event';
@@ -27,6 +28,7 @@ import {
   FontSize,
   Fonts
 } from 'config';
+import { timerCalc } from 'utils/timer';
 import { addTweet } from 'utils/update-tweets';
 
 const TweetContainer = styled.div`
@@ -58,6 +60,10 @@ export const FixedWrapper: React.FC = () => {
 
     return true;
   }, [userState]);
+  const timer = React.useMemo(
+    () => timerCalc(blockchainState, userState),
+    [blockchainState, userState]
+  );
 
   const handleAddressChange = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -126,7 +132,7 @@ export const FixedWrapper: React.FC = () => {
             fontColors={FontColors.white}
             size={FontSize.sm}
           >
-            You can change address after one day 8h
+            You can participate: {moment(timer).fromNow()}
           </Text>
           <form onSubmit={handleAddressChange}>
             <FieldInput
@@ -162,14 +168,24 @@ export const FixedWrapper: React.FC = () => {
                   width: isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT
                 }}
               />
-              <Button
-                sizeVariant={SizeComponent.lg}
-                variant={ButtonVariants.primary}
-                css="margin-top: 30px;"
-                onClick={handlePay}
-              >
-                Pay
-              </Button>
+              {timer === 0 ? (
+                <Button
+                  sizeVariant={SizeComponent.lg}
+                  variant={ButtonVariants.primary}
+                  css="margin-top: 30px;"
+                  onClick={handlePay}
+                >
+                  Pay
+                </Button>
+              ) : (
+                <Text
+                  size={FontSize.sm}
+                  fontVariant={Fonts.AvenirNextLTProDemi}
+                  fontColors={FontColors.white}
+                >
+                  You can participate: {moment(timer).fromNow()}
+                </Text>
+              )}
             </TweetContainer>
           ) : null}
         </Card>

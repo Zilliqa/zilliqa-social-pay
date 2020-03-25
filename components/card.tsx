@@ -9,10 +9,11 @@ export const CardContainer = styled.div`
   border: 1px solid #5c63ef;
   padding: 0 .5rem 0;
   width: fit-content;
-  min-width: 120px;
   border-radius: 35px;
   background-color: ${FontColors.primary};
   flex-basis: 15px;
+
+  background-color: #5c63ef;
 
   ${(props: { css: string; }) => props.css}
 `;
@@ -32,7 +33,7 @@ export const Card: React.FC<Prop> = ({
       <Text
         fontVariant={Fonts.AvenirNextLTProDemi}
         fontColors={FontColors.white}
-        css="text-indent: 15px;"
+        css="text-indent: 15px;padding-top: 10px;"
       >
         {title}
       </Text>

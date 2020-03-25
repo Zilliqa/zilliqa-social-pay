@@ -6,24 +6,23 @@ type ContentContainerProp = {
 };
 
 export const ModalContent = styled.aside`
-  background-color: transparent;
+  display: ${(props: ContentContainerProp) => props.show ? 'flex' : 'none'};
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
   height: fit-content;
   width: fit-content;
-  animation: fadeInUp 0.4s;
-  animation-timing-function: cubic-bezier(.3,.17,.23,.96);
-`;
-export const ContentContainer = styled.div`
-  display: ${(props: ContentContainerProp) => props.show ? 'flex' : 'none'};
-  justify-content: center;
-  align-items: center;
+  z-index: 6;
 
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  top: 0;
-
-  z-index: 10;
+  @media (max-width: 370px) {
+    max-width: 300px;
+    left: 0;
+    right: 0;
+    transform: unset;
+  }
 `;
 export const CloseContent = styled.div`
   display: ${(props: ContentContainerProp) => props.show ? 'block' : 'none'};
@@ -59,11 +58,9 @@ export const Modal: React.FC<Prop> = ({
         show={show}
         onClick={() => onBlur()}
       />
-      <ContentContainer show={show}>
-        <ModalContent>
-          {children}
-        </ModalContent>
-      </ContentContainer>
+      <ModalContent show={show}>
+        {children}
+      </ModalContent>
     </React.Fragment>
   );
 };

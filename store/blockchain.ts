@@ -4,6 +4,7 @@ import { Blockchain } from 'interfaces';
 import { fetchBlockchainData } from 'utils/get-blockchain';
 
 export const blockchainDomain = createDomain();
+export const nextBlock = blockchainDomain.event();
 export const updateBlockchain = blockchainDomain.effect<null, Blockchain, Error>();
 
 updateBlockchain.use(fetchBlockchainData);
@@ -23,9 +24,14 @@ export const store = blockchainDomain.store<Blockchain>(initalState)
   .on(updateBlockchain.done, (state, { result }) => ({
     ...state,
     ...result
+  }))
+  .on(nextBlock, (state) => ({
+    ...state,
+    BlockNum: Number(state.BlockNum) + 1
   }));
 
 export default {
   store,
-  updateBlockchain
+  updateBlockchain,
+  nextBlock
 };

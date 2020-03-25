@@ -16,14 +16,17 @@ const AuthContainer = styled(Container)`
   align-items: center;
 
   background:
-    url(/imgs/illustration-3.svg),
-    linear-gradient(90deg, rgb(120, 130, 243) 0%, rgb(120, 130, 243) 28%, rgb(83, 82, 238) 71%);
+    // url(/imgs/illustration-3.svg),
+    linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
+  background-repeat: round;
 
   height: 100vh;
   width: 100vw;
 
   @media (max-width: 600px) {
     justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 20%;
   }
 `;
 
