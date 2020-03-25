@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import * as Effector from 'effector-react';
 
 import UserStore from 'store/user';
-// import EventStore from 'store/event';
 
 import { TwitterConnect } from 'components/twitter-conecter';
 import { Container } from 'components/container';
@@ -16,7 +15,7 @@ const AuthContainer = styled(Container)`
   align-items: center;
 
   background:
-    url(/imgs/illustration-3.png),
+    url(/imgs/illustration-3.webp),
     linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
   background-repeat: round;
   background-repeat-y: no-repeat;

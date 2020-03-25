@@ -12,6 +12,7 @@ export enum ButtonVariants {
     :hover {
       background: #fff;
       color: #5C63EF;
+      border: 1px solid transparent;
     }
   `
 }

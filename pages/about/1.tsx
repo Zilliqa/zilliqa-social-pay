@@ -51,7 +51,7 @@ export const SecondAboutPage: NextPage = () => {
             NEXT
           </Button>
         </InfoContainer>
-        <Illustration src="/imgs/illustration-5.png"/>
+        <Illustration src="/imgs/illustration-5.webp"/>
       </AboutContainer>
       <ZilliqaLogo />
     </React.Fragment>
