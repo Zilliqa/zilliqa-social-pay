@@ -43,8 +43,8 @@ export const ZilliqaLogo = styled(Img)`
 `;
 
 export const Illustration = styled(Img)`
-  width: 50vw;
-  height: 50vw;
+  width: 40vw;
+  height: 40vw;
 
   @media (max-width: 640px) {
     width: 80vw;
