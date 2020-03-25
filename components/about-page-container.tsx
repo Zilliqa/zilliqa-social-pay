@@ -1,0 +1,72 @@
+import styled from 'styled-components';
+
+import { Container } from 'components/container';
+import { Img } from 'components/img';
+import { Text } from 'components/text';
+
+export const AboutContainer = styled(Container)`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+
+  background-image: linear-gradient(360deg, rgb(120, 130, 243) 0%, rgb(120, 130, 243) 45%, rgb(120, 130, 243) 81%);
+  height: 100vh;
+  width: 100vw;
+
+  @media (max-width: 650px) {
+    text-align: center;
+    font-size: 30px;
+    align-items: unset;
+  }
+`;
+export const InfoContainer = styled.div`
+  width: 100%;
+  max-width: 390px;
+
+  padding-left: 10px;
+  padding-right: 10px;
+  z-index: 2;
+`;
+
+export const ZilliqaLogo = styled(Img)`
+  position: fixed;
+  top: 0px;
+  right: 20px;
+
+  width: 70px;
+
+  @media (max-width: 321px) {
+    width: 30px;
+  }
+`;
+
+export const Illustration = styled(Img)`
+  width: 40vw;
+  height: auto;
+
+  @media (max-width: 321px) {
+    width: 200px;
+    height: 200px;
+    margin-top: 70px;
+  }
+`;
+
+export const TitleText = styled(Text)`
+  font-size: 40px;
+
+  @media (max-width: 650px) {
+    text-align: center;
+    font-size: 30px;
+  }
+`;
+export const DescriptionText = styled(Text)`
+  @media (max-width: 650px) {
+    text-align: center;
+    font-size: 15px;
+  }
+`;
+
+ZilliqaLogo.defaultProps = {
+  src: '/icons/zilliqa-logo.svg'
+};
