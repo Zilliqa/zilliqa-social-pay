@@ -47,7 +47,7 @@ const Illustration = styled(Img)`
   z-index: 0;
 `;
 
-const ITERVAL_USER_UPDATE = 90000;
+const ITERVAL_USER_UPDATE = 10000;
 // const COEFFICIENT = 1.5;
 
 function updater() {

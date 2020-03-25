@@ -201,6 +201,7 @@ export const FixedWrapper: React.FC = () => {
             size={FontSize.md}
             fontColors={FontColors.danger}
             fontVariant={Fonts.AvenirNextLTProBold}
+            css="width: inherit;"
           >
             {eventState.content.message}
           </Text> : null}
