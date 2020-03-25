@@ -22,9 +22,6 @@ const TopBarContainer = styled.header`
 
   min-height: 60px;
   width: 100%;
-
-  border-bottom: 1px solid ${FontColors.gray};
-
   grid-area: header;
 
   padding: 15px;
@@ -90,6 +87,7 @@ export const TopBar: React.FC = () => {
       <Text
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProBold}
+        fontColors={FontColors.white}
         css="width: 200px;display: flex;align-items: center;"
         data-tip={userState.synchronization ? 'Syncing address' : 'Synchronized'}
         nowrap
@@ -108,6 +106,7 @@ export const TopBar: React.FC = () => {
           <Text
             size={FontSize.sm}
             fontVariant={Fonts.AvenirNextLTProBold}
+            fontColors={FontColors.white}
             css="width: 200px;"
             nowrap
           >

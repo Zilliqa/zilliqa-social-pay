@@ -24,7 +24,7 @@ const MainPageContainer = styled.main`
   grid-template-areas: "header"
                        "container";
 
-  background: #E0E4FF;
+  background: #7882f3;
   width: 100%;
   height: 100vh;
 `;
