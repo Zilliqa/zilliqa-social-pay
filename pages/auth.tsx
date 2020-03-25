@@ -17,8 +17,7 @@ const AuthContainer = styled(Container)`
   background:
     url(/imgs/illustration-3.webp),
     linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
-  background-repeat: round;
-  background-repeat-y: no-repeat;
+  background-repeat: space;
 
   height: 100vh;
   width: 100vw;
