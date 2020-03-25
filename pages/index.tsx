@@ -47,7 +47,7 @@ const Illustration = styled(Img)`
   z-index: 0;
 `;
 
-const ITERVAL_USER_UPDATE = 10000;
+const ITERVAL_UPDATE = 10000;
 
 function updater() {
   UserStore.updateUserState(null);
@@ -60,7 +60,7 @@ function updater() {
     UserStore.updateUserState(null);
     BlockchainStore.updateBlockchain(null);
     TwitterStore.getTweets(null);
-  }, ITERVAL_USER_UPDATE);
+  }, ITERVAL_UPDATE);
 }
 
 export const MainPage: NextPage<PageProp> = () => {

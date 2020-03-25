@@ -4,7 +4,7 @@ export function timerCalc(blockchainState: Blockchain, userState: User) {
   const currentBlock = Number(blockchainState.BlockNum);
   const nextBlockToAction = Number(userState.lastAction);
 
-  if (currentBlock > nextBlockToAction) {
+  if (currentBlock >= nextBlockToAction) {
     return 0;
   }
 
