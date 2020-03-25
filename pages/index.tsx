@@ -48,7 +48,6 @@ const Illustration = styled(Img)`
 `;
 
 const ITERVAL_USER_UPDATE = 10000;
-// const COEFFICIENT = 1.5;
 
 function updater() {
   UserStore.updateUserState(null);
@@ -57,7 +56,7 @@ function updater() {
     .getTweets(null)
     .then(() => EventStore.reset());
 
-  setInterval(() => {
+  return setInterval(() => {
     UserStore.updateUserState(null);
     BlockchainStore.updateBlockchain(null);
     TwitterStore.getTweets(null);
@@ -66,16 +65,29 @@ function updater() {
 
 export const MainPage: NextPage<PageProp> = () => {
   const blockchainState = Effector.useStore(BlockchainStore.store);
+  const userState = Effector.useStore(UserStore.store);
 
   const [mounted, setMounted] = React.useState(false);
+  const [interval, setinterval] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     if (!mounted) {
       setMounted(true);
 
-      updater();
+      setinterval(updater());
     }
-  }, [mounted, setMounted, blockchainState]);
+
+    if (interval && Number(userState.lastAction) < Number(blockchainState.BlockNum)) {
+      clearInterval(interval);
+    }
+  }, [
+    mounted,
+    setMounted,
+    blockchainState,
+    interval,
+    setinterval,
+    userState
+  ]);
 
   return (
     <MainPageContainer>
