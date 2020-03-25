@@ -25,7 +25,6 @@ const TwitterLoginStyles = {
   background: 'transparent',
   border: `1px solid ${FontColors.white}`
 };
-
 type Prop = {
   show?: boolean;
 };

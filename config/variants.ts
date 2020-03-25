@@ -4,7 +4,16 @@ export enum ButtonVariants {
   info = 'background: #9FA9FF;color: #fff;',
   danger = 'background: #FA5D50;color: #fff;',
   warning = 'background: #057A8E;color: #fff;',
-  outlet = 'background: transparent; border: 1px solid #fff;color: #fff;'
+  outlet = `
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+
+    :hover {
+      background: #fff;
+      color: #5C63EF;
+    }
+  `
 }
 
 export enum AlertVariants {
