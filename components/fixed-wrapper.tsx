@@ -128,12 +128,14 @@ export const FixedWrapper: React.FC = () => {
         onBlur={() => EventStore.reset()}
       >
         <Card title="Settings">
-          <Text
-            fontColors={FontColors.white}
-            size={FontSize.sm}
-          >
-            You can participate: {moment(timer).fromNow()}
-          </Text>
+          {timer !== 0 ? (
+            <Text
+              fontColors={FontColors.white}
+              size={FontSize.sm}
+            >
+              You can participate: {moment(timer).fromNow()}
+            </Text>
+          ) : null}
           <form onSubmit={handleAddressChange}>
             <FieldInput
               defaultValue={address}

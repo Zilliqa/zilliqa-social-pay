@@ -10,10 +10,8 @@ export const CardContainer = styled.div`
   padding: 0 .5rem 0;
   width: fit-content;
   border-radius: 35px;
-  background-color: ${FontColors.primary};
+  background-color: #5c63efb5;
   flex-basis: 15px;
-
-  background-color: #5c63ef;
 
   ${(props: { css: string; }) => props.css}
 `;

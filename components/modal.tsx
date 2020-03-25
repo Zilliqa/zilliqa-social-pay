@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { Img } from 'components/img';
+
 type ContentContainerProp = {
   show: boolean;
 };
@@ -40,10 +42,17 @@ export const CloseContent = styled.div`
   animation: fade 0.4s;
   animation-timing-function: cubic-bezier(.3,.17,.23,.96);
 `;
+export const CloseIcon = styled(Img)`
+  cursor: pointer;
+  height: 20px;
+  width: 20px;
+`;
+CloseIcon.defaultProps = {
+  src: '/icons/close-1.svg'
+};
 
 type Prop = {
   show: boolean;
-
   onBlur: () => void;
 };
 
@@ -60,6 +69,7 @@ export const Modal: React.FC<Prop> = ({
       />
       <ModalContent show={show}>
         {children}
+        <CloseIcon onClick={() => onBlur()}/>
       </ModalContent>
     </React.Fragment>
   );
