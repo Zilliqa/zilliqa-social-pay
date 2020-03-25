@@ -6,7 +6,7 @@ import { Text } from 'components/text';
 
 export const AboutContainer = styled(Container)`
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   flex-wrap: wrap;
   justify-content: space-evenly;
 
@@ -38,17 +38,17 @@ export const ZilliqaLogo = styled(Img)`
 
   @media (max-width: 321px) {
     width: 30px;
+    height: 60px;
   }
 `;
 
 export const Illustration = styled(Img)`
-  width: 40vw;
-  height: auto;
+  width: 50vw;
+  height: 50vw;
 
-  @media (max-width: 321px) {
-    width: 200px;
-    height: 200px;
-    margin-top: 70px;
+  @media (max-width: 640px) {
+    width: 80vw;
+    height: 80vw;
   }
 `;
 

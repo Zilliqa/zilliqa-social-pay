@@ -31,7 +31,7 @@ export const FirstAboutPage: NextPage = () => {
   return (
     <React.Fragment>
       <AboutContainer>
-        <Illustration src="/imgs/illustration-1.svg"/>
+        <Illustration src="/imgs/illustration-1.png"/>
         <InfoContainer>
           <TitleText
             fontColors={FontColors.white}

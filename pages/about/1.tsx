@@ -29,8 +29,7 @@ export const SecondAboutPage: NextPage = () => {
 
   return (
     <React.Fragment>
-      <AboutContainer>
-        <Illustration src="/imgs/illustration-5.svg"/>
+      <AboutContainer css="flex-wrap: wrap-reverse;">
         <InfoContainer>
           <DescriptionText
             fontColors={FontColors.white}
@@ -52,6 +51,7 @@ export const SecondAboutPage: NextPage = () => {
             NEXT
           </Button>
         </InfoContainer>
+        <Illustration src="/imgs/illustration-5.png"/>
       </AboutContainer>
       <ZilliqaLogo />
     </React.Fragment>

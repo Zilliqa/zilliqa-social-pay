@@ -16,9 +16,10 @@ const AuthContainer = styled(Container)`
   align-items: center;
 
   background:
-    // url(/imgs/illustration-3.svg),
+    url(/imgs/illustration-3.png),
     linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
   background-repeat: round;
+  background-repeat-y: no-repeat;
 
   height: 100vh;
   width: 100vw;
@@ -27,6 +28,11 @@ const AuthContainer = styled(Container)`
     justify-content: center;
     align-items: flex-end;
     padding-bottom: 20%;
+    background:
+      url(/imgs/illustration-3-mobile.png),
+      linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
+    background-repeat: round;
+    background-repeat-y: no-repeat;
   }
 `;
 
