@@ -48,9 +48,9 @@ const Illustration = styled(Img)`
 `;
 
 const ITERVAL_USER_UPDATE = 90000;
-const COEFFICIENT = 1.5;
+// const COEFFICIENT = 1.5;
 
-function updater(rate: number) {
+function updater() {
   UserStore.updateUserState(null);
   BlockchainStore.updateBlockchain(null);
   TwitterStore
@@ -62,8 +62,6 @@ function updater(rate: number) {
     BlockchainStore.updateBlockchain(null);
     TwitterStore.getTweets(null);
   }, ITERVAL_USER_UPDATE);
-
-  setInterval(() => BlockchainStore.nextBlock(), rate * COEFFICIENT);
 }
 
 export const MainPage: NextPage<PageProp> = () => {
@@ -75,7 +73,7 @@ export const MainPage: NextPage<PageProp> = () => {
     if (!mounted) {
       setMounted(true);
 
-      updater(Number(blockchainState.rate));
+      updater();
     }
   }, [mounted, setMounted, blockchainState]);
 
