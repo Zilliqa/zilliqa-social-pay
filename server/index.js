@@ -68,6 +68,6 @@ app
     });
   });
 
-if (dev) {
+if (ENV === 'development') {
   require('./scheduler');
 }
