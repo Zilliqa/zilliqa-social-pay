@@ -45,15 +45,12 @@ passport.use(
             screenName: profile._json.screen_name,
             profileImageUrl: profile._json.profile_image_url
           },
-          attributes: [
-            'id',
-            'username',
-            'profileId',
-            'screenName',
-            'profileImageUrl',
-            'zilAddress',
-            'synchronization'
-          ]
+          attributes: {
+            exclude: [
+              'tokenSecret',
+              'token'
+            ]
+          }
         })
         .then(([user]) => done(null, user))
         .catch((err) => done(err, null));

@@ -49,7 +49,7 @@ export const Verified: React.FC = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             css="margin-right: 20px;"
           >
-            You have not verified tweets.
+            You have no verified tweets.
           </Text>
           <TwitterHashtagButton
             tag={blockchainState.hashtag || ''}

@@ -1,4 +1,8 @@
 'use strict';
+const statuses = {
+  baned: 'baned',
+  enabled: 'enabled'
+};
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Users', {
@@ -41,6 +45,11 @@ module.exports = {
         type: Sequelize.BIGINT,
         allowNull: true,
         defaultValue: 0
+      },
+      status: {
+        type: Sequelize.ENUM(statuses.baned, statuses.enabled),
+        allowNull: false,
+        defaultValue: statuses.enabled
       },
       synchronization: {
         type: Sequelize.BOOLEAN,

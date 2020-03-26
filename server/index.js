@@ -2,14 +2,17 @@ require('dotenv').config();
 
 const debug = require('debug')('zilliqa-social-pay:server');
 const express = require('express');
+const socket = require('socket.io');
 const cookieSession = require('cookie-session');
-const http = require('http');
+let http = require('http');
 const next = require('next');
 const passport = require('passport');
 const uuidv4 = require('uuid').v4;
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const server = express();
+const socketRoute = require('./routes/socket');
+const socketMiddleware = require('./middleware/socket-auth');
 const zilliqa = require('./zilliqa');
 
 const ENV = process.env.NODE_ENV;
@@ -22,11 +25,7 @@ const app = next({
 });
 const indexRouter = require('./routes/index');
 const handle = app.getRequestHandler();
-
-require('./passport-setup');
-
-server.use(cookieParser());
-server.use(cookieSession({
+const session = cookieSession({
   name: process.env.SESSION,
   keys: [
     dev ? 'key0' : uuidv4(),
@@ -36,7 +35,12 @@ server.use(cookieSession({
   // Cookie Options
   maxAge: (24 * 60 * 60 * 1000), // 24 hours
   httpOnly: true
-}));
+});
+
+require('./passport-setup');
+
+server.use(cookieParser());
+server.use(session);
 
 // initalize passport
 server.use(passport.initialize());
@@ -63,11 +67,42 @@ app
     // handling everything else with Next.js
     server.get('*', handle);
 
-    http.createServer(server).listen(port, () => {
+    http = http.createServer(server);
+
+    const io = socket(http);
+
+    io.use(socketMiddleware);
+
+    io.on('connection', (socket) => {
+      const cookieString = socket.request.headers.cookie;
+
+      const req = {
+        connection: {
+          encrypted: false
+        },
+        headers: {
+          cookie: cookieString
+        }
+      }
+      const res = {
+        getHeader: () => {},
+        setHeader: () => {}
+      };
+
+      session(req, res, () => {
+        if (req.session && req.session.passport && req.session.passport.user) {
+          socket.user = req.session.passport.user;
+
+          socketRoute(socket);
+        }
+      });
+    });
+
+    http.listen(port, () => {
       console.log(`listening on port ${port}`);
     });
   });
 
-if (ENV === 'development') {
+if (!ENV || ENV == 'development') {
   require('./scheduler');
 }

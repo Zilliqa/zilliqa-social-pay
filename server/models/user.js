@@ -1,6 +1,10 @@
 'use strict';
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
+const statuses = {
+  baned: 'baned',
+  enabled: 'enabled'
+};
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     username: DataTypes.STRING,
@@ -27,11 +31,17 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       defaultValue: 0
     },
+    status: {
+      type: DataTypes.ENUM(statuses.baned, statuses.enabled),
+      allowNull: false,
+      defaultValue: statuses.enabled
+    },
     synchronization: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     }
   }, {});
+  User.prototype.statuses = statuses;
   User.prototype.sign = function () {
     const payload = {
       id: this.id,

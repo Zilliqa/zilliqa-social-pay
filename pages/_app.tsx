@@ -11,6 +11,7 @@ import { FixedWrapper } from 'components/fixed-wrapper';
 
 import { Fonts } from 'config';
 import { authGuard } from 'utils/guard';
+import { socket } from 'utils/socket';
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -89,7 +90,7 @@ class SocialPay extends App {
       return null;
     }
 
-    if (this.props.pageProps.isServer) {
+    if (typeof window !== 'undefined') {
       UserStore.update();
 
       const state = UserStore.store.getState();
@@ -98,6 +99,8 @@ class SocialPay extends App {
         UserStore.clear();
 
         this.props.router.push('/auth');
+      } else {
+        socket();
       }
     }
 

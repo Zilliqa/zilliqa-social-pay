@@ -70,6 +70,7 @@ export const Search = styled(Input)`
   background: #5C63EF url(/icons/search-icon.svg) no-repeat 9px center;
   text-align: center;
   color: ${FontColors.white};
+  text-indent: 30px;
 `;
 
 type FieldProp = {

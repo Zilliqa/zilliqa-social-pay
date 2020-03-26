@@ -37,7 +37,7 @@ export const FirstAboutPage: NextPage = () => {
             fontColors={FontColors.white}
             fontVariant={Fonts.AvenirNextLTProBold}
           >
-            Social Pay.
+            SocialPay.
           </TitleText>
           <DescriptionText
             fontColors={FontColors.white}

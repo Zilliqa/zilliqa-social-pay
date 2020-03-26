@@ -68,6 +68,7 @@ export const MainPage: NextPage<PageProp> = () => {
   const userState = Effector.useStore(UserStore.store);
 
   const [mounted, setMounted] = React.useState(false);
+  const [socket, setSocket] = React.useState<SocketIOClient.Socket | null>(null);
   const [interval, setinterval] = React.useState<number | null>(null);
 
   React.useEffect(() => {
@@ -86,7 +87,9 @@ export const MainPage: NextPage<PageProp> = () => {
     blockchainState,
     interval,
     setinterval,
-    userState
+    userState,
+    setSocket,
+    socket
   ]);
 
   return (
