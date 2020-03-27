@@ -61,6 +61,7 @@ export const TwitterConnect: React.FC<Prop> = ({ show }) => {
           fontColors={FontColors.white}
           fontVariant={Fonts.AvenirNextLTProDemi}
           size={FontSize.sm}
+          css="margin: 0;"
           onClick={() => EventStore.setEvent(Events.Load)}
         >
           Connect
