@@ -34,7 +34,7 @@ const DashboardContainer = styled(Container)`
   display: flex;
   flex-wrap: wrap-reverse;
   justify-content: space-around;
-  align-items: end;
+  align-items: flex-end;
   width: 100%;
   max-width: 900px;
   z-index: 1;

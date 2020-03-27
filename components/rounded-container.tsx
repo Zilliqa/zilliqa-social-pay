@@ -3,7 +3,6 @@ import styled from 'styled-components';
 export const AroundedContainer = styled.form`
   display: flex;
   justify-content: space-around;
-  align-items: center;
   flex-direction: column;
 
   background-color: #5c63efb3;

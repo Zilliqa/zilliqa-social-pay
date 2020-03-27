@@ -27,7 +27,7 @@ import { SearchTweet } from 'utils/get-tweets';
 const ControlContainer = styled(AroundedContainer)`
   padding-left: 15px;
   padding-right: 15px;
-  align-items: end;
+  align-items: flex-start;
 `;
 
 export const Controller: React.FC = () => {

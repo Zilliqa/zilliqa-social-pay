@@ -40,7 +40,11 @@ export const AuthPage: NextPage = () => {
 
   React.useEffect(() => {
     if (userState.jwtToken && userState.zilAddress && router.pathname.includes('auth')) {
-      router.push('/');
+      if (userState.message && userState.message === 'Unauthorized') {
+        UserStore.clear();
+      } else {
+        router.push('/');
+      }
     }
   }, [userState]);
 
