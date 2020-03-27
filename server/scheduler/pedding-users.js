@@ -4,8 +4,25 @@ const zilliqa = require('../zilliqa');
 const models = require('../models');
 
 const User = models.sequelize.models.User;
+const Admin = models.sequelize.models.Admin;
 
 module.exports = async function() {
+  const statuses = new Admin().statuses;
+  const freeAdmins = await Admin.count({
+    where: {
+      status: statuses.enabled,
+      balance: {
+        [Op.gte]: '5000000000000' // 5ZILs
+      }
+    }
+  });
+
+  debug('Free admin addresses:', freeAdmins);
+
+  if (freeAdmins === 0) {
+    return null;
+  }
+
   const users = await User.findAndCountAll({
     where: {
       synchronization: true,

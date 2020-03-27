@@ -121,6 +121,7 @@ export const Controller: React.FC = () => {
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProDemi}
         fontColors={FontColors.white}
+        css="text-transform: capitalize;"
       >
         Hashtag: {blockchainState.hashtag}
       </Text>

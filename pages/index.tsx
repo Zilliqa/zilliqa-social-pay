@@ -2,6 +2,7 @@ import React from 'react';
 import { NextPage } from 'next';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
+import { useRouter } from 'next/router';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
@@ -16,6 +17,7 @@ import { Controller } from 'components/controller';
 
 // import { Events } from 'config';
 import { PageProp } from 'interfaces';
+import { Events } from 'config';
 
 const MainPageContainer = styled.main`
   display: grid;
@@ -47,49 +49,57 @@ const Illustration = styled(Img)`
   z-index: 0;
 `;
 
-const ITERVAL_UPDATE = 10000;
+async function updater() {
+  const messageError = 'Unauthorized';
+  const user = await UserStore.updateUserState(null);
 
-function updater() {
-  UserStore.updateUserState(null);
-  BlockchainStore.updateBlockchain(null);
-  TwitterStore
-    .getTweets(null)
-    .then(() => EventStore.reset());
+  if (user.message && user.message === messageError) {
+    throw new Error(messageError);
+  }
 
-  return setInterval(() => {
-    UserStore.updateUserState(null);
-    BlockchainStore.updateBlockchain(null);
-    TwitterStore.getTweets(null);
-  }, ITERVAL_UPDATE);
+  const blockchain = await BlockchainStore.updateBlockchain(null);
+
+  if (blockchain.message && blockchain.message === messageError) {
+    throw new Error(messageError);
+  }
+
+  const tweets = await TwitterStore.getTweets(null);
+
+  if (tweets.message && tweets.message === messageError) {
+    throw new Error(messageError);
+  }
 }
 
 export const MainPage: NextPage<PageProp> = () => {
+  const router = useRouter();
+
   const blockchainState = Effector.useStore(BlockchainStore.store);
   const userState = Effector.useStore(UserStore.store);
 
   const [mounted, setMounted] = React.useState(false);
   const [socket, setSocket] = React.useState<SocketIOClient.Socket | null>(null);
-  const [interval, setinterval] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     if (!mounted) {
       setMounted(true);
 
-      setinterval(updater());
-    }
+      EventStore.setEvent(Events.Load);
 
-    if (interval && Number(userState.lastAction) < Number(blockchainState.BlockNum)) {
-      clearInterval(interval);
+      updater()
+        .then(() => EventStore.reset())
+        .catch(() => {
+          EventStore.reset();
+          router.push('/auth');
+        });
     }
   }, [
     mounted,
     setMounted,
     blockchainState,
-    interval,
-    setinterval,
     userState,
     setSocket,
-    socket
+    socket,
+    router
   ]);
 
   return (

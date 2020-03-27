@@ -1,3 +1,5 @@
 module.exports = {
-  info: '@/info/update'
+  info: '@/info/update',
+  userUpdated: '@/user/updated',
+  tweetsUpdate: '@/tweets/updated'
 };

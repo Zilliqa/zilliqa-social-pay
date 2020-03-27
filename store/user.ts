@@ -17,6 +17,16 @@ export const updateUserState = UserDomain.effect<null, User, Error>();
 updateAddress.use(fetchUpdateAddress);
 updateUserState.use(fetchUserData);
 
+const addressHasConfigured = (user: User, state: User) => {
+  try {
+    if (validation.isBech32(user.zilAddress) && (state.synchronization !== user.synchronization)) {
+      NotificationManager.success('Your Zilliqa Address has been configured!');
+    }
+  } catch (err) {
+    // Skip
+  }
+};
+
 const initalState: User = {
   username: '',
   screenName: '',
@@ -26,6 +36,7 @@ const initalState: User = {
   balance: '0',
   synchronization: false,
   lastAction: '0',
+  profileId: '',
   updated: false
 };
 
@@ -36,6 +47,8 @@ export const store = UserDomain.store<User>(initalState)
       ...state,
       ...user
     };
+
+    addressHasConfigured(user, state);
 
     storage.setItem(LocalStorageKeys.user, JSON.stringify(updated));
 
@@ -83,13 +96,7 @@ export const store = UserDomain.store<User>(initalState)
       ...result
     };
 
-    try {
-      if (validation.isBech32(result.zilAddress) && (state.synchronization !== result.synchronization)) {
-        NotificationManager.success('Your Zilliqa Address has been configured!');
-      }
-    } catch (err) {
-      // Skip
-    }
+    addressHasConfigured(result, state);
 
     storage.setItem(LocalStorageKeys.user, JSON.stringify(updated));
 

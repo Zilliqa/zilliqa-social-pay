@@ -40,6 +40,18 @@ export const Verified: React.FC = () => {
   const twitterState = Effector.useStore(TwitterStore.store);
   const blockchainState = Effector.useStore(BlockchainStore.store);
 
+  const hashTag = React.useMemo(() => {
+    if (!blockchainState.hashtag) {
+      return '';
+    }
+
+    const splited = blockchainState.hashtag.split('');
+
+    splited[1] = splited[1].toUpperCase();
+
+    return splited.join('');
+  }, [blockchainState]);
+
   return (
     <VerifiedContainer>
       {!twitterState.tweets || twitterState.tweets.length < 1 ? (
@@ -52,7 +64,7 @@ export const Verified: React.FC = () => {
             You have no verified tweets.
           </Text>
           <TwitterHashtagButton
-            tag={blockchainState.hashtag || ''}
+            tag={hashTag}
             options={{
               size: 'large',
               screenName: userState.screenName
@@ -77,7 +89,14 @@ export const Verified: React.FC = () => {
               <Img src="/icons/close.svg"/>
             </a>
           ) : null}
-          {Boolean(!tweet.approved && !tweet.rejected) ? <MiniLoader /> : null}
+          {Boolean(!tweet.approved && !tweet.rejected) ? (
+            <a
+              href={tweet.txId ? viewTx(tweet.txId) : undefined}
+              target="_blank"
+            >
+              <MiniLoader />
+            </a>
+          ) : null}
           <TwitterTweetEmbed
             screenName={userState.screenName}
             tweetId={tweet.idStr}

@@ -89,14 +89,15 @@ module.exports = {
     }
 
     const zilAddress = toBech32Address(recipientAddress);
-
-    await User.update({
-      synchronization: false
-    }, {
+    const user = await User.findOne({
       where: {
         zilAddress,
         profileId: twitterId
       }
+    });
+
+    await user.update({
+      synchronization: false
     });
 
     return twitterId;
@@ -110,11 +111,13 @@ module.exports = {
       throw new Error(`Not found ${this.keys.tweetId} vname in:`, params);
     }
 
-    await Twittes.update({
+    const foundTweet = await Twittes.findOne({
+      where: { idStr }
+    });
+
+    await foundTweet.update({
       approved: true,
       rejected: false
-    }, {
-      where: { idStr }
     });
 
     return idStr;

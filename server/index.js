@@ -103,6 +103,4 @@ app
     });
   });
 
-if (!ENV || ENV == 'development') {
-  require('./scheduler');
-}
+require('./scheduler');

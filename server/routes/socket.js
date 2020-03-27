@@ -2,34 +2,20 @@ const EVENTS = require('../../config/socket-events');
 const models = require('../models');
 
 const User = models.sequelize.models.User;
-
-const getUser = async (jwtToken) => {
-  const user = new User();
-  const decoded = await user.verify(jwtToken);
-  return User.findOne({
-    where: {
-      id: decoded.id
-    },
-    attributes: {
-      exclude: [
-        'tokenSecret',
-        'token'
-      ]
-    }
-  });
-}
-
-User.addHook('afterUpdate', (user, options) => {
-  console.log(user, options);
-});
+const Blockchain = models.sequelize.models.blockchain;
+const Twittes = models.sequelize.models.Twittes;
 
 module.exports = (socket) => {
-  socket.on(EVENTS.info, async (data) => {
-    const user = await getUser(data);
+  Blockchain.addHook('afterUpdate', (blockchain) => {
+    socket.emit(EVENTS.info, JSON.stringify(blockchain));
+  });
+  User.addHook('afterUpdate', (user) => {
+    delete user.dataValues.tokenSecret;
+    delete user.dataValues.token;
 
-    socket.emit(EVENTS.info, {
-      username: user.profileId,
-      message: JSON.stringify(user)
-    });
+    socket.emit(EVENTS.userUpdated, JSON.stringify(user));
+  });
+  Twittes.addHook('afterUpdate', (tweet) => {
+    socket.emit(EVENTS.tweetsUpdate, JSON.stringify(tweet));
   });
 };

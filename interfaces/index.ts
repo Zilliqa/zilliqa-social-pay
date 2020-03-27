@@ -14,6 +14,7 @@ export interface User {
   zilAddress: string;
   jwtToken: string;
   message?: string;
+  profileId: string;
   balance: string;
   lastAction: string;
   synchronization: boolean;
@@ -54,6 +55,7 @@ export interface Blockchain {
   BlockNum: string | number;
   DSBlockNum: string | number;
   rate: string | number;
+  message?: string;
 }
 
 export interface PageProp {
