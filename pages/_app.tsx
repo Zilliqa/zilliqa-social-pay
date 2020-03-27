@@ -5,12 +5,14 @@ import Head from 'next/head';
 import App from 'next/app';
 
 import UserStore from 'store/user';
+import BrowserStore from 'store/browser';
 
 import { Container } from 'components/container';
 import { FixedWrapper } from 'components/fixed-wrapper';
 
-import { Fonts } from 'config';
+import { Fonts, ImgFormats } from 'config';
 import { authGuard } from 'utils/guard';
+import { canUseWebP } from 'utils/webp-support';
 import { socket } from 'utils/socket';
 
 const GlobalStyle = createGlobalStyle`
@@ -84,6 +86,12 @@ const GlobalStyle = createGlobalStyle`
 class SocialPay extends App {
 
   public componentDidMount() {
+    const isWebp = canUseWebP();
+
+    if (!isWebp) {
+      BrowserStore.setformat(ImgFormats.png);
+    }
+
     if (this.props.router.route.includes('auth')) {
       return null;
     } else if (this.props.router.route.includes('about')) {

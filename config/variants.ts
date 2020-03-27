@@ -24,3 +24,8 @@ export enum AlertVariants {
   danger = 'color: #fff;background-color: #FA5D50;border-color: #bb453c;',
   warning = 'color: #fff;background-color: #cce5ff;border-color: #03515f;'
 }
+
+export enum ImgFormats {
+  png = 'png',
+  webp = 'webp'
+}

@@ -31,7 +31,7 @@ export const store = EventDomain.store<EventState>(initalState)
 export default {
   store,
   reset,
-  setEvent,
   signOut,
+  setEvent,
   setContent
 };

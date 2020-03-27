@@ -9,6 +9,7 @@ export const AroundedContainer = styled.form`
   background-color: #5c63efb3;
   height: 400px;
   width: 300px;
+  z-index: 1;
   border-radius: 30px;
 
   margin-left: 10%;

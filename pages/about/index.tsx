@@ -1,6 +1,9 @@
 import React from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import * as Effector from 'effector-react';
+
+import BrowserStore from 'store/browser';
 
 import { Span } from 'components/blue-span';
 import { Button } from 'components/button';
@@ -24,6 +27,8 @@ import {
 export const FirstAboutPage: NextPage = () => {
   const router = useRouter();
 
+  const browserState = Effector.useStore(BrowserStore.store);
+
   const handleNext = React.useCallback(() => {
     router.push(`${router.pathname}/1`);
   }, [router]);
@@ -31,7 +36,7 @@ export const FirstAboutPage: NextPage = () => {
   return (
     <React.Fragment>
       <AboutContainer>
-        <Illustration src="/imgs/illustration-1.webp"/>
+        <Illustration src={`/imgs/illustration-1.${browserState.format}`}/>
         <InfoContainer>
           <TitleText
             fontColors={FontColors.white}

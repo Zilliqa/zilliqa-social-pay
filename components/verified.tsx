@@ -34,7 +34,7 @@ const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
 
 export const Verified: React.FC = () => {
-  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' })
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
 
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
