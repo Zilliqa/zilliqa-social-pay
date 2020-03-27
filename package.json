@@ -23,7 +23,9 @@
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
-      "last 1 safari version"
+      "last 3 safari version",
+      "iOS >= 6.0",
+      "Android >= 4.0"
     ]
   },
   "husky": {

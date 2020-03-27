@@ -4,6 +4,7 @@ export const AroundedContainer = styled.form`
   display: flex;
   justify-content: space-around;
   flex-direction: column;
+  align-items: center;
 
   background-color: #5c63efb3;
   height: 400px;
