@@ -17,7 +17,6 @@ import {
   Fonts,
   SizeComponent,
   Events,
-  Regex,
   FontColors
 } from 'config';
 import { fromZil } from 'utils/from-zil';
@@ -55,28 +54,18 @@ export const Controller: React.FC = () => {
       return null;
     }
 
-    const urlTestr = new RegExp(Regex.URL);
-    const tweeterParse = new RegExp(/https:\/\/twitter\.com\/.+\/status\/(\d+)/gm);
+    const foundTweetId = value
+      .split('/')
+      .filter(Boolean)
+      .find((el) => Number.isInteger(Number(el)));
 
-    if (urlTestr.test(value)) {
-      let m = null;
-      // tslint:disable-next-line: no-conditional-assignment
-      while ((m = tweeterParse.exec(value)) !== null) {
-        // This is necessary to avoid infinite loops with zero-width matches
-        if (m.index === tweeterParse.lastIndex) {
-          tweeterParse.lastIndex++;
-        }
-
-        if (m[1] || m[0]) {
-          setSearchValue(m[1]);
-          break;
-        }
-      }
-
+    if (!foundTweetId) {
       return null;
     }
 
-    setSearchValue(value);
+    console.log(foundTweetId);
+
+    setSearchValue(foundTweetId);
   }, [setSearchValue, searchValue]);
   const handleSearch = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
