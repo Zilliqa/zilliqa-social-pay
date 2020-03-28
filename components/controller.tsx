@@ -63,8 +63,6 @@ export const Controller: React.FC = () => {
       return null;
     }
 
-    console.log(foundTweetId);
-
     setSearchValue(foundTweetId);
   }, [setSearchValue, searchValue]);
   const handleSearch = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
