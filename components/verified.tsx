@@ -10,9 +10,10 @@ import BlockchainStore from 'store/blockchain';
 import { Text } from 'components/text';
 import { MiniLoader } from 'components/min-loader';
 import { Img } from 'components/img';
+import { Container } from 'components/container';
 import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
 
-import { FontSize, Fonts } from 'config';
+import { FontSize, Fonts, FontColors } from 'config';
 import { viewTx } from 'utils/viewblock';
 
 const VerifiedContainer = styled.div`
@@ -51,14 +52,22 @@ export const Verified: React.FC = () => {
 
     return splited.join('');
   }, [blockchainState]);
+  const nonTweets = React.useMemo(() => {
+    if (!twitterState.tweets || twitterState.tweets.length === 0) {
+      return 'display: block;';
+    }
+
+    return 'display: none;';
+  }, [twitterState]);
 
   return (
     <VerifiedContainer>
-      {!twitterState.tweets || twitterState.tweets.length < 1 ? (
+      <Container css={nonTweets}>
         <HaventVerified>
           <Text
             size={FontSize.sm}
             fontVariant={Fonts.AvenirNextLTProDemi}
+            fontColors={FontColors.white}
             css="margin-right: 20px;"
           >
             You have no verified tweets.
@@ -71,7 +80,8 @@ export const Verified: React.FC = () => {
             }}
           />
         </HaventVerified>
-      ) : twitterState.tweets.map((tweet, index) => (
+      </Container>
+      {twitterState.tweets.map((tweet, index) => (
         <TweetEmbedContainer key={index}>
           {tweet.approved ? (
             <a

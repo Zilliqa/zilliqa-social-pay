@@ -71,31 +71,24 @@ app
 
     const io = socket(http);
 
+    io.engine.generateId = function(req) {
+      try {
+        const session = req.headers.cookie.split('; ');
+        let userInBase64 = session.find((s) => s.includes(`${process.env.SESSION}=`));  
+        userInBase64 = userInBase64.replace(`${process.env.SESSION}=`, '');
+        const body = Buffer.from(userInBase64, 'base64').toString('utf-8');
+        const { passport } = JSON.parse(body);
+
+        return passport.user.profileId;
+      } catch (err) {
+        return null;
+      }
+    }
+
     io.use(socketMiddleware);
 
     io.on('connection', (socket) => {
-      const cookieString = socket.request.headers.cookie;
-
-      const req = {
-        connection: {
-          encrypted: false
-        },
-        headers: {
-          cookie: cookieString
-        }
-      };
-      const res = {
-        getHeader: () => {},
-        setHeader: () => {}
-      };
-
-      session(req, res, () => {
-        if (req.session && req.session.passport && req.session.passport.user) {
-          socket.user = req.session.passport.user;
-
-          socketRoute(socket);
-        }
-      });
+      socketRoute(socket, io);
     });
 
     http.listen(port, () => {

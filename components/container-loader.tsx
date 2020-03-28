@@ -13,6 +13,7 @@ export const ContainerLoader = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 99;
   display: ${(props: Prop) => props.show ? 'flex' : 'none'};
   justify-content: center;
   align-items: center;

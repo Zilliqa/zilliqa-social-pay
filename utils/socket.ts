@@ -15,7 +15,9 @@ export function socket() {
     throw new Error('JWT must be required.');
   }
 
-  const socketConnector: SocketIOClient.Socket = io();
+  const socketConnector = io();
+
+  socketConnector.id = userSate.profileId;
 
   socketConnector.on(EVENTS.info, (data: string) => {
     BlockchainStore.updateBlockchain(JSON.parse(data));

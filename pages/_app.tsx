@@ -13,7 +13,6 @@ import { FixedWrapper } from 'components/fixed-wrapper';
 import { Fonts, ImgFormats } from 'config';
 import { authGuard } from 'utils/guard';
 import { canUseWebP } from 'utils/webp-support';
-import { socket } from 'utils/socket';
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -107,8 +106,6 @@ class SocialPay extends App {
         UserStore.clear();
 
         this.props.router.push('/auth');
-      } else {
-        socket();
       }
     }
 

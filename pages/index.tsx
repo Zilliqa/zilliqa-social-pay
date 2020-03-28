@@ -15,7 +15,7 @@ import { Img } from 'components/img';
 import { Verified } from 'components/verified';
 import { Controller } from 'components/controller';
 
-// import { Events } from 'config';
+import { socket } from 'utils/socket';
 import { PageProp } from 'interfaces';
 import { Events } from 'config';
 
@@ -77,7 +77,6 @@ export const MainPage: NextPage<PageProp> = () => {
   const userState = Effector.useStore(UserStore.store);
 
   const [mounted, setMounted] = React.useState(false);
-  const [socket, setSocket] = React.useState<SocketIOClient.Socket | null>(null);
 
   React.useEffect(() => {
     if (!mounted) {
@@ -86,7 +85,10 @@ export const MainPage: NextPage<PageProp> = () => {
       EventStore.setEvent(Events.Load);
 
       updater()
-        .then(() => EventStore.reset())
+        .then(() => {
+          socket();
+          EventStore.reset()
+        })
         .catch(() => {
           EventStore.reset();
           router.push('/auth');
@@ -97,8 +99,6 @@ export const MainPage: NextPage<PageProp> = () => {
     setMounted,
     blockchainState,
     userState,
-    setSocket,
-    socket,
     router
   ]);
 

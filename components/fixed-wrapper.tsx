@@ -55,7 +55,7 @@ export const FixedWrapper: React.FC = () => {
     }
 
     return true;
-  }, [userState]);
+  }, [userState, blockchainState]);
   const timer = React.useMemo(
     () => timerCalc(blockchainState, userState),
     [blockchainState, userState]
@@ -78,11 +78,17 @@ export const FixedWrapper: React.FC = () => {
       return null;
     }
 
-    EventStore.setEvent(Events.Load);
-    await UserStore.updateAddress({
+    const result = await UserStore.updateAddress({
       address,
       jwt: userState.jwtToken
     });
+
+    if (result.message && result.message !== 'ConfiguredUserAddress') {
+      setAddressErr(result.message);
+
+      return null;
+    }
+
     EventStore.reset();
   }, [address, validation, setAddressErr, addressErr]);
   const handleChangeAddress = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,7 +143,7 @@ export const FixedWrapper: React.FC = () => {
               defaultValue={address}
               sizeVariant={SizeComponent.md}
               error={addressErr}
-              disabled={userState.synchronization || !canCallAction}
+              disabled={!canCallAction}
               css="font-size: 15px;width: 350px;"
               onChange={handleChangeAddress}
             />
