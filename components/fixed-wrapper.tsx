@@ -144,7 +144,7 @@ export const FixedWrapper: React.FC = () => {
               sizeVariant={SizeComponent.md}
               error={addressErr}
               disabled={!canCallAction}
-              css="font-size: 15px;width: 350px;"
+              css="font-size: 15px;width: 300px;"
               onChange={handleChangeAddress}
             />
             <Button

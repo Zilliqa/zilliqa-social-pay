@@ -20,5 +20,6 @@ export const AroundedContainer = styled.form`
 
   @media (max-width: 400px) {
     margin: 0;
+    width: 250px;
   }
 `;

@@ -23,7 +23,7 @@ export const ModalContent = styled.aside`
     max-width: 300px;
     left: 0;
     right: 0;
-    transform: unset;
+    transform: translate(10%,-50%);
   }
 `;
 export const CloseContent = styled.div`
