@@ -9,6 +9,7 @@ export const fetchTweetsUpdate = async (jwt: string) => {
 
   const res = await fetch(APIs.tweetsUpdate, {
     method: HttpMethods.PUT,
+    credentials: 'include',
     headers: {
       Authorization: jwt
     }
@@ -25,6 +26,7 @@ export const addTweet = async (jwt: string, tweet: object) => {
 
   const res = await fetch(APIs.addTweet, {
     method: HttpMethods.POST,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       Authorization: jwt

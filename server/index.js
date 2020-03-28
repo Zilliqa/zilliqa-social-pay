@@ -83,7 +83,7 @@ app
         headers: {
           cookie: cookieString
         }
-      }
+      };
       const res = {
         getHeader: () => {},
         setHeader: () => {}

@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import * as Effector from 'effector-react';
 import { validation } from '@zilliqa-js/util';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
@@ -19,6 +18,7 @@ import { FieldInput } from 'components/Input';
 import { Text } from 'components/text';
 import { Button } from 'components/button';
 import { ContainerLoader } from 'components/container-loader';
+import { Container } from 'components/container';
 
 import {
   ButtonVariants,
@@ -30,11 +30,6 @@ import {
 } from 'config';
 import { timerCalc } from 'utils/timer';
 import { addTweet } from 'utils/update-tweets';
-
-const TweetContainer = styled.div`
-  display: grid;
-  justify-items: center;
-`;
 
 const SPINER_SIZE = 150;
 const WIDTH_MOBILE = 250;
@@ -52,6 +47,7 @@ export const FixedWrapper: React.FC = () => {
   // React hooks //
   const [addressErr, setAddressErr] = React.useState<string | null>(null);
   const [address, setAddress] = React.useState<string>(userState.zilAddress);
+  const [twitterWidth] = React.useState(isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT);
 
   const canCallAction = React.useMemo(() => {
     if (Number(userState.lastAction) > Number(blockchainState.BlockNum)) {
@@ -162,19 +158,19 @@ export const FixedWrapper: React.FC = () => {
       >
         <Card title="Found tweet">
           {Boolean(eventState.content && eventState.content.id_str) ? (
-            <TweetContainer>
+            <Container css={`display: grid;width: ${twitterWidth}px`}>
               <TwitterTweetEmbed
                 screenName={userState.screenName}
                 tweetId={eventState.content.id_str}
                 options={{
-                  width: isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT
+                  width: twitterWidth
                 }}
               />
               {timer === 0 ? (
                 <Button
                   sizeVariant={SizeComponent.lg}
                   variant={ButtonVariants.primary}
-                  css="margin-top: 30px;"
+                  css="justify-self: center;margin-top: 30px;"
                   onClick={handlePay}
                 >
                   Pay
@@ -188,7 +184,7 @@ export const FixedWrapper: React.FC = () => {
                   You can participate: {moment(timer).fromNow()}
                 </Text>
               )}
-            </TweetContainer>
+            </Container>
           ) : null}
         </Card>
       </Modal>
