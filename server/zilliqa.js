@@ -78,9 +78,14 @@ module.exports = {
   async getAdmins() {
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
-    const { admins } = await contract.getSubState('admins');
 
-    return Object.keys(admins).map((address) => toChecksumAddress(address));
+    try {
+      const { admins } = await contract.getSubState('admins');
+
+      return Object.keys(admins).map((address) => toChecksumAddress(address));
+    } catch (err) {
+      return [];
+    }
   },
   async getInit() {
     const zilliqa = new Zilliqa(httpNode);
