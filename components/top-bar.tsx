@@ -8,7 +8,6 @@ import UserStore from 'store/user';
 
 import { Text } from 'components/text';
 import { Img } from 'components/img';
-import { MiniLoader } from 'components/min-loader';
 import { Dropdown } from 'components/dropdown';
 import ReactTooltip from 'react-tooltip';
 
@@ -25,6 +24,10 @@ const TopBarContainer = styled.header`
   grid-area: header;
 
   padding: 15px;
+
+  @media (max-width: 500px) {
+    justify-content: left;
+  }
 `;
 const ProfileContainer = styled.div`
   display: grid;
@@ -35,7 +38,6 @@ const ProfileContainer = styled.div`
 const ProfileImg = styled(Img)`
   border-radius: 50%;
 `;
-
 const ITEMS = [
   'Settings',
   'Sign Out'
@@ -92,9 +94,6 @@ export const TopBar: React.FC = () => {
         data-tip={userState.synchronization ? 'Syncing address' : 'Synchronized'}
         nowrap
       >
-        {userState.synchronization ? (
-          <MiniLoader />
-        ) : null}
         {trimAddress}
       </Text>
       <ProfileContainer>

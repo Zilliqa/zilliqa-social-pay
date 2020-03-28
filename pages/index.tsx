@@ -28,7 +28,8 @@ const MainPageContainer = styled.main`
 
   background: #7882f3;
   width: 100%;
-  height: 100vh;
+  height: 100%;
+  min-height: 100vh;
 `;
 const DashboardContainer = styled(Container)`
   display: flex;
