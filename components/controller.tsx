@@ -11,6 +11,7 @@ import { Text } from 'components/text';
 import { Search } from 'components/Input';
 import { Button } from 'components/button';
 import { AroundedContainer } from 'components/rounded-container';
+import { Img } from 'components/img';
 
 import {
   FontSize,
@@ -87,6 +88,11 @@ export const Controller: React.FC = () => {
 
     EventStore.setEvent(Events.Twitter);
   } , [searchValue, userState]);
+  const handleUpdateUser = React.useCallback(async () => {
+    EventStore.setEvent(Events.Load);
+    await UserStore.updateUserState(null);
+    EventStore.reset();
+  }, [UserStore]);
 
   return (
     <ControlContainer onSubmit={handleSearch}>
@@ -102,7 +108,11 @@ export const Controller: React.FC = () => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         fontColors={FontColors.white}
       >
-        Balance: {fromZil(userState.balance)} ZIL
+        Balance: {fromZil(userState.balance)} ZIL <Img
+          src="/icons/refresh.svg"
+          css="cursor: pointer;"
+          onClick={handleUpdateUser}
+        />
       </Text>
       <Text
         size={FontSize.sm}
