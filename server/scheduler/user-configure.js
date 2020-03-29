@@ -53,7 +53,7 @@ module.exports = async function() {
     try {
       debug('try to configureUser with profileID:', user.profileId);
       const tx = await zilliqa.configureUsers(user.profileId, user.zilAddress);
-      const userExist = await getonfigureUsers([user.profileId]);
+      const userExist = await zilliqa.getonfigureUsers([user.profileId]);
       let nextAction = 0;
 
       if (userExist) {

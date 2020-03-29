@@ -39,6 +39,8 @@ const DashboardContainer = styled(Container)`
   width: 100%;
   max-width: 900px;
   z-index: 1;
+
+  padding-top: 5%;
 `;
 const Illustration = styled(Img)`
   position: absolute;
