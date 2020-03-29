@@ -36,7 +36,8 @@ module.exports = async function() {
       },
       lastAction: {
         [Op.lte]: Number(blockchainInfo.BlockNum)
-      }
+      },
+      hash: null
     },
     limit: 3
   });
