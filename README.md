@@ -12,15 +12,30 @@ SocialPay is advertising platform, for each tweet with #zilliqa shoreham you can
  * CONTRACT_ADDRESS
 
 ## Run:
+Create database for only test or production mode.
+```bash
+$ npm run db:create
+# or
+$ npx sequelize db:create
+```
+
+Create all migrations:
+```bash
+$ npm run db:migrate
+# or
+$ npx sequelize db:migrate
+```
+More info on [sequelize/cli](https://github.com/sequelize/cli).
 
 Runing for dev mode.
 ```bash
-npm run dev
+$ npm run dev
 ```
 
-Runing for prod mode.
+Runing for production mode.
 ```bash
-npm run start
+$ npm run build
+$ npm run start
 ```
 
 ## setup database:

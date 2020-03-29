@@ -9,7 +9,6 @@
     "build": "next build",
     "start": "cross-env NODE_ENV=production npm run db:migrate && cross-env NODE_ENV=production npm run db:seed:all && cross-env NODE_ENV=production node ./server/index.js",
     "type-check": "tsc",
-    "scheduler": "cross-env DEBUG=zilliqa-social-pay:* node server/scheduler/index.js",
     "lint:ts": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
     "lint:ts:fix": "npm run lint:ts -- --fix",
     "precommit": "npm run lint:ts"
@@ -23,9 +22,7 @@
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
-      "last 3 safari version",
-      "iOS >= 6.0",
-      "Android >= 4.0"
+      "last 1 safari version"
     ]
   },
   "husky": {
