@@ -36,6 +36,8 @@ export function socket() {
 
     if (foundIndex < 0) {
       return null;
+    } else if (JSON.stringify(tweetsState.tweets[foundIndex]) === data) {
+      return null;
     }
 
     tweetsState.tweets[foundIndex] = tweet;
