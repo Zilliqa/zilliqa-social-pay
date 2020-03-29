@@ -100,6 +100,8 @@ export const FixedWrapper: React.FC = () => {
       jwt: userState.jwtToken
     });
 
+    NotificationManager.info('Syncing address...');
+
     if (result.message && result.message !== 'ConfiguredUserAddress') {
       setAddressErr(result.message);
 

@@ -16,9 +16,6 @@ import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
 import { FontSize, Fonts, FontColors } from 'config';
 import { viewTx } from 'utils/viewblock';
 
-const VerifiedContainer = styled.div`
-  margin-top: 30px;
-`;
 const HaventVerified = styled.div`
   display: flex;
   justify-content: space-around;
@@ -70,7 +67,7 @@ export const Verified: React.FC = () => {
   }, [twitterState]);
 
   return (
-    <VerifiedContainer>
+    <React.Fragment>
       <Container css={nonTweets}>
         <HaventVerified>
           <Text
@@ -125,6 +122,6 @@ export const Verified: React.FC = () => {
           />
         </TweetEmbedContainer>
       ))}
-    </VerifiedContainer>
+    </React.Fragment>
   );
 };

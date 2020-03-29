@@ -48,8 +48,6 @@ export const store = UserDomain.store<User>(initalState)
       ...user
     };
 
-    addressHasConfigured(user, state);
-
     storage.setItem(LocalStorageKeys.user, JSON.stringify(updated));
 
     return updated;

@@ -62,7 +62,7 @@ export const Controller: React.FC = () => {
       return null;
     }
 
-    const { value } = event.target;
+    let { value } = event.target;
 
     // If user pass tweet ID.
     if (!isNaN(Number(value))) {
@@ -70,6 +70,8 @@ export const Controller: React.FC = () => {
 
       return null;
     }
+
+    value = value.replace(/\?.*/gm, '');
 
     // Parse and search tweet ID.
     const foundTweetId = value

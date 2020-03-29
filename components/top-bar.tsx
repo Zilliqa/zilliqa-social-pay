@@ -99,7 +99,7 @@ export const TopBar: React.FC = () => {
         fontVariant={Fonts.AvenirNextLTProBold}
         fontColors={FontColors.white}
         css="width: 200px;display: flex;align-items: center;"
-        data-tip={userState.synchronization ? 'Changing address...' : 'Address configured.'}
+        data-tip={userState.synchronization ? 'Synchronization...' : 'Address configured.'}
         nowrap
       >
         {trimAddress}
