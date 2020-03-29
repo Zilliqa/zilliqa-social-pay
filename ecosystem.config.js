@@ -8,6 +8,7 @@ module.exports = {
       SESSION: "session",
       JWT_SECRET: "SECRET",
       TWITTER_CONSUMER_KEY: "",
+      NUMBER_OF_ADMINS: "10",
       TWITTER_CONSUMER_SECRET: "",
       CONTRACT_ADDRESS: ""
     }
