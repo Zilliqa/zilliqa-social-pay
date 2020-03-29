@@ -53,9 +53,16 @@ module.exports = async function() {
     try {
       debug('try to configureUser with profileID:', user.profileId);
       const tx = await zilliqa.configureUsers(user.profileId, user.zilAddress);
+      const userExist = await getonfigureUsers([user.profileId]);
+      let nextAction = 0;
+
+      if (userExist) {
+        nextAction = Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerWeek);
+      }
+
       await user.update({
         hash: tx.TranID,
-        lastAction: Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerWeek)
+        lastAction: nextAction
       });
       debug('User with profileID:', user.profileId, 'tx sent to shard.');
     } catch (err) {

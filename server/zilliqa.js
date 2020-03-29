@@ -42,6 +42,25 @@ if (!validation.isBech32(CONTRACT_ADDRESS)) {
 }
 
 module.exports = {
+  async getonfigureUsers(profileIds) {
+    const zilliqa = new Zilliqa(httpNode);
+    const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
+
+    try {
+      const result = await contract.getSubState(
+        'registered_users',
+        profileIds
+      );
+
+      if (result.registered_users) {
+        return result.registered_users;
+      }
+
+      return null;
+    } catch (err) {
+      return null;
+    }
+  },
   async getAccount() {
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
@@ -155,6 +174,7 @@ module.exports = {
         break;
     }
   },
+
   async blockchainInfo() {
     const zilliqa = new Zilliqa(httpNode);
     const { result } = await zilliqa.blockchain.getBlockChainInfo();
