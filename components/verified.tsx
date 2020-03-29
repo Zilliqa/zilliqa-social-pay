@@ -67,7 +67,7 @@ export const Verified: React.FC = () => {
   }, [twitterState]);
 
   return (
-    <React.Fragment>
+    <Container>
       <Container css={nonTweets}>
         <HaventVerified>
           <Text
@@ -122,6 +122,6 @@ export const Verified: React.FC = () => {
           />
         </TweetEmbedContainer>
       ))}
-    </React.Fragment>
+    </Container>
   );
 };
