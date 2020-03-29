@@ -19,11 +19,11 @@ const Admin = models.sequelize.models.Admin;
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const HTTP_PROVIDERS = {
-  mainnet: 'https://api.zilliqa.com',
+  mainnet: 'https://dev-api.zilliqa.com',//'https://api.zilliqa.com',
   testnet: 'https://dev-api.zilliqa.com'
 };
 const WS_PROVIDERS = {
-  mainnet: 'wss://api-ws.zilliqa.com',
+  mainnet: 'wss://dev-ws.zilliqa.com',//'wss://api-ws.zilliqa.com',
   testnet: 'wss://dev-ws.zilliqa.com'
 };
 const ENV = process.env.NODE_ENV;
