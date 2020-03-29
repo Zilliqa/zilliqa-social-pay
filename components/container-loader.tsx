@@ -7,6 +7,17 @@ type Prop = {
   css?: string;
 };
 
+/**
+ * Full screen container for loading.
+ * @prop css - Any css code.
+ * @prop show -Show or hidden component.
+ * @example
+ * import { ContainerLoader } from 'components/container-loader';
+ * import { FixedWrapper } from 'components/fixed-wrapper';
+ * <FixedWrapper>
+ *   <ContainerLoader />
+ * </FixedWrapper>
+ */
 export const ContainerLoader = styled.div`
   position: fixed;
   top: 0;

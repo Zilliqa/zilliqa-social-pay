@@ -9,6 +9,25 @@ type Prop = {
   css?: string;
 };
 
+/**
+ * Just service Button.
+ * @prop css - Any css code.
+ * @example
+ * import { Button } from 'components/button';
+ * import { ButtonVariants, SizeComponent, Fonts } from 'config';
+ * <Button
+ *   sizeVariant={SizeComponent.lg}
+ *   variant={ButtonVariants.outlet}
+ *   onClick={() => / When click do something... /}
+ * >
+ *   Button text.
+ * </Button>
+ * <Button
+ *   css="padding: 10px;"
+ * >
+ *   Button text.
+ * </Button>
+ */
 export const Button = styled.button`
   cursor: pointer;
 

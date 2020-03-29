@@ -50,6 +50,20 @@ type Prop = {
   onClick: (item: string) => void;
 };
 
+/**
+ * DropDown input component.
+ * @prop items - Any strings.
+ * @prop onClick - When user selected any items.
+ * @example
+ * import { Dropdown } from 'components/dropdown';
+ * const ITEMS = [ 'example1', 'example2' ];
+ * Dropdown
+ *   items={ITEMS}
+ *   onClick={() => / When user selected item do something... /}
+ *  >
+ *    Any value.
+ * </Dropdown>
+ */
 export const Dropdown: React.FC<Prop> = ({
   items,
   children,

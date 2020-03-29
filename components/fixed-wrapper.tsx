@@ -35,6 +35,9 @@ const SPINER_SIZE = 150;
 const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
 
+/**
+ * Container for modals and any componets with fixed postion.
+ */
 export const FixedWrapper: React.FC = () => {
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
 
@@ -44,11 +47,17 @@ export const FixedWrapper: React.FC = () => {
   const blockchainState = Effector.useStore(BlockchainStore.store);
   // Effector hooks //
 
-  // React hooks //
+  // React hooks //*
+  // State for address error handle.
   const [addressErr, setAddressErr] = React.useState<string | null>(null);
+  // State for Zilliqa address in bech32 (zil1) format.
   const [address, setAddress] = React.useState<string>(userState.zilAddress);
+  // State for check is tablet or mobile width.
   const [twitterWidth] = React.useState(isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT);
 
+  /**
+   * Validation lastAction for user and current block.
+   */
   const canCallAction = React.useMemo(() => {
     if (Number(userState.lastAction) > Number(blockchainState.BlockNum)) {
       return false;
@@ -56,11 +65,18 @@ export const FixedWrapper: React.FC = () => {
 
     return true;
   }, [userState, blockchainState]);
+  /**
+   * Calculate the time for next action.
+   */
   const timer = React.useMemo(
     () => timerCalc(blockchainState, userState),
     [blockchainState, userState]
   );
 
+  /**
+   * Handle submit (Zilliqa address) form.
+   * @param event HTMLForm event.
+   */
   const handleAddressChange = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -78,6 +94,7 @@ export const FixedWrapper: React.FC = () => {
       return null;
     }
 
+    // Send to server for validation and update address.
     const result = await UserStore.updateAddress({
       address,
       jwt: userState.jwtToken
@@ -91,6 +108,10 @@ export const FixedWrapper: React.FC = () => {
 
     EventStore.reset();
   }, [address, validation, setAddressErr, addressErr]);
+  /**
+   * Handle input address for Input component.
+   * @param event HTMLInput event.
+   */
   const handleChangeAddress = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
 
@@ -102,7 +123,9 @@ export const FixedWrapper: React.FC = () => {
 
     setAddress(value);
   }, [setAddressErr, setAddress]);
-
+  /**
+   * Handle send tweet to server for validation and verification.
+   */
   const handlePay = React.useCallback(async () => {
     EventStore.setEvent(Events.Load);
     const result = await addTweet(userState.jwtToken, eventState.content);
@@ -135,7 +158,7 @@ export const FixedWrapper: React.FC = () => {
               fontColors={FontColors.white}
               size={FontSize.sm}
             >
-              You can participate: {moment(timer).fromNow()}
+              You can change address: {moment(timer).fromNow()}
             </Text>
           ) : null}
           <form onSubmit={handleAddressChange}>

@@ -56,6 +56,18 @@ type Prop = {
   onBlur: () => void;
 };
 
+/**
+ * Modal container component.
+ * @prop show - Show or hidden component.
+ * @prop onBlur - Event when user click outside.
+ * @example
+ * import { Modal } from 'components/modal';
+ * const isShow = true;
+ * <Modal
+ *   show={isShow}
+ *   onBlur={() => / do something... /}
+ * >
+ */
 export const Modal: React.FC<Prop> = ({
   children,
   show,

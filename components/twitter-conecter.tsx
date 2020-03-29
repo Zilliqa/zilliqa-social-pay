@@ -30,6 +30,10 @@ type Prop = {
   show?: boolean;
 };
 
+/**
+ * Form for oauth with twitter.
+ * @prop show - Show or hidden component.
+ */
 export const TwitterConnect: React.FC<Prop> = ({ show }) => {
   const handleSuccess = React.useCallback(async (res: any) => {
     const userData = await res.json();

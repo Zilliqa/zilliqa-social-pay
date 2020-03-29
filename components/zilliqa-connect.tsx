@@ -26,12 +26,22 @@ type Prop = {
   show?: boolean;
 };
 
+/**
+ * Use for validation and send to server your Zilliqa address.
+ * @prop show - Show or hidden component.
+ */
 export const ZilliqaConnect: React.FC<Prop> = ({ show }) => {
   const userState = Effector.useStore(UserStore.store);
 
+  // State for error handlers.
   const [addressErr, setAddressErr] = React.useState<string | null | undefined>(null);
+  // State for address in bech32 (zil1).
   const [address, setAddress] = React.useState<string | null>(null);
 
+  /**
+   * Handle when address has been changed.
+   * @param event - HTMLInput event.
+   */
   const handleAddressChange = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     setAddressErr(null);
 
@@ -41,6 +51,10 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show }) => {
 
     setAddress(event.target.value);
   }, [validation, setAddressErr, addressErr]);
+  /**
+   * Handle form submited and send to server.
+   * @param event - HTMLForm event.
+   */
   const handleAddAddress = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 

@@ -34,6 +34,9 @@ const TweetEmbedContainer = styled.div`
 const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
 
+/**
+ * Show user tweets.
+ */
 export const Verified: React.FC = () => {
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
 
@@ -41,6 +44,9 @@ export const Verified: React.FC = () => {
   const twitterState = Effector.useStore(TwitterStore.store);
   const blockchainState = Effector.useStore(BlockchainStore.store);
 
+  /**
+   * Hash tag from smart contract.
+   */
   const hashTag = React.useMemo(() => {
     if (!blockchainState.hashtag) {
       return '';
@@ -52,6 +58,9 @@ export const Verified: React.FC = () => {
 
     return splited.join('');
   }, [blockchainState]);
+  /**
+   * If user have not any tweets.
+   */
   const nonTweets = React.useMemo(() => {
     if (!twitterState.tweets || twitterState.tweets.length === 0) {
       return 'display: block;';

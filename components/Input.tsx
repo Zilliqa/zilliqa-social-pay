@@ -10,6 +10,17 @@ type Prop = {
   css?: string;
 };
 
+/**
+ * Input css component.
+ * @example
+ * import { Input } from 'components/Input';
+ * import { SizeComponent, ButtonVariants } from 'config';
+ * <Input
+ *   sizeVariant={SizeComponent.md}
+ *   variants={ButtonVariants.primary}
+ *   css="font-size: 15px;width: 300px;"
+ * />
+ */
 export const Input = styled.input`
   font-family: ${(props: Prop) => props.fontVariant};
   text-align: inherit;
@@ -66,6 +77,9 @@ export const InputError = styled.div`
   font-size: 15px;
   margin-top: 5px;
 `;
+/**
+ * Search input css component with search icon.
+ */
 export const Search = styled(Input)`
   background: #5C63EF url(/icons/search-icon.svg) no-repeat 9px center;
   text-align: center;
@@ -78,6 +92,23 @@ type FieldProp = {
   title?: string;
 } & Prop & any & React.HTMLProps<HTMLInputElement>;
 
+/**
+ * FieldInput component with the title and error msg.
+ * @prop error - Any error string.
+ * @prop title - Any title string.
+ * @example
+ * import { FieldInput } from 'components/Input';
+ * import { SizeComponent, ButtonVariants } from 'config';
+ * const err = null;
+ * const value = 'example';
+ * <FieldInput
+ *   defaultValue={value}
+ *   sizeVariant={SizeComponent.md}
+ *   variants={ButtonVariants.primary}
+ *   error={err}
+ *   css="width: 100px;"
+ * />
+ */
 export const FieldInput: React.FC<FieldProp> = ({
   error,
   title,

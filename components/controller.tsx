@@ -30,17 +30,32 @@ const ControlContainer = styled(AroundedContainer)`
   align-items: flex-start;
 `;
 
+/**
+ * Controller is component show information about
+ * contract, blockchain, user account.
+ * @example
+ * import { Controller } from 'components/controller';
+ * <Controller />
+ */
 export const Controller: React.FC = () => {
   const blockchainState = Effector.useStore(BlockchainStore.store);
   const userState = Effector.useStore(UserStore.store);
 
+  // Search value.
   const [searchValue, setSearchValue] = React.useState<string | null>(null);
 
+  /**
+   * Calculate the time for next action.
+   */
   const timer = React.useMemo(
     () => timerCalc(blockchainState, userState),
     [blockchainState, userState]
   );
 
+  /**
+   * Validation and parse tweet url or ID, before send to server and blockchain.
+   * @param event - HTMLInput event.
+   */
   const handleInput = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.value) {
       setSearchValue(null);
@@ -49,12 +64,14 @@ export const Controller: React.FC = () => {
 
     const { value } = event.target;
 
+    // If user pass tweet ID.
     if (!isNaN(Number(value))) {
       setSearchValue(value);
 
       return null;
     }
 
+    // Parse and search tweet ID.
     const foundTweetId = value
       .split('/')
       .filter(Boolean)
@@ -64,8 +81,13 @@ export const Controller: React.FC = () => {
       return null;
     }
 
+    // If value is valid than update `searchValue` state.
     setSearchValue(foundTweetId);
   }, [setSearchValue, searchValue]);
+  /**
+   * Handle when form has been submited and send tweet ID to server.
+   * @param event - HTMLForm event.
+   */
   const handleSearch = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -74,13 +96,17 @@ export const Controller: React.FC = () => {
     }
 
     EventStore.setEvent(Events.Load);
+    // Send to server tweet ID (`searchValue`).
     const tweet = await SearchTweet(
       searchValue,
       userState.jwtToken
     );
     EventStore.reset();
+
+    // Show result from server.
     EventStore.setContent(tweet);
 
+    // If server responsed error.
     if (tweet.message) {
       EventStore.setEvent(Events.Error);
       return null;
@@ -88,6 +114,10 @@ export const Controller: React.FC = () => {
 
     EventStore.setEvent(Events.Twitter);
   } , [searchValue, userState]);
+  /**
+   * Handle click to reload icon.
+   * Just update user information.
+   */
   const handleUpdateUser = React.useCallback(async () => {
     EventStore.setEvent(Events.Load);
     await UserStore.updateUserState(null);

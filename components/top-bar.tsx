@@ -47,6 +47,9 @@ const TOOLTIP_TYPES = {
   warning: 'warning'
 };
 
+/**
+ * Top bar, show user information as twitter account and Zilliqa address.
+ */
 export const TopBar: React.FC = () => {
   // Next hooks //
   const router = useRouter();
@@ -54,6 +57,9 @@ export const TopBar: React.FC = () => {
 
   const userState = Effector.useStore(UserStore.store);
 
+  /***
+   * Triming bech32 address.
+   */
   const trimAddress = React.useMemo(() => {
     if (!userState.zilAddress || userState.zilAddress.length < 1) {
       return '';
@@ -67,7 +73,9 @@ export const TopBar: React.FC = () => {
 
     return `${address.slice(_zero, _nine)}...${address.slice(_len - _five)}`;
   }, [userState]);
-
+  /**
+   * Handle click to Dropdown item.
+   */
   const handleClick = React.useCallback((event: string) => {
     switch (event) {
       case ITEMS[0]:

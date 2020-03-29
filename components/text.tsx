@@ -12,6 +12,19 @@ type Prop = {
   css?: string;
 };
 
+/**
+ * Text css container for any strings.
+ * @example
+ * import { Text } from 'components/text';
+ * import { FontSize, Fonts, FontColors } from 'config';
+ * <Text
+ *   size={FontSize.sm}
+ *   fontVariant={Fonts.AvenirNextLTProDemi}
+ *   fontColors={FontColors.white}
+ * >
+ *   Any text
+ * </Text>
+ */
 export const Text = styled.div`
   font-family: ${(props: Prop) => props.fontVariant};
   font-size: ${(props: Prop) => props.size};

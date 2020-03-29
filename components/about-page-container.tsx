@@ -4,6 +4,18 @@ import { Container } from 'components/container';
 import { Img } from 'components/img';
 import { Text } from 'components/text';
 
+/**
+ * Just css container for About pages.
+ * @prop css - Any css code.
+ * @example
+ * import { AboutContainer } from 'components/about-page-container';
+ * <AboutContainer>
+ *   Any content.
+ * </AboutContainer>
+ * <AboutContainer css="width: 30px;">
+ *   Any content.
+ * </AboutContainer>
+ */
 export const AboutContainer = styled(Container)`
   display: flex;
   align-items: center;
@@ -20,6 +32,18 @@ export const AboutContainer = styled(Container)`
     align-items: unset;
   }
 `;
+/**
+ * Just css container for About page info and any texts.
+ * @prop css - Any css code.
+ * @example
+ * import { InfoContainer } from 'components/about-page-container';
+ * <InfoContainer>
+ *   Any content.
+ * </InfoContainer>
+ * <InfoContainer css="font-size: 5.5rem;">
+ *   Any content.
+ * </InfoContainer>
+ */
 export const InfoContainer = styled.div`
   width: 100%;
   max-width: 390px;
@@ -29,6 +53,15 @@ export const InfoContainer = styled.div`
   z-index: 2;
 `;
 
+/**
+ * Zilliqa logo with default src='/icons/zilliqa-logo.svg';
+ * @prop css - Any css code.
+ * @example
+ * import { ZilliqaLogo } from 'components/about-page-container';
+ * <ZilliqaLogo />
+ * <ZilliqaLogo css="height: 10px;"/>
+ * <ZilliqaLogo src="/overridden/img.png"/>
+ */
 export const ZilliqaLogo = styled(Img)`
   position: fixed;
   top: 0px;
@@ -41,7 +74,13 @@ export const ZilliqaLogo = styled(Img)`
     height: 60px;
   }
 `;
-
+/**
+ * Illustration for about page.
+ * @prop css - Any css code.
+ * @example
+ * import { Illustration } from 'components/about-page-container';
+ * <Illustration src={`/imgs/illustration-1.${browserState.format}`}/>
+ */
 export const Illustration = styled(Img)`
   width: 40vw;
   height: 40vw;
@@ -51,7 +90,17 @@ export const Illustration = styled(Img)`
     height: 80vw;
   }
 `;
-
+/**
+ * Title container for InfoContainer.
+ * @prop css - Any css code.
+ * @example
+ * import { TitleText, InfoContainer } from 'components/about-page-container';
+ * <InfoContainer>
+ *   <TitleText>
+ *     This is title.
+ *   </TitleText>
+ * </InfoContainer>
+ */
 export const TitleText = styled(Text)`
   font-size: 40px;
 
@@ -60,6 +109,17 @@ export const TitleText = styled(Text)`
     font-size: 30px;
   }
 `;
+/**
+ *  Description container for InfoContainer.
+ * @prop css - Any css code.
+ * @example
+ * import { DescriptionText, InfoContainer } from 'components/about-page-container';
+ * <InfoContainer>
+ *   <DescriptionText>
+ *     This is any description.
+ *   </DescriptionText>
+ * </InfoContainer>
+ */
 export const DescriptionText = styled(Text)`
   @media (max-width: 650px) {
     text-align: center;

@@ -240,7 +240,7 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
       });
     } else if (foundTwittes) {
       return res.status(400).json({
-        message: 'Such tweet already exist.'
+        message: 'Tweet already exists.'
       });
     }
 

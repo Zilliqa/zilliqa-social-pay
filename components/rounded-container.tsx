@@ -1,5 +1,8 @@
 import styled from 'styled-components';
 
+/**
+ * Around component for any content.
+ */
 export const AroundedContainer = styled.form`
   display: flex;
   justify-content: space-around;

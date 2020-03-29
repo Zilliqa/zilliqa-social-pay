@@ -5,6 +5,15 @@ import { Text } from 'components/text';
 
 import { Fonts, FontSize, FontColors } from 'config';
 
+/**
+ * Around css Container for card component.
+ * @prop css - Any css code.
+ * @example
+ * import { CardContainer } from 'components/card';
+ * <CardContainer>
+ *   any content.
+ * </CardContainer>
+ */
 export const CardContainer = styled.div`
   border: 1px solid #5c63ef;
   padding: 0 .5rem 0;
@@ -21,6 +30,16 @@ type Prop = {
   css?: string;
 };
 
+/**
+ * Card component.
+ * @prop title Card title, show on top, left position.
+ * @prop css - Any css code.
+ * @example
+ * import { Card } from 'components/card';
+ * <Card title="example title">
+ *   Any content.
+ * </Card>
+ */
 export const Card: React.FC<Prop> = ({
   title,
   children,
