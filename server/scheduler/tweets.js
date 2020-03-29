@@ -86,7 +86,7 @@ module.exports = async function() {
         startPos: startIndex
       });
       await user.update({
-        lastAction: Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerWeek)
+        lastAction: Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay)
       });
       await tweet.update({ txId: tx.TranID });
       debug('Tweet with ID:', tweet.idStr, 'sent to shard for verify.');
