@@ -28,7 +28,7 @@ import {
   FontSize,
   Fonts
 } from 'config';
-import { timerCalcWeek } from 'utils/timer';
+import { timerCalcWeek, timerCalcDay } from 'utils/timer';
 import { addTweet } from 'utils/update-tweets';
 
 const SPINER_SIZE = 150;
@@ -70,6 +70,10 @@ export const FixedWrapper: React.FC = () => {
    */
   const timer = React.useMemo(
     () => timerCalcWeek(blockchainState, userState),
+    [blockchainState, userState]
+  );
+  const timerDatay = React.useMemo(
+    () => timerCalcDay(blockchainState, userState),
     [blockchainState, userState]
   );
 
@@ -220,7 +224,7 @@ export const FixedWrapper: React.FC = () => {
                   fontVariant={Fonts.AvenirNextLTProDemi}
                   fontColors={FontColors.white}
                 >
-                  You can participate: {moment(timer).fromNow()}
+                  You can participate: {moment(timerDatay).fromNow()}
                 </Text>
               )}
             </Container>

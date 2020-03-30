@@ -26,12 +26,11 @@ export function socket() {
     const user = JSON.parse(data);
 
     if (user.profileId === userSate.profileId && JSON.stringify(userSate) !== data) {
+      UserStore.setUser(user);
 
       if (!user.synchronization && userSate.synchronization) {
         NotificationManager.success('Address configured');
       }
-
-      UserStore.setUser(user);
     }
   });
   socketConnector.on(EVENTS.tweetsUpdate, (data: string) => {
