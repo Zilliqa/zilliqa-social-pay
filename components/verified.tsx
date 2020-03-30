@@ -46,7 +46,7 @@ export const Verified: React.FC = () => {
    */
   const hashTag = React.useMemo(() => {
     if (!blockchainState.hashtag) {
-      return '';
+      return null;
     }
 
     const splited = blockchainState.hashtag.split('');
@@ -78,13 +78,13 @@ export const Verified: React.FC = () => {
           >
             You have no verified tweets.
           </Text>
-          <TwitterHashtagButton
+          {hashTag ? <TwitterHashtagButton
             tag={hashTag}
             options={{
               size: 'large',
               screenName: userState.screenName
             }}
-          />
+          /> : null}
         </HaventVerified>
       </Container>
       {twitterState.tweets.map((tweet, index) => (

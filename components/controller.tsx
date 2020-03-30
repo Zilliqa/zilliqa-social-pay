@@ -168,7 +168,7 @@ export const Controller: React.FC = () => {
         placeholder="Paste your Tweet link here"
         onChange={handleInput}
       />
-      {timerDay === 0 ? (
+      {timerDay === 0 && !userState.synchronization ? (
         <Button
           sizeVariant={SizeComponent.lg}
           disabled={Boolean(!searchValue)}
@@ -176,6 +176,14 @@ export const Controller: React.FC = () => {
         >
           Search Tweet
         </Button>
+      ) : userState.synchronization ? (
+        <Text
+          size={FontSize.sm}
+          fontVariant={Fonts.AvenirNextLTProDemi}
+          fontColors={FontColors.white}
+        >
+          Waiting for address to sync...
+        </Text>
       ) : (
         <Text
           size={FontSize.sm}

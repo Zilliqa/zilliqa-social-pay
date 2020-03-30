@@ -170,7 +170,7 @@ export const FixedWrapper: React.FC = () => {
         onBlur={() => EventStore.reset()}
       >
         <Card title="Settings">
-          {timerPerWeeks !== 0 ? (
+          {timerPerWeeks !== 0 && !userState.synchronization ? (
             <Text
               fontColors={FontColors.white}
               size={FontSize.sm}
@@ -183,7 +183,7 @@ export const FixedWrapper: React.FC = () => {
               fontColors={FontColors.white}
               size={FontSize.sm}
             >
-              Syncing address...
+              Waiting for address to sync...
             </Text>
           ) : null}
           <form onSubmit={handleAddressChange}>

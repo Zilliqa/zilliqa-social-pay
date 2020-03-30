@@ -43,7 +43,7 @@ export interface Twitte {
 export interface Contract {
   contract: string;
   owner: string;
-  hashtag: string;
+  hashtag: string | null;
   zilsPerTweet: string;
   blocksPerDay: string;
   blocksPerWeek: string;
