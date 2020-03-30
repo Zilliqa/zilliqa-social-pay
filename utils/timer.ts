@@ -27,7 +27,11 @@ export function timerCalcWeek(
   userState: User
 ) {
   const currentBlock = Number(blockchainState.BlockNum);
-  const nextBlockToAction = Number(userState.lastAction);
+  let nextBlockToAction = Number(userState.lastAction);
+
+  if (nextBlockToAction === 0 && userState.actionName === 'ConfigureUsers') {
+    nextBlockToAction = currentBlock + Number(blockchainState.blocksPerWeek);
+  }
 
   if (currentBlock >= nextBlockToAction) {
     return 0;
