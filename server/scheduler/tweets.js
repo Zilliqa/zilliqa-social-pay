@@ -9,7 +9,6 @@ const Twittes = models.sequelize.models.Twittes;
 const Blockchain = models.sequelize.models.blockchain;
 const User = models.sequelize.models.User;
 const Admin = models.sequelize.models.Admin;
-const actions = new User().actions;
 
 function getPos(text, hashtag) {
   text = encodeURI(text.toLowerCase());
@@ -36,9 +35,10 @@ module.exports = async function() {
 
   debug('Free admin addresses:', freeAdmins);
 
-  if (freeAdmins === 0) {
+  if (freeAdmins === 0 || freeAdmins < 3) {
     return null;
   }
+
   const blockchainInfo = await Blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
@@ -62,7 +62,7 @@ module.exports = async function() {
       'id',
       'profileId'
     ],
-    limit: freeAdmins
+    limit: 3
   });
 
   debug('Need update tweet for', usersTweets.count, 'users.');
