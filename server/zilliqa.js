@@ -61,6 +61,33 @@ module.exports = {
       return null;
     }
   },
+  async getlastWithdrawl(addresses) {
+    const zilliqa = new Zilliqa(httpNode);
+    const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
+  
+    addresses = addresses.map((address) => {
+      if (validation.isBech32(address)) {
+        return fromBech32Address(address).toLowerCase()
+      }
+  
+      return toChecksumAddress(address).toLowerCase();
+    });
+  
+    try {
+      const result = await contract.getSubState(
+        'last_withdrawal',
+        addresses
+      );
+  
+      if (result.last_withdrawal) {
+        return result.last_withdrawal
+      }
+  
+      return result
+    } catch (err) {
+      return null;
+    }
+  },
   async getAccount() {
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
@@ -174,7 +201,6 @@ module.exports = {
         break;
     }
   },
-
   async blockchainInfo() {
     const zilliqa = new Zilliqa(httpNode);
     const { result } = await zilliqa.blockchain.getBlockChainInfo();

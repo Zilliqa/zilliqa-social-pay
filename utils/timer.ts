@@ -1,6 +1,31 @@
 import { Blockchain, User } from 'interfaces';
 
-export function timerCalc(blockchainState: Blockchain, userState: User) {
+export function timerCalcDay(
+  blockchainState: Blockchain,
+  userState: User
+) {
+  const currentBlock = Number(blockchainState.BlockNum);
+  let nextBlockToAction = Number(userState.lastAction);
+
+  if (userState.actionName === 'ConfigureUsers') {
+    nextBlockToAction -= Number(blockchainState.blocksPerWeek);
+  }
+
+  if (currentBlock >= nextBlockToAction) {
+    return 0;
+  }
+
+  const ratePerBlock = new Date(Number(blockchainState.rate)).valueOf();
+  const amoutBlocks = nextBlockToAction - currentBlock;
+  const currentTimer = new Date(amoutBlocks * ratePerBlock).valueOf();
+
+  return new Date().valueOf() + currentTimer;
+}
+
+export function timerCalcWeek(
+  blockchainState: Blockchain,
+  userState: User
+) {
   const currentBlock = Number(blockchainState.BlockNum);
   const nextBlockToAction = Number(userState.lastAction);
 

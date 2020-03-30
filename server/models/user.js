@@ -5,6 +5,10 @@ const statuses = {
   baned: 'baned',
   enabled: 'enabled'
 };
+const actions = {
+  configureUsers: 'ConfigureUsers',
+  verifyTweet: 'VerifyTweet'
+};
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     username: DataTypes.STRING,
@@ -31,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       defaultValue: 0
     },
+    actionName: {
+      type: DataTypes.ENUM(actions.configureUsers, actions.verifyTweet),
+      allowNull: true
+    },
     status: {
       type: DataTypes.ENUM(statuses.baned, statuses.enabled),
       allowNull: false,
@@ -42,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {});
   User.prototype.statuses = statuses;
+  User.prototype.actions = actions;
   User.prototype.sign = function () {
     const payload = {
       id: this.id,

@@ -28,6 +28,11 @@ module.exports = {
       txId: {
         type: Sequelize.STRING
       },
+      block: {
+        type: Sequelize.BIGINT,
+        allowNull: true,
+        defaultValue: 0
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

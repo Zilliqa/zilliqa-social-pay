@@ -7,6 +7,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const User = models.sequelize.models.User;
 const Admin = models.sequelize.models.Admin;
 const Blockchain = models.sequelize.models.blockchain;
+const actions = new User().actions;
 
 module.exports = async function() {
   const statuses = new Admin().statuses;
@@ -63,7 +64,8 @@ module.exports = async function() {
 
       await user.update({
         hash: tx.TranID,
-        lastAction: nextAction
+        lastAction: nextAction,
+        actionName: actions.configureUsers
       });
       debug('User with profileID:', user.profileId, 'tx sent to shard.');
     } catch (err) {

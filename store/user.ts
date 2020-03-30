@@ -1,6 +1,4 @@
 import { createDomain } from 'effector';
-import { NotificationManager } from 'react-notifications';
-import { validation } from '@zilliqa-js/util';
 
 import { User, FetchUpdateAddress } from 'interfaces';
 import { LocalStorageKeys } from 'config';
@@ -16,16 +14,6 @@ export const updateUserState = UserDomain.effect<null, User, Error>();
 
 updateAddress.use(fetchUpdateAddress);
 updateUserState.use(fetchUserData);
-
-const addressHasConfigured = (user: User, state: User) => {
-  try {
-    if (validation.isBech32(user.zilAddress) && (state.synchronization !== user.synchronization)) {
-      NotificationManager.success('Your Zilliqa Address has been configured!');
-    }
-  } catch (err) {
-    // Skip
-  }
-};
 
 const initalState: User = {
   username: '',
@@ -93,8 +81,6 @@ export const store = UserDomain.store<User>(initalState)
       ...state,
       ...result
     };
-
-    addressHasConfigured(result, state);
 
     storage.setItem(LocalStorageKeys.user, JSON.stringify(updated));
 

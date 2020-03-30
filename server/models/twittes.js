@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     txId: {
       type: DataTypes.STRING
+    },
+    block: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      defaultValue: 0
     }
   }, {});
   Twittes.associate = function(models) {

@@ -21,7 +21,7 @@ import {
   FontColors
 } from 'config';
 import { fromZil } from 'utils/from-zil';
-import { timerCalc } from 'utils/timer';
+import { timerCalcDay } from 'utils/timer';
 import { SearchTweet } from 'utils/get-tweets';
 
 const ControlContainer = styled(AroundedContainer)`
@@ -48,7 +48,7 @@ export const Controller: React.FC = () => {
    * Calculate the time for next action.
    */
   const timer = React.useMemo(
-    () => timerCalc(blockchainState, userState),
+    () => timerCalcDay(blockchainState, userState),
     [blockchainState, userState]
   );
 

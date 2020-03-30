@@ -25,7 +25,12 @@ export function socket() {
   socketConnector.on(EVENTS.userUpdated, (data: string) => {
     const user = JSON.parse(data);
 
-    if (user.profileId === userSate.profileId) {
+    if (user.profileId === userSate.profileId && JSON.stringify(userSate) !== data) {
+
+      if (user.synchronization && !userSate.synchronization && user.actionName === 'ConfigureUsers') {
+        NotificationManager.success('Address configured');
+      }
+
       UserStore.setUser(user);
     }
   });

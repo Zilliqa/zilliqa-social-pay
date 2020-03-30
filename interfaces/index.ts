@@ -19,6 +19,7 @@ export interface User {
   lastAction: string;
   synchronization: boolean;
   updated: boolean;
+  actionName?: string;
 }
 
 export interface FetchUpdateAddress {
@@ -33,6 +34,7 @@ export interface Twitte {
   approved: boolean;
   rejected: boolean;
   txId: string;
+  block?: string | number;
   createdAt: string;
   updatedAt: string;
 }

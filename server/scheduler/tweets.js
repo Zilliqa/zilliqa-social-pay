@@ -9,6 +9,7 @@ const Twittes = models.sequelize.models.Twittes;
 const Blockchain = models.sequelize.models.blockchain;
 const User = models.sequelize.models.User;
 const Admin = models.sequelize.models.Admin;
+const actions = new User().actions;
 
 function getPos(text, hashtag) {
   text = encodeURI(text.toLowerCase());
@@ -86,7 +87,8 @@ module.exports = async function() {
         startPos: startIndex
       });
       await user.update({
-        lastAction: Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay)
+        lastAction: Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay),
+        actionName: actions.verifyTweet
       });
       await tweet.update({ txId: tx.TranID });
       debug('Tweet with ID:', tweet.idStr, 'sent to shard for verify.');

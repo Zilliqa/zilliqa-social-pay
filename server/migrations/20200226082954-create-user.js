@@ -3,6 +3,10 @@ const statuses = {
   baned: 'baned',
   enabled: 'enabled'
 };
+const actions = {
+  configureUsers: 'ConfigureUsers',
+  verifyTweet: 'VerifyTweet'
+};
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Users', {
@@ -50,6 +54,10 @@ module.exports = {
         type: Sequelize.ENUM(statuses.baned, statuses.enabled),
         allowNull: false,
         defaultValue: statuses.enabled
+      },
+      actionName: {
+        type: Sequelize.ENUM(actions.configureUsers, actions.verifyTweet),
+        allowNull: true
       },
       synchronization: {
         type: Sequelize.BOOLEAN,

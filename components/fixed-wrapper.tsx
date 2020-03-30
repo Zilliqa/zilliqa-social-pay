@@ -28,7 +28,7 @@ import {
   FontSize,
   Fonts
 } from 'config';
-import { timerCalc } from 'utils/timer';
+import { timerCalcWeek } from 'utils/timer';
 import { addTweet } from 'utils/update-tweets';
 
 const SPINER_SIZE = 150;
@@ -69,7 +69,7 @@ export const FixedWrapper: React.FC = () => {
    * Calculate the time for next action.
    */
   const timer = React.useMemo(
-    () => timerCalc(blockchainState, userState),
+    () => timerCalcWeek(blockchainState, userState),
     [blockchainState, userState]
   );
 
@@ -163,12 +163,20 @@ export const FixedWrapper: React.FC = () => {
               You can change address: {moment(timer).fromNow()}
             </Text>
           ) : null}
+          {userState.synchronization ? (
+            <Text
+              fontColors={FontColors.white}
+              size={FontSize.sm}
+            >
+              Syncing address...
+            </Text>
+          ) : null}
           <form onSubmit={handleAddressChange}>
             <FieldInput
               defaultValue={address}
               sizeVariant={SizeComponent.md}
               error={addressErr}
-              disabled={!canCallAction}
+              disabled={!canCallAction || userState.synchronization}
               css="font-size: 15px;width: 300px;"
               onChange={handleChangeAddress}
             />

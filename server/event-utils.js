@@ -5,7 +5,10 @@ const { toChecksumAddress, toBech32Address } = require('@zilliqa-js/crypto');
 const Admin = models.sequelize.models.Admin;
 const User = models.sequelize.models.User;
 const Twittes = models.sequelize.models.Twittes;
+const Blockchain = models.sequelize.models.blockchain;
 const statuses = new Admin().statuses;
+const actions = new User().actions;
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 
 module.exports = {
   events: {
@@ -97,7 +100,8 @@ module.exports = {
     });
 
     await user.update({
-      synchronization: false
+      synchronization: false,
+      actionName: actions.configureUsers
     });
 
     return twitterId;
@@ -112,12 +116,23 @@ module.exports = {
     }
 
     const foundTweet = await Twittes.findOne({
-      where: { idStr }
+      where: { idStr },
+      include: {
+        model: User
+      }
+    });
+    const blockchainInfo = await Blockchain.findOne({
+      where: { contract: CONTRACT_ADDRESS }
     });
 
     await foundTweet.update({
       approved: true,
-      rejected: false
+      rejected: false,
+      block: Number(blockchainInfo.BlockNum)
+    });
+    await foundTweet.User.update({
+      actionName: actions.configureUsers,
+      lastAction: Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay)
     });
 
     return idStr;

@@ -52,17 +52,17 @@ const Illustration = styled(Img)`
   z-index: 0;
 `;
 
-async function updater() {
+const updater = async () => {
   const messageError = 'Unauthorized';
   const user = await UserStore.updateUserState(null);
 
-  if (user.message && user.message === messageError) {
+  if (user && user.message && user.message === messageError) {
     throw new Error(messageError);
   }
 
   const blockchain = await BlockchainStore.updateBlockchain(null);
 
-  if (blockchain.message && blockchain.message === messageError) {
+  if (blockchain && blockchain.message && blockchain.message === messageError) {
     throw new Error(messageError);
   }
 
@@ -71,7 +71,7 @@ async function updater() {
   if (tweets.message && tweets.message === messageError) {
     throw new Error(messageError);
   }
-}
+};
 
 export const MainPage: NextPage<PageProp> = () => {
   const router = useRouter();
@@ -90,7 +90,7 @@ export const MainPage: NextPage<PageProp> = () => {
       updater()
         .then(() => {
           socket();
-          EventStore.reset()
+          EventStore.reset();
         })
         .catch(() => {
           EventStore.reset();
