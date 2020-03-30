@@ -42,43 +42,37 @@ module.exports = async function() {
   const blockchainInfo = await Blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
-  const usersTweets = await User.findAndCountAll({
+  const tweets = await Twittes.findAndCountAll({
     where: {
-      synchronization: false,
-      zilAddress: {
-        [Op.not]: null
-      }
+      approved: false,
+      rejected: false,
+      txId: null
     },
     include: {
-      model: Twittes,
+      model: User,
       where: {
-        approved: false,
-        rejected: false,
-        txId: null
-      },
-      limit: 1
+        synchronization: false,
+        zilAddress: {
+          [Op.not]: null
+        }
+      }
     },
-    attributes: [
-      'id',
-      'profileId'
-    ],
-    limit: 3
+    limit: freeAdmins
   });
 
-  debug('Need update tweet for', usersTweets.count, 'users.');
+  debug('Need update tweet', tweets.count);
 
-  usersTweets.rows.forEach(async (user) => {
-    const tweet = user.Twittes[0];
+  tweets.rows.forEach(async (tweet) => {
+    if (!tweet.User) {
+      debug('Tweet with id', tweet.idStr, 'skiped');
 
-    if (!tweet) {
-      debug('User have not any tweets');
       return null;
     }
 
     try {
       const { text, startIndex } = getPos(tweet.text, blockchainInfo.hashtag);
       const tx = await zilliqa.verifyTweet({
-        profileId: user.profileId,
+        profileId: tweet.User.profileId,
         tweetId: tweet.idStr,
         tweetText: text,
         startPos: startIndex
@@ -87,13 +81,8 @@ module.exports = async function() {
         txId: tx.TranID,
         block: Number(blockchainInfo.BlockNum)
       });
-      debug('Tweet with ID:', tweet.idStr, 'sent to shard for verify.');
+      debug('Tweet with ID', tweet.idStr, 'sent to shard.');
     } catch (err) {
-      await tweet.update({
-        txId: null,
-        approved: false,
-        rejected: false
-      });
       debug('tweet:', tweet.idStr, 'has not verifed error:', err);
     }
   });

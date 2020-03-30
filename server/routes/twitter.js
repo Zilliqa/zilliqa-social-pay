@@ -195,7 +195,6 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
   const { query } = req.params;
   const jwtToken = req.headers.authorization;
   const urlById = `${API_URL}/1.1/statuses/show.json`;
-  const isId = !isNaN(Number(query)) && (query.length === 19);
   const blockchain = await Blockchain.findOne({
     where: {
       contract: CONTRACT_ADDRESS
@@ -230,6 +229,11 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
       where: { idStr: tweet.id_str }
     });
 
+    if (!foundTwittes) {
+      return res.status(401).json({
+        message: 'Unauthorized'
+      });
+    }
     if (!tweet.text.toLowerCase().includes(blockchain.hashtag.toLowerCase())) {
       return res.status(404).json({
         message: `This tweet does not have the #${capitalizeFirstLetter(blockchain.hashtag)} hashtag in it.`
