@@ -231,7 +231,7 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
 
     if (!foundTwittes) {
       return res.status(401).json({
-        message: 'Unauthorized'
+        message: 'Daily limit reached.'
       });
     }
     if (!tweet.text.toLowerCase().includes(blockchain.hashtag.toLowerCase())) {
