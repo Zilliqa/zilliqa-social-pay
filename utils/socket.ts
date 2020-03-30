@@ -27,7 +27,7 @@ export function socket() {
 
     if (user.profileId === userSate.profileId && JSON.stringify(userSate) !== data) {
 
-      if (user.synchronization && !userSate.synchronization && user.actionName === 'ConfigureUsers') {
+      if (!user.synchronization && userSate.synchronization) {
         NotificationManager.success('Address configured');
       }
 
