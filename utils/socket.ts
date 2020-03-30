@@ -28,9 +28,17 @@ export function socket() {
     if (user.profileId === userSate.profileId) {
       UserStore.setUser(user);
 
-      if (!user.synchronization && userSate.synchronization && user.lastAction !== userSate.lastAction) {
-        NotificationManager.success('Address configured');
+      if (user.synchronization === userSate.synchronization) {
+        return null;
+      } else if (user.lastAction === userSate.lastAction) {
+        return null;
+      } else if (user.actionName === userSate.actionName) {
+        return null;
+      } else if (user.hash === userSate.hash) {
+        return null;
       }
+
+      NotificationManager.success('Address configured');
     }
   });
   socketConnector.on(EVENTS.tweetsUpdate, (data: string) => {
