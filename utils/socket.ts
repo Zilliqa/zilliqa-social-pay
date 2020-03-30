@@ -6,7 +6,7 @@ import BlockchainStore from 'store/blockchain';
 import TwitterStore from 'store/twitter';
 
 import EVENTS from 'config/socket-events';
-import { Twitte } from 'interfaces';
+import { Twitte, User } from 'interfaces';
 
 export function socket() {
   const userSate = UserStore.store.getState();
@@ -23,12 +23,12 @@ export function socket() {
     BlockchainStore.updateStore(JSON.parse(data));
   });
   socketConnector.on(EVENTS.userUpdated, (data: string) => {
-    const user = JSON.parse(data);
+    const user = JSON.parse(data) as User;
 
     if (user.profileId === userSate.profileId) {
       UserStore.setUser(user);
 
-      if (!user.synchronization && userSate.synchronization && (user.hash !== userSate.hash)) {
+      if (!user.synchronization && userSate.synchronization && user.lastAction !== userSate.lastAction) {
         NotificationManager.success('Address configured');
       }
     }
