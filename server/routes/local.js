@@ -9,6 +9,7 @@ const User = models.sequelize.models.User;
 const Twittes = models.sequelize.models.Twittes;
 const Blockchain = models.sequelize.models.blockchain;
 const Admin = models.sequelize.models.Admin;
+const actions = new User().actions;
 
 router.put('/update/address/:address', checkSession, async (req, res) => {
   const bech32Address = req.params.address;
@@ -28,7 +29,8 @@ router.put('/update/address/:address', checkSession, async (req, res) => {
     await foundUser.update({
       zilAddress: bech32Address,
       hash: null,
-      synchronization: true
+      synchronization: true,
+      actionName: actions.configureUsers
     });
   
     return res.status(201).json({
