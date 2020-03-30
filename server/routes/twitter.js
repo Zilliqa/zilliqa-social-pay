@@ -126,6 +126,7 @@ router.put('/update/tweets', checkSession, async (req, res) => {
   } catch (err) {
     res.clearCookie(process.env.SESSION);
     res.clearCookie(`${process.env.SESSION}.sig`);
+    res.clearCookie('io');
 
     return res.status(401).json({
       message: err.message
@@ -210,6 +211,7 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
   } catch (err) {
     res.clearCookie(process.env.SESSION);
     res.clearCookie(`${process.env.SESSION}.sig`);
+    res.clearCookie('io');
 
     return res.status(401).json({
       message: err.message
