@@ -9,7 +9,7 @@ import EVENTS from 'config/socket-events';
 import { Twitte, User } from 'interfaces';
 
 export function socket() {
-  const userSate = UserStore.store.getState();
+  let userSate = UserStore.store.getState();
 
   if (!userSate.jwtToken || userSate.jwtToken.length < 1) {
     throw new Error('JWT must be required.');
@@ -23,16 +23,13 @@ export function socket() {
     BlockchainStore.updateStore(JSON.parse(data));
   });
   socketConnector.on(EVENTS.userUpdated, (data: string) => {
+    userSate = UserStore.store.getState();
     const user = JSON.parse(data) as User;
 
     if (user.profileId === userSate.profileId) {
       UserStore.setUser(user);
 
       if (user.synchronization === userSate.synchronization) {
-        return null;
-      } else if (user.lastAction === userSate.lastAction) {
-        return null;
-      } else if (user.actionName === userSate.actionName) {
         return null;
       } else if (user.hash === userSate.hash) {
         return null;
