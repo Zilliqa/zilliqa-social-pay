@@ -32,7 +32,7 @@ module.exports = (socket, io) => {
       return null;
     }
 
-    io.to(user.profileId).emit(EVENTS.userUpdated, JSON.stringify(foundUser));
+    io.to(foundUser.profileId).emit(EVENTS.userUpdated, JSON.stringify(foundUser));
     io.to(foundUser.profileId).emit(EVENTS.tweetsUpdate, JSON.stringify(tweet));
   });
 };
