@@ -131,7 +131,7 @@ module.exports = {
       block: Number(blockchainInfo.BlockNum)
     });
     await foundTweet.User.update({
-      actionName: actions.configureUsers,
+      actionName: actions.verifyTweet,
       lastAction: Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay)
     });
 
