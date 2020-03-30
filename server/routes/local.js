@@ -56,6 +56,7 @@ router.put('/update/address/:address', checkSession, async (req, res) => {
 
 router.put('/sing/out', checkSession, (req, res) => {
   res.clearCookie(process.env.SESSION);
+  res.clearCookie(`${process.env.SESSION}.sig`);
 
   return res.status(200).json({
     message: 'cleared'
@@ -70,6 +71,7 @@ router.get('/get/tweets', checkSession, async (req, res) => {
 
     if (!user) {
       res.clearCookie(process.env.SESSION);
+      res.clearCookie(`${process.env.SESSION}.sig`);
 
       throw new Error('No found user.');
     }

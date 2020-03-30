@@ -125,6 +125,7 @@ router.put('/update/tweets', checkSession, async (req, res) => {
     user = await User.findByPk(decoded.id);
   } catch (err) {
     res.clearCookie(process.env.SESSION);
+    res.clearCookie(`${process.env.SESSION}.sig`);
 
     return res.status(401).json({
       message: err.message
@@ -208,6 +209,7 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
     user = await User.findByPk(decoded.id);
   } catch (err) {
     res.clearCookie(process.env.SESSION);
+    res.clearCookie(`${process.env.SESSION}.sig`);
 
     return res.status(401).json({
       message: err.message
