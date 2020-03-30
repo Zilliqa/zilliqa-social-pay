@@ -3,9 +3,11 @@ const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
 
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const Twittes = models.sequelize.models.Twittes;
 const User = models.sequelize.models.User;
 const Admin = models.sequelize.models.Admin;
+const Blockchain = models.sequelize.models.blockchain;
 
 module.exports = async function() {
   const statuses = new Admin().statuses;
@@ -39,32 +41,38 @@ module.exports = async function() {
     include: {
       model: User
     },
-    limit: 50
+    limit: 10
   });
 
   if (twittes.count === 0) {
     return null;
   }
 
-  const needTestForVerified = twittes.rows.map(async (tweet) => {
-    try {
-      return await zilliqa.getVerifiedTweets(tweet.txId);
-    } catch (err) {
-      debug('FAIL to VerifyTweet with ID:', tweet.idStr, 'hash', tweet.txId, 'ERROR:', err);
-
-      await Twittes.update({
-        approved: false,
-        rejected: true
-      }, {
-        where: { idStr: tweet.idStr }
-      });
-
-      return null
-    }
+  const blockchainInfo = await Blockchain.findOne({
+    where: { contract: CONTRACT_ADDRESS }
   });
-  let verifiedTweets = await Promise.all(needTestForVerified);
+  const needTestForVerified = twittes.rows.map(async (tweet) => {
+    const tweetId = tweet.idStr;
+    const hasInContract = await zilliqa.getVerifiedTweets([tweetId]);
 
-  verifiedTweets = verifiedTweets.filter(Boolean);
+    if (!hasInContract || !hasInContract[tweetId]) {
+      debug('FAIL to VerifyTweet with ID:', tweetId, 'hash', tweet.txId);
 
-  debug(`Tweets ${verifiedTweets.length} has been updated.`);
+      return await tweet.update({
+        approved: false,
+        rejected: false,
+        block: 0,
+        txId: null
+      });
+    }
+
+    debug(`Tweet with ID:${tweetId} has been synchronized from blockchain.`);
+    return tweet.update({
+      approved: true,
+      rejected: false,
+      block: Number(blockchainInfo.BlockNum)
+    });
+  });
+
+  await Promise.all(needTestForVerified);
 }

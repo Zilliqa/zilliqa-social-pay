@@ -25,7 +25,8 @@ const initalState: User = {
   synchronization: false,
   lastAction: '0',
   profileId: '',
-  updated: false
+  updated: false,
+  hash: null
 };
 
 export const store = UserDomain.store<User>(initalState)

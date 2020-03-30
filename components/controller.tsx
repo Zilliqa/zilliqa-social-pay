@@ -6,6 +6,7 @@ import moment from 'moment';
 import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
 import UserStore from 'store/user';
+import TwitterStore from 'store/twitter';
 
 import { Text } from 'components/text';
 import { Search } from 'components/Input';
@@ -21,7 +22,7 @@ import {
   FontColors
 } from 'config';
 import { fromZil } from 'utils/from-zil';
-import { timerCalcDay } from 'utils/timer';
+import { timerCalc } from 'utils/timer';
 import { SearchTweet } from 'utils/get-tweets';
 
 const ControlContainer = styled(AroundedContainer)`
@@ -40,6 +41,7 @@ const ControlContainer = styled(AroundedContainer)`
 export const Controller: React.FC = () => {
   const blockchainState = Effector.useStore(BlockchainStore.store);
   const userState = Effector.useStore(UserStore.store);
+  const twitterState = Effector.useStore(TwitterStore.store);
 
   // Search value.
   const [searchValue, setSearchValue] = React.useState<string | null>(null);
@@ -47,9 +49,14 @@ export const Controller: React.FC = () => {
   /**
    * Calculate the time for next action.
    */
-  const timer = React.useMemo(
-    () => timerCalcDay(blockchainState, userState),
-    [blockchainState, userState]
+  const timerDay = React.useMemo(
+    () => timerCalc(
+      blockchainState,
+      userState,
+      twitterState.tweets,
+      Number(blockchainState.blocksPerDay)
+    ),
+    [blockchainState, twitterState]
   );
 
   /**
@@ -156,12 +163,12 @@ export const Controller: React.FC = () => {
       </Text>
       <Search
         sizeVariant={SizeComponent.md}
-        disabled={timer !== 0}
+        disabled={timerDay !== 0}
         css="margin-top: 30px;"
         placeholder="Paste your Tweet link here"
         onChange={handleInput}
       />
-      {timer === 0 ? (
+      {timerDay === 0 ? (
         <Button
           sizeVariant={SizeComponent.lg}
           disabled={Boolean(!searchValue)}
@@ -175,7 +182,7 @@ export const Controller: React.FC = () => {
           fontVariant={Fonts.AvenirNextLTProDemi}
           fontColors={FontColors.white}
         >
-          You can participate: {moment(timer).fromNow()}
+          You can participate: {moment(timerDay).fromNow()}
         </Text>
       )}
     </ControlContainer>

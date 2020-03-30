@@ -47,9 +47,6 @@ module.exports = async function() {
       synchronization: false,
       zilAddress: {
         [Op.not]: null
-      },
-      lastAction: {
-        [Op.lte]: Number(blockchainInfo.BlockNum)
       }
     },
     include: {
@@ -86,11 +83,10 @@ module.exports = async function() {
         tweetText: text,
         startPos: startIndex
       });
-      await user.update({
-        lastAction: Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay),
-        actionName: actions.verifyTweet
+      await tweet.update({
+        txId: tx.TranID,
+        block: Number(blockchainInfo.BlockNum)
       });
-      await tweet.update({ txId: tx.TranID });
       debug('Tweet with ID:', tweet.idStr, 'sent to shard for verify.');
     } catch (err) {
       await tweet.update({

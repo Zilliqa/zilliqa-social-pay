@@ -2,6 +2,7 @@ const debug = require('debug')('zilliqa-social-pay:scheduler:user-configure');
 const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
+const { toBech32Address } = require('@zilliqa-js/crypto');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const User = models.sequelize.models.User;
@@ -56,25 +57,35 @@ module.exports = async function() {
       debug('try to configureUser with profileID:', user.profileId);
       const tx = await zilliqa.configureUsers(user.profileId, user.zilAddress);
       const userExist = await zilliqa.getonfigureUsers([user.profileId]);
-      let nextAction = 0;
+      let currentBlock = 0;
 
       if (userExist) {
-        nextAction = Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerWeek);
+        currentBlock = Number(blockchainInfo.BlockNum);
       }
 
       await user.update({
         hash: tx.TranID,
-        lastAction: nextAction,
+        lastAction: currentBlock,
         actionName: actions.configureUsers
       });
       debug('User with profileID:', user.profileId, 'tx sent to shard.');
     } catch (err) {
       debug('FAIL to configureUser with profileID:', user.profileId, 'error', err);
-      await user.update({
-        synchronization: false,
-        zilAddress: null,
-        lastAction: 0
-      });
+      const lastAddres = await zilliqa.getonfigureUsers([user.profileId]);
+      
+      if (!lastAddres || !lastAddres[user.profileId]) {
+        await user.update({
+          synchronization: false,
+          zilAddress: null,
+          lastAction: 0
+        });
+      } else {
+        await user.update({
+          synchronization: false,
+          lastAction: Number(blockchainInfo.BlockNum),
+          zilAddress: toBech32Address(lastAddres[user.profileId])
+        });
+      }
     }
   }
 }

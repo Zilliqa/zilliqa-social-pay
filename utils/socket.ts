@@ -20,15 +20,15 @@ export function socket() {
   socketConnector.id = userSate.profileId;
 
   socketConnector.on(EVENTS.info, (data: string) => {
-    BlockchainStore.updateBlockchain(JSON.parse(data));
+    BlockchainStore.updateStore(JSON.parse(data));
   });
   socketConnector.on(EVENTS.userUpdated, (data: string) => {
     const user = JSON.parse(data);
 
-    if (user.profileId === userSate.profileId && JSON.stringify(userSate) !== data) {
+    if (user.profileId === userSate.profileId) {
       UserStore.setUser(user);
 
-      if (!user.synchronization && userSate.synchronization) {
+      if (!user.synchronization && userSate.synchronization && (user.hash !== userSate.hash)) {
         NotificationManager.success('Address configured');
       }
     }

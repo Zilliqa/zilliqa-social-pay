@@ -61,26 +61,18 @@ module.exports = {
       return null;
     }
   },
-  async getlastWithdrawl(addresses) {
+  async getVerifiedTweets(tweetIds) {
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
   
-    addresses = addresses.map((address) => {
-      if (validation.isBech32(address)) {
-        return fromBech32Address(address).toLowerCase()
-      }
-  
-      return toChecksumAddress(address).toLowerCase();
-    });
-  
     try {
       const result = await contract.getSubState(
-        'last_withdrawal',
-        addresses
+        'verified_tweets',
+        tweetIds
       );
   
-      if (result.last_withdrawal) {
-        return result.last_withdrawal
+      if (result.verified_tweets) {
+        return result.verified_tweets
       }
   
       return result
@@ -151,30 +143,6 @@ module.exports = {
       zilsPerTweet: zils_per_tweet.value,
       blocksPerDay: blocks_per_day.value,
       blocksPerWeek: blocks_per_week.value
-    }
-  },
-  async getVerifiedTweets(hash) {
-    const zilliqa = new Zilliqa(httpNode);
-    const tx = await zilliqa.blockchain.getTransaction(hash);
-
-    if (!tx || !tx.receipt || !tx.receipt.event_logs) {
-      throw new Error('Event logs is null');
-    }
-
-    const { _eventname, params } = tx.receipt.event_logs.find(
-      (e) => (e._eventname === eventUtils.events.VerifyTweetSuccessful) ||
-      (e._eventname === eventUtils.events.Error)
-    );
-
-    switch (_eventname) {
-      case eventUtils.events.VerifyTweetSuccessful:
-        return eventUtils.verifyTweetSuccessful(params);
-
-      case eventUtils.events.Error:
-        throw new Error(params);
-
-      default:
-        break;
     }
   },
   async getVerifiedUsers(hash) {

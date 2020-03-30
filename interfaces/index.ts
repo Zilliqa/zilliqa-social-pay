@@ -20,6 +20,7 @@ export interface User {
   synchronization: boolean;
   updated: boolean;
   actionName?: string;
+  hash: string | null;
 }
 
 export interface FetchUpdateAddress {

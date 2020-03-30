@@ -25,14 +25,23 @@ router.put('/update/address/:address', checkSession, async (req, res) => {
     const user = new User();
     const decoded = await user.verify(jwtToken);
     const foundUser = await User.findByPk(decoded.id);
+    const blockchainInfo = await Blockchain.findOne({
+      where: { contract: CONTRACT_ADDRESS }
+    });
+    let block = Number(blockchainInfo.BlockNum);
+
+    if (!foundUser.actionName) {
+      block = 0;
+    }
 
     await foundUser.update({
       zilAddress: bech32Address,
       hash: null,
       synchronization: true,
-      actionName: actions.configureUsers
+      actionName: actions.configureUsers,
+      lastAction: block
     });
-  
+
     return res.status(201).json({
       ...decoded,
       zilAddress: bech32Address,
@@ -110,7 +119,13 @@ router.post('/add/tweet', checkSession, async (req, res) => {
       });
     }
 
+    const blockchainInfo = await Blockchain.findOne({
+      where: { contract: CONTRACT_ADDRESS }
+    });
+    const block = Number(blockchainInfo.BlockNum);
+
     await Twittes.create({
+      block,
       idStr: tweet.id_str,
       text: tweet.text.toLowerCase(),
       UserId: foundUser.id

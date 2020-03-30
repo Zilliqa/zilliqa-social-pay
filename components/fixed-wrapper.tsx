@@ -28,7 +28,7 @@ import {
   FontSize,
   Fonts
 } from 'config';
-import { timerCalcWeek, timerCalcDay } from 'utils/timer';
+import { timerCalc } from 'utils/timer';
 import { addTweet } from 'utils/update-tweets';
 
 const SPINER_SIZE = 150;
@@ -44,6 +44,7 @@ export const FixedWrapper: React.FC = () => {
   // Effector hooks //
   const eventState = Effector.useStore(EventStore.store);
   const userState = Effector.useStore(UserStore.store);
+  const twitterState = Effector.useStore(TwitterStore.store);
   const blockchainState = Effector.useStore(BlockchainStore.store);
   // Effector hooks //
 
@@ -68,13 +69,23 @@ export const FixedWrapper: React.FC = () => {
   /**
    * Calculate the time for next action.
    */
-  const timer = React.useMemo(
-    () => timerCalcWeek(blockchainState, userState),
-    [blockchainState, userState]
+  const timerPerWeeks = React.useMemo(
+    () => timerCalc(
+      blockchainState,
+      userState,
+      twitterState.tweets,
+      Number(blockchainState.blocksPerWeek)
+    ),
+    [blockchainState, twitterState]
   );
   const timerDay = React.useMemo(
-    () => timerCalcDay(blockchainState, userState),
-    [blockchainState, userState]
+    () => timerCalc(
+      blockchainState,
+      userState,
+      twitterState.tweets,
+      Number(blockchainState.blocksPerDay)
+    ),
+    [blockchainState, twitterState]
   );
 
   /**
@@ -159,12 +170,12 @@ export const FixedWrapper: React.FC = () => {
         onBlur={() => EventStore.reset()}
       >
         <Card title="Settings">
-          {timer !== 0 ? (
+          {timerPerWeeks !== 0 ? (
             <Text
               fontColors={FontColors.white}
               size={FontSize.sm}
             >
-              You can change address: {moment(timer).fromNow()}
+              You can change address: {moment(timerPerWeeks).fromNow()}
             </Text>
           ) : null}
           {userState.synchronization ? (
@@ -180,7 +191,7 @@ export const FixedWrapper: React.FC = () => {
               defaultValue={address}
               sizeVariant={SizeComponent.md}
               error={addressErr}
-              disabled={!canCallAction || userState.synchronization}
+              disabled={!canCallAction || userState.synchronization || timerPerWeeks !== 0}
               css="font-size: 15px;width: 300px;"
               onChange={handleChangeAddress}
             />

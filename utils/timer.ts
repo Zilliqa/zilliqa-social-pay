@@ -1,45 +1,34 @@
-import { Blockchain, User } from 'interfaces';
+import { Blockchain, Twitte, User } from 'interfaces';
 
-export function timerCalcDay(
+export function timerCalc(
   blockchainState: Blockchain,
-  userState: User
+  user: User,
+  tweets: Twitte[],
+  blocksPer: number
 ) {
-  const currentBlock = Number(blockchainState.BlockNum);
-  let nextBlockToAction = Number(userState.lastAction);
+  const tweetslock = tweets.map((tweet) => Number(tweet.block));
 
-  if (userState.actionName === 'ConfigureUsers') {
-    nextBlockToAction -= Number(blockchainState.blocksPerWeek);
+  tweetslock.push(Number(user.lastAction));
+
+  let maxBlock = Math.max.apply(Math, tweetslock);
+
+  if (maxBlock < 0) {
+    maxBlock = 0;
   }
 
-  if (currentBlock >= nextBlockToAction) {
-    return 0;
+  const currentBlock = Number(blockchainState.BlockNum);
+  let amoutBlocks = (maxBlock + blocksPer) - currentBlock;
+
+  if (amoutBlocks < 0) {
+    amoutBlocks = 0;
   }
 
   const ratePerBlock = new Date(Number(blockchainState.rate)).valueOf();
-  const amoutBlocks = nextBlockToAction - currentBlock;
   const currentTimer = new Date(amoutBlocks * ratePerBlock).valueOf();
 
-  return new Date().valueOf() + currentTimer;
-}
-
-export function timerCalcWeek(
-  blockchainState: Blockchain,
-  userState: User
-) {
-  const currentBlock = Number(blockchainState.BlockNum);
-  let nextBlockToAction = Number(userState.lastAction);
-
-  if (nextBlockToAction === 0 && userState.actionName === 'ConfigureUsers') {
-    nextBlockToAction = currentBlock + Number(blockchainState.blocksPerWeek);
-  }
-
-  if (currentBlock >= nextBlockToAction) {
+  if (currentTimer === 0) {
     return 0;
   }
-
-  const ratePerBlock = new Date(Number(blockchainState.rate)).valueOf();
-  const amoutBlocks = nextBlockToAction - currentBlock;
-  const currentTimer = new Date(amoutBlocks * ratePerBlock).valueOf();
 
   return new Date().valueOf() + currentTimer;
 }

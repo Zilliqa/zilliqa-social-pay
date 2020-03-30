@@ -98,10 +98,14 @@ module.exports = {
         profileId: twitterId
       }
     });
+    const blockchainInfo = await Blockchain.findOne({
+      where: { contract: CONTRACT_ADDRESS }
+    });
 
     await user.update({
       synchronization: false,
-      actionName: actions.configureUsers
+      actionName: actions.configureUsers,
+      lastAction: Number(blockchainInfo.BlockNum)
     });
 
     return twitterId;
@@ -132,7 +136,7 @@ module.exports = {
     });
     await foundTweet.User.update({
       actionName: actions.verifyTweet,
-      lastAction: Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay)
+      lastAction: Number(blockchainInfo.BlockNum)
     });
 
     return idStr;
