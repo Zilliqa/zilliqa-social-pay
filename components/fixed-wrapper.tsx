@@ -72,7 +72,7 @@ export const FixedWrapper: React.FC = () => {
     () => timerCalcWeek(blockchainState, userState),
     [blockchainState, userState]
   );
-  const timerDatay = React.useMemo(
+  const timerDay = React.useMemo(
     () => timerCalcDay(blockchainState, userState),
     [blockchainState, userState]
   );
@@ -209,7 +209,7 @@ export const FixedWrapper: React.FC = () => {
                   width: twitterWidth
                 }}
               />
-              {timer === 0 ? (
+              {timerDay === 0 ? (
                 <Button
                   sizeVariant={SizeComponent.lg}
                   variant={ButtonVariants.primary}
@@ -224,7 +224,7 @@ export const FixedWrapper: React.FC = () => {
                   fontVariant={Fonts.AvenirNextLTProDemi}
                   fontColors={FontColors.white}
                 >
-                  You can participate: {moment(timerDatay).fromNow()}
+                  You can participate: {moment(timerDay).fromNow()}
                 </Text>
               )}
             </Container>
