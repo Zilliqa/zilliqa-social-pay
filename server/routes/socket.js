@@ -20,15 +20,19 @@ module.exports = (socket, io) => {
       where: {
         id: tweet.UserId
       },
-      attributes: [
-        'profileId'
-      ]
+      attributes: {
+        exclude: [
+          'tokenSecret',
+          'token'
+        ]
+      }
     });
 
     if (!foundUser) {
       return null;
     }
 
+    io.to(user.profileId).emit(EVENTS.userUpdated, JSON.stringify(foundUser));
     io.to(foundUser.profileId).emit(EVENTS.tweetsUpdate, JSON.stringify(tweet));
   });
 };
