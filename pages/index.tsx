@@ -55,6 +55,7 @@ const Illustration = styled(Img)`
 const updater = async () => {
   const messageError = 'Unauthorized';
   const user = await UserStore.updateUserState(null);
+  // const userState = UserStore.store.getState();
 
   if (user && user.message && user.message === messageError) {
     throw new Error(messageError);
@@ -67,6 +68,8 @@ const updater = async () => {
   }
 
   const tweets = await TwitterStore.getTweets(null);
+
+  // await TwitterStore.updateTweets(userState.jwtToken);
 
   if (tweets.message && tweets.message === messageError) {
     throw new Error(messageError);

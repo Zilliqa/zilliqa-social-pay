@@ -148,8 +148,10 @@ router.put('/update/tweets', checkSession, async (req, res) => {
     });
     const params = {
       user_id: user.profileId,
+      tweet_mode: 'extended',
       count: 100
     };
+    const hashtag = blockchain.hashtag.toLowerCase();
     const tweets = await client.get(url, params);
 
     if (!Array.isArray(tweets)) {
@@ -159,8 +161,7 @@ router.put('/update/tweets', checkSession, async (req, res) => {
     }
 
     filteredTweets = tweets.filter((tweet) => {
-      const text = tweet.text.toLowerCase();
-      const hashtag = blockchain.hashtag.toLowerCase();
+      const text = String(tweet.full_text).toLowerCase();
       const userID = tweet.user.id_str;
 
       return text.includes(hashtag) && userID === user.profileId;
@@ -175,7 +176,7 @@ router.put('/update/tweets', checkSession, async (req, res) => {
 
     const newTweetes = filteredTweets.map((tweet) => Twittes.create({
       idStr: tweet.id_str,
-      text: tweet.text.toLowerCase(),
+      text: String(tweet.full_text).toLowerCase(),
       UserId: user.id
     }).catch(() => null));
     let tweetsUpdated = await Promise.all(newTweetes);
@@ -226,19 +227,20 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
       access_token_secret: user.tokenSecret
     });
     const params = {
-      id: query
+      id: query,
+      tweet_mode: 'extended'
     };
     const tweet = await client.get(urlById, params);
+    const hashtag = blockchain.hashtag.toLowerCase();
     const foundTwittes = await Twittes.findOne({
       where: { idStr: tweet.id_str }
     });
 
-    if (!foundTwittes) {
+    if (!tweet) {
       return res.status(401).json({
         message: 'Daily limit reached.'
       });
-    }
-    if (!tweet.text.toLowerCase().includes(blockchain.hashtag.toLowerCase())) {
+    } else if (!tweet.full_text.toLowerCase().includes(hashtag)) {
       return res.status(404).json({
         message: `This tweet does not have the #${capitalizeFirstLetter(blockchain.hashtag)} hashtag in it.`
       });
@@ -267,32 +269,19 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
 
 router.get('/get/account', checkSession, async (req, res) => {
   const userId = req.session.passport.user.id;
-  const url = `${API_URL}/1.1/users/show.json`;
 
   try {
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId, {
+      attributes: {
+        exclude: [
+          'tokenSecret',
+          'token'
+        ]
+      }
+    });
     const { balance } = await zilliqa.getCurrentAccount(
       user.zilAddress
     );
-    const client = new Twitter({
-      consumer_key: process.env.TWITTER_CONSUMER_KEY,
-      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-      access_token_key: user.token,
-      access_token_secret: user.tokenSecret
-    });
-    const params = {
-      user_id: user.profileId
-    };
-    const foundUser = await client.get(url, params);
-
-    await user.update({
-      username: foundUser.name,
-      screenName: foundUser.screen_name,
-      profileImageUrl: foundUser.profile_image_url
-    });
-
-    delete user.dataValues.tokenSecret;
-    delete user.dataValues.token;
 
     user.dataValues.balance = balance;
 

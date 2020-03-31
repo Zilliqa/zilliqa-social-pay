@@ -8,6 +8,7 @@ import { Twitte } from 'interfaces';
 
 export const TwitterDomain = createDomain();
 export const update = TwitterDomain.event<any[]>();
+export const clear = TwitterDomain.event();
 export const getTweets = TwitterDomain.effect<null, any[] | any, Error>();
 
 export const updateTweets = TwitterDomain.effect<string, any, Error>();
@@ -49,11 +50,13 @@ export const store = TwitterDomain.store(initalState)
       ...state,
       error: true
     };
-  });
+  })
+  .on(clear, () => initalState);
 
 export default {
   store,
   update,
   updateTweets,
-  getTweets
+  getTweets,
+  clear
 };

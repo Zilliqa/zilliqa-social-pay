@@ -5,6 +5,7 @@ import * as Effector from 'effector-react';
 
 import EventStore from 'store/event';
 import UserStore from 'store/user';
+import TwitterStore from 'store/twitter';
 
 import { Text } from 'components/text';
 import { Img } from 'components/img';
@@ -84,6 +85,7 @@ export const TopBar: React.FC = () => {
       case ITEMS[1]:
         EventStore.signOut(null);
         UserStore.clear();
+        TwitterStore.clear();
         EventStore.setEvent(Events.None);
         router.push('/auth');
         break;

@@ -112,6 +112,12 @@ router.post('/add/tweet', checkSession, async (req, res) => {
   const jwtToken = req.headers.authorization;
   const tweet = req.body;
 
+  if (!tweet || !tweet.full_text) {
+    return res.status(401).json({
+      message: 'Invalid tweet data.'
+    });
+  }
+
   try {
     const user = new User();
     const decoded = await user.verify(jwtToken);
@@ -119,7 +125,11 @@ router.post('/add/tweet', checkSession, async (req, res) => {
 
     if (!foundUser || foundUser.profileId !== tweet.user.id_str) {
       return res.status(401).json({
-        message: 'Invalid tweet data.'
+        message: 'Invalid user data.'
+      });
+    } else if (!tweet.user || tweet.user.id_str !== foundUser.profileId) {
+      return res.status(401).json({
+        message: 'Invalid user data.'
       });
     }
 
@@ -131,8 +141,14 @@ router.post('/add/tweet', checkSession, async (req, res) => {
     await Twittes.create({
       block,
       idStr: tweet.id_str,
-      text: tweet.text.toLowerCase(),
+      text: tweet.full_text.toLowerCase(),
       UserId: foundUser.id
+    });
+
+    await foundUser.update({
+      username: tweet.user.name,
+      screenName: tweet.user.screen_name,
+      profileImageUrl: tweet.user.profile_image_url
     });
 
     return res.status(201).json({
