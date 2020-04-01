@@ -102,6 +102,8 @@ module.exports = class {
       user_id: profileId,
       tweet_mode: 'extended',
       count: 200,
+      exclude_replies: true,
+      include_rts: false,
       ...opt
     };
     const url = `${API_URL}/1.1/statuses/user_timeline.json`;
@@ -131,6 +133,8 @@ module.exports = class {
     const params = {
       id,
       tweet_mode: 'extended',
+      exclude_replies: true,
+      include_rts: false,
       ...opt
     };
     const hashtag = this._getHashTag();
