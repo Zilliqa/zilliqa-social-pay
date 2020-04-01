@@ -134,7 +134,8 @@ module.exports = class {
       id,
       tweet_mode: 'extended',
       exclude_replies: true,
-      include_rts: false,
+      include_my_retweet: false,
+      include_card_uri: false,
       ...opt
     };
     const hashtag = this._getHashTag();
