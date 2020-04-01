@@ -1,5 +1,4 @@
 const debug = require('debug')('zilliqa-social-pay:scheduler:VerifyTweet');
-const { units, BN } = require('@zilliqa-js/util');
 const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
@@ -9,6 +8,7 @@ const Twittes = models.sequelize.models.Twittes;
 const Blockchain = models.sequelize.models.blockchain;
 const User = models.sequelize.models.User;
 const Admin = models.sequelize.models.Admin;
+const actions = new User().actions;
 
 function getPos(text, hashtag) {
   text = encodeURI(text.toLowerCase());

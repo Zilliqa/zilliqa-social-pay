@@ -25,6 +25,10 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
+      claimed: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       txId: {
         type: Sequelize.STRING
       },

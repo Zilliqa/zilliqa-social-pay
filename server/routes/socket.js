@@ -32,6 +32,10 @@ module.exports = (socket, io) => {
       return null;
     }
 
+    delete tweet.dataValues.text;
+    delete tweet.dataValues.updatedAt;
+    delete tweet.dataValues.createdAt;
+
     io.to(foundUser.profileId).emit(EVENTS.userUpdated, JSON.stringify(foundUser));
     io.to(foundUser.profileId).emit(EVENTS.tweetsUpdate, JSON.stringify(tweet));
   });

@@ -43,11 +43,11 @@ const DashboardContainer = styled(Container)`
   padding-top: 5%;
 `;
 const Illustration = styled(Img)`
-  position: absolute;
+  position: fixed;
   right: 0;
-  bottom:  0;
+  bottom: 0;
 
-  max-width: 30vw;
+  max-width: 50vh;
   height: auto;
   z-index: 0;
 `;
@@ -55,7 +55,6 @@ const Illustration = styled(Img)`
 const updater = async () => {
   const messageError = 'Unauthorized';
   const user = await UserStore.updateUserState(null);
-  // const userState = UserStore.store.getState();
 
   if (user && user.message && user.message === messageError) {
     throw new Error(messageError);
@@ -69,10 +68,12 @@ const updater = async () => {
 
   const tweets = await TwitterStore.getTweets(null);
 
-  // await TwitterStore.updateTweets(userState.jwtToken);
-
   if (tweets.message && tweets.message === messageError) {
     throw new Error(messageError);
+  } else if (!tweets || tweets.length < 1) {
+    const userState = UserStore.store.getState();
+
+    await TwitterStore.updateTweets(userState.jwtToken);
   }
 };
 

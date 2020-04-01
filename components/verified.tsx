@@ -6,6 +6,7 @@ import { useMediaQuery } from 'react-responsive';
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
 import BlockchainStore from 'store/blockchain';
+import EventStore from 'store/event';
 
 import { Text } from 'components/text';
 import { MiniLoader } from 'components/min-loader';
@@ -13,8 +14,10 @@ import { Img } from 'components/img';
 import { Container } from 'components/container';
 import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
 
-import { FontSize, Fonts, FontColors } from 'config';
+import { FontSize, Fonts, FontColors, Events } from 'config';
 import { viewTx } from 'utils/viewblock';
+import { claimTweet } from 'utils/claim-tweet';
+import { Twitte } from 'interfaces';
 
 const HaventVerified = styled.div`
   display: flex;
@@ -66,6 +69,14 @@ export const Verified: React.FC = () => {
     return 'display: none;';
   }, [twitterState]);
 
+  const handleClickClaim = React.useCallback(async (tweet: Twitte) => {
+    EventStore.setEvent(Events.Load);
+    const result = await claimTweet(userState.jwtToken, tweet);
+
+    console.log(result);
+    EventStore.reset();
+  }, [userState]);
+
   return (
     <Container>
       <Container css={nonTweets}>
@@ -89,6 +100,13 @@ export const Verified: React.FC = () => {
       </Container>
       {twitterState.tweets.map((tweet, index) => (
         <TweetEmbedContainer key={index}>
+          {(!tweet.claimed && !tweet.approved && !tweet.rejected) ? (
+            <Img
+              src="/icons/refund.svg"
+              css="cursor: pointer;"
+              onClick={() => handleClickClaim(tweet)}
+            />
+          ) : null}
           {tweet.approved ? (
             <a
               href={tweet.txId ? viewTx(tweet.txId) : undefined}
@@ -105,7 +123,7 @@ export const Verified: React.FC = () => {
               <Img src="/icons/close.svg"/>
             </a>
           ) : null}
-          {Boolean(!tweet.approved && !tweet.rejected) ? (
+          {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed) ? (
             <a
               href={tweet.txId ? viewTx(tweet.txId) : undefined}
               target="_blank"

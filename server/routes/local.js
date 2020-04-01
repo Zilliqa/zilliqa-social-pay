@@ -1,4 +1,5 @@
 const express = require('express');
+const { Op } = require('sequelize');
 const { validation } = require('@zilliqa-js/util');
 const checkSession = require('../middleware/check-session');
 const models = require('../models');
@@ -64,48 +65,65 @@ router.put('/sing/out', checkSession, (req, res) => {
   });
 });
 
-router.get('/get/tweets', checkSession, async (req, res) => {
-  const userId = req.session.passport.user.id;
+router.put('/claim/tweet', checkSession, async (req, res) => {
+  const jwtToken = req.headers.authorization;
+  const tweet = req.body;
+  let foundUser = null;
+  let foundTweet = null;
 
   try {
-    const user = await User.findByPk(userId);
+    const decoded = await new User().verify(jwtToken);
 
-    if (!user) {
-      res.clearCookie(process.env.SESSION);
-      res.clearCookie(`${process.env.SESSION}.sig`);
-      res.clearCookie('io');
+    foundUser = await User.findByPk(decoded.id);
+    foundTweet = await Twittes.findOne({
+      where: {
+        UserId: foundUser.id,
+        idStr: tweet.idStr,
+        id: tweet.id,
+        rejected: false,
+        approved: false,
+        claimed: false
+      },
+      attributes: {
+        exclude: [
+          'text',
+          'createdAt',
+          'updatedAt'
+        ]
+      }
+    });
+  } catch (err) {
+    res.clearCookie(process.env.SESSION);
+    res.clearCookie(`${process.env.SESSION}.sig`);
+    res.clearCookie('io');
 
-      throw new Error('No found user.');
+    return res.status(401).json({
+      message: 'Unauthorized'
+    });
+  }
+
+  const blockchainInfo = await Blockchain.findOne({
+    where: { contract: CONTRACT_ADDRESS }
+  });
+  const lastTweet = await Twittes.findOne({
+    where: {
+      block: {
+        [Op.gt]: Number(blockchainInfo.BlockNum) - Number(blockchainInfo.blocksPerDay)
+      }
     }
+  });
 
-    const twittes = await Twittes.findAll({
-      where: {
-        UserId: user.id
-      }
-    });
-
-    return res.status(200).json(twittes);
-  } catch (err) {
-    return res.status(400).json({
-      message: err.message
+  if (lastTweet && lastTweet.block > 0) {
+    return res.status(502).json({
+      message: `Last tweet have block ${lastTweet.block} but current ${blockchainInfo.BlockNum}.`
     });
   }
-});
 
-router.get('/get/blockchain', checkSession, async (req, res) => {
-  try {
-    const blockchain = await Blockchain.findOne({
-      where: {
-        contract: CONTRACT_ADDRESS
-      }
-    });
+  await foundTweet.update({
+    claimed: true
+  });
 
-    return res.status(200).json(blockchain);
-  } catch (err) {
-    return res.status(400).json({
-      message: err.message
-    });
-  }
+  return res.status(201).json(foundTweet);
 });
 
 router.post('/add/tweet', checkSession, async (req, res) => {
@@ -154,6 +172,57 @@ router.post('/add/tweet', checkSession, async (req, res) => {
     return res.status(201).json({
       message: 'Created'
     });
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    });
+  }
+});
+
+router.get('/get/tweets', checkSession, async (req, res) => {
+  const userId = req.session.passport.user.id;
+
+  try {
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      res.clearCookie(process.env.SESSION);
+      res.clearCookie(`${process.env.SESSION}.sig`);
+      res.clearCookie('io');
+
+      throw new Error('No found user.');
+    }
+
+    const twittes = await Twittes.findAll({
+      where: {
+        UserId: user.id
+      },
+      attributes: {
+        exclude: [
+          'text',
+          'createdAt',
+          'updatedAt'
+        ]
+      }
+    });
+
+    return res.status(200).json(twittes);
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    });
+  }
+});
+
+router.get('/get/blockchain', checkSession, async (req, res) => {
+  try {
+    const blockchain = await Blockchain.findOne({
+      where: {
+        contract: CONTRACT_ADDRESS
+      }
+    });
+
+    return res.status(200).json(blockchain);
   } catch (err) {
     return res.status(400).json({
       message: err.message

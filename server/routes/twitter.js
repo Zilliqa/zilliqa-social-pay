@@ -151,7 +151,9 @@ router.put('/update/tweets', checkSession, async (req, res) => {
       tweet_mode: 'extended',
       count: 100
     };
-    const hashtag = blockchain.hashtag.toLowerCase();
+    const hashtag = String(blockchain.hashtag)
+      .toLowerCase()
+      .replace('#', '');
     const tweets = await client.get(url, params);
 
     if (!Array.isArray(tweets)) {
@@ -161,10 +163,17 @@ router.put('/update/tweets', checkSession, async (req, res) => {
     }
 
     filteredTweets = tweets.filter((tweet) => {
-      const text = String(tweet.full_text).toLowerCase();
       const userID = tweet.user.id_str;
 
-      return text.includes(hashtag) && userID === user.profileId;
+      if (!tweet.entities || tweet.entities.length < 1) {
+        return false;
+      }
+
+      const hashtags = tweet.entities.hashtags;
+
+      return hashtags.some(
+        (tag) => String(tag.text).toLowerCase() === hashtag
+      ) && userID === user.profileId;
     });
 
     if (!filteredTweets || filteredTweets.length < 1) {
@@ -231,16 +240,22 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
       tweet_mode: 'extended'
     };
     const tweet = await client.get(urlById, params);
-    const hashtag = blockchain.hashtag.toLowerCase();
+    const hashtag = String(blockchain.hashtag)
+      .toLowerCase()
+      .replace('#', '');
     const foundTwittes = await Twittes.findOne({
       where: { idStr: tweet.id_str }
     });
+    const hasHashtag = tweet
+      .entities
+      .hashtags
+      .some((tag) => String(tag.text).toLowerCase() === hashtag);
 
     if (!tweet) {
       return res.status(401).json({
         message: 'Daily limit reached.'
       });
-    } else if (!tweet.full_text.toLowerCase().includes(hashtag)) {
+    } else if (!hasHashtag) {
       return res.status(404).json({
         message: `This tweet does not have the #${capitalizeFirstLetter(blockchain.hashtag)} hashtag in it.`
       });
@@ -254,7 +269,9 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
       });
     }
 
-    return res.status(302).json(tweet);
+    return res.status(302).json({
+      id_str: tweet.id_str
+    });
   } catch (err) {
     if (err && Array.isArray(err)) {
       return res.status(404).json({
