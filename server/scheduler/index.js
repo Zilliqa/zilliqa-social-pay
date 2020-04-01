@@ -6,7 +6,7 @@ const debug = require('debug')('zilliqa-social-pay:scheduler');
 require('./blockchain')();
 require('./admin')();
 
-schedule.scheduleJob('* * * * *', (fireDate) => {
+schedule.scheduleJob('0/1 * * * *', (fireDate) => {
   debug(`run admin accounts update job ${fireDate}`);
   require('./admin')();
 });

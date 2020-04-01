@@ -1,17 +1,15 @@
 const router = require('express').Router();
-const Twitter = require('twitter');
-const request = require('request');
 const passport = require('passport');
 const models = require('../models');
 const zilliqa = require('../zilliqa');
 const checkSession = require('../middleware/check-session');
+const Twitter = require('../twitter');
+const verifyJwt = require('../middleware/verify-jwt');
 
-const API_URL = 'https://api.twitter.com';
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const User = models.sequelize.models.User;
 const Twittes = models.sequelize.models.Twittes;
 const Blockchain = models.sequelize.models.blockchain;
-const callback = process.env.CALLBACK || 'http://localhost:3000';
 
 const userSign = (req, res) => {
   if (!req.user) {
@@ -37,153 +35,68 @@ function capitalizeFirstLetter(string) {
   return string.charAt(1).toUpperCase() + string.slice(2);
 }
 
-router.post('/auth/twitter', (req, res, next) => {
-  request.post({
-    url: `${API_URL}/oauth/access_token?oauth_verifier`,
-    oauth: {
-      consumerKey: process.env.TWITTER_CONSUMER_KEY,
-      consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-      token: req.query.oauth_token
-    },
-    form: { oauth_verifier: req.query.oauth_verifier }
-  }, (err, r, body) => {
-    let parsedBody = null;
+router.post('/auth/twitter', async (req, res, next) => {
+  const oauthToken = req.query.oauth_token;
+  const oauthVerifier = req.query.oauth_verifier;
 
-    if (err) {
-      return res.status(400).json({ message: err.message });
-    }
+  if (!oauthToken || !oauthVerifier) {
+    return res
+      .status(400)
+      .json({ message: 'Bad query params.' });
+  }
 
-    try {
-      parsedBody = JSON.parse(body);
+  try {
+    const body = await Twitter.accessToken(oauthToken, oauthVerifier);
 
-      if (parsedBody.errors) {
-        return res
-          .status(400)
-          .json({ messages: parsedBody.errors });
-      }
-    } catch (err) {
-      //
-    }
-
-    try {
-      const bodyString = '{ "' + body.replace(/&/g, '", "').replace(/=/g, '": "') + '"}';
-
-      parsedBody = JSON.parse(bodyString);
-
-      req.body['oauth_token'] = parsedBody.oauth_token;
-      req.body['oauth_token_secret'] = parsedBody.oauth_token_secret;
-      req.body['user_id'] = parsedBody.user_id;
-      req.body['screen_name'] = parsedBody.screen_name;
-    } catch (err) {
-      return res
-        .status(400)
-        .json({ messages: body });
-    }
+    req.body['oauth_token'] = body.oauth_token;
+    req.body['oauth_token_secret'] = body.oauth_token_secret;
+    req.body['user_id'] = body.user_id;
+    req.body['screen_name'] = body.screen_name;
 
     next();
-  });
+  } catch (err) {
+    return res
+      .status(400)
+      .json({ message: err.message || err });
+  }
 }, passport.authenticate('twitter-token'), userSign);
 
-router.post('/auth/twitter/reverse', (req, res) => {
-  request.post({
-    url: `${API_URL}/oauth/request_token`,
-    oauth: {
-      oauth_callback: encodeURIComponent(`${callback}/api/v1/auth/twitter/callback`),
-      consumer_key: process.env.TWITTER_CONSUMER_KEY,
-      consumer_secret: process.env.TWITTER_CONSUMER_SECRET
-    }
-  }, (err, r, body) => {
-    if (err) {
-      return res.status(400).json({ message: err.message });
-    }
+router.post('/auth/twitter/reverse', async (req, res) => {
+  try {
+    const body = await Twitter.requestToken();
 
-    try {
-      const parsedBody = JSON.parse(body);
-
-      if (parsedBody.errors) {
-        return res.status(400).json({ messages: parsedBody.errors });
-      }
-    } catch (err) {
-      const jsonStr = '{ "' + body.replace(/&/g, '", "').replace(/=/g, '": "') + '"}';
-
-      res.send(JSON.parse(jsonStr));
-    }
-  });
+    return res.status(200).send(body);
+  } catch (err) {
+    return res
+      .status(400)
+      .json({ message: err.message || err });
+  }
 });
 
 router.post('/auth/twitter/callback', (req, res) => {
   return res.status(200).send('');
 });
 
-router.put('/update/tweets', checkSession, async (req, res) => {
-  const jwtToken = req.headers.authorization;
-  const url = `${API_URL}/1.1/statuses/user_timeline.json`;
-  let user = null;
-
-  try {
-    const decoded = await new User().verify(jwtToken);
-    user = await User.findByPk(decoded.id);
-  } catch (err) {
-    res.clearCookie(process.env.SESSION);
-    res.clearCookie(`${process.env.SESSION}.sig`);
-    res.clearCookie('io');
-
-    return res.status(401).json({
-      message: err.message
-    });
-  }
-
-  try {
-    let filteredTweets = [];
-    const blockchain = await Blockchain.findOne({
-      where: {
-        contract: CONTRACT_ADDRESS
-      }
-    });
-    const client = new Twitter({
-      consumer_key: process.env.TWITTER_CONSUMER_KEY,
-      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-      access_token_key: user.token,
-      access_token_secret: user.tokenSecret
-    });
-    const params = {
-      user_id: user.profileId,
-      tweet_mode: 'extended',
-      count: 100
-    };
-    const hashtag = String(blockchain.hashtag)
-      .toLowerCase()
-      .replace('#', '');
-    const tweets = await client.get(url, params);
-
-    if (!Array.isArray(tweets)) {
-      return res.status(400).json({
-        message: 'not found'
-      });
+router.put('/update/tweets', checkSession, verifyJwt, async (req, res) => {
+  const { user } = req.verification;
+  const blockchain = await Blockchain.findOne({
+    where: {
+      contract: CONTRACT_ADDRESS
     }
+  });
 
-    filteredTweets = tweets.filter((tweet) => {
-      const userID = tweet.user.id_str;
+  try {
+    const twitter = new Twitter(user.token, user.tokenSecret, blockchain);
+    const tweets = await twitter.userTimeline(user.profileId);
 
-      if (!tweet.entities || tweet.entities.length < 1) {
-        return false;
-      }
-
-      const hashtags = tweet.entities.hashtags;
-
-      return hashtags.some(
-        (tag) => String(tag.text).toLowerCase() === hashtag
-      ) && userID === user.profileId;
-    });
-
-    if (!filteredTweets || filteredTweets.length < 1) {
+    if (!tweets || tweets.length < 1) {
       return res.json({
         message: 'not found',
         tweets: []
       });
     }
 
-    const newTweetes = filteredTweets.map((tweet) => Twittes.create({
+    const newTweetes = tweets.map((tweet) => Twittes.create({
       idStr: tweet.id_str,
       text: String(tweet.full_text).toLowerCase(),
       UserId: user.id
@@ -198,58 +111,36 @@ router.put('/update/tweets', checkSession, async (req, res) => {
     });
   } catch (err) {
     return res.status(400).json({
-      message: err.message
+      message: err.message || err
     });
   }
 });
 
-router.post('/search/tweets/:query', checkSession, async (req, res) => {
+router.post('/search/tweets/:query', checkSession, verifyJwt, async (req, res) => {
   const { query } = req.params;
-  const jwtToken = req.headers.authorization;
-  const urlById = `${API_URL}/1.1/statuses/show.json`;
+  const { user } = req.verification;
   const blockchain = await Blockchain.findOne({
     where: {
       contract: CONTRACT_ADDRESS
     }
   });
-  let user = null;
 
-  try {
-    const decoded = await new User().verify(jwtToken);
-
-    user = await User.findByPk(decoded.id);
-  } catch (err) {
-    res.clearCookie(process.env.SESSION);
-    res.clearCookie(`${process.env.SESSION}.sig`);
-    res.clearCookie('io');
-
-    return res.status(401).json({
-      message: err.message
+  if (!query || isNaN(Number(query))) {
+    return res.status(400).json({
+      message: 'Bad query.'
     });
   }
 
   try {
-    const client = new Twitter({
-      consumer_key: process.env.TWITTER_CONSUMER_KEY,
-      consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
-      access_token_key: user.token,
-      access_token_secret: user.tokenSecret
-    });
-    const params = {
-      id: query,
-      tweet_mode: 'extended'
-    };
-    const tweet = await client.get(urlById, params);
-    const hashtag = String(blockchain.hashtag)
-      .toLowerCase()
-      .replace('#', '');
+    const twitter = new Twitter(user.token, user.tokenSecret, blockchain);
+    const { tweet, hasHashtag } = await twitter.showTweet(query);
     const foundTwittes = await Twittes.findOne({
-      where: { idStr: tweet.id_str }
+      where: { idStr: tweet.id_str },
+      attributes: [
+        'id',
+        'idStr'
+      ]
     });
-    const hasHashtag = tweet
-      .entities
-      .hashtags
-      .some((tag) => String(tag.text).toLowerCase() === hashtag);
 
     if (!tweet) {
       return res.status(401).json({
@@ -260,7 +151,7 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
         message: `This tweet does not have the #${capitalizeFirstLetter(blockchain.hashtag)} hashtag in it.`
       });
     } else if (tweet.user.id_str !== user.profileId) {
-      return res.status(404).json({
+      return res.status(400).json({
         message: 'User is not owner'
       });
     } else if (foundTwittes) {
@@ -273,13 +164,8 @@ router.post('/search/tweets/:query', checkSession, async (req, res) => {
       id_str: tweet.id_str
     });
   } catch (err) {
-    if (err && Array.isArray(err)) {
-      return res.status(404).json({
-        ...err[0]
-      });
-    }
     return res.status(400).json({
-      message: err.message
+      message: err.message || err
     });
   }
 });

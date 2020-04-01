@@ -30,9 +30,10 @@ module.exports = async function() {
     where: {
       approved: false,
       rejected: false,
+      claimed: true,
       updatedAt: {
         // Ten minuts.
-        [Op.lt]: new Date(new Date() - 24 * 60 * 400)
+        [Op.lt]: new Date(new Date() - 24 * 60 * 100)
       },
       txId: {
         [Op.not]: null
@@ -61,6 +62,7 @@ module.exports = async function() {
       return await tweet.update({
         approved: false,
         rejected: false,
+        claimed: false,
         block: 0,
         txId: null
       });

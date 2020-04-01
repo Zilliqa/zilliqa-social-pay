@@ -8,17 +8,22 @@ const Twittes = models.sequelize.models.Twittes;
 const Blockchain = models.sequelize.models.blockchain;
 const User = models.sequelize.models.User;
 const Admin = models.sequelize.models.Admin;
-const actions = new User().actions;
 
 function getPos(text, hashtag) {
   text = encodeURI(text.toLowerCase());
   hashtag = hashtag.toLowerCase();
 
-  let startIndex = text.indexOf(hashtag);
+  const startIndex = text.indexOf(hashtag);
+
+  if (startIndex < 0) {
+    throw new Error('Danger tweet.');
+  }
+
+  text = text.slice(0, startIndex + hashtag.length);
 
   return {
     startIndex,
-    text: text.slice(0, startIndex + hashtag.length)
+    text
   };
 }
 
@@ -35,7 +40,7 @@ module.exports = async function() {
 
   debug('Free admin addresses:', freeAdmins);
 
-  if (freeAdmins === 0 || freeAdmins < 3) {
+  if (freeAdmins === 0) {
     return null;
   }
 
@@ -46,7 +51,8 @@ module.exports = async function() {
     where: {
       approved: false,
       rejected: false,
-      txId: null
+      txId: null,
+      claimed: true
     },
     include: {
       model: User,
@@ -60,7 +66,7 @@ module.exports = async function() {
     limit: freeAdmins
   });
 
-  debug('Need update tweet', tweets.count);
+  debug('Need verify', tweets.count, 'tweet');
 
   tweets.rows.forEach(async (tweet) => {
     if (!tweet.User) {

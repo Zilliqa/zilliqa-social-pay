@@ -26,7 +26,8 @@ import {
   SizeComponent,
   FontColors,
   FontSize,
-  Fonts
+  Fonts,
+  Sides
 } from 'config';
 import { timerCalc } from 'utils/timer';
 import { addTweet } from 'utils/update-tweets';
@@ -248,9 +249,10 @@ export const FixedWrapper: React.FC = () => {
       >
         <Card title="Error">
           {Boolean(eventState.content && eventState.content.message) ? <Text
-            size={FontSize.md}
+            size={FontSize.sm}
             fontColors={FontColors.danger}
             fontVariant={Fonts.AvenirNextLTProBold}
+            align={Sides.center}
             css="min-width: 300px;"
           >
             {eventState.content.message}

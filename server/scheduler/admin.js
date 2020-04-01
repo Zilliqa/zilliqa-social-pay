@@ -10,13 +10,11 @@ module.exports = async function() {
   const admins = await zilliqa.getAdmins();
   const needUpdate = admins.map(async (adminAddress) => {
     const {
-      balance,
-      nonce
+      balance
     } = await zilliqa.getCurrentAccount(adminAddress);
 
     return Admin.update({
       balance,
-      nonce,
       status: statuses.enabled
     }, {
       where: {

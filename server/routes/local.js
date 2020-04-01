@@ -3,6 +3,7 @@ const { Op } = require('sequelize');
 const { validation } = require('@zilliqa-js/util');
 const checkSession = require('../middleware/check-session');
 const models = require('../models');
+const verifyJwt = require('../middleware/verify-jwt');
 const router = express.Router();
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
@@ -12,9 +13,9 @@ const Blockchain = models.sequelize.models.blockchain;
 const Admin = models.sequelize.models.Admin;
 const actions = new User().actions;
 
-router.put('/update/address/:address', checkSession, async (req, res) => {
+router.put('/update/address/:address', checkSession, verifyJwt, async (req, res) => {
   const bech32Address = req.params.address;
-  const jwtToken = req.headers.authorization;
+  const { user, decoded } = req.verification;
 
   if (!validation.isBech32(bech32Address)) {
     return res.status(401).json({
@@ -23,19 +24,16 @@ router.put('/update/address/:address', checkSession, async (req, res) => {
   }
 
   try {
-    const user = new User();
-    const decoded = await user.verify(jwtToken);
-    const foundUser = await User.findByPk(decoded.id);
     const blockchainInfo = await Blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
     let block = Number(blockchainInfo.BlockNum);
 
-    if (!foundUser.actionName) {
+    if (!user.actionName) {
       block = 0;
     }
 
-    await foundUser.update({
+    await user.update({
       zilAddress: bech32Address,
       hash: null,
       synchronization: true,
@@ -65,19 +63,15 @@ router.put('/sing/out', checkSession, (req, res) => {
   });
 });
 
-router.put('/claim/tweet', checkSession, async (req, res) => {
-  const jwtToken = req.headers.authorization;
+router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
+  const { user } = req.verification;
   const tweet = req.body;
-  let foundUser = null;
   let foundTweet = null;
 
   try {
-    const decoded = await new User().verify(jwtToken);
-
-    foundUser = await User.findByPk(decoded.id);
     foundTweet = await Twittes.findOne({
       where: {
-        UserId: foundUser.id,
+        UserId: user.id,
         idStr: tweet.idStr,
         id: tweet.id,
         rejected: false,
@@ -93,12 +87,8 @@ router.put('/claim/tweet', checkSession, async (req, res) => {
       }
     });
   } catch (err) {
-    res.clearCookie(process.env.SESSION);
-    res.clearCookie(`${process.env.SESSION}.sig`);
-    res.clearCookie('io');
-
     return res.status(401).json({
-      message: 'Unauthorized'
+      message: 'Bad request.'
     });
   }
 
@@ -109,7 +99,8 @@ router.put('/claim/tweet', checkSession, async (req, res) => {
     where: {
       block: {
         [Op.gt]: Number(blockchainInfo.BlockNum) - Number(blockchainInfo.blocksPerDay)
-      }
+      },
+      UserId: user.id
     }
   });
 
@@ -120,14 +111,15 @@ router.put('/claim/tweet', checkSession, async (req, res) => {
   }
 
   await foundTweet.update({
+    block: blockchainInfo.BlockNum,
     claimed: true
   });
 
   return res.status(201).json(foundTweet);
 });
 
-router.post('/add/tweet', checkSession, async (req, res) => {
-  const jwtToken = req.headers.authorization;
+router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
+  const { user, decoded } = req.verification;
   const tweet = req.body;
 
   if (!tweet || !tweet.full_text) {
@@ -137,15 +129,11 @@ router.post('/add/tweet', checkSession, async (req, res) => {
   }
 
   try {
-    const user = new User();
-    const decoded = await user.verify(jwtToken);
-    const foundUser = await User.findByPk(decoded.id);
-
-    if (!foundUser || foundUser.profileId !== tweet.user.id_str) {
+    if (!user || user.profileId !== tweet.user.id_str) {
       return res.status(401).json({
         message: 'Invalid user data.'
       });
-    } else if (!tweet.user || tweet.user.id_str !== foundUser.profileId) {
+    } else if (!tweet.user || tweet.user.id_str !== user.profileId) {
       return res.status(401).json({
         message: 'Invalid user data.'
       });
@@ -154,23 +142,22 @@ router.post('/add/tweet', checkSession, async (req, res) => {
     const blockchainInfo = await Blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
-    const block = Number(blockchainInfo.BlockNum);
 
     await Twittes.create({
-      block,
       idStr: tweet.id_str,
       text: tweet.full_text.toLowerCase(),
-      UserId: foundUser.id
+      UserId: user.id,
+      block: blockchainInfo.BlockNum
     });
 
-    await foundUser.update({
+    await user.update({
       username: tweet.user.name,
       screenName: tweet.user.screen_name,
       profileImageUrl: tweet.user.profile_image_url
     });
 
     return res.status(201).json({
-      message: 'Created'
+      message: 'Added.'
     });
   } catch (err) {
     return res.status(400).json({

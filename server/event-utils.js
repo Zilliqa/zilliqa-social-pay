@@ -94,7 +94,6 @@ module.exports = {
     const zilAddress = toBech32Address(recipientAddress);
     const user = await User.findOne({
       where: {
-        zilAddress,
         profileId: twitterId
       }
     });
@@ -103,6 +102,7 @@ module.exports = {
     });
 
     await user.update({
+      zilAddress,
       synchronization: false,
       actionName: actions.configureUsers,
       lastAction: Number(blockchainInfo.BlockNum)

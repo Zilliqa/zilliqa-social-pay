@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
 import { useMediaQuery } from 'react-responsive';
+import moment from 'moment';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
@@ -18,6 +19,7 @@ import { FontSize, Fonts, FontColors, Events } from 'config';
 import { viewTx } from 'utils/viewblock';
 import { claimTweet } from 'utils/claim-tweet';
 import { Twitte } from 'interfaces';
+import { timerCalc } from 'utils/timer';
 
 const HaventVerified = styled.div`
   display: flex;
@@ -68,14 +70,37 @@ export const Verified: React.FC = () => {
 
     return 'display: none;';
   }, [twitterState]);
+  const timerDay = React.useMemo(
+    () => timerCalc(
+      blockchainState,
+      userState,
+      twitterState.tweets,
+      Number(blockchainState.blocksPerDay)
+    ),
+    [blockchainState, twitterState]
+  );
 
   const handleClickClaim = React.useCallback(async (tweet: Twitte) => {
-    EventStore.setEvent(Events.Load);
-    const result = await claimTweet(userState.jwtToken, tweet);
+    if (userState.synchronization) {
+      EventStore.setContent({
+        message: 'Waiting for address to sync...'
+      });
+      EventStore.setEvent(Events.Error);
 
-    console.log(result);
+      return null;
+    } else if (timerDay !== 0) {
+      EventStore.setContent({
+        message: `You can participate: ${moment(timerDay).fromNow()}`
+      });
+      EventStore.setEvent(Events.Error);
+
+      return null;
+    }
+
+    EventStore.setEvent(Events.Load);
+    await claimTweet(userState.jwtToken, tweet);
     EventStore.reset();
-  }, [userState]);
+  }, [userState, timerDay]);
 
   return (
     <Container>
