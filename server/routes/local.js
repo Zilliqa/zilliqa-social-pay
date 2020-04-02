@@ -81,7 +81,6 @@ router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
       attributes: {
         exclude: [
           'text',
-          'createdAt',
           'updatedAt'
         ]
       }
@@ -187,7 +186,6 @@ router.get('/get/tweets', checkSession, async (req, res) => {
       attributes: {
         exclude: [
           'text',
-          'createdAt',
           'updatedAt'
         ]
       }

@@ -99,7 +99,8 @@ router.put('/update/tweets', checkSession, verifyJwt, async (req, res) => {
     const newTweetes = tweets.map((tweet) => Twittes.create({
       idStr: tweet.id_str,
       text: String(tweet.full_text).toLowerCase(),
-      UserId: user.id
+      UserId: user.id,
+      createdAt: tweet.created_at
     }).catch(() => null));
     let tweetsUpdated = await Promise.all(newTweetes);
 

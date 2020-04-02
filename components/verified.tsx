@@ -80,6 +80,10 @@ export const Verified: React.FC = () => {
     ),
     [blockchainState, twitterState]
   );
+  const sortedTweets = React.useMemo(() => twitterState.tweets.sort((a, b) => {
+    // to get a value that is either negative, positive, or zero.
+    return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
+  }), [twitterState]);
 
   const handleClickClaim = React.useCallback(async (tweet: Twitte) => {
     if (userState.synchronization) {
@@ -123,7 +127,7 @@ export const Verified: React.FC = () => {
           /> : null}
         </HaventVerified>
       </Container>
-      {twitterState.tweets.map((tweet, index) => (
+      {sortedTweets.map((tweet, index) => (
         <TweetEmbedContainer key={index}>
           {(!tweet.claimed && !tweet.approved && !tweet.rejected) ? (
             <Img

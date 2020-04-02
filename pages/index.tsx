@@ -3,6 +3,7 @@ import { NextPage } from 'next';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
 import { useRouter } from 'next/router';
+import { useMediaQuery } from 'react-responsive';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
@@ -78,6 +79,7 @@ const updater = async () => {
 };
 
 export const MainPage: NextPage<PageProp> = () => {
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 446px)' });
   const router = useRouter();
 
   const blockchainState = Effector.useStore(BlockchainStore.store);
@@ -116,7 +118,9 @@ export const MainPage: NextPage<PageProp> = () => {
         <Verified />
         <Controller />
       </DashboardContainer>
-      <Illustration src="/imgs/illustration-4.svg"/>
+      {!isTabletOrMobile ? (
+        <Illustration src="/imgs/illustration-4.svg"/>
+      ) : null}
     </MainPageContainer>
   );
 };
