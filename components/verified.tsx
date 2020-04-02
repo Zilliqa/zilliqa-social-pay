@@ -10,7 +10,7 @@ import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
 
 import { Text } from 'components/text';
-import { MiniLoader } from 'components/min-loader';
+import { MinLoader } from 'components/min-loader';
 import { Img } from 'components/img';
 import { Container } from 'components/container';
 import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
@@ -31,6 +31,7 @@ const TweetEmbedContainer = styled.div`
   display: grid;
   align-items: center;
   grid-template-columns: 40px 1fr;
+  grid-gap: 10px;
 `;
 
 const WIDTH_MOBILE = 250;
@@ -110,7 +111,6 @@ export const Verified: React.FC = () => {
             size={FontSize.sm}
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
-            css="margin-right: 20px;"
           >
             You have no verified tweets.
           </Text>
@@ -137,7 +137,7 @@ export const Verified: React.FC = () => {
               href={tweet.txId ? viewTx(tweet.txId) : undefined}
               target="_blank"
             >
-              <Img src="/icons/ok.svg"/>
+              <Img src="/icons/ok.svg" />
             </a>
           ) : null}
           {Boolean(tweet.rejected) ? (
@@ -145,7 +145,7 @@ export const Verified: React.FC = () => {
               href={tweet.txId ? viewTx(tweet.txId) : undefined}
               target="_blank"
             >
-              <Img src="/icons/close.svg"/>
+              <Img src="/icons/close.svg" />
             </a>
           ) : null}
           {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed) ? (
@@ -153,7 +153,7 @@ export const Verified: React.FC = () => {
               href={tweet.txId ? viewTx(tweet.txId) : undefined}
               target="_blank"
             >
-              <MiniLoader />
+              <MinLoader />
             </a>
           ) : null}
           <TwitterTweetEmbed
