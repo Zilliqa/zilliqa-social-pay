@@ -33,6 +33,8 @@ export function socket() {
 
       UserStore.setUser(user);
     }
+
+    UserStore.updateUserState(null);
   });
   socketConnector.on(EVENTS.tweetsUpdate, (data: string) => {
     const tweet = JSON.parse(data) as Twitte;
@@ -54,5 +56,7 @@ export function socket() {
     } else if (tweet.rejected) {
       NotificationManager.success('Your tweet is rejected.');
     }
+
+    UserStore.updateUserState(null);
   });
 }
