@@ -96,6 +96,7 @@ export const MainPage: NextPage<PageProp> = () => {
         })
         .catch(() => {
           EventStore.reset();
+          EventStore.signOut(null);
           router.push('/auth');
         });
     }
