@@ -1,9 +1,14 @@
 'use strict';
 const jwt = require('jsonwebtoken');
-const uuidv4 = require('uuid').v4;
-
 const secret = process.env.JWT_SECRET;
-
+const statuses = {
+  baned: 'baned',
+  enabled: 'enabled'
+};
+const actions = {
+  configureUsers: 'ConfigureUsers',
+  verifyTweet: 'VerifyTweet'
+};
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     username: DataTypes.STRING,
@@ -19,8 +24,33 @@ module.exports = (sequelize, DataTypes) => {
     zilAddress: {
       type: DataTypes.STRING,
       unique: true
+    },
+    hash: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: true
+    },
+    lastAction: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      defaultValue: 0
+    },
+    actionName: {
+      type: DataTypes.ENUM(actions.configureUsers, actions.verifyTweet),
+      allowNull: true
+    },
+    status: {
+      type: DataTypes.ENUM(statuses.baned, statuses.enabled),
+      allowNull: false,
+      defaultValue: statuses.enabled
+    },
+    synchronization: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   }, {});
+  User.prototype.statuses = statuses;
+  User.prototype.actions = actions;
   User.prototype.sign = function () {
     const payload = {
       id: this.id,

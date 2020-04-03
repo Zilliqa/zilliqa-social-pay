@@ -26,17 +26,20 @@ module.exports = {
       blocksPerWeek: {
         type: Sequelize.STRING
       },
-      CurrentDSEpoch: {
-        type: Sequelize.STRING
+      BlockNum: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+        defaultValue: 0
       },
-      CurrentMiniEpoch: {
-        type: Sequelize.STRING
+      DSBlockNum: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+        defaultValue: 0
       },
-      NumDSBlocks: {
-        type: Sequelize.STRING
-      },
-      NumTxBlocks: {
-        type: Sequelize.STRING
+      rate: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+        defaultValue: 85940
       },
       createdAt: {
         allowNull: false,

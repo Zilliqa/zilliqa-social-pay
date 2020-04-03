@@ -1,187 +1,81 @@
 import React from 'react';
 import { NextPage } from 'next';
-import styled from 'styled-components';
-import TwitterLogin from 'react-twitter-auth';
 import { useRouter } from 'next/router';
-import { validation } from '@zilliqa-js/util';
+import styled from 'styled-components';
+import { useMediaQuery } from 'react-responsive';
 import * as Effector from 'effector-react';
 
 import UserStore from 'store/user';
+import BrowserStore from 'store/browser';
 
-import { Img } from 'components/img';
+import { TwitterConnect } from 'components/twitter-conecter';
 import { Container } from 'components/container';
-import { FieldInput } from 'components/Input';
-import { Button } from 'components/button';
-import { Text } from 'components/text';
+import { ZilliqaConnect } from 'components/zilliqa-connect';
+import { Img } from 'components/img';
 
-import { SizeComponent, APIs, FontSize, Sides, FontColors } from 'config';
+const AuthContainer = styled(Container)`
+  display: flex;
+  align-items: center;
 
-const FormContainer = styled(Container)`
-  display: grid;
-  justify-items: center;
+  background: linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
+  background-repeat: space;
 
-  width: 100vw;
   height: 100vh;
-  z-index: 2;
-`;
-const Center = styled(Container)`
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  margin: 10%;
-`;
-const LeftPanel = styled(Container)`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  width: 100vw;
 
-  padding: 15px;
-  width: 40vw;
-  min-width: 300px;
-  background: #F5F5F5;
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  @media (max-width: 600px) {
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 20%;
+    background: linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
+    background-repeat: round;
+    background-repeat-y: no-repeat;
+  }
 `;
-const RightPanel = styled(Container)`
-  width: 40vw;
-  min-width: 300px;
-  border-top-right-radius: 5px;
-  background: #057A8E;
-`;
-const SignForm = styled(Container)`
-  width: 100%;
-  max-width: 400px;
-  display: grid;
-  grid-gap: 30px;
-  justify-items: center;
-`;
-const TopImg = styled(Img)`
+const Background = styled(Img)`
   position: fixed;
   top: 0;
-  left: 0;
-  z-index: -1;
-
-  width: 60%;
-  height: inherit;
-`;
-const BottomImg = styled(Img)`
-  position: fixed;
   bottom: 0;
+  left: 0;
   right: 0;
-  z-index: -1;
-
-  width: 40%;
-  height: inherit;
-`;
-const SignImg =  styled(Img)`
-  width: 100%;
-  height: inherit;
+  width: 100vw;
+  height: auto;
 `;
 
 export const AuthPage: NextPage = () => {
-  // Next hooks //
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
   const router = useRouter();
-  // Next hooks //
 
-  // Effector hooks //
   const userState = Effector.useStore(UserStore.store);
-  // Effector hooks //
+  const browserState = Effector.useStore(BrowserStore.store);
 
-  // React hooks //
-  const [addressErr, setAddressErr] = React.useState<string | null>(null);
-  const [address, setAddress] = React.useState<string | null>(null);
-
-  const handleSuccess = React.useCallback(async (res: any) => {
-    const userData = await res.json();
-
-    UserStore.setUser(userData);
-
-    if (userData.zilAddress && validation.isBech32(userData.zilAddress)) {
-      router.push('/');
-
-      return null;
-    }
-  }, [address]);
-  const handleAddressChange = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.value) {
-      return null;
-    } else if (!validation.isBech32(event.target.value)) {
-      setAddressErr('Incorect address format.');
-
-      return null;
+  const backgroundImg = React.useMemo(() => {
+    if (isTabletOrMobile) {
+      return `imgs/illustration-3-mobile.${browserState.format}`;
     }
 
-    setAddress(event.target.value);
+    return `imgs/illustration-3.${browserState.format}`;
+  }, [isTabletOrMobile, browserState]);
 
-    if (!address) {
-      return null;
+  React.useEffect(() => {
+    if (userState.jwtToken && userState.zilAddress && router.pathname.includes('auth')) {
+      if (userState.message && userState.message === 'Unauthorized') {
+        UserStore.clear();
+      } else {
+        router.push('/');
+      }
     }
-
-    const result = await UserStore.updateAddress({
-      address,
-      jwt: userState.jwtToken
-    });
-
-    if (result.message) {
-      setAddressErr(result.message);
-    }
-
-    if (result.zilAddress) {
-      router.push('/');
-    }
-  }, [validation, setAddressErr, addressErr, address, userState]);
-  // React hooks //
+  }, [userState]);
 
   return (
     <React.Fragment>
-      <FormContainer>
-        <Center>
-          <LeftPanel>
-            <SignForm>
-              {!userState.zilAddress ? (
-                <React.Fragment>
-                  <Text
-                    size={FontSize.md}
-                    align={Sides.center}
-                    fontColors={FontColors.info}
-                  >
-                    You need to tie your Zilliqa address.
-                  </Text>
-                  <TwitterLogin
-                    loginUrl={APIs.twitterAuth}
-                    requestTokenUrl={APIs.twitterAuthReverse}
-                    onSuccess={handleSuccess}
-                    onFailure={() => null}
-                    showIcon
-                  />
-                  <FieldInput
-                    sizeVariant={SizeComponent.md}
-                    error={addressErr}
-                    placeholder="Zilliqa address (zil1) or ZNS."
-                    onBlur={handleAddressChange}
-                    onChange={() => setAddressErr(null)}
-                  />
-                </React.Fragment>
-              ) : null}
-              <Button
-                sizeVariant={SizeComponent.md}
-                disabled={Boolean(!userState || !userState.zilAddress)}
-                onClick={() => router.push('/')}
-              >
-                Next
-              </Button>
-            </SignForm>
-          </LeftPanel>
-          <RightPanel>
-            <SignImg src="/imgs/sign.svg"/>
-          </RightPanel>
-        </Center>
-      </FormContainer>
-      <TopImg src="/imgs/auth-2.svg"/>
-      <BottomImg src="/imgs/auth-1.svg"/>
+      <AuthContainer>
+        <TwitterConnect show={Boolean(!userState.jwtToken)}/>
+        <ZilliqaConnect show={Boolean(!userState.zilAddress && userState.jwtToken)}/>
+      </AuthContainer>
+      <Background src={backgroundImg}/>
     </React.Fragment>
   );
-}
+};
 
 export default AuthPage;

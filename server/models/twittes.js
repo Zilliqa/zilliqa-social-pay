@@ -14,9 +14,21 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
+    rejected: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    claimed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
     txId: {
-      type: DataTypes.STRING,
-      unique: true
+      type: DataTypes.STRING
+    },
+    block: {
+      type: DataTypes.BIGINT,
+      allowNull: true,
+      defaultValue: 0
     }
   }, {});
   Twittes.associate = function(models) {

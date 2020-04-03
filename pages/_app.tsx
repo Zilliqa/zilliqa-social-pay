@@ -1,15 +1,18 @@
-import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import 'react-notifications/lib/notifications.css';
 
 import { createGlobalStyle } from 'styled-components';
 import Head from 'next/head';
 import App from 'next/app';
 
 import UserStore from 'store/user';
+import BrowserStore from 'store/browser';
 
 import { Container } from 'components/container';
 import { FixedWrapper } from 'components/fixed-wrapper';
 
-import { Fonts } from 'config';
+import { Fonts, ImgFormats } from 'config';
+import { authGuard } from 'utils/guard';
+import { canUseWebP } from 'utils/webp-support';
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -67,20 +70,53 @@ const GlobalStyle = createGlobalStyle`
       opacity: 0.5;
     }
   }
+
+  @keyframes spin {
+    100% {
+      transform:rotate(360deg);
+    }
+  }
+
+  .rc-steps-label-vertical .rc-steps-item-description {
+    text-align: center;
+  }
 `;
 
 class SocialPay extends App {
+
   public componentDidMount() {
-    UserStore.update();
+    const isWebp = canUseWebP();
 
-    const state = UserStore.store.getState();
+    if (!isWebp) {
+      BrowserStore.setformat(ImgFormats.png);
+    }
 
-    if (!this.props.pageProps.user || !state || !state.jwtToken) {
-      if (this.props.pageProps.firstStart) {
-        return this.props.router.push('/guide');
+    if (this.props.router.route.includes('auth')) {
+      return null;
+    } else if (this.props.router.route.includes('about')) {
+      return null;
+    }
+
+    if (typeof window !== 'undefined') {
+      UserStore.update();
+
+      const state = UserStore.store.getState();
+
+      if (!state || !state.jwtToken || state.message === 'Unauthorized') {
+        UserStore.clear();
+
+        this.props.router.push('/auth');
       }
+    }
 
-      this.props.router.push('/auth');
+    if (!this.props.pageProps.user) {
+      window.localStorage.clear();
+
+      if (this.props.pageProps.firstStart) {
+        this.props.router.push('/about');
+      } else {
+        this.props.router.push('/auth');
+      }
     }
   }
 
@@ -102,37 +138,18 @@ class SocialPay extends App {
   }
 }
 
-SocialPay.getInitialProps = async ({ ctx }: any) => {
-  let firstStart = true;
+SocialPay.getInitialProps = async ({ Component, ctx }: any) => {
+  //
+  // Check whether the page being rendered by the App has a
+  // static getInitialProps method and if so call it
+  //
+  let pageProps = authGuard(ctx);
 
-  if (!ctx || !ctx.req || !ctx.req.app) {
-    return {
-      pageProps: {
-        user: null,
-        firstStart: false
-      }
-    };
+  if (Boolean(Component.getInitialProps)) {
+    pageProps = await Component.getInitialProps(ctx);
   }
 
-  if (ctx.req.cookies && (ctx.req.cookies['session.sig'] || ctx.req.cookies['session'])) {
-    firstStart = false;
-  }
-
-  if (ctx && ctx.req && ctx.req.session && ctx.req.session.passport) {
-    return {
-      pageProps: {
-        ...ctx.req.session.passport,
-        firstStart
-      }
-    };
-  }
-
-  return {
-    pageProps: {
-      firstStart,
-      user: null
-    }
-  };
+  return { pageProps };
 };
 
 export default SocialPay;

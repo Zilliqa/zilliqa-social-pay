@@ -2,83 +2,160 @@ import React from 'react';
 import * as Effector from 'effector-react';
 import { validation } from '@zilliqa-js/util';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
-import { useRouter } from 'next/router';
+import ClipLoader from 'react-spinners/ClipLoader';
+import { useMediaQuery } from 'react-responsive';
+import moment from 'moment';
+import { NotificationContainer, NotificationManager } from 'react-notifications';
 
 import EventStore from 'store/event';
 import UserStore from 'store/user';
+import TwitterStore from 'store/twitter';
+import BlockchainStore from 'store/blockchain';
 
 import { Modal } from 'components/modal';
 import { Card } from 'components/card';
-import { FieldInput, Search } from 'components/Input';
+import { FieldInput } from 'components/Input';
 import { Text } from 'components/text';
 import { Button } from 'components/button';
+import { ContainerLoader } from 'components/container-loader';
+import { Container } from 'components/container';
 
 import {
   ButtonVariants,
   Events,
   SizeComponent,
+  FontColors,
   FontSize,
   Fonts,
-  FontColors
+  Sides
 } from 'config';
-import { SearchTweet } from 'utils/get-tweets';
+import { timerCalc } from 'utils/timer';
+import { addTweet } from 'utils/update-tweets';
 
+const SPINER_SIZE = 150;
+const WIDTH_MOBILE = 250;
+const WIDTH_DEFAULT = 450;
+
+/**
+ * Container for modals and any componets with fixed postion.
+ */
 export const FixedWrapper: React.FC = () => {
-  // Next hooks //
-  const router = useRouter();
-  // Next hooks //
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
 
   // Effector hooks //
   const eventState = Effector.useStore(EventStore.store);
   const userState = Effector.useStore(UserStore.store);
+  const twitterState = Effector.useStore(TwitterStore.store);
+  const blockchainState = Effector.useStore(BlockchainStore.store);
   // Effector hooks //
 
-  // React hooks //
+  // React hooks //*
+  // State for address error handle.
   const [addressErr, setAddressErr] = React.useState<string | null>(null);
+  // State for Zilliqa address in bech32 (zil1) format.
   const [address, setAddress] = React.useState<string>(userState.zilAddress);
-  const [foundTweet, setFoundTweet] = React.useState<any | null>();
-  const [searchErr, setSearchErr] = React.useState<string | null>();
+  // State for check is tablet or mobile width.
+  const [twitterWidth] = React.useState(isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT);
 
-  const handleAddressChange = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.value) {
+  /**
+   * Validation lastAction for user and current block.
+   */
+  const canCallAction = React.useMemo(() => {
+    if (Number(userState.lastAction) > Number(blockchainState.BlockNum)) {
+      return false;
+    }
+
+    return true;
+  }, [userState, blockchainState]);
+  /**
+   * Calculate the time for next action.
+   */
+  const timerPerWeeks = React.useMemo(
+    () => timerCalc(
+      blockchainState,
+      userState,
+      twitterState.tweets,
+      Number(blockchainState.blocksPerWeek)
+    ),
+    [blockchainState, twitterState]
+  );
+  const timerDay = React.useMemo(
+    () => timerCalc(
+      blockchainState,
+      userState,
+      twitterState.tweets,
+      Number(blockchainState.blocksPerDay)
+    ),
+    [blockchainState, twitterState]
+  );
+
+  /**
+   * Handle submit (Zilliqa address) form.
+   * @param event HTMLForm event.
+   */
+  const handleAddressChange = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!address) {
       return null;
-    } else if (!validation.isBech32(event.target.value)) {
+    } else if (!validation.isBech32(address)) {
       setAddressErr('Incorect address format.');
 
       return null;
     }
 
-    setAddress(event.target.value);
+    setAddress(address);
 
     if (address === userState.zilAddress) {
       return null;
     }
 
-    await UserStore.updateAddress({
+    // Send to server for validation and update address.
+    const result = await UserStore.updateAddress({
       address,
       jwt: userState.jwtToken
     });
-  }, [address, validation, setAddressErr, addressErr]);
-  const handeSearchTweet = React.useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const tweet = await SearchTweet(
-      event.target.value,
-      userState.jwtToken
-    );
 
-    if (tweet.message) {
-      setSearchErr(tweet.message);
+    NotificationManager.info('Syncing address...');
+
+    if (result.message && result.message !== 'ConfiguredUserAddress') {
+      setAddressErr(result.message);
 
       return null;
     }
 
-    setFoundTweet(tweet);
-  }, [userState, setFoundTweet, setSearchErr]);
-  const handleSignOut = React.useCallback(() => {
-    EventStore.signOut(null);
-    UserStore.clear();
-    EventStore.setEvent(Events.None);
-    router.push('/auth');
-  }, [router]);
+    EventStore.reset();
+  }, [address, validation, setAddressErr, addressErr]);
+  /**
+   * Handle input address for Input component.
+   * @param event HTMLInput event.
+   */
+  const handleChangeAddress = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+
+    setAddressErr(null);
+
+    if (!value) {
+      return null;
+    }
+
+    setAddress(value);
+  }, [setAddressErr, setAddress]);
+  /**
+   * Handle send tweet to server for validation and verification.
+   */
+  const handlePay = React.useCallback(async () => {
+    EventStore.setEvent(Events.Load);
+    const result = await addTweet(userState.jwtToken, eventState.content);
+
+    if (result.message === 'Created') {
+      await TwitterStore.getTweets(null);
+
+      NotificationManager.info('Tweet added!');
+    }
+
+    EventStore.reset();
+  }, [addTweet, EventStore, userState, eventState, TwitterStore]);
 
   React.useEffect(() => {
     if (!address || address.length < 1) {
@@ -94,56 +171,102 @@ export const FixedWrapper: React.FC = () => {
         onBlur={() => EventStore.reset()}
       >
         <Card title="Settings">
-          <Text>
-            Your Zilliqa address
-          </Text>
-          <FieldInput
-            defaultValue={address}
-            sizeVariant={SizeComponent.md}
-            error={addressErr}
-            css="font-size: 15px;width: 350px;"
-            onBlur={handleAddressChange}
-            onChange={() => setAddressErr(null)}
-          />
-          <Button
-            sizeVariant={SizeComponent.md}
-            variant={ButtonVariants.danger}
-            css="margin-top: 30px;"
-            onClick={handleSignOut}
-          >
-            Sign out
-          </Button>
+          {timerPerWeeks !== 0 && !userState.synchronization ? (
+            <Text
+              fontColors={FontColors.white}
+              size={FontSize.sm}
+            >
+              You can change address: {moment(timerPerWeeks).fromNow()}
+            </Text>
+          ) : null}
+          {userState.synchronization ? (
+            <Text
+              fontColors={FontColors.white}
+              size={FontSize.sm}
+            >
+              Waiting for address to sync...
+            </Text>
+          ) : null}
+          <form onSubmit={handleAddressChange}>
+            <FieldInput
+              defaultValue={address}
+              sizeVariant={SizeComponent.md}
+              error={addressErr}
+              disabled={!canCallAction || userState.synchronization || timerPerWeeks !== 0}
+              css="font-size: 15px;width: 300px;"
+              onChange={handleChangeAddress}
+            />
+            <Button
+              sizeVariant={SizeComponent.lg}
+              variant={ButtonVariants.primary}
+              disabled={Boolean(!canCallAction || addressErr || !address || (address === userState.zilAddress))}
+              css="margin-top: 10px;"
+            >
+              Change address
+            </Button>
+          </form>
         </Card>
       </Modal>
       <Modal
         show={eventState.current === Events.Twitter}
         onBlur={() => EventStore.reset()}
       >
-        <Card title="Search tweets.">
-          <Text
-            size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProBold}
-          >
-            Search your tweet with #zilliqa.
-          </Text>
-          <Search
-            sizeVariant={SizeComponent.lg}
-            css="width: 350px;"
-            onBlur={handeSearchTweet}
-            onChange={() => setSearchErr(null)}
-          />
-          <Text
-            fontColors={FontColors.danger}
-            css="text-indent: 15px;"
-          >
-            {searchErr}
-          </Text>
-          {foundTweet ? <TwitterTweetEmbed
-            screenName={userState.screenName}
-            tweetId={foundTweet.id_str}
-          /> : null}
+        <Card title="Found tweet">
+          {Boolean(eventState.content && eventState.content.id_str) ? (
+            <Container css={`display: grid;width: ${twitterWidth}px`}>
+              <TwitterTweetEmbed
+                screenName={userState.screenName}
+                tweetId={eventState.content.id_str}
+                options={{
+                  width: twitterWidth
+                }}
+              />
+              {timerDay === 0 ? (
+                <Button
+                  sizeVariant={SizeComponent.lg}
+                  variant={ButtonVariants.primary}
+                  css="justify-self: center;margin-top: 30px;"
+                  onClick={handlePay}
+                >
+                  Pay
+                </Button>
+              ) : (
+                <Text
+                  size={FontSize.sm}
+                  fontVariant={Fonts.AvenirNextLTProDemi}
+                  fontColors={FontColors.white}
+                >
+                  You can participate: {moment(timerDay).fromNow()}
+                </Text>
+              )}
+            </Container>
+          ) : null}
         </Card>
       </Modal>
+      <Modal
+        show={eventState.current === Events.Error}
+        onBlur={() => EventStore.reset()}
+      >
+        <Card title="Error">
+          {Boolean(eventState.content && eventState.content.message) ? <Text
+            size={FontSize.sm}
+            fontColors={FontColors.danger}
+            fontVariant={Fonts.AvenirNextLTProBold}
+            align={Sides.center}
+            css="min-width: 300px;"
+          >
+            {eventState.content.message}
+          </Text> : null}
+        </Card>
+      </Modal>
+      <ContainerLoader show={eventState.current === Events.Load}>
+        <ClipLoader
+          size={SPINER_SIZE}
+          color={FontColors.info}
+          loading={eventState.current === Events.Load}
+        />
+      </ContainerLoader>
+      {userState.jwtToken ? <NotificationContainer /> : null}
     </React.Fragment>
   );
 };

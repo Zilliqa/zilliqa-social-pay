@@ -63,7 +63,7 @@ contract SocialPay
 )
 
 field verified_tweets: Map String ByStr20 = Emp String ByStr20
-field last_withdrawal: Map ByStr20 BNum = Emp ByStr20 BNum
+field last_withdrawal: Map String BNum = Emp String BNum
 field admins: Map ByStr20 Bool = Emp ByStr20 Bool
 field registered_users: Map String ByStr20 = Emp String ByStr20
 
@@ -119,7 +119,7 @@ transition ConfigureUsers(twitter_id: String, recipient_address: ByStr20)
         match is_registered with
         | True =>
             current_block <- & BLOCKNUMBER;
-            withdrawal <- last_withdrawal[recipient_address];
+            withdrawal <- last_withdrawal[twitter_id];
             not_next_week_yet =
                 match withdrawal with
                 | Some last_withdraw_block =>
@@ -195,7 +195,7 @@ transition VerifyTweet (
                     err = CodeTweetNotValid;
                     IssueErrorEvent err
                 | True =>
-                    withdrawal <- last_withdrawal[recipient_address];
+                    withdrawal <- last_withdrawal[twitter_id];
                     current_block <- & BLOCKNUMBER;
                     not_next_day_yet =
                         match withdrawal with
@@ -211,7 +211,7 @@ transition VerifyTweet (
                         IssueErrorEvent err
                     | False =>
                         verified_tweets[tweet_id] := recipient_address;
-                        last_withdrawal[recipient_address] := current_block;
+                        last_withdrawal[twitter_id] := current_block;
                         e = {
                                 _eventname : "VerifyTweetSuccessful";
                                 sender: _sender;
@@ -231,5 +231,31 @@ transition VerifyTweet (
                 end
             end
         end
+    end
+end
+
+
+transition ReturnFund ()
+    blk <- _balance;
+    is_owner = builtin eq owner _sender;
+    
+    match is_owner with
+    | True =>
+        msg = {
+            _tag       : "";
+            _recipient : owner;
+            _amount    : blk
+        };
+        msgs = one_msg msg;
+        send msgs
+    | False =>
+        msg = {
+            _tag       : "";
+            _recipient : _sender;
+            _amount    : Uint128 0;
+            code       : "is not owener"
+        };
+        msgs = one_msg msg;
+        send msgs
     end
 end

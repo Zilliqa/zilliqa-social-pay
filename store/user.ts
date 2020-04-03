@@ -20,7 +20,13 @@ const initalState: User = {
   screenName: '',
   profileImageUrl: '',
   zilAddress: '',
-  jwtToken: ''
+  jwtToken: '',
+  balance: '0',
+  synchronization: false,
+  lastAction: '0',
+  profileId: '',
+  updated: false,
+  hash: null
 };
 
 export const store = UserDomain.store<User>(initalState)
@@ -43,7 +49,12 @@ export const store = UserDomain.store<User>(initalState)
       return {};
     }
 
-    return JSON.parse(userAsString) || {};
+    const stateFromStorage = JSON.parse(userAsString) || initalState;
+
+    return {
+      ...stateFromStorage,
+      updated: true
+    };
   })
   .on(updateAddress.done, (state, { result }) => {
     const storage = window.localStorage;
@@ -62,6 +73,10 @@ export const store = UserDomain.store<User>(initalState)
     return initalState;
   })
   .on(updateUserState.done, (state, { result }) => {
+    if (!state.jwtToken) {
+      return initalState;
+    }
+
     const storage = window.localStorage;
     const updated = {
       ...state,

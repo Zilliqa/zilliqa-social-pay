@@ -3,30 +3,55 @@ import styled from 'styled-components';
 
 import { Text } from 'components/text';
 
-import { Fonts, FontSize } from 'config';
+import { Fonts, FontSize, FontColors } from 'config';
 
+/**
+ * Around css Container for card component.
+ * @prop css - Any css code.
+ * @example
+ * import { CardContainer } from 'components/card';
+ * <CardContainer>
+ *   any content.
+ * </CardContainer>
+ */
 export const CardContainer = styled.div`
-  border: 1px solid #ececec;
+  border: 1px solid #5c63ef;
   padding: 0 .5rem 0;
   width: fit-content;
-  min-width: 120px;
-  border-radius: 5px;
-  background-color: #fff;
-  box-shadow: 1px 5px 6px -2px #ccc;
+  border-radius: 35px;
+  background-color: #5c63efb5;
   flex-basis: 15px;
+
+  ${(props: { css: string; }) => props.css}
 `;
 
 type Prop = {
   title: string;
+  css?: string;
 };
 
+/**
+ * Card component.
+ * @prop title Card title, show on top, left position.
+ * @prop css - Any css code.
+ * @example
+ * import { Card } from 'components/card';
+ * <Card title="example title">
+ *   Any content.
+ * </Card>
+ */
 export const Card: React.FC<Prop> = ({
   title,
-  children
+  children,
+  css = ''
 }) => {
   return (
-    <CardContainer>
-      <Text fontVariant={Fonts.AvenirNextLTProDemi}>
+    <CardContainer css={css}>
+      <Text
+        fontVariant={Fonts.AvenirNextLTProDemi}
+        fontColors={FontColors.white}
+        css="text-indent: 15px;padding-top: 10px;"
+      >
         {title}
       </Text>
       <Text

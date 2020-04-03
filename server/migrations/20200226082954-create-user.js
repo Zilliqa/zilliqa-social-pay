@@ -1,4 +1,12 @@
 'use strict';
+const statuses = {
+  baned: 'baned',
+  enabled: 'enabled'
+};
+const actions = {
+  configureUsers: 'ConfigureUsers',
+  verifyTweet: 'VerifyTweet'
+};
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Users', {
@@ -31,6 +39,29 @@ module.exports = {
       zilAddress: {
         type: Sequelize.STRING,
         unique: true
+      },
+      hash: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: true
+      },
+      lastAction: {
+        type: Sequelize.BIGINT,
+        allowNull: true,
+        defaultValue: 0
+      },
+      status: {
+        type: Sequelize.ENUM(statuses.baned, statuses.enabled),
+        allowNull: false,
+        defaultValue: statuses.enabled
+      },
+      actionName: {
+        type: Sequelize.ENUM(actions.configureUsers, actions.verifyTweet),
+        allowNull: true
+      },
+      synchronization: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
       },
       createdAt: {
         allowNull: false,

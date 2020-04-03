@@ -21,9 +21,21 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
+      rejected: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      claimed: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
       txId: {
-        type: Sequelize.STRING,
-        unique: true
+        type: Sequelize.STRING
+      },
+      block: {
+        type: Sequelize.BIGINT,
+        allowNull: true,
+        defaultValue: 0
       },
       createdAt: {
         allowNull: false,

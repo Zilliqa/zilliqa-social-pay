@@ -3,7 +3,9 @@ import fetch from 'isomorphic-unfetch';
 import { APIs, HttpMethods } from 'config';
 
 export const fetchTweets = async () => {
-  const res = await fetch(APIs.getTweets);
+  const res = await fetch(APIs.getTweets, {
+    credentials: 'include'
+  });
   const result = await res.json();
 
   return result;
@@ -12,6 +14,7 @@ export const fetchTweets = async () => {
 export const SearchTweet = async (query: string, jwt: string) => {
   const res = await fetch(`${APIs.searchTweet}/${query}`, {
     method: HttpMethods.POST,
+    credentials: 'include',
     headers: {
       Authorization: jwt
     }

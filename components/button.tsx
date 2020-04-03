@@ -9,6 +9,25 @@ type Prop = {
   css?: string;
 };
 
+/**
+ * Just service Button.
+ * @prop css - Any css code.
+ * @example
+ * import { Button } from 'components/button';
+ * import { ButtonVariants, SizeComponent, Fonts } from 'config';
+ * <Button
+ *   sizeVariant={SizeComponent.lg}
+ *   variant={ButtonVariants.outlet}
+ *   onClick={() => / When click do something... /}
+ * >
+ *   Button text.
+ * </Button>
+ * <Button
+ *   css="padding: 10px;"
+ * >
+ *   Button text.
+ * </Button>
+ */
 export const Button = styled.button`
   cursor: pointer;
 
@@ -22,6 +41,8 @@ export const Button = styled.button`
   padding: ${(props: Prop) => props.sizeVariant};
   ${(props: Prop) => props.css}
 
+  transition: all 0.5s ease-out;
+
   :focus {
     outline: none;
   }
@@ -29,6 +50,10 @@ export const Button = styled.button`
   :disabled {
     opacity: 0.5;
     cursor: unset;
+  }
+
+  :hover {
+    opacity: 0.8;
   }
 `;
 

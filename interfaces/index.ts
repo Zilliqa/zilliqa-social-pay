@@ -14,6 +14,13 @@ export interface User {
   zilAddress: string;
   jwtToken: string;
   message?: string;
+  profileId: string;
+  balance: string;
+  lastAction: string;
+  synchronization: boolean;
+  updated: boolean;
+  actionName?: string;
+  hash: string | null;
 }
 
 export interface FetchUpdateAddress {
@@ -24,12 +31,20 @@ export interface FetchUpdateAddress {
 export interface Twitte {
   id?: number;
   idStr: string;
+  text: string;
+  approved: boolean;
+  rejected: boolean;
+  claimed: boolean;
+  txId: string;
+  block?: string | number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Contract {
   contract: string;
   owner: string;
-  hashtag: string;
+  hashtag: string | null;
   zilsPerTweet: string;
   blocksPerDay: string;
   blocksPerWeek: string;
@@ -39,18 +54,20 @@ export interface Blockchain {
   contract: string | null;
   hashtag: string | null;
   zilsPerTweet: string;
-  blocksPerDay: string;
-  blocksPerWeek: string;
-  CurrentDSEpoch: string;
-  CurrentMiniEpoch: string;
-  NumDSBlocks: string;
-  NumTxBlocks: string;
+  blocksPerDay: string | number;
+  blocksPerWeek: string | number;
+  BlockNum: string | number;
+  DSBlockNum: string | number;
+  rate: string | number;
+  message?: string;
 }
 
 export interface PageProp {
-  user: User;
+  user?: User | null;
+  firstStart: boolean;
 }
 
 export interface EventState {
   current: Events;
+  content: null | any;
 }
