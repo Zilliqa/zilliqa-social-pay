@@ -15,7 +15,6 @@ module.exports = async function() {
     let currenInfo = await Blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
-    let initBalance = currenInfo.initBalance;
 
     if (!currenInfo) {
       debug('cannot find to blockchain info. currenInfo:', currenInfo, 'contracta address', CONTRACT_ADDRESS);
@@ -34,6 +33,7 @@ module.exports = async function() {
         where: { contract: CONTRACT_ADDRESS }
       });
     }
+    let initBalance = currenInfo.initBalance;
 
     if (Number(initBalance) < Number(balance)) {
       initBalance = balance;
