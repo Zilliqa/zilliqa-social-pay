@@ -234,28 +234,26 @@ transition VerifyTweet (
     end
 end
 
-
 transition ReturnFund ()
-    blk <- _balance;
+    bal <- _balance;
     is_owner = builtin eq owner _sender;
     
     match is_owner with
     | True =>
-        msg = {
-            _tag       : "";
-            _recipient : owner;
-            _amount    : blk
-        };
-        msgs = one_msg msg;
-        send msgs
+      e = {
+        _eventname : "ReturnFundSuccessful";
+        returned_amount: bal
+      };
+      event e;
+      msg = {
+          _tag       : "";
+          _recipient : owner;
+          _amount    : bal
+      };
+      msgs = one_msg msg;
+      send msgs
     | False =>
-        msg = {
-            _tag       : "";
-            _recipient : _sender;
-            _amount    : Uint128 0;
-            code       : "is not owener"
-        };
-        msgs = one_msg msg;
-        send msgs
+      err = CodeNotAuthorized;
+      IssueErrorEvent err
     end
 end
