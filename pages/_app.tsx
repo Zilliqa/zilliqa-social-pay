@@ -117,6 +117,8 @@ class SocialPay extends App {
       } else {
         this.props.router.push('/auth');
       }
+    } else {
+      UserStore.setUser(this.props.pageProps.user);
     }
   }
 
