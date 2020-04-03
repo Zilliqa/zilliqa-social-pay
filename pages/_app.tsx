@@ -12,7 +12,7 @@ import { FixedWrapper } from 'components/fixed-wrapper';
 
 import { Fonts, ImgFormats } from 'config';
 import { authGuard } from 'utils/guard';
-import { canUseWebP } from 'utils/webp-support';
+import { supportsWebp } from 'utils/webp-support';
 
 const GlobalStyle = createGlobalStyle`
   @font-face {
@@ -88,11 +88,8 @@ const GlobalStyle = createGlobalStyle`
 class SocialPay extends App {
 
   public componentDidMount() {
-    const isWebp = canUseWebP();
-
-    if (!isWebp) {
-      BrowserStore.setformat(ImgFormats.png);
-    }
+    supportsWebp()
+      .then((isWebp) => isWebp ? null : BrowserStore.setformat(ImgFormats.png));
 
     if (this.props.router.route.includes('auth')) {
       return null;
