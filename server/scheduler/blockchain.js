@@ -62,11 +62,13 @@ module.exports = async function() {
       return null;
     }
 
+    const { balance } = await zilliqa.getCurrentAccount(CONTRACT_ADDRESS);
     const rate = new Date() - new Date(currenInfo.updatedAt);
 
     await currenInfo.update({
       ...newBlock,
-      rate
+      rate,
+      balance
     });
 
     debug('next block has been created, block:', newBlock.BlockNum);
