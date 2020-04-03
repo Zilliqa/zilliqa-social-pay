@@ -1,47 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
+import ReactModal from 'react-modal';
 
 import { Img } from 'components/img';
+import { Container } from 'components/container';
 
-type ContentContainerProp = {
-  show: boolean;
-};
-
-export const ModalContent = styled.aside`
-  display: ${(props: ContentContainerProp) => props.show ? 'flex' : 'none'};
-
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  height: fit-content;
-  width: fit-content;
-  z-index: 6;
-
-  @media (max-width: 370px) {
-    max-width: 300px;
-    left: 0;
-    right: 0;
-    transform: translate(10%,-50%);
-  }
-`;
-export const CloseContent = styled.div`
-  display: ${(props: ContentContainerProp) => props.show ? 'block' : 'none'};
-
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  top: 0;
-
-  cursor: pointer;
-  background-color: #000;
-  z-index: 5;
-  opacity: 0.5;
-  animation: fade 0.4s;
-  animation-timing-function: cubic-bezier(.3,.17,.23,.96);
-`;
 export const CloseIcon = styled(Img)`
   cursor: pointer;
   height: 20px;
@@ -54,6 +17,22 @@ CloseIcon.defaultProps = {
 type Prop = {
   show: boolean;
   onBlur: () => void;
+};
+
+const customStyles = {
+  content : {
+    top : '50%',
+    left : '50%',
+    right : 'auto',
+    bottom : 'auto',
+    marginRight : '-50%',
+    transform : 'translate(-50%, -50%)',
+    background: 'transparent',
+    border: 0
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.46)'
+  }
 };
 
 /**
@@ -72,17 +51,15 @@ export const Modal: React.FC<Prop> = ({
   children,
   show,
   onBlur
-}) => {
-  return (
-    <React.Fragment>
-      <CloseContent
-        show={show}
-        onClick={() => onBlur()}
-      />
-      <ModalContent show={show}>
-        {children}
-        <CloseIcon onClick={() => onBlur()}/>
-      </ModalContent>
-    </React.Fragment>
-  );
-};
+}) => (
+  <ReactModal
+    style={customStyles}
+    isOpen={show}
+    onRequestClose={onBlur}
+  >
+    <Container css="display: flex;">
+      {children}
+      <CloseIcon onClick={onBlur}/>
+    </Container>
+  </ReactModal>
+);

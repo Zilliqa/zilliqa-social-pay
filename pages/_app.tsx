@@ -80,6 +80,9 @@ const GlobalStyle = createGlobalStyle`
   .rc-steps-label-vertical .rc-steps-item-description {
     text-align: center;
   }
+  .ReactModal__Overlay {
+    z-index: 99;
+  }
 `;
 
 class SocialPay extends App {
