@@ -27,6 +27,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BIGINT,
       allowNull: false,
       defaultValue: 85940
+    },
+    balance: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      defaultValue: 0
+    },
+    initBalance: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      defaultValue: 0
     }
   }, {});
   blockchain.associate = function(models) {

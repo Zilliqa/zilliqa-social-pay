@@ -9,6 +9,7 @@ import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
 import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
+import BrowserStore from 'store/browser';
 
 import { Container } from 'components/container';
 import { TopBar } from 'components/top-bar';
@@ -55,12 +56,6 @@ const Illustration = styled(Img)`
 
 const updater = async () => {
   const messageError = 'Unauthorized';
-  const user = await UserStore.updateUserState(null);
-
-  if (user && user.message && user.message === messageError) {
-    throw new Error(messageError);
-  }
-
   const blockchain = await BlockchainStore.updateBlockchain(null);
 
   if (blockchain && blockchain.message && blockchain.message === messageError) {
@@ -84,6 +79,7 @@ export const MainPage: NextPage<PageProp> = () => {
 
   const blockchainState = Effector.useStore(BlockchainStore.store);
   const userState = Effector.useStore(UserStore.store);
+  const browserState = Effector.useStore(BrowserStore.store);
 
   const [mounted, setMounted] = React.useState(false);
 
@@ -119,7 +115,7 @@ export const MainPage: NextPage<PageProp> = () => {
         <Controller />
       </DashboardContainer>
       {!isTabletOrMobile ? (
-        <Illustration src="/imgs/illustration-4.svg"/>
+        <Illustration src={`/imgs/illustration-4.${browserState.format}`}/>
       ) : null}
     </MainPageContainer>
   );

@@ -9,21 +9,18 @@ import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
 
 import { Text } from 'components/text';
-import { Search } from 'components/Input';
-import { Button } from 'components/button';
+import { ProgressCircle } from 'components/progress-circle';
 import { AroundedContainer } from 'components/rounded-container';
 import { Img } from 'components/img';
 
 import {
   FontSize,
   Fonts,
-  SizeComponent,
   Events,
   FontColors
 } from 'config';
 import { fromZil } from 'utils/from-zil';
 import { timerCalc } from 'utils/timer';
-import { SearchTweet } from 'utils/get-tweets';
 
 const ControlContainer = styled(AroundedContainer)`
   padding-left: 15px;
@@ -43,9 +40,21 @@ export const Controller: React.FC = () => {
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
 
-  // Search value.
-  const [searchValue, setSearchValue] = React.useState<string | null>(null);
+  const calculPercent = React.useMemo(() => {
+    const _100 = 100;
 
+    if (Number(blockchainState.initBalance) === 0) {
+      return 0;
+    }
+
+    const amount = Number(blockchainState.balance) / Number(blockchainState.initBalance);
+
+    if (amount > _100) {
+      return _100;
+    }
+
+    return Math.round(amount * _100);
+  }, [blockchainState]);
   /**
    * Calculate the time for next action.
    */
@@ -60,70 +69,6 @@ export const Controller: React.FC = () => {
   );
 
   /**
-   * Validation and parse tweet url or ID, before send to server and blockchain.
-   * @param event - HTMLInput event.
-   */
-  const handleInput = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!event.target.value) {
-      setSearchValue(null);
-      return null;
-    }
-
-    let { value } = event.target;
-
-    // If user pass tweet ID.
-    if (!isNaN(Number(value))) {
-      setSearchValue(value);
-
-      return null;
-    }
-
-    value = value.replace(/\?.*/gm, '');
-
-    // Parse and search tweet ID.
-    const foundTweetId = value
-      .split('/')
-      .filter(Boolean)
-      .find((el) => Number.isInteger(Number(el)));
-
-    if (!foundTweetId) {
-      return null;
-    }
-
-    // If value is valid than update `searchValue` state.
-    setSearchValue(foundTweetId);
-  }, [setSearchValue, searchValue]);
-  /**
-   * Handle when form has been submited and send tweet ID to server.
-   * @param event - HTMLForm event.
-   */
-  const handleSearch = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!searchValue) {
-      return null;
-    }
-
-    EventStore.setEvent(Events.Load);
-    // Send to server tweet ID (`searchValue`).
-    const tweet = await SearchTweet(
-      searchValue,
-      userState.jwtToken
-    );
-    EventStore.reset();
-
-    // Show result from server.
-    EventStore.setContent(tweet);
-
-    // If server responsed error.
-    if (tweet.message) {
-      EventStore.setEvent(Events.Error);
-      return null;
-    }
-
-    EventStore.setEvent(Events.Twitter);
-  } , [searchValue, userState]);
-  /**
    * Handle click to reload icon.
    * Just update user information.
    */
@@ -134,7 +79,7 @@ export const Controller: React.FC = () => {
   }, [UserStore]);
 
   return (
-    <ControlContainer onSubmit={handleSearch}>
+    <ControlContainer>
       <Text
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProDemi}
@@ -161,22 +106,16 @@ export const Controller: React.FC = () => {
       >
         Hashtag: {blockchainState.hashtag}
       </Text>
-      <Search
-        sizeVariant={SizeComponent.md}
-        disabled={timerDay !== 0}
-        css="margin-top: 30px;"
-        placeholder="Paste your Tweet link here"
-        onChange={handleInput}
-      />
-      {timerDay === 0 && !userState.synchronization ? (
-        <Button
-          sizeVariant={SizeComponent.lg}
-          disabled={Boolean(!searchValue)}
-          css="margin-top: 10px;"
-        >
-          Search Tweet
-        </Button>
-      ) : userState.synchronization ? (
+      <ProgressCircle pct={calculPercent}/>
+      <Text
+        size={FontSize.sm}
+        fontVariant={Fonts.AvenirNextLTProDemi}
+        fontColors={FontColors.white}
+        css="align-self: center;"
+      >
+        Contract balance used.
+      </Text>
+      {timerDay === 0 && !userState.synchronization ? null : userState.synchronization ? (
         <Text
           size={FontSize.sm}
           fontVariant={Fonts.AvenirNextLTProDemi}

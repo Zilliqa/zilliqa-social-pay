@@ -1,5 +1,6 @@
 const zilliqa = require('./zilliqa');
 const models = require('./models');
+const { BN } = require('@zilliqa-js/util');
 const { toChecksumAddress, toBech32Address } = require('@zilliqa-js/crypto');
 
 const Admin = models.sequelize.models.Admin;
@@ -16,13 +17,15 @@ module.exports = {
     AddedAdmin: 'AddedAdmin',
     ConfiguredUserAddress: 'ConfiguredUserAddress',
     VerifyTweetSuccessful: 'VerifyTweetSuccessful',
+    DepositSuccessful: 'DepositSuccessful',
     Error: 'Error'
   },
   keys: {
     adminAddress: 'admin_address',
     twitterId: 'twitter_id',
     recipientAddress: 'recipient_address',
-    tweetId: 'tweet_id'
+    tweetId: 'tweet_id',
+    depositAmount: 'deposit_amount'
   },
   async deletedAdmin(params) {
     const { value } = params.find(
@@ -140,5 +143,32 @@ module.exports = {
     });
 
     return idStr;
+  },
+  async depositSuccessful(params) {
+    const { value } = params.find(
+      ({ vname }) => vname === this.keys.depositAmount
+    );
+
+    if (!value) {
+      throw new Error(`Not found ${this.keys.depositAmount} vname in:`, params);
+    }
+
+    let blockchainInfo = await Blockchain.findOne({
+      where: { contract: CONTRACT_ADDRESS }
+    });
+
+    let initBalance = blockchainInfo.initBalance;
+    const currentBalance = new BN(blockchainInfo.balance);
+    const needToAdd = new BN(value);
+    const balance = String(currentBalance.add(needToAdd));
+
+    if (Number(initBalance) < Number(balance)) {
+      initBalance = balance;
+    }
+
+    await blockchainInfo.update({
+      balance,
+      initBalance
+    });
   }
 };

@@ -41,6 +41,16 @@ module.exports = {
         allowNull: false,
         defaultValue: 85940
       },
+      balance: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+        defaultValue: 0
+      },
+      initBalance: {
+        type: Sequelize.BIGINT,
+        allowNull: false,
+        defaultValue: 0
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

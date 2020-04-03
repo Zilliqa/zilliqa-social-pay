@@ -18,7 +18,9 @@ const initalState: Blockchain = {
   blocksPerWeek: 0,
   BlockNum: 0,
   DSBlockNum: 0,
-  rate: 0
+  rate: 0,
+  balance: 0,
+  initBalance: 0
 };
 
 export const store = blockchainDomain.store<Blockchain>(initalState)

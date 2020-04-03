@@ -10,20 +10,24 @@ module.exports = async function() {
   try {
     const blockchainInfo = await zilliqa.blockchainInfo();
     const contractInfo = await zilliqa.getInit();
+    const { balance } = await zilliqa.getCurrentAccount(CONTRACT_ADDRESS);
 
     let currenInfo = await Blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
+    let initBalance = currenInfo.initBalance;
 
     if (!currenInfo) {
       debug('cannot find to blockchain info. currenInfo:', currenInfo, 'contracta address', CONTRACT_ADDRESS);
 
       await Blockchain.create({
-        contract: CONTRACT_ADDRESS,
         ...blockchainInfo,
         ...contractInfo,
+        balance,
+        contract: CONTRACT_ADDRESS,
         BlockNum: blockchainInfo.NumTxBlocks,
-        DSBlockNum: blockchainInfo.CurrentDSEpoch
+        DSBlockNum: blockchainInfo.CurrentDSEpoch,
+        initBalance: balance
       });
 
       currenInfo = await Blockchain.findOne({
@@ -31,9 +35,15 @@ module.exports = async function() {
       });
     }
 
+    if (Number(initBalance) < Number(balance)) {
+      initBalance = balance;
+    }
+
     await currenInfo.update({
       ...blockchainInfo,
       ...contractInfo,
+      balance,
+      initBalance,
       BlockNum: blockchainInfo.NumTxBlocks,
       DSBlockNum: blockchainInfo.CurrentDSEpoch
     });
@@ -82,21 +92,26 @@ module.exports = async function() {
           const addedAdmin = await eventUtils.addedAdmin(params);
           debug('Admin has been added', addedAdmin);
           break;
-  
+
         case eventUtils.events.ConfiguredUserAddress:
           const userProfileId = await eventUtils.configuredUserAddress(params);
           debug('User address has been updated, profileID', userProfileId);
           break;
-  
+
         case eventUtils.events.VerifyTweetSuccessful:
           const tweetID = await eventUtils.verifyTweetSuccessful(params);
           debug('Tweet with id:', tweetID, 'has been verified.');
           break;
 
+        case eventUtils.events.DepositSuccessful:
+          await eventUtils.depositSuccessful(params);
+          debug('depositSuccessful');
+          break;
+
         case eventUtils.events.Error:
           debug('Error:', JSON.stringify(params, null, 4));
           break;
-  
+
         default:
           debug('unknown event:', _eventname);
           break;

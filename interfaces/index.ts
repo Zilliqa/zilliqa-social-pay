@@ -41,15 +41,6 @@ export interface Twitte {
   updatedAt: string;
 }
 
-export interface Contract {
-  contract: string;
-  owner: string;
-  hashtag: string | null;
-  zilsPerTweet: string;
-  blocksPerDay: string;
-  blocksPerWeek: string;
-}
-
 export interface Blockchain {
   contract: string | null;
   hashtag: string | null;
@@ -59,6 +50,8 @@ export interface Blockchain {
   BlockNum: string | number;
   DSBlockNum: string | number;
   rate: string | number;
+  balance: string | number;
+  initBalance: string | number;
   message?: string;
 }
 
