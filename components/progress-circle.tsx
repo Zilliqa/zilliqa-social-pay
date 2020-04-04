@@ -72,7 +72,7 @@ export const ProgressCircle: React.FC<Prop> = ({
 
   React.useEffect(() => {
     const c = Math.PI * (DEFAULT_RADIUS * _2);
-    const newDashoffset = ((count - pct) / count) * c;
+    const newDashoffset = (pct / count) * c;
 
     if (!isNaN(newDashoffset)) {
 

@@ -39,7 +39,8 @@ const DashboardContainer = styled(Container)`
   justify-content: space-around;
   align-items: flex-end;
   width: 100%;
-  max-width: 900px;
+  max-width: 1024px;
+  max-hight: 100vh;
   z-index: 1;
 
   padding-top: 5%;
@@ -125,7 +126,7 @@ export const MainPage: NextPage<PageProp> = () => {
         <Controller />
       </DashboardContainer>
       {!isTabletOrMobile ? (
-        <Illustration src={`/imgs/illustration-4.${browserState.format}`}/>
+        <Illustration src={`/imgs/illustration-4.${browserState.format}`} />
       ) : null}
     </MainPageContainer>
   );

@@ -37,6 +37,7 @@ const TweetEmbedContainer = styled.div`
 
 const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
+// const PAGE_LIMIT = 5;
 
 /**
  * Show user tweets.
@@ -112,6 +113,12 @@ export const Verified: React.FC = () => {
     await claimTweet(userState.jwtToken, tweet);
     EventStore.reset();
   }, [userState, timerDay]);
+  // const handleNextPageClick = React.useCallback((data) => {
+  //   const selected = data.selected;
+  //   const offset = Math.ceil(selected * PAGE_LIMIT);
+
+  //   console.log(offset, PAGE_LIMIT);
+  // }, []);
 
   return (
     <Container>
@@ -133,6 +140,20 @@ export const Verified: React.FC = () => {
           /> : null}
         </HaventVerified>
       </Container>
+      {/* {twitterState.count > PAGE_LIMIT ? (
+        <ReactPaginate
+          previousLabel={'previous'}
+          nextLabel={'next'}
+          breakLabel={'...'}
+          breakClassName={'break-me'}
+          pageCount={twitterState.count}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={5}
+          onPageChange={handleNextPageClick}
+          containerClassName={'pagination'}
+          activeClassName={'active'}
+        />
+      ): null} */}
       {sortedTweets.map((tweet, index) => (
         <TweetEmbedContainer key={index}>
           {(!tweet.claimed && !tweet.approved && !tweet.rejected) ? (

@@ -60,7 +60,7 @@ export const Controller: React.FC = () => {
       twitterState.tweets,
       Number(blockchainState.blocksPerDay)
     ),
-    [blockchainState, twitterState]
+    [blockchainState, twitterState, userState]
   );
 
   /**
