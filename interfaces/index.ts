@@ -64,3 +64,9 @@ export interface EventState {
   current: Events;
   content: null | any;
 }
+
+export interface FetchTweets {
+  tweets: Twitte[];
+  count: number;
+  verifiedCount: number;
+}

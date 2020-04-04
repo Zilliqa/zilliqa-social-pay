@@ -52,6 +52,7 @@
     "react-dom": "^16.13.1",
     "react-modal": "^3.11.2",
     "react-notifications": "^1.5.0",
+    "react-paginate": "^6.3.2",
     "react-responsive": "^8.0.3",
     "react-spinners": "^0.8.1",
     "react-tooltip": "^4.1.5",

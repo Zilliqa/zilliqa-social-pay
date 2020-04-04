@@ -56,17 +56,8 @@ export const FixedWrapper: React.FC = () => {
   const [address, setAddress] = React.useState<string>(userState.zilAddress);
   // State for check is tablet or mobile width.
   const [twitterWidth] = React.useState(isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT);
-
-  /**
-   * Validation lastAction for user and current block.
-   */
-  const canCallAction = React.useMemo(() => {
-    if (Number(userState.lastAction) > Number(blockchainState.BlockNum)) {
-      return false;
-    }
-
-    return true;
-  }, [userState, blockchainState]);
+  const [placeholder, setPlaceholder] = React.useState<string>();
+  const [disabledAddress, setDisabledAddress] = React.useState<boolean>();
   /**
    * Calculate the time for next action.
    */
@@ -77,7 +68,7 @@ export const FixedWrapper: React.FC = () => {
       twitterState.tweets,
       Number(blockchainState.blocksPerWeek)
     ),
-    [blockchainState, twitterState]
+    [blockchainState, twitterState, userState]
   );
   const timerDay = React.useMemo(
     () => timerCalc(
@@ -86,7 +77,7 @@ export const FixedWrapper: React.FC = () => {
       twitterState.tweets,
       Number(blockchainState.blocksPerDay)
     ),
-    [blockchainState, twitterState]
+    [blockchainState, twitterState, userState]
   );
 
   /**
@@ -148,8 +139,8 @@ export const FixedWrapper: React.FC = () => {
     EventStore.setEvent(Events.Load);
     const result = await addTweet(userState.jwtToken, eventState.content);
 
-    if (result.message === 'Created') {
-      await TwitterStore.getTweets(null);
+    if (result.message.includes('Added')) {
+      TwitterStore.add(result.tweet);
 
       NotificationManager.info('Tweet added!');
     }
@@ -158,10 +149,26 @@ export const FixedWrapper: React.FC = () => {
   }, [addTweet, EventStore, userState, eventState, TwitterStore]);
 
   React.useEffect(() => {
-    if (!address || address.length < 1) {
+    if (timerPerWeeks > 0) {
+      setPlaceholder(`You can change address: ${moment(timerPerWeeks).fromNow()}`);
+      setDisabledAddress(true);
+      setAddress('');
+    } else if (userState.synchronization) {
+      setPlaceholder('Waiting for address to sync...');
+      setDisabledAddress(true);
+      setAddress('');
+    } else if (timerPerWeeks === 0 && !userState.synchronization) {
       setAddress(userState.zilAddress);
+      setDisabledAddress(false);
     }
-  }, [address, setAddress, userState]);
+  }, [
+    address,
+    setAddress,
+    userState,
+    setPlaceholder,
+    timerPerWeeks,
+    disabledAddress
+  ]);
   // React hooks //
 
   return (
@@ -171,35 +178,20 @@ export const FixedWrapper: React.FC = () => {
         onBlur={() => EventStore.reset()}
       >
         <Card title="Settings">
-          {timerPerWeeks !== 0 && !userState.synchronization ? (
-            <Text
-              fontColors={FontColors.white}
-              size={FontSize.sm}
-            >
-              You can change address: {moment(timerPerWeeks).fromNow()}
-            </Text>
-          ) : null}
-          {userState.synchronization ? (
-            <Text
-              fontColors={FontColors.white}
-              size={FontSize.sm}
-            >
-              Waiting for address to sync...
-            </Text>
-          ) : null}
           <form onSubmit={handleAddressChange}>
             <FieldInput
               defaultValue={address}
               sizeVariant={SizeComponent.md}
               error={addressErr}
-              disabled={!canCallAction || userState.synchronization || timerPerWeeks !== 0}
+              placeholder={placeholder}
+              disabled={disabledAddress}
               css="font-size: 15px;width: 300px;"
               onChange={handleChangeAddress}
             />
             <Button
-              sizeVariant={SizeComponent.lg}
-              variant={ButtonVariants.primary}
-              disabled={Boolean(!canCallAction || addressErr || !address || (address === userState.zilAddress))}
+              sizeVariant={SizeComponent.md}
+              variant={ButtonVariants.outlet}
+              disabled={Boolean(disabledAddress || (address === userState.zilAddress))}
               css="margin-top: 10px;"
             >
               Change address
@@ -231,14 +223,14 @@ export const FixedWrapper: React.FC = () => {
                   Pay
                 </Button>
               ) : (
-                <Text
-                  size={FontSize.sm}
-                  fontVariant={Fonts.AvenirNextLTProDemi}
-                  fontColors={FontColors.white}
-                >
-                  You can participate: {moment(timerDay).fromNow()}
-                </Text>
-              )}
+                  <Text
+                    size={FontSize.sm}
+                    fontVariant={Fonts.AvenirNextLTProDemi}
+                    fontColors={FontColors.white}
+                  >
+                    You can participate: {moment(timerDay).fromNow()}
+                  </Text>
+                )}
             </Container>
           ) : null}
         </Card>

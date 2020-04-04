@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import * as Effector from 'effector-react';
 import { useMediaQuery } from 'react-responsive';
 import moment from 'moment';
+// import ReactPaginate from 'react-paginate';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
@@ -81,6 +82,11 @@ export const Verified: React.FC = () => {
     [blockchainState, twitterState]
   );
   const sortedTweets = React.useMemo(() => twitterState.tweets.sort((a, b) => {
+
+    if (!a.approved) {
+      return -1;
+    }
+
     // to get a value that is either negative, positive, or zero.
     return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
   }), [twitterState]);

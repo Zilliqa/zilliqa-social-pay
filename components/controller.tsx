@@ -13,17 +13,20 @@ import { ProgressCircle } from 'components/progress-circle';
 import { AroundedContainer } from 'components/rounded-container';
 import { Img } from 'components/img';
 import { Input, InputIcons } from 'components/Input';
+import { Button } from 'components/button';
+import { Container } from 'components/container';
 
 import {
   FontSize,
   Fonts,
   Events,
   FontColors,
-  SizeComponent
+  SizeComponent,
+  ButtonVariants
 } from 'config';
 import { fromZil } from 'utils/from-zil';
 import { timerCalc } from 'utils/timer';
-import { Container } from './container';
+import { SearchTweet } from 'utils/get-tweets';
 
 const ControlContainer = styled(AroundedContainer)`
   padding: 30px;
@@ -43,24 +46,10 @@ export const Controller: React.FC = () => {
   const twitterState = Effector.useStore(TwitterStore.store);
 
   const [value, setValue] = React.useState<string>('');
-  const [disabled, setDisabled] = React.useState<boolean>(true);
+  const [placeholder, setPlaceholder] = React.useState<string>();
+  const [disabled, setDisabled] = React.useState<boolean>();
   const [icon, setIcon] = React.useState<InputIcons>(InputIcons.timer);
 
-  const calculPercent = React.useMemo(() => {
-    const _100 = 100;
-
-    if (Number(blockchainState.initBalance) === 0) {
-      return 0;
-    }
-
-    const amount = Number(blockchainState.balance) / Number(blockchainState.initBalance);
-
-    if (amount > _100) {
-      return _100;
-    }
-
-    return Math.round(amount * _100);
-  }, [blockchainState]);
   /**
    * Calculate the time for next action.
    */
@@ -74,24 +63,92 @@ export const Controller: React.FC = () => {
     [blockchainState, twitterState]
   );
 
+  /**
+   * Validation and parse tweet url or ID, before send to server and blockchain.
+   * @param event - HTMLInput event.
+   */
+  const handleInput = React.useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.value) {
+      setValue('');
+      return null;
+    }
+
+    let inputValue = event.target.value;
+
+    // If user pass tweet ID.
+    if (!isNaN(Number(inputValue))) {
+      setValue(inputValue);
+
+      return null;
+    }
+
+    inputValue = inputValue.replace(/\?.*/gm, '');
+
+    // Parse and search tweet ID.
+    const foundTweetId = inputValue
+      .split('/')
+      .filter(Boolean)
+      .find((el) => Number.isInteger(Number(el)));
+
+    if (!foundTweetId) {
+      return null;
+    }
+
+    // If value is valid than update `value` state.
+    setValue(foundTweetId);
+  }, [setValue]);
+  /**
+   * Handle when form has been submited and send tweet ID to server.
+   * @param event - HTMLForm event.
+   */
+  const handleSearch = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    console.log(value);
+
+    if (!value) {
+      return null;
+    }
+
+    EventStore.setEvent(Events.Load);
+    // Send to server tweet ID (`value`).
+    const tweet = await SearchTweet(
+      value,
+      userState.jwtToken
+    );
+    EventStore.reset();
+
+    // Show result from server.
+    EventStore.setContent(tweet);
+
+    // If server responsed error.
+    if (tweet.message) {
+      EventStore.setEvent(Events.Error);
+      return null;
+    }
+
+    EventStore.setEvent(Events.Twitter);
+  }, [value, userState]);
+
   React.useEffect(() => {
     if (userState.synchronization) {
-      setValue('Waiting for address to sync...');
+      setPlaceholder('Waiting for address to sync...');
       setDisabled(true);
       setIcon(InputIcons.refresh);
     } else if (timerDay > 0) {
-      setValue(`You can participate: ${moment(timerDay).fromNow()}`);
+      setPlaceholder(`You can participate: ${moment(timerDay).fromNow()}`);
       setDisabled(true);
       setIcon(InputIcons.timer);
     } else if (timerDay === 0 && !userState.synchronization) {
       setDisabled(false);
-      setValue('');
+      setPlaceholder('Paste your tweet link here');
       setIcon(InputIcons.search);
     }
   }, [
     setIcon,
     setDisabled,
-    setValue,
+    disabled,
+    setPlaceholder,
     value,
     userState
   ]);
@@ -107,9 +164,12 @@ export const Controller: React.FC = () => {
   }, [UserStore]);
 
   return (
-    <ControlContainer>
+    <ControlContainer onSubmit={handleSearch}>
       <Container css="position: absolute;transform: translate(160%, -110%);">
-        <ProgressCircle pct={calculPercent} />
+        <ProgressCircle
+          pct={twitterState.verifiedCount}
+          count={twitterState.count}
+        />
         <Text
           size={FontSize.sm}
           fontColors={FontColors.white}
@@ -173,12 +233,22 @@ export const Controller: React.FC = () => {
       </Text>
       <Input
         sizeVariant={SizeComponent.md}
-        value={value}
+        defaultValue={value}
         icon={icon}
         disabled={disabled}
-        placeholder="Paste your tweet link here"
+        onChange={handleInput}
+        placeholder={placeholder}
         css="font-size: 12px;height: 40px;"
       />
+      {!disabled ? (
+        <Button
+          sizeVariant={SizeComponent.md}
+          variant={ButtonVariants.outlet}
+          css="margin-top: 10px;"
+        >
+          Search
+        </Button>
+      ) : null}
     </ControlContainer>
   );
 };

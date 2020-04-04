@@ -117,56 +117,10 @@ router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
   return res.status(201).json(foundTweet);
 });
 
-router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
-  const { user, decoded } = req.verification;
-  const tweet = req.body;
-
-  if (!tweet || !tweet.full_text) {
-    return res.status(401).json({
-      message: 'Invalid tweet data.'
-    });
-  }
-
-  try {
-    if (!user || user.profileId !== tweet.user.id_str) {
-      return res.status(401).json({
-        message: 'Invalid user data.'
-      });
-    } else if (!tweet.user || tweet.user.id_str !== user.profileId) {
-      return res.status(401).json({
-        message: 'Invalid user data.'
-      });
-    }
-
-    const blockchainInfo = await Blockchain.findOne({
-      where: { contract: CONTRACT_ADDRESS }
-    });
-
-    await Twittes.create({
-      idStr: tweet.id_str,
-      text: tweet.full_text.toLowerCase(),
-      UserId: user.id,
-      block: blockchainInfo.BlockNum
-    });
-
-    await user.update({
-      username: tweet.user.name,
-      screenName: tweet.user.screen_name,
-      profileImageUrl: tweet.user.profile_image_url
-    });
-
-    return res.status(201).json({
-      message: 'Added.'
-    });
-  } catch (err) {
-    return res.status(400).json({
-      message: err.message
-    });
-  }
-});
-
 router.get('/get/tweets', checkSession, async (req, res) => {
   const userId = req.session.passport.user.id;
+  const limit = req.query.limit || 3;
+  const offset = req.query.offset || 0;
 
   try {
     const user = await User.findByPk(userId);
@@ -179,7 +133,23 @@ router.get('/get/tweets', checkSession, async (req, res) => {
       throw new Error('No found user.');
     }
 
-    const twittes = await Twittes.findAll({
+    const count = await Twittes.count({
+      where: {
+        UserId: user.id
+      }
+    });
+    const verifiedCount = await Twittes.count({
+      where: {
+        UserId: user.id,
+        approved: true
+      }
+    });
+    const tweets = await Twittes.findAll({
+      limit,
+      offset,
+      order: [
+        ['createdAt', 'DESC']
+      ],
       where: {
         UserId: user.id
       },
@@ -191,7 +161,11 @@ router.get('/get/tweets', checkSession, async (req, res) => {
       }
     });
 
-    return res.status(200).json(twittes);
+    return res.status(200).json({
+      tweets,
+      count,
+      verifiedCount
+    });
   } catch (err) {
     return res.status(400).json({
       message: err.message

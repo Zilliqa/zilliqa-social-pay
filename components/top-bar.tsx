@@ -80,6 +80,7 @@ export const TopBar: React.FC = () => {
   const handleClick = React.useCallback((event: string) => {
     switch (event) {
       case ITEMS[0]:
+        UserStore.updateUserState(null);
         EventStore.setEvent(Events.Settings);
         break;
       case ITEMS[1]:
@@ -107,7 +108,7 @@ export const TopBar: React.FC = () => {
         {trimAddress}
       </Text>
       <ProfileContainer>
-        <ProfileImg src={userState.profileImageUrl}/>
+        <ProfileImg src={userState.profileImageUrl} />
         <Dropdown
           items={ITEMS}
           onClick={handleClick}

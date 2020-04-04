@@ -16,7 +16,8 @@ type Prop = {
   height?: number | string;
   width?: number | string;
   pct: number;
-  coefficient? : number;
+  coefficient?: number;
+  count: number;
 };
 
 const ProgressContainer = styled(Container)`
@@ -31,7 +32,7 @@ const ProgressContainer = styled(Container)`
     width: ${(props: ProgressContainerProp) => props.width}px;
     // box-shadow: inset 0 0 1em #7882f3;
     background-color: #7882f3;
-    content: attr(data-pct)"%";
+    content: attr(data-pct);
     border-radius: 100%;
     line-height: ${(props: ProgressContainerProp) => props.height}px;
     font-size: 1em;
@@ -58,25 +59,30 @@ const Circle = styled.circle`
 `;
 
 const DEFAULT_RADIUS = 90;
-const _100 = 100;
 const _2 = 2;
 
 export const ProgressCircle: React.FC<Prop> = ({
   width,
   height,
   pct,
-  coefficient
+  coefficient,
+  count
 }) => {
   const [dashoffset, setDashoffset] = React.useState<number>(0);
 
   React.useEffect(() => {
     const c = Math.PI * (DEFAULT_RADIUS * _2);
+    const newDashoffset = ((count - pct) / count) * c;
 
-    setDashoffset(((_100 - pct) / _100) * c);
+    if (!isNaN(newDashoffset)) {
+
+      setDashoffset(newDashoffset);
+    }
   }, [
     dashoffset,
     setDashoffset,
-    pct
+    pct,
+    count
   ]);
 
   return (
@@ -90,11 +96,11 @@ export const ProgressCircle: React.FC<Prop> = ({
         width={width}
         viewBox="0 0 200 200"
       >
-        <Circle color="#fff"/>
+        <Circle color="#fff" />
         <Circle
           color="#5c63ef"
           style={{
-            strokeDashoffset: dashoffset,
+            strokeDashoffset: dashoffset || 0,
             strokeWidth: '1.2em'
           }}
         />

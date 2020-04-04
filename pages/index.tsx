@@ -56,7 +56,7 @@ const Illustration = styled(Img)`
 
 const updater = async () => {
   const messageError = 'Unauthorized';
-  const userState = UserStore.store.getState();
+  let userState = UserStore.store.getState();
   const blockchain = await BlockchainStore.updateBlockchain(null);
 
   if (Number(userState.balance) === 0) {
@@ -71,12 +71,12 @@ const updater = async () => {
     throw new Error(messageError);
   }
 
-  const tweets = await TwitterStore.getTweets(null);
+  const tweets = await TwitterStore.getTweets({});
 
   if (tweets.message && tweets.message === messageError) {
     throw new Error(messageError);
   } else if (!tweets || tweets.length < 1) {
-    const userState = UserStore.store.getState();
+    userState = UserStore.store.getState();
 
     await TwitterStore.updateTweets(userState.jwtToken);
   }
