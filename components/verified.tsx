@@ -83,11 +83,6 @@ export const Verified: React.FC = () => {
     [blockchainState, twitterState]
   );
   const sortedTweets = React.useMemo(() => twitterState.tweets.sort((a, b) => {
-
-    if (!a.approved) {
-      return -1;
-    }
-
     // to get a value that is either negative, positive, or zero.
     return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
   }), [twitterState]);
