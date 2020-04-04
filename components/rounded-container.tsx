@@ -13,7 +13,7 @@ export const AroundedContainer = styled.form`
   height: 400px;
   width: 300px;
   z-index: 1;
-  border-radius: 30px;
+  border-radius: 20px;
 
   margin-left: 10%;
   padding-top: 70px;

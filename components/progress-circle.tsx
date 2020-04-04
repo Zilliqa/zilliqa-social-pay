@@ -29,7 +29,8 @@ const ProgressContainer = styled(Container)`
     display: block;
     height: ${(props: ProgressContainerProp) => props.height}px;
     width: ${(props: ProgressContainerProp) => props.width}px;
-    box-shadow: inset 0 0 1em ${FontColors.white};
+    // box-shadow: inset 0 0 1em #7882f3;
+    background-color: #7882f3;
     content: attr(data-pct)"%";
     border-radius: 100%;
     line-height: ${(props: ProgressContainerProp) => props.height}px;
@@ -87,7 +88,7 @@ export const ProgressCircle: React.FC<Prop> = ({
       <SVG
         height={height}
         width={width}
-        viewBox={`0 0 ${Number(width) * _2} ${Number(height) * _2}`}
+        viewBox="0 0 200 200"
       >
         <Circle color="#fff"/>
         <Circle
@@ -103,7 +104,7 @@ export const ProgressCircle: React.FC<Prop> = ({
 };
 
 ProgressCircle.defaultProps = {
-  width: 100,
-  height: 100,
+  width: 80,
+  height: 80,
   coefficient: 10
 };

@@ -12,19 +12,21 @@ import { Text } from 'components/text';
 import { ProgressCircle } from 'components/progress-circle';
 import { AroundedContainer } from 'components/rounded-container';
 import { Img } from 'components/img';
+import { Input, InputIcons } from 'components/Input';
 
 import {
   FontSize,
   Fonts,
   Events,
-  FontColors
+  FontColors,
+  SizeComponent
 } from 'config';
 import { fromZil } from 'utils/from-zil';
 import { timerCalc } from 'utils/timer';
+import { Container } from './container';
 
 const ControlContainer = styled(AroundedContainer)`
-  padding-left: 15px;
-  padding-right: 15px;
+  padding: 30px;
   align-items: flex-start;
 `;
 
@@ -39,6 +41,10 @@ export const Controller: React.FC = () => {
   const blockchainState = Effector.useStore(BlockchainStore.store);
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
+
+  const [value, setValue] = React.useState<string>('');
+  const [disabled, setDisabled] = React.useState<boolean>(true);
+  const [icon, setIcon] = React.useState<InputIcons>(InputIcons.timer);
 
   const calculPercent = React.useMemo(() => {
     const _100 = 100;
@@ -68,6 +74,28 @@ export const Controller: React.FC = () => {
     [blockchainState, twitterState]
   );
 
+  React.useEffect(() => {
+    if (userState.synchronization) {
+      setValue('Waiting for address to sync...');
+      setDisabled(true);
+      setIcon(InputIcons.refresh);
+    } else if (timerDay > 0) {
+      setValue(`You can participate: ${moment(timerDay).fromNow()}`);
+      setDisabled(true);
+      setIcon(InputIcons.timer);
+    } else if (timerDay === 0 && !userState.synchronization) {
+      setDisabled(false);
+      setValue('');
+      setIcon(InputIcons.search);
+    }
+  }, [
+    setIcon,
+    setDisabled,
+    setValue,
+    value,
+    userState
+  ]);
+
   /**
    * Handle click to reload icon.
    * Just update user information.
@@ -80,58 +108,77 @@ export const Controller: React.FC = () => {
 
   return (
     <ControlContainer>
-      <Text
-        size={FontSize.sm}
-        fontVariant={Fonts.AvenirNextLTProDemi}
-        fontColors={FontColors.white}
-      >
-        ZIL per tweet: {fromZil(blockchainState.zilsPerTweet)} ZIL
-      </Text>
-      <Text
-        size={FontSize.sm}
-        fontVariant={Fonts.AvenirNextLTProDemi}
-        fontColors={FontColors.white}
-      >
-        Balance: {fromZil(userState.balance)} ZIL <Img
-          src="/icons/refresh.svg"
-          css="cursor: pointer;"
-          onClick={handleUpdateUser}
-        />
-      </Text>
-      <Text
-        size={FontSize.sm}
-        fontVariant={Fonts.AvenirNextLTProDemi}
-        fontColors={FontColors.white}
-        css="text-transform: capitalize;"
-      >
-        Hashtag: {blockchainState.hashtag}
-      </Text>
-      <ProgressCircle pct={calculPercent}/>
-      <Text
-        size={FontSize.sm}
-        fontVariant={Fonts.AvenirNextLTProDemi}
-        fontColors={FontColors.white}
-        css="align-self: center;"
-      >
-        Contract balance used.
-      </Text>
-      {timerDay === 0 && !userState.synchronization ? null : userState.synchronization ? (
+      <Container css="position: absolute;transform: translate(160%, -110%);">
+        <ProgressCircle pct={calculPercent} />
         <Text
           size={FontSize.sm}
-          fontVariant={Fonts.AvenirNextLTProDemi}
           fontColors={FontColors.white}
         >
-          Waiting for address to sync...
+          Verified tweets
         </Text>
-      ) : (
+      </Container>
+      <Text
+        size={FontSize.sm}
+        fontVariant={Fonts.AvenirNextLTProBold}
+        fontColors={FontColors.white}
+      >
+        Dashboard
+      </Text>
+      <Text
+        size={FontSize.sm}
+        fontVariant={Fonts.AvenirNextLTProDemi}
+        fontColors={FontColors.gray}
+      >
+        BALANCE
         <Text
           size={FontSize.sm}
-          fontVariant={Fonts.AvenirNextLTProDemi}
+          fontVariant={Fonts.AvenirNextLTProBold}
           fontColors={FontColors.white}
         >
-          You can participate: {moment(timerDay).fromNow()}
+          {fromZil(userState.balance)} ZIL <Img
+            src="/icons/refresh.svg"
+            css="cursor: pointer;"
+            onClick={handleUpdateUser}
+          />
         </Text>
-      )}
+      </Text>
+      <Text
+        size={FontSize.sm}
+        fontVariant={Fonts.AvenirNextLTProDemi}
+        fontColors={FontColors.gray}
+      >
+        $ZIL PER TWEET
+        <Text
+          size={FontSize.sm}
+          fontVariant={Fonts.AvenirNextLTProBold}
+          fontColors={FontColors.white}
+        >
+          {fromZil(blockchainState.zilsPerTweet)} $ZIL
+        </Text>
+      </Text>
+      <Text
+        size={FontSize.sm}
+        fontVariant={Fonts.AvenirNextLTProDemi}
+        fontColors={FontColors.gray}
+      >
+        HASHTAG
+        <Text
+          size={FontSize.sm}
+          fontVariant={Fonts.AvenirNextLTProBold}
+          fontColors={FontColors.white}
+          css="text-transform: capitalize;"
+        >
+          {blockchainState.hashtag}
+        </Text>
+      </Text>
+      <Input
+        sizeVariant={SizeComponent.md}
+        value={value}
+        icon={icon}
+        disabled={disabled}
+        placeholder="Paste your tweet link here"
+        css="font-size: 12px;height: 40px;"
+      />
     </ControlContainer>
   );
 };

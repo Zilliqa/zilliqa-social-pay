@@ -7,7 +7,7 @@ const Twittes = models.sequelize.models.Twittes;
 
 module.exports = (socket, io) => {
   Blockchain.addHook('afterUpdate', (blockchain) => {
-    socket.broadcast.emit(EVENTS.info, JSON.stringify(blockchain));
+    socket.emit(EVENTS.info, JSON.stringify(blockchain));
   });
   User.addHook('afterUpdate', (user) => {
     delete user.dataValues.tokenSecret;

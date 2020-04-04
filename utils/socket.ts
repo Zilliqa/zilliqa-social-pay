@@ -20,6 +20,7 @@ export function socket() {
   socketConnector.id = userSate.profileId;
 
   socketConnector.on(EVENTS.info, (data: string) => {
+    console.log(JSON.parse(data));
     BlockchainStore.updateStore(JSON.parse(data));
   });
   socketConnector.on(EVENTS.userUpdated, (data: string) => {
@@ -27,14 +28,12 @@ export function socket() {
     const user = JSON.parse(data) as User;
 
     if (user.profileId === userSate.profileId) {
-      if (user.synchronization !== userSate.synchronization) {
+      if (user.synchronization && !userSate.synchronization) {
         NotificationManager.success('Address configured');
       }
 
       UserStore.setUser(user);
     }
-
-    UserStore.updateUserState(null);
   });
   socketConnector.on(EVENTS.tweetsUpdate, (data: string) => {
     const tweet = JSON.parse(data) as Twitte;
@@ -56,7 +55,5 @@ export function socket() {
     } else if (tweet.rejected) {
       NotificationManager.success('Your tweet is rejected.');
     }
-
-    UserStore.updateUserState(null);
   });
 }

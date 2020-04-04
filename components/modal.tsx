@@ -55,6 +55,7 @@ export const Modal: React.FC<Prop> = ({
   <ReactModal
     style={customStyles}
     isOpen={show}
+    ariaHideApp={false}
     onRequestClose={onBlur}
   >
     <Container css="display: flex;">
