@@ -32,6 +32,15 @@ const ControlContainer = styled(AroundedContainer)`
   padding: 30px;
   align-items: flex-start;
 `;
+const DashboardContainer = styled(Container)`
+  position: absolute;
+  transform: translate(160%, -110%);
+
+  @media (max-width: 440px) {
+    position: relative;
+    transform: none;
+  }
+`;
 
 /**
  * Controller is component show information about
@@ -165,7 +174,7 @@ export const Controller: React.FC = () => {
 
   return (
     <ControlContainer onSubmit={handleSearch}>
-      <Container css="position: absolute;transform: translate(160%, -110%);">
+      <DashboardContainer>
         <ProgressCircle
           pct={twitterState.verifiedCount}
           count={twitterState.count}
@@ -176,7 +185,7 @@ export const Controller: React.FC = () => {
         >
           Verified tweets
         </Text>
-      </Container>
+      </DashboardContainer>
       <Text
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProBold}

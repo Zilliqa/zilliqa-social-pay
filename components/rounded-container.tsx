@@ -10,8 +10,8 @@ export const AroundedContainer = styled.form`
   align-items: center;
 
   background-color: #5c63efb3;
-  height: 400px;
   width: 300px;
+  min-height: 400px;
   z-index: 1;
   border-radius: 20px;
 
@@ -23,6 +23,6 @@ export const AroundedContainer = styled.form`
 
   @media (max-width: 400px) {
     margin: 0;
-    width: 230px;
+    width: 310px;
   }
 `;

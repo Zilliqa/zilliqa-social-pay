@@ -23,7 +23,7 @@ const TwitterLoginStyles = {
   width: '150px',
 
   background: 'transparent',
-  border: `1px solid ${FontColors.white}`,
+  border: `0.1rem solid ${FontColors.white}`,
   padding: '10px'
 };
 type Prop = {

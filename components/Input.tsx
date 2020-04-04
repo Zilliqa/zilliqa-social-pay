@@ -39,7 +39,7 @@ export const Input = styled.input`
 
   width: 100%;
   border: 0;
-  border: 1px solid ${FontColors.gray};
+  border: 0.1rem solid ${FontColors.gray};
 
   border-radius: 10px;
   ${(props: Prop) => props.variants}

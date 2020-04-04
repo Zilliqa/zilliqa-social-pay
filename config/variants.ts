@@ -6,13 +6,13 @@ export enum ButtonVariants {
   warning = 'background: #057A8E;color: #fff;',
   outlet = `
     background: transparent;
-    border: 1px solid #fff;
+    border: 0.1rem solid #fff;
     color: #fff;
 
     :hover {
       background: #fff;
       color: #5C63EF;
-      border: 1px solid transparent;
+      border: 0.1rem solid transparent;
     }
   `
 }
