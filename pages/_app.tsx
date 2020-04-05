@@ -82,6 +82,84 @@ const GlobalStyle = createGlobalStyle`
   }
   .ReactModal__Overlay {
     z-index: 99;
+    perspective: 600;
+    opacity: 0;
+  }
+
+  .ReactModal__Overlay--after-open {
+    opacity: 1;
+    transition: opacity 150ms ease-out;
+  }
+
+  .ReactModal__Content {
+    transform: scale(0.5) rotateX(-30deg);
+  }
+
+  .ReactModal__Content--after-open {
+    transform: scale(1) rotateX(0deg);
+    transition: all 150ms ease-in;
+  }
+
+  .ReactModal__Overlay--before-close {
+    opacity: 0;
+  }
+
+  .ReactModal__Content--before-close {
+    transform: scale(0.5) rotateX(30deg);
+    transition: all 150ms ease-in;
+  }
+
+  .ReactModal__Body--open,
+  .ReactModal__Html--open {
+    overflow: hidden;
+  }
+
+  .pagination {
+    display: flex;
+
+    margin: 0;
+    padding: 0;
+    padding-left: 40px;
+    margin-bottom: 15px;
+
+    li {
+      list-style-type: none;
+      margin-left: 10px;
+
+      a {
+        cursor: pointer;
+        min-width: 100px;
+        border-radius: 30px;
+        background: transparent;
+        border: 0.1rem solid #fff;
+        color: #fff;
+        transition: all 0.5s ease-out;
+        padding: 9px 12px 9px 12px;
+
+        :hover {
+          background: #fff;
+          color: #5C63EF;
+          border: 0.1rem solid transparent;
+        }
+      }
+    }
+
+    li.active {
+      a {
+        background: #fff;
+        color: #5C63EF;
+        border: 0.1rem solid transparent;
+      }
+    }
+
+    li.disabled > a {
+      cursor: unset;
+      :hover {
+        background: transparent;
+        color: #fff;
+        border: 0.1rem solid #fff;
+      }
+    }
   }
 `;
 

@@ -100,7 +100,7 @@ export const ProgressCircle: React.FC<Prop> = ({
         <Circle
           color="#5c63ef"
           style={{
-            strokeDashoffset: dashoffset || 0,
+            strokeDashoffset: 0, // dashoffset,
             strokeWidth: '1.2em'
           }}
         />

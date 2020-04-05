@@ -159,7 +159,8 @@ export const Controller: React.FC = () => {
     disabled,
     setPlaceholder,
     value,
-    userState
+    userState,
+    timerDay
   ]);
 
   /**

@@ -5,10 +5,17 @@ import ReactModal from 'react-modal';
 import { Img } from 'components/img';
 import { Container } from 'components/container';
 
+const ContentContainer = styled(Container)`
+  background-color: #CCD1FF;
+  border-radius: 15px;
+  padding: 15px;
+`;
 export const CloseIcon = styled(Img)`
   cursor: pointer;
-  height: 20px;
-  width: 20px;
+  height: 36px;
+  width: 36px;
+  float: right;
+  transform: translate(10px, -15px);
 `;
 CloseIcon.defaultProps = {
   src: '/icons/close-1.svg'
@@ -20,13 +27,13 @@ type Prop = {
 };
 
 const customStyles = {
-  content : {
-    top : '50%',
-    left : '50%',
-    right : 'auto',
-    bottom : 'auto',
-    marginRight : '-50%',
-    transform : 'translate(-50%, -50%)',
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
     background: 'transparent',
     border: 0
   },
@@ -52,15 +59,15 @@ export const Modal: React.FC<Prop> = ({
   show,
   onBlur
 }) => (
-  <ReactModal
-    style={customStyles}
-    isOpen={show}
-    ariaHideApp={false}
-    onRequestClose={onBlur}
-  >
-    <Container css="display: flex;">
-      {children}
-      <CloseIcon onClick={onBlur}/>
-    </Container>
-  </ReactModal>
-);
+    <ReactModal
+      style={customStyles}
+      isOpen={show}
+      ariaHideApp={false}
+      onRequestClose={onBlur}
+    >
+      <CloseIcon onClick={onBlur} />
+      <ContentContainer>
+        {children}
+      </ContentContainer>
+    </ReactModal>
+  );

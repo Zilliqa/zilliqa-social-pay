@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import * as Effector from 'effector-react';
 import { useMediaQuery } from 'react-responsive';
 import moment from 'moment';
-// import ReactPaginate from 'react-paginate';
+import ReactPaginate from 'react-paginate';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
@@ -37,8 +37,8 @@ const TweetEmbedContainer = styled.div`
 
 const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
-// const PAGE_LIMIT = 5;
-
+const PAGE_LIMIT = 2;
+const SLEEP = 1000;
 /**
  * Show user tweets.
  */
@@ -108,12 +108,16 @@ export const Verified: React.FC = () => {
     await claimTweet(userState.jwtToken, tweet);
     EventStore.reset();
   }, [userState, timerDay]);
-  // const handleNextPageClick = React.useCallback((data) => {
-  //   const selected = data.selected;
-  //   const offset = Math.ceil(selected * PAGE_LIMIT);
+  const handleNextPageClick = React.useCallback(async (data) => {
+    const selected = data.selected;
+    const offset = Math.ceil(selected * PAGE_LIMIT);
 
-  //   console.log(offset, PAGE_LIMIT);
-  // }, []);
+    TwitterStore.update([]);
+
+    EventStore.setEvent(Events.Load);
+    await TwitterStore.getTweets({ offset, limit: PAGE_LIMIT });
+    setTimeout(() => EventStore.reset(), SLEEP);
+  }, [sortedTweets, twitterState, TwitterStore]);
 
   return (
     <Container>
@@ -135,20 +139,20 @@ export const Verified: React.FC = () => {
           /> : null}
         </HaventVerified>
       </Container>
-      {/* {twitterState.count > PAGE_LIMIT ? (
+      {twitterState.count > PAGE_LIMIT ? (
         <ReactPaginate
           previousLabel={'previous'}
           nextLabel={'next'}
           breakLabel={'...'}
           breakClassName={'break-me'}
-          pageCount={twitterState.count}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={5}
+          pageCount={twitterState.count / PAGE_LIMIT}
+          marginPagesDisplayed={0}
+          pageRangeDisplayed={PAGE_LIMIT}
           onPageChange={handleNextPageClick}
           containerClassName={'pagination'}
           activeClassName={'active'}
         />
-      ): null} */}
+      ) : null}
       {sortedTweets.map((tweet, index) => (
         <TweetEmbedContainer key={index}>
           {(!tweet.claimed && !tweet.approved && !tweet.rejected) ? (

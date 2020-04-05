@@ -5,7 +5,7 @@ import { FetchTweets } from 'interfaces';
 
 export const fetchTweets = async ({
   // tslint:disable-next-line: no-magic-numbers
-  limit = 5,
+  limit = 2,
   offset = 0
 }): Promise<FetchTweets> => {
   const res = await fetch(`${APIs.getTweets}?limit=${limit}&offset=${offset}`, {

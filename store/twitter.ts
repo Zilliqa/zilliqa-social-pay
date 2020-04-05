@@ -52,7 +52,7 @@ export const store = TwitterDomain.store(initalState)
     if (result && Array.isArray(result.tweets)) {
       return {
         error: undefined,
-        tweets: toUnique(state.tweets.concat(result.tweets), 'idStr'),
+        tweets: result.tweets,
         count: result.count,
         verifiedCount: result.verifiedCount
       };

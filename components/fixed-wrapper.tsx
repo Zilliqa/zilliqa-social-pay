@@ -10,10 +10,11 @@ import { NotificationContainer, NotificationManager } from 'react-notifications'
 import EventStore from 'store/event';
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
+import BrowserStore from 'store/browser';
 import BlockchainStore from 'store/blockchain';
 
 import { Modal } from 'components/modal';
-import { Card } from 'components/card';
+import { Img } from 'components/img';
 import { FieldInput } from 'components/Input';
 import { Text } from 'components/text';
 import { Button } from 'components/button';
@@ -43,6 +44,7 @@ export const FixedWrapper: React.FC = () => {
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
 
   // Effector hooks //
+  const browserState = Effector.useStore(BrowserStore.store);
   const eventState = Effector.useStore(EventStore.store);
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
@@ -177,79 +179,86 @@ export const FixedWrapper: React.FC = () => {
         show={eventState.current === Events.Settings}
         onBlur={() => EventStore.reset()}
       >
-        <Card title="Settings">
-          <form onSubmit={handleAddressChange}>
-            <FieldInput
-              defaultValue={address}
-              sizeVariant={SizeComponent.md}
-              error={addressErr}
-              placeholder={placeholder}
-              disabled={disabledAddress}
-              css="font-size: 15px;width: 300px;"
-              onChange={handleChangeAddress}
-            />
-            <Button
-              sizeVariant={SizeComponent.md}
-              variant={ButtonVariants.outlet}
-              disabled={Boolean(disabledAddress || (address === userState.zilAddress))}
-              css="margin-top: 10px;"
-            >
-              Change address
-            </Button>
-          </form>
-        </Card>
+        <form onSubmit={handleAddressChange}>
+          <FieldInput
+            defaultValue={address}
+            sizeVariant={SizeComponent.md}
+            error={addressErr}
+            placeholder={placeholder}
+            disabled={disabledAddress}
+            css="font-size: 15px;width: 300px;"
+            onChange={handleChangeAddress}
+          />
+          <Button
+            sizeVariant={SizeComponent.lg}
+            variant={ButtonVariants.primary}
+            disabled={Boolean(disabledAddress || (address === userState.zilAddress))}
+            css="margin-top: 10px;"
+          >
+            Change address
+          </Button>
+        </form>
       </Modal>
       <Modal
         show={eventState.current === Events.Twitter}
         onBlur={() => EventStore.reset()}
       >
-        <Card title="Found tweet">
-          {Boolean(eventState.content && eventState.content.id_str) ? (
-            <Container css={`display: grid;width: ${twitterWidth}px`}>
-              <TwitterTweetEmbed
-                screenName={userState.screenName}
-                tweetId={eventState.content.id_str}
-                options={{
-                  width: twitterWidth
-                }}
-              />
-              {timerDay === 0 ? (
-                <Button
-                  sizeVariant={SizeComponent.lg}
-                  variant={ButtonVariants.primary}
-                  css="justify-self: center;margin-top: 30px;"
-                  onClick={handlePay}
+        {Boolean(eventState.content && eventState.content.id_str) ? (
+          <Container css={`display: grid;width: ${twitterWidth}px`}>
+            <TwitterTweetEmbed
+              screenName={userState.screenName}
+              tweetId={eventState.content.id_str}
+              options={{
+                width: twitterWidth
+              }}
+            />
+            {timerDay === 0 ? (
+              <Button
+                sizeVariant={SizeComponent.lg}
+                variant={ButtonVariants.primary}
+                css="justify-self: center;margin-top: 30px;"
+                onClick={handlePay}
+              >
+                Pay
+              </Button>
+            ) : (
+                <Text
+                  size={FontSize.sm}
+                  fontVariant={Fonts.AvenirNextLTProDemi}
+                  fontColors={FontColors.white}
                 >
-                  Pay
-                </Button>
-              ) : (
-                  <Text
-                    size={FontSize.sm}
-                    fontVariant={Fonts.AvenirNextLTProDemi}
-                    fontColors={FontColors.white}
-                  >
-                    You can participate: {moment(timerDay).fromNow()}
-                  </Text>
-                )}
-            </Container>
-          ) : null}
-        </Card>
+                  You can participate: {moment(timerDay).fromNow()}
+                </Text>
+              )}
+          </Container>
+        ) : null}
       </Modal>
       <Modal
         show={eventState.current === Events.Error}
         onBlur={() => EventStore.reset()}
       >
-        <Card title="Error">
+        <Container css="display: grid;justify-items: center;">
+          <Img
+            src={`/imgs/error.${browserState.format}`}
+            css="width: 200px;height: auto;"
+          />
+          <Text
+            size={FontSize.lg}
+            fontVariant={Fonts.AvenirNextLTProDemi}
+            fontColors={FontColors.white}
+          >
+            Error
+          </Text>
           {Boolean(eventState.content && eventState.content.message) ? <Text
             size={FontSize.sm}
-            fontColors={FontColors.danger}
+            fontColors={FontColors.white}
             fontVariant={Fonts.AvenirNextLTProBold}
             align={Sides.center}
             css="min-width: 300px;"
           >
             {eventState.content.message}
           </Text> : null}
-        </Card>
+        </Container>
       </Modal>
       <ContainerLoader show={eventState.current === Events.Load}>
         <ClipLoader
