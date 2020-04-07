@@ -153,7 +153,7 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, async (req, res) =
       });
     } else if (tweet.user.id_str !== user.profileId) {
       return res.status(400).json({
-        message: 'User is not owner'
+        message: 'Wrong account'
       });
     } else if (foundTwittes) {
       return res.status(400).json({
