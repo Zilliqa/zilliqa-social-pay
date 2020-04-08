@@ -70,10 +70,10 @@ export const AuthPage: NextPage = () => {
   return (
     <React.Fragment>
       <AuthContainer>
-        <TwitterConnect show={Boolean(!userState.jwtToken)}/>
-        <ZilliqaConnect show={Boolean(!userState.zilAddress && userState.jwtToken)}/>
+        <TwitterConnect show={Boolean(!userState.jwtToken)} />
+        <ZilliqaConnect show={Boolean(!userState.zilAddress && userState.jwtToken)} />
       </AuthContainer>
-      <Background src={backgroundImg}/>
+      <Background src={backgroundImg} />
     </React.Fragment>
   );
 };

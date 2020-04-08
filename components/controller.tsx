@@ -66,7 +66,7 @@ export const Controller: React.FC = () => {
     () => timerCalc(
       blockchainState,
       userState,
-      twitterState.tweets,
+      twitterState.lastBlockNumber,
       Number(blockchainState.blocksPerDay)
     ),
     [blockchainState, twitterState, userState]
@@ -189,14 +189,14 @@ export const Controller: React.FC = () => {
       </DashboardContainer>
       <Text
         size={FontSize.sm}
-        fontVariant={Fonts.AvenirNextLTProBold}
+        fontVariant={Fonts.AvenirNextLTProRegular}
         fontColors={FontColors.white}
       >
         Dashboard
       </Text>
       <Text
         size={FontSize.sm}
-        fontVariant={Fonts.AvenirNextLTProDemi}
+        fontVariant={Fonts.AvenirNextLTProRegular}
         fontColors={FontColors.gray}
       >
         BALANCE
@@ -214,7 +214,7 @@ export const Controller: React.FC = () => {
       </Text>
       <Text
         size={FontSize.sm}
-        fontVariant={Fonts.AvenirNextLTProDemi}
+        fontVariant={Fonts.AvenirNextLTProRegular}
         fontColors={FontColors.gray}
       >
         $ZIL PER TWEET
@@ -228,7 +228,7 @@ export const Controller: React.FC = () => {
       </Text>
       <Text
         size={FontSize.sm}
-        fontVariant={Fonts.AvenirNextLTProDemi}
+        fontVariant={Fonts.AvenirNextLTProRegular}
         fontColors={FontColors.gray}
       >
         HASHTAG

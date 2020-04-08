@@ -36,7 +36,7 @@ export interface Twitte {
   rejected: boolean;
   claimed: boolean;
   txId: string;
-  block?: string | number;
+  block: string | number;
   createdAt: string;
   updatedAt: string;
 }

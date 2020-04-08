@@ -4,5 +4,6 @@ export enum Fonts {
   AvenirNextLTProDemiIt = 'AvenirNextLTPro-DemiIt',
   AvenirNextLTProHeavyCn = 'AvenirNextLTPro-HeavyCn',
   AvenirNextLTProIt = 'AvenirNextLTPro-It',
-  AvenirNextLTProRegular = 'AvenirNextLTPro-Regular'
+  AvenirNextLTProRegular = 'AvenirNextLTPro-Regular',
+  AvenirNextLTProMedium = 'AvenirNextLTPro-medium'
 }

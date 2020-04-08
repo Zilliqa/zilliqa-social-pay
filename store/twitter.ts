@@ -19,13 +19,15 @@ getTweets.use(fetchTweets);
 
 type InitState = {
   error?: boolean;
+  lastBlockNumber: number | string;
 } & FetchTweets;
 
 const initalState: InitState = {
   error: undefined,
   tweets: [],
   count: 0,
-  verifiedCount: 0
+  verifiedCount: 0,
+  lastBlockNumber: 0
 };
 
 export const store = TwitterDomain.store(initalState)
@@ -54,7 +56,8 @@ export const store = TwitterDomain.store(initalState)
         error: undefined,
         tweets: result.tweets,
         count: result.count,
-        verifiedCount: result.verifiedCount
+        verifiedCount: result.verifiedCount,
+        lastBlockNumber: result.lastBlockNumber
       };
     }
 
@@ -67,7 +70,8 @@ export const store = TwitterDomain.store(initalState)
   .on(add, (state, tweet) => ({
     ...state,
     tweets: state.tweets.concat([tweet]),
-    count: state.count + 1
+    count: state.count + 1,
+    lastBlockNumber: tweet.block
   }));
 
 export default {

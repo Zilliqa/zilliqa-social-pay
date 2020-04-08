@@ -183,7 +183,7 @@ class SocialPay extends App {
       if (!state || !state.jwtToken || state.message === 'Unauthorized') {
         UserStore.clear();
 
-        this.props.router.push('/auth');
+        this.props.router.push('/about');
       }
     }
 

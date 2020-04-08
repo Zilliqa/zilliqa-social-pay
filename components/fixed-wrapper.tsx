@@ -67,7 +67,7 @@ export const FixedWrapper: React.FC = () => {
     () => timerCalc(
       blockchainState,
       userState,
-      twitterState.tweets,
+      twitterState.lastBlockNumber,
       Number(blockchainState.blocksPerWeek)
     ),
     [blockchainState, twitterState, userState]
@@ -76,7 +76,7 @@ export const FixedWrapper: React.FC = () => {
     () => timerCalc(
       blockchainState,
       userState,
-      twitterState.tweets,
+      twitterState.lastBlockNumber,
       Number(blockchainState.blocksPerDay)
     ),
     [blockchainState, twitterState, userState]

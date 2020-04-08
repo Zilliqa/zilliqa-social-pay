@@ -217,7 +217,9 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
     const createdTweet = await Twittes.create({
       idStr: tweet.id_str,
       text: tweet.full_text.toLowerCase(),
-      UserId: user.id
+      UserId: user.id,
+      block: blockchainInfo.BlockNum,
+      claimed: true
     });
 
     await user.update({

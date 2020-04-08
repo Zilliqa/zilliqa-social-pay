@@ -30,7 +30,6 @@ const ProgressContainer = styled(Container)`
     display: block;
     height: ${(props: ProgressContainerProp) => props.height}px;
     width: ${(props: ProgressContainerProp) => props.width}px;
-    // box-shadow: inset 0 0 1em #7882f3;
     background-color: #7882f3;
     content: attr(data-pct);
     border-radius: 100%;
@@ -48,9 +47,6 @@ const Circle = styled.circle`
   transition: stroke-dashoffset 1s linear;
   stroke-width: 1em;
 
-  r: 90;
-  cx: 100;
-  cy: 100;
   fill: transparent;
   stroke-dasharray: 565.48;
   stroke-dashoffset: 0;
@@ -96,13 +92,21 @@ export const ProgressCircle: React.FC<Prop> = ({
         width={width}
         viewBox="0 0 200 200"
       >
-        <Circle color="#fff" />
+        <Circle
+          color="#fff"
+          r="90"
+          cx="100"
+          cy="100"
+        />
         <Circle
           color="#5c63ef"
           style={{
             strokeDashoffset: 0, // dashoffset,
             strokeWidth: '1.2em'
           }}
+          r="90"
+          cx="100"
+          cy="100"
         />
       </SVG>
     </ProgressContainer>

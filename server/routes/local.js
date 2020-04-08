@@ -144,6 +144,17 @@ router.get('/get/tweets', checkSession, async (req, res) => {
         approved: true
       }
     });
+    const lastActionTweet = await Twittes.findOne({
+      order: [
+        ['block', 'DESC']
+      ],
+      where: {
+        UserId: user.id
+      },
+      attributes: [
+        'block'
+      ]
+    });
     const tweets = await Twittes.findAll({
       limit,
       offset,
@@ -164,7 +175,8 @@ router.get('/get/tweets', checkSession, async (req, res) => {
     return res.status(200).json({
       tweets,
       count,
-      verifiedCount
+      verifiedCount,
+      lastBlockNumber: lastActionTweet.block
     });
   } catch (err) {
     return res.status(400).json({

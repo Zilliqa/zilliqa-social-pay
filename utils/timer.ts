@@ -1,12 +1,12 @@
-import { Blockchain, Twitte, User } from 'interfaces';
+import { Blockchain, User } from 'interfaces';
 
 export function timerCalc(
   blockchainState: Blockchain,
   user: User,
-  tweets: Twitte[],
+  lastBlockNumber: number | string,
   blocksPer: number
 ) {
-  const tweetslock = tweets.map((tweet) => Number(tweet.block));
+  const tweetslock = [Number(lastBlockNumber)];
 
   tweetslock.push(Number(user.lastAction));
 
