@@ -72,11 +72,11 @@ const updater = async () => {
     throw new Error(messageError);
   }
 
-  const tweets = await TwitterStore.getTweets({});
+  const tweetsResult = await TwitterStore.getTweets({});
 
-  if (tweets.message && tweets.message === messageError) {
+  if (tweetsResult.message && tweetsResult.message === messageError) {
     throw new Error(messageError);
-  } else if (!tweets || tweets.length < 1) {
+  } else if (!tweetsResult.tweets || tweetsResult.tweets.length < 1) {
     userState = UserStore.store.getState();
 
     await TwitterStore.updateTweets(userState.jwtToken);
