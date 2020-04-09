@@ -60,12 +60,10 @@ const updater = async () => {
   let userState = UserStore.store.getState();
   const blockchain = await BlockchainStore.updateBlockchain(null);
 
-  if (Number(userState.balance) === 0) {
-    const user = await UserStore.updateUserState(null);
+  const user = await UserStore.updateUserState(null);
 
-    if (user && user.message && user.message === messageError) {
-      throw new Error(messageError);
-    }
+  if (user && user.message && user.message === messageError) {
+    throw new Error(messageError);
   }
 
   if (blockchain && blockchain.message && blockchain.message === messageError) {
