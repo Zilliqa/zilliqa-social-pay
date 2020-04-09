@@ -51,10 +51,10 @@ module.exports = class {
         if (err) {
           return reject(err);
         }
-    
+
         try {
           const parsedBody = JSON.parse(body);
-    
+
           if (parsedBody.errors) {
             return reject(parsedBody.errors);
           }
@@ -124,7 +124,7 @@ module.exports = class {
       const hashtags = tweet.entities.hashtags;
 
       return hashtags.some(
-        (tag) => String(tag.text).toLowerCase() === hashtag
+        (tag) => String(tag.text).toLowerCase().includes(hashtag)
       ) && userID === profileId;
     });
   }
