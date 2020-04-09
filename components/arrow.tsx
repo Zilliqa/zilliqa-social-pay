@@ -15,12 +15,14 @@ const Line0 = styled.div`
   height: ${(props: Prop) => props.height}px;
   transform: translate(-200%, 0px) rotate(-40deg);
   background-color: ${FontColors.white};
+  border-radius: 15px;
 `;
 const Line1 = styled.div`
   width: ${(props: Prop) => props.width}px;
   height: ${(props: Prop) => props.height}px;
   transform: translate(0,0) rotate(40deg);
   background-color: ${FontColors.white};
+  border-radius: 15px;
 `;
 
 export const Arrow: React.FC<Prop> = (props) => (

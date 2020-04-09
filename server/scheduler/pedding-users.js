@@ -50,7 +50,7 @@ module.exports = async function () {
     return await user.update({
       synchronization: false,
       zilAddress: toBech32Address(usersFromContract[profileId]),
-      lastAction: Number(blockchainInfo.BlockNum)
+      lastAction: 0
     });
   });
 

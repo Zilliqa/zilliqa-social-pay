@@ -58,6 +58,7 @@ export const Input = styled.input`
   ::placeholder {
     color: ${FontColors.white};
     opacity: 0.6;
+    font-size: 10px;
   }
 
   @media (max-width: 370px) {
