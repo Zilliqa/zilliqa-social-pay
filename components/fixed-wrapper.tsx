@@ -89,19 +89,23 @@ export const FixedWrapper: React.FC = () => {
   const handleAddressChange = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    console.log(address);
+
     if (!address) {
+      setAddressErr('This field is required.');
+
       return null;
     } else if (!validation.isBech32(address)) {
       setAddressErr('Incorect address format.');
 
       return null;
+    } else if (address === userState.zilAddress) {
+      setAddressErr('Such address is already registered.');
+
+      return null;
     }
 
     setAddress(address);
-
-    if (address === userState.zilAddress) {
-      return null;
-    }
 
     // Send to server for validation and update address.
     const result = await UserStore.updateAddress({
@@ -118,7 +122,7 @@ export const FixedWrapper: React.FC = () => {
     }
 
     EventStore.reset();
-  }, [address, validation, setAddressErr, addressErr]);
+  }, [address, validation, setAddressErr, addressErr, userState]);
   /**
    * Handle input address for Input component.
    * @param event HTMLInput event.
@@ -159,7 +163,7 @@ export const FixedWrapper: React.FC = () => {
       setPlaceholder('Waiting for address to sync...');
       setDisabledAddress(true);
       setAddress('');
-    } else if (timerPerWeeks === 0 && !userState.synchronization) {
+    } else if (timerPerWeeks === 0 && !userState.synchronization && !address) {
       setAddress(userState.zilAddress);
       setDisabledAddress(false);
     }
@@ -182,7 +186,7 @@ export const FixedWrapper: React.FC = () => {
         <form onSubmit={handleAddressChange}>
           <FieldInput
             defaultValue={address}
-            sizeVariant={SizeComponent.md}
+            sizeVariant={SizeComponent.lg}
             error={addressErr}
             placeholder={placeholder}
             disabled={disabledAddress}
@@ -191,8 +195,8 @@ export const FixedWrapper: React.FC = () => {
           />
           <Button
             sizeVariant={SizeComponent.lg}
-            variant={ButtonVariants.primary}
-            disabled={Boolean(disabledAddress || (address === userState.zilAddress))}
+            variant={ButtonVariants.outlet}
+            disabled={Boolean(disabledAddress)}
             css="margin-top: 10px;"
           >
             Change address

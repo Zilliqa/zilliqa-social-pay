@@ -13,7 +13,7 @@ const Container = styled.div`
 const Line0 = styled.div`
   width: ${(props: Prop) => props.width}px;
   height: ${(props: Prop) => props.height}px;
-  transform: translate(-300%,0) rotate(-40deg);
+  transform: translate(-200%, 0px) rotate(-40deg);
   background-color: ${FontColors.white};
 `;
 const Line1 = styled.div`
