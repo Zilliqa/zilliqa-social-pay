@@ -17,13 +17,13 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
   const bech32Address = req.params.address;
   const { user, decoded } = req.verification;
 
-  if (!validation.isBech32(bech32Address)) {
-    return res.status(401).json({
-      message: 'Invalid address format.'
-    });
-  }
-
   try {
+    if (!validation.isBech32(bech32Address)) {
+      return res.status(401).json({
+        message: 'Invalid address format.'
+      });
+    }
+
     const blockchainInfo = await Blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
@@ -67,6 +67,16 @@ router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
   const { user } = req.verification;
   const tweet = req.body;
   let foundTweet = null;
+
+  if (!user.zilAddress) {
+    return res.status(401).json({
+      message: 'need to sync zilAddress.'
+    });
+  } else if (user.synchronization) {
+    return res.status(401).json({
+      message: 'User zilAddress is not synchronized.'
+    });
+  }
 
   try {
     foundTweet = await Twittes.findOne({

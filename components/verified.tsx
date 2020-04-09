@@ -88,6 +88,8 @@ export const Verified: React.FC = () => {
   }), [twitterState]);
 
   const handleClickClaim = React.useCallback(async (tweet: Twitte) => {
+    await UserStore.updateUserState(null);
+
     if (userState.synchronization) {
       EventStore.setContent({
         message: 'Waiting for address to sync...'
@@ -98,6 +100,13 @@ export const Verified: React.FC = () => {
     } else if (timerDay !== 0) {
       EventStore.setContent({
         message: `You can participate: ${moment(timerDay).fromNow()}`
+      });
+      EventStore.setEvent(Events.Error);
+
+      return null;
+    } else if (!userState.zilAddress) {
+      EventStore.setContent({
+        message: 'For claim you need configuration Zilliqa address.'
       });
       EventStore.setEvent(Events.Error);
 

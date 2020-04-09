@@ -1,8 +1,9 @@
 const models = require('../models');
 const User = models.sequelize.models.User;
 
-module.exports = async function(req, res, next) {
+module.exports = async function (req, res, next) {
   const jwtToken = req.headers.authorization;
+  const statuses = new User().statuses;
 
   try {
     const decoded = await new User().verify(jwtToken);
@@ -10,6 +11,8 @@ module.exports = async function(req, res, next) {
 
     if (!user) {
       throw new Error('Not found');
+    } else if (user.status === statuses.baned) {
+      throw new Error('User has been baned');
     }
 
     req.verification = {

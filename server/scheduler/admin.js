@@ -1,5 +1,4 @@
 const debug = require('debug')('zilliqa-social-pay:scheduler:admins');
-const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
 
