@@ -39,7 +39,7 @@ const ControlContainer = styled(AroundedContainer)`
 `;
 const DashboardContainer = styled(Container)`
   position: absolute;
-  transform: translate(160%, -130%);
+  transform: translate(150%, -125%);
 
   @media (max-width: 440px) {
     position: relative;
@@ -206,13 +206,13 @@ export const Controller: React.FC = () => {
       >
         BALANCE
         <Text
-          size={FontSize.md}
           fontVariant={Fonts.AvenirNextLTProBold}
           fontColors={FontColors.white}
+          css="font-size: 15px;"
         >
           {fromZil(userState.balance)} ZIL <Img
             src="/icons/refresh.svg"
-            css="cursor: pointer;"
+            css="cursor: pointer;font-size: 15px;"
             onClick={handleUpdateUser}
           />
         </Text>
@@ -224,9 +224,9 @@ export const Controller: React.FC = () => {
       >
         $ZIL PER TWEET
         <Text
-          size={FontSize.md}
           fontVariant={Fonts.AvenirNextLTProBold}
           fontColors={FontColors.white}
+          css="font-size: 15px;"
         >
           {fromZil(blockchainState.zilsPerTweet)} $ZIL
         </Text>
@@ -238,10 +238,9 @@ export const Controller: React.FC = () => {
       >
         HASHTAG
         <Text
-          size={FontSize.md}
           fontVariant={Fonts.AvenirNextLTProBold}
           fontColors={FontColors.white}
-          css="text-transform: capitalize;"
+          css="text-transform: capitalize;font-size: 15px;"
         >
           {blockchainState.hashtag}
         </Text>

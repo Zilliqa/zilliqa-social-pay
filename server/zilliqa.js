@@ -3,7 +3,7 @@ require('dotenv').config();
 const { Op } = require('sequelize');
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
 const { RPCMethod } = require('@zilliqa-js/core');
-const { StatusType, MessageType } = require('@zilliqa-js/subscriptions');
+const { StatusType, MessageType, SocketState } = require('@zilliqa-js/subscriptions');
 const { Account } = require('@zilliqa-js/account');
 const { validation, BN, Long, bytes, units } = require('@zilliqa-js/util');
 const {
@@ -354,8 +354,16 @@ module.exports = {
       wsNode
     );
 
+    subscriber.emitter.on(StatusType.SUBSCRIBE_NEW_BLOCK, (event) => {
+      console.log('get SubscribeNewBlock echo: ', event);
+    });
+
+    subscriber.emitter.on(SocketState.SOCKET_ERROR, (event) => {
+      console.log('SOCKET_ERROR echo: ', event);
+    });
+
     subscriber.emitter.on(MessageType.NEW_BLOCK, (event) => {
-      cb(event.value.TxBlock.header)
+      cb(event.value.TxBlock.header);
     });
 
     return await subscriber.start();
