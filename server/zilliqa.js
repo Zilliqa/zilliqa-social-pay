@@ -93,7 +93,7 @@ module.exports = {
       },
       order: [
         ['balance', 'DESC'],
-        ['updatedAt', 'DESC']
+        ['nonce', 'ASC']
       ]
     });
 
