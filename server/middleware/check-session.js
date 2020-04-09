@@ -1,3 +1,4 @@
+const models = require('../models');
 const User = models.sequelize.models.User;
 
 module.exports = function (req, res, next) {
