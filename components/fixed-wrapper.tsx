@@ -89,8 +89,6 @@ export const FixedWrapper: React.FC = () => {
   const handleAddressChange = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    console.log(address);
-
     if (!address) {
       setAddressErr('This field is required.');
 
