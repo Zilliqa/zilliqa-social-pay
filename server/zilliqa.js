@@ -361,6 +361,18 @@ module.exports = {
     subscriber.emitter.on(SocketState.SOCKET_ERROR, (event) => {
       console.log('SOCKET_ERROR echo: ', event);
     });
+    subscriber.emitter.on(SocketState.SOCKET_CLOSE, (event) => {
+      console.log('SOCKET_CLOSE echo: ', event);
+    });
+    subscriber.emitter.on(SocketState.SOCKET_CONNECT, (event) => {
+      console.log('SOCKET_CONNECT echo: ', event);
+    });
+    subscriber.emitter.on(SocketState.SOCKET_MESSAGE, (event) => {
+      console.log('SOCKET_MESSAGE echo: ', event);
+    });
+    subscriber.emitter.on(SocketState.SOCKET_READY, (event) => {
+      console.log('SOCKET_READY echo: ', event);
+    });
 
     subscriber.emitter.on(MessageType.NEW_BLOCK, (event) => {
       cb(event.value.TxBlock.header);
