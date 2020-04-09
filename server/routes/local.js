@@ -23,6 +23,17 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
         message: 'Invalid address format.'
       });
     }
+    const userExist = await User.count({
+      where: {
+        zilAddress: bech32Address
+      }
+    });
+
+    if (userExist > 0) {
+      return res.status(401).json({
+        message: 'Such address is already registered.'
+      });
+    }
 
     const blockchainInfo = await Blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }

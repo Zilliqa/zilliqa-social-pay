@@ -73,7 +73,7 @@ router.post('/auth/twitter/reverse', async (req, res) => {
   }
 });
 
-router.post('/auth/twitter/callback', (req, res) => {
+router.get('/auth/twitter/callback', (req, res) => {
   return res.status(200).send('');
 });
 

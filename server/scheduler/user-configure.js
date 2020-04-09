@@ -10,7 +10,7 @@ const Admin = models.sequelize.models.Admin;
 const Blockchain = models.sequelize.models.blockchain;
 const actions = new User().actions;
 
-module.exports = async function() {
+module.exports = async function () {
   const statuses = new Admin().statuses;
   const freeAdmins = await Admin.count({
     where: {
@@ -72,7 +72,7 @@ module.exports = async function() {
     } catch (err) {
       debug('FAIL to configureUser with profileID:', user.profileId, 'error', err);
       const lastAddres = await zilliqa.getonfigureUsers([user.profileId]);
-      
+
       if (!lastAddres || !lastAddres[user.profileId]) {
         await user.update({
           synchronization: false,

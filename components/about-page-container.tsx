@@ -64,10 +64,11 @@ export const InfoContainer = styled.div`
  */
 export const ZilliqaLogo = styled(Img)`
   position: fixed;
-  top: 0px;
+  top: 50px;
   right: 100px;
 
   width: 50px;
+  height: auto;
 
   @media (max-width: 321px) {
     width: 30px;
