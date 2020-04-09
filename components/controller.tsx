@@ -39,7 +39,7 @@ const ControlContainer = styled(AroundedContainer)`
 `;
 const DashboardContainer = styled(Container)`
   position: absolute;
-  transform: translate(160%, -110%);
+  transform: translate(160%, -115%);
 
   @media (max-width: 440px) {
     position: relative;
