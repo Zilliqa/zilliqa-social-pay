@@ -84,6 +84,14 @@ module.exports = {
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
     const statuses = new Admin().statuses;
+    const count = await Admin.count({
+      where: {
+        status: statuses.enabled,
+        balance: {
+          [Op.gte]: '5000000000000' // 5ZILs
+        }
+      }
+    });
     const account = await Admin.findOne({
       where: {
         status: statuses.enabled,
@@ -101,7 +109,13 @@ module.exports = {
       throw new Error('Not found admin account');
     }
 
-    const nonce = account.nonce + 1;
+    let { nonce } = await this.getCurrentAccount(account.bech32Address);
+
+    if (Number(account.nonce) >= (Number(nonce) + Number(count))) {
+      nonce++;
+    } else {
+      nonce = account.nonce + 1;
+    }
 
     zilliqa.wallet.addByPrivateKey(account.privateKey);
     zilliqa.wallet.setDefault(account.address);
