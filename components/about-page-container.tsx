@@ -75,6 +75,11 @@ export const ZilliqaLogo = styled(Img)`
     height: 60px;
     right: 10px;
   }
+  @media (max-width: 640px) {
+    right: 20px;
+    width: 30px;
+    height: 60px;
+  }
 `;
 /**
  * Illustration for about page.
