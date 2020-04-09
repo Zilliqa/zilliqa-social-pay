@@ -98,7 +98,7 @@ export const FixedWrapper: React.FC = () => {
 
       return null;
     } else if (address === userState.zilAddress) {
-      setAddressErr('Such address is already registered.');
+      setAddressErr(`You're already connected with this address`);
 
       return null;
     }
