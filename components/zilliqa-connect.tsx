@@ -24,13 +24,14 @@ import {
 
 type Prop = {
   show?: boolean;
+  connected: () => void;
 };
 
 /**
  * Use for validation and send to server your Zilliqa address.
  * @prop show - Show or hidden component.
  */
-export const ZilliqaConnect: React.FC<Prop> = ({ show }) => {
+export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
   const userState = Effector.useStore(UserStore.store);
 
   // State for error handlers.
@@ -69,6 +70,7 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show }) => {
     }
 
     EventStore.setEvent(Events.Load);
+
     const result = await UserStore.updateAddress({
       address,
       jwt: userState.jwtToken
@@ -76,10 +78,12 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show }) => {
 
     if (result.message !== 'ConfiguredUserAddress') {
       setAddressErr(result.message);
+    } else if (result.message === 'ConfiguredUserAddress') {
+      connected();
     }
 
     EventStore.setEvent(Events.None);
-  }, [setAddressErr, address]);
+  }, [setAddressErr, address, connected]);
 
   return (
     <AroundedContainer

@@ -56,7 +56,7 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
     delete user.dataValues.token;
 
     return res.status(201).json({
-      ...user,
+      user,
       message: 'ConfiguredUserAddress',
     });
   } catch (err) {

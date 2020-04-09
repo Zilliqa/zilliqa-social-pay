@@ -28,19 +28,21 @@ const TwitterLoginStyles = {
 };
 type Prop = {
   show?: boolean;
+  connected: () => void;
 };
 
 /**
  * Form for oauth with twitter.
  * @prop show - Show or hidden component.
  */
-export const TwitterConnect: React.FC<Prop> = ({ show }) => {
+export const TwitterConnect: React.FC<Prop> = ({ show, connected }) => {
   const handleSuccess = React.useCallback(async (res: any) => {
     const userData = await res.json();
 
     UserStore.setUser(userData);
+    connected();
     EventStore.reset();
-  }, [UserStore, EventStore]);
+  }, [UserStore, EventStore, connected]);
 
   return (
     <AroundedContainer style={{ display: show ? 'flex' : 'none' }}>

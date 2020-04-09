@@ -9,7 +9,10 @@ export const setUser = UserDomain.event<User>();
 export const update = UserDomain.event();
 export const clear = UserDomain.event();
 
-export const updateAddress = UserDomain.effect<FetchUpdateAddress, User, Error>();
+export const updateAddress = UserDomain.effect<FetchUpdateAddress, {
+  message: string;
+  user: User;
+}, Error>();
 export const updateUserState = UserDomain.effect<null, User, Error>();
 
 updateAddress.use(fetchUpdateAddress);
@@ -33,9 +36,8 @@ export const store = UserDomain.store<User>(initalState)
   .on(setUser, (state, user) => {
     const storage = window.localStorage;
     const updated = {
-      ...user,
-      jwtToken: state.jwtToken,
-      updated: true
+      ...state,
+      ...user
     };
 
     storage.clear();
@@ -61,11 +63,12 @@ export const store = UserDomain.store<User>(initalState)
   .on(updateAddress.done, (state, { result }) => {
     const storage = window.localStorage;
     const newState = {
-      ...result,
+      ...result.user,
       jwtToken: state.jwtToken,
       updated: true
     };
 
+    storage.clear();
     storage.setItem(LocalStorageKeys.user, JSON.stringify(newState));
 
     return newState;

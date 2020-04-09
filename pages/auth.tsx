@@ -49,6 +49,12 @@ export const AuthPage: NextPage = () => {
   const userState = Effector.useStore(UserStore.store);
   const browserState = Effector.useStore(BrowserStore.store);
 
+  const handleConnected = React.useCallback(() => {
+    if (userState.jwtToken && userState.zilAddress) {
+      router.push('/');
+    }
+  }, [userState, router]);
+
   const backgroundImg = React.useMemo(() => {
     if (isTabletOrMobile) {
       return `imgs/illustration-3-mobile.${browserState.format}`;
@@ -65,13 +71,19 @@ export const AuthPage: NextPage = () => {
         router.push('/');
       }
     }
-  }, [userState]);
+  }, [userState, router]);
 
   return (
     <React.Fragment>
       <AuthContainer>
-        <TwitterConnect show={Boolean(!userState.jwtToken)} />
-        <ZilliqaConnect show={Boolean(!userState.zilAddress && userState.jwtToken)} />
+        <TwitterConnect
+          show={Boolean(!userState.jwtToken)}
+          connected={handleConnected}
+        />
+        <ZilliqaConnect
+          show={Boolean(!userState.zilAddress && userState.jwtToken)}
+          connected={handleConnected}
+        />
       </AuthContainer>
       <Background src={backgroundImg} />
     </React.Fragment>
