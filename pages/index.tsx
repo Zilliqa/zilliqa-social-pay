@@ -96,7 +96,6 @@ export const MainPage: NextPage<PageProp> = (props) => {
   React.useEffect(() => {
     if (!mounted) {
       setMounted(true);
-
       EventStore.setEvent(Events.Load);
 
       updater()
@@ -105,16 +104,12 @@ export const MainPage: NextPage<PageProp> = (props) => {
           EventStore.reset();
         })
         .catch(() => {
+          window.localStorage.clear();
+
           EventStore.reset();
           EventStore.signOut(null);
 
-          if (props.firstStart) {
-            router.push('/about');
-
-            return null;
-          }
-
-          router.push('/auth');
+          window.location.replace('/about');
         });
     }
   }, [
@@ -122,7 +117,8 @@ export const MainPage: NextPage<PageProp> = (props) => {
     setMounted,
     blockchainState,
     userState,
-    router
+    router,
+    props
   ]);
 
   return (

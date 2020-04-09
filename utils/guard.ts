@@ -24,7 +24,7 @@ export function authGuard({ res, req }: any) {
     };
   }
 
-  user = req.session.passport;
+  user = req.session.passport.user;
 
   return {
     firstStart,
