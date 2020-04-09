@@ -83,7 +83,7 @@ const updater = async () => {
   }
 };
 
-export const MainPage: NextPage<PageProp> = () => {
+export const MainPage: NextPage<PageProp> = (props) => {
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 446px)' });
   const router = useRouter();
 
@@ -107,7 +107,14 @@ export const MainPage: NextPage<PageProp> = () => {
         .catch(() => {
           EventStore.reset();
           EventStore.signOut(null);
-          window.location.replace('/auth');
+
+          if (props.firstStart) {
+            router.push('/about');
+
+            return null;
+          }
+
+          router.push('/auth');
         });
     }
   }, [

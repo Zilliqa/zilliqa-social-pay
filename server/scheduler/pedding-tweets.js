@@ -6,34 +6,16 @@ const models = require('../models');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const Twittes = models.sequelize.models.Twittes;
 const User = models.sequelize.models.User;
-const Admin = models.sequelize.models.Admin;
 const Blockchain = models.sequelize.models.blockchain;
 
-module.exports = async function() {
-  const statuses = new Admin().statuses;
-  const freeAdmins = await Admin.count({
-    where: {
-      status: statuses.enabled,
-      balance: {
-        [Op.gte]: '5000000000000' // 5ZILs
-      }
-    }
-  });
-
-  debug('Free admin addresses:', freeAdmins);
-
-  if (freeAdmins === 0) {
-    return null;
-  }
-
+module.exports = async function () {
   const twittes = await Twittes.findAndCountAll({
     where: {
       approved: false,
       rejected: false,
       claimed: true,
       updatedAt: {
-        // Ten minuts.
-        [Op.lt]: new Date(new Date() - 24 * 60 * 100)
+        [Op.lt]: new Date(new Date() - 24 * 60 * 30)
       },
       txId: {
         [Op.not]: null

@@ -160,6 +160,10 @@ const GlobalStyle = createGlobalStyle`
         border: 0.1rem solid #fff;
       }
     }
+
+    @media (max-width: 440px) {
+      padding: 0;
+    }
   }
 `;
 
@@ -168,12 +172,6 @@ class SocialPay extends App {
   public componentDidMount() {
     supportsWebp()
       .then((isWebp) => isWebp ? null : BrowserStore.setformat(ImgFormats.png));
-
-    if (this.props.router.route.includes('auth')) {
-      return null;
-    } else if (this.props.router.route.includes('about')) {
-      return null;
-    }
 
     if (typeof window !== 'undefined') {
       UserStore.update();

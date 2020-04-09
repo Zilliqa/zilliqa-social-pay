@@ -100,7 +100,6 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show }) => {
       </Text>
       <Container css="width: 250px;">
         <FieldInput
-          variants={ButtonVariants.info}
           sizeVariant={SizeComponent.md}
           error={addressErr}
           placeholder="Zilliqa address (zil1)"

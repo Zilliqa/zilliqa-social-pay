@@ -65,13 +65,14 @@ export const InfoContainer = styled.div`
 export const ZilliqaLogo = styled(Img)`
   position: fixed;
   top: 0px;
-  right: 20px;
+  right: 100px;
 
-  width: 70px;
+  width: 50px;
 
   @media (max-width: 321px) {
     width: 30px;
     height: 60px;
+    right: 10px;
   }
 `;
 /**
@@ -82,8 +83,8 @@ export const ZilliqaLogo = styled(Img)`
  * <Illustration src={`/imgs/illustration-1.${browserState.format}`}/>
  */
 export const Illustration = styled(Img)`
-  width: 40vw;
-  height: 40vw;
+  width: 43vw;
+  height: 43vw;
 
   @media (max-width: 640px) {
     width: 80vw;
@@ -102,7 +103,7 @@ export const Illustration = styled(Img)`
  * </InfoContainer>
  */
 export const TitleText = styled(Text)`
-  font-size: 40px;
+  font-size: 50px;
 
   @media (max-width: 650px) {
     text-align: center;

@@ -46,7 +46,7 @@ export const FirstAboutPage: NextPage = () => {
           </TitleText>
           <DescriptionText
             fontColors={FontColors.white}
-            fontVariant={Fonts.AvenirNextLTProDemi}
+            fontVariant={Fonts.AvenirNextLTProRegular}
             size={FontSize.md}
           >
             <p>
@@ -61,7 +61,7 @@ export const FirstAboutPage: NextPage = () => {
             variant={ButtonVariants.outlet}
             onClick={handleNext}
           >
-            NEXT
+            CONTINUE
           </Button>
         </InfoContainer>
       </AboutContainer>

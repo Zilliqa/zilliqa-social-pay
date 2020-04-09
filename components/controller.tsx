@@ -30,7 +30,12 @@ import { SearchTweet } from 'utils/get-tweets';
 
 const ControlContainer = styled(AroundedContainer)`
   padding: 30px;
+  margin-bottom: 30px;
   align-items: flex-start;
+
+  @media (max-width: 440px) {
+    margin-bottom: 30px;
+  }
 `;
 const DashboardContainer = styled(Container)`
   position: absolute;
@@ -188,20 +193,20 @@ export const Controller: React.FC = () => {
         </Text>
       </DashboardContainer>
       <Text
-        size={FontSize.sm}
+        size={FontSize.md}
         fontVariant={Fonts.AvenirNextLTProRegular}
         fontColors={FontColors.white}
       >
         Dashboard
       </Text>
       <Text
-        size={FontSize.sm}
+        size={FontSize.xs}
         fontVariant={Fonts.AvenirNextLTProRegular}
         fontColors={FontColors.gray}
       >
         BALANCE
         <Text
-          size={FontSize.sm}
+          size={FontSize.md}
           fontVariant={Fonts.AvenirNextLTProBold}
           fontColors={FontColors.white}
         >
@@ -213,13 +218,13 @@ export const Controller: React.FC = () => {
         </Text>
       </Text>
       <Text
-        size={FontSize.sm}
+        size={FontSize.xs}
         fontVariant={Fonts.AvenirNextLTProRegular}
         fontColors={FontColors.gray}
       >
         $ZIL PER TWEET
         <Text
-          size={FontSize.sm}
+          size={FontSize.md}
           fontVariant={Fonts.AvenirNextLTProBold}
           fontColors={FontColors.white}
         >
@@ -227,13 +232,13 @@ export const Controller: React.FC = () => {
         </Text>
       </Text>
       <Text
-        size={FontSize.sm}
+        size={FontSize.xs}
         fontVariant={Fonts.AvenirNextLTProRegular}
         fontColors={FontColors.gray}
       >
         HASHTAG
         <Text
-          size={FontSize.sm}
+          size={FontSize.md}
           fontVariant={Fonts.AvenirNextLTProBold}
           fontColors={FontColors.white}
           css="text-transform: capitalize;"

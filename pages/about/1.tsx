@@ -38,14 +38,14 @@ export const SecondAboutPage: NextPage = () => {
         <InfoContainer>
           <DescriptionText
             fontColors={FontColors.white}
-            fontVariant={Fonts.AvenirNextLTProDemi}
+            fontVariant={Fonts.AvenirNextLTProRegular}
             size={FontSize.md}
           >
             <p>
-            Every time you Tweet a Zilliqa-related message, you are able to earn rewards. These rewards can vary depending on the hashtag and campaign <Span>#Zilliqa</Span> is running.
+              Every time you Tweet a Zilliqa-related message, you are able to earn rewards. These rewards can vary depending on the hashtag and campaign <Span>#Zilliqa</Span> is running.
             </p>
             <p>
-            Make sure to always check out what hashtag and campaign is available while you take part in our events!
+              Make sure to always check out what hashtag and campaign is available while you take part in our events!
             </p>
           </DescriptionText>
           <Button
@@ -53,10 +53,10 @@ export const SecondAboutPage: NextPage = () => {
             variant={ButtonVariants.outlet}
             onClick={handleNext}
           >
-            NEXT
+            CONTINUE
           </Button>
         </InfoContainer>
-        <Illustration src={`/imgs/illustration-5.${browserState.format}`}/>
+        <Illustration src={`/imgs/illustration-5.${browserState.format}`} />
       </AboutContainer>
       <ZilliqaLogo />
     </React.Fragment>

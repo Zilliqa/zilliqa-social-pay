@@ -10,6 +10,7 @@ import TwitterStore from 'store/twitter';
 import { Text } from 'components/text';
 import { Img } from 'components/img';
 import { Dropdown } from 'components/dropdown';
+import { Arrow } from 'components/arrow';
 import ReactTooltip from 'react-tooltip';
 
 import { FontSize, Fonts, FontColors, Events } from 'config';
@@ -117,10 +118,14 @@ export const TopBar: React.FC = () => {
             size={FontSize.sm}
             fontVariant={Fonts.AvenirNextLTProBold}
             fontColors={FontColors.white}
-            css="width: 200px;"
+            css="display: grid;grid-template-columns: 1fr 1fr;grid-gap: 15px;"
             nowrap
           >
             {userState.screenName}
+            <Arrow
+              width="2"
+              height="12"
+            />
           </Text>
         </Dropdown>
       </ProfileContainer>

@@ -64,17 +64,17 @@ module.exports = {
   async getVerifiedTweets(tweetIds) {
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
-  
+
     try {
       const result = await contract.getSubState(
         'verified_tweets',
         tweetIds
       );
-  
+
       if (result.verified_tweets) {
         return result.verified_tweets
       }
-  
+
       return result
     } catch (err) {
       return null;
@@ -155,7 +155,7 @@ module.exports = {
 
     const { _eventname, params } = tx.receipt.event_logs.find(
       (e) => (e._eventname === eventUtils.events.ConfiguredUserAddress) ||
-      (e._eventname === eventUtils.events.Error)
+        (e._eventname === eventUtils.events.Error)
     );
 
     switch (_eventname) {
@@ -349,7 +349,7 @@ module.exports = {
   },
   async blockSubscribe(cb) {
     const zilliqa = new Zilliqa(httpNode);
-  
+
     const subscriber = zilliqa.subscriptionBuilder.buildNewBlockSubscriptions(
       wsNode
     );
@@ -358,9 +358,7 @@ module.exports = {
       cb(event.value.TxBlock.header)
     });
 
-    await subscriber.start();
-
-    return subscriber;
+    return await subscriber.start();
   },
   async eventSubscribe(cb, subscribed = () => null) {
     const zilliqa = new Zilliqa(httpNode);
@@ -372,11 +370,11 @@ module.exports = {
         ]
       }
     );
-    
+
     subscriber.emitter.on(StatusType.SUBSCRIBE_EVENT_LOG, (event) => {
       subscribed(event);
     });
-    
+
     subscriber.emitter.on(MessageType.EVENT_LOG, (event) => {
       if (!event || !event.value || !event.value[0]) {
         return null;

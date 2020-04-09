@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { FontColors } from 'config';
+import { FontColors, Fonts } from 'config';
 
 type Prop = {
   css?: string;
@@ -20,5 +20,6 @@ type Prop = {
  */
 export const Span = styled.span`
   ${(props: Prop) => props.css}
-  color: ${FontColors.info};
+  color: ${FontColors.white};
+  font-family: ${Fonts.AvenirNextLTProBold};
 `;

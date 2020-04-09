@@ -118,38 +118,28 @@ router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
 });
 
 router.get('/get/tweets', checkSession, async (req, res) => {
-  const userId = req.session.passport.user.id;
+  const UserId = req.session.passport.user.id;
   const limit = req.query.limit || 3;
   const offset = req.query.offset || 0;
 
   try {
-    const user = await User.findByPk(userId);
-
-    if (!user) {
-      res.clearCookie(process.env.SESSION);
-      res.clearCookie(`${process.env.SESSION}.sig`);
-      res.clearCookie('io');
-
-      throw new Error('No found user.');
-    }
-
     const count = await Twittes.count({
       where: {
-        UserId: user.id
+        UserId
       }
     });
     const verifiedCount = await Twittes.count({
       where: {
-        UserId: user.id,
+        UserId,
         approved: true
       }
     });
-    let lastActionTweet = await Twittes.findOne({
+    const lastActionTweet = await Twittes.findOne({
       order: [
         ['block', 'DESC']
       ],
       where: {
-        UserId: user.id
+        UserId
       },
       attributes: [
         'block'
@@ -162,7 +152,7 @@ router.get('/get/tweets', checkSession, async (req, res) => {
         ['createdAt', 'DESC']
       ],
       where: {
-        UserId: user.id
+        UserId
       },
       attributes: {
         exclude: [
@@ -172,17 +162,11 @@ router.get('/get/tweets', checkSession, async (req, res) => {
       }
     });
 
-    if (!lastActionTweet) {
-      lastActionTweet = {
-        block: 0
-      }
-    }
-
     return res.status(200).json({
       tweets,
       count,
       verifiedCount,
-      lastBlockNumber: lastActionTweet.block
+      lastBlockNumber: !lastActionTweet ? 0 : lastActionTweet.block
     });
   } catch (err) {
     return res.status(400).json({
