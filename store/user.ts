@@ -33,10 +33,12 @@ export const store = UserDomain.store<User>(initalState)
   .on(setUser, (state, user) => {
     const storage = window.localStorage;
     const updated = {
-      ...state,
-      ...user
+      ...user,
+      jwtToken: state.jwtToken,
+      updated: true
     };
 
+    storage.clear();
     storage.setItem(LocalStorageKeys.user, JSON.stringify(updated));
 
     return updated;
@@ -59,8 +61,9 @@ export const store = UserDomain.store<User>(initalState)
   .on(updateAddress.done, (state, { result }) => {
     const storage = window.localStorage;
     const newState = {
-      ...state,
-      zilAddress: result.zilAddress
+      ...result,
+      jwtToken: state.jwtToken,
+      updated: true
     };
 
     storage.setItem(LocalStorageKeys.user, JSON.stringify(newState));
@@ -79,10 +82,12 @@ export const store = UserDomain.store<User>(initalState)
 
     const storage = window.localStorage;
     const updated = {
-      ...state,
-      ...result
+      ...result,
+      jwtToken: state.jwtToken,
+      updated: true
     };
 
+    storage.clear();
     storage.setItem(LocalStorageKeys.user, JSON.stringify(updated));
 
     return updated;

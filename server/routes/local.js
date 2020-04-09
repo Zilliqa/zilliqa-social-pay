@@ -15,7 +15,7 @@ const actions = new User().actions;
 
 router.put('/update/address/:address', checkSession, verifyJwt, async (req, res) => {
   const bech32Address = req.params.address;
-  const { user, decoded } = req.verification;
+  const { user } = req.verification;
 
   try {
     if (!validation.isBech32(bech32Address)) {
@@ -52,9 +52,11 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
       lastAction: block
     });
 
+    delete user.dataValues.tokenSecret;
+    delete user.dataValues.token;
+
     return res.status(201).json({
-      ...decoded,
-      zilAddress: bech32Address,
+      ...user,
       message: 'ConfiguredUserAddress',
     });
   } catch (err) {
