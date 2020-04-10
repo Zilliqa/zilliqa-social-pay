@@ -1,4 +1,5 @@
 export const API_V1 = '/api/v1';
+export const NUMBER_OF_TWEETS = 200;
 
 export enum Methods {
   update = 'update',

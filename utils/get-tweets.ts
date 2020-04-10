@@ -1,11 +1,10 @@
 import fetch from 'isomorphic-unfetch';
 
-import { APIs, HttpMethods } from 'config';
+import { APIs, HttpMethods, NUMBER_OF_TWEETS } from 'config';
 import { FetchTweets } from 'interfaces';
 
 export const fetchTweets = async ({
-  // tslint:disable-next-line: no-magic-numbers
-  limit = 2,
+  limit = NUMBER_OF_TWEETS,
   offset = 0
 }): Promise<FetchTweets> => {
   const res = await fetch(`${APIs.getTweets}?limit=${limit}&offset=${offset}`, {

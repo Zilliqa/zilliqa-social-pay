@@ -21,6 +21,7 @@ import { viewTx } from 'utils/viewblock';
 import { claimTweet } from 'utils/claim-tweet';
 import { Twitte } from 'interfaces';
 import { timerCalc } from 'utils/timer';
+import { deepCopy } from 'utils/deep-copy';
 
 const HaventVerified = styled.div`
   display: flex;
@@ -38,7 +39,7 @@ const TweetEmbedContainer = styled.div`
 const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
 const PAGE_LIMIT = 2;
-const SLEEP = 1000;
+const SLEEP = 10;
 /**
  * Show user tweets.
  */
@@ -48,6 +49,9 @@ export const Verified: React.FC = () => {
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
   const blockchainState = Effector.useStore(BlockchainStore.store);
+
+  const [paginateOffset, setPaginateOffset] = React.useState(0);
+  const [showTwitterTweetEmbed, setShowTwitterTweetEmbed] = React.useState(true);
 
   /**
    * Hash tag from smart contract.
@@ -82,10 +86,17 @@ export const Verified: React.FC = () => {
     ),
     [blockchainState, twitterState]
   );
-  const sortedTweets = React.useMemo(() => twitterState.tweets.sort((a, b) => {
-    // to get a value that is either negative, positive, or zero.
-    return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
-  }), [twitterState]);
+  const sortedTweets = React.useMemo(() => {
+    return deepCopy(twitterState.tweets)
+      .splice(paginateOffset, PAGE_LIMIT)
+      .sort((a: Twitte, b: Twitte) =>
+        new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf()
+      );
+  }, [
+    twitterState,
+    paginateOffset,
+    PAGE_LIMIT
+  ]);
 
   const handleClickClaim = React.useCallback(async (tweet: Twitte) => {
     await UserStore.updateUserState(null);
@@ -118,15 +129,24 @@ export const Verified: React.FC = () => {
     EventStore.reset();
   }, [userState, timerDay]);
   const handleNextPageClick = React.useCallback(async (data) => {
-    const selected = data.selected;
+    const selected = Number(data.selected);
     const offset = Math.ceil(selected * PAGE_LIMIT);
 
-    TwitterStore.update([]);
+    setShowTwitterTweetEmbed(false);
+    setPaginateOffset(offset);
 
-    EventStore.setEvent(Events.Load);
-    await TwitterStore.getTweets({ offset, limit: PAGE_LIMIT });
-    setTimeout(() => EventStore.reset(), SLEEP);
-  }, [sortedTweets, twitterState, TwitterStore]);
+
+    // TwitterStore.update([]);
+
+    // EventStore.setEvent(Events.Load);
+    // await TwitterStore.getTweets({ offset, limit: PAGE_LIMIT });
+    setTimeout(() => setShowTwitterTweetEmbed(true), SLEEP);
+  }, [
+    setPaginateOffset,
+    setShowTwitterTweetEmbed,
+    twitterState,
+    SLEEP
+  ]);
 
   return (
     <Container>
@@ -162,7 +182,7 @@ export const Verified: React.FC = () => {
           activeClassName={'active'}
         />
       ) : null}
-      {sortedTweets.map((tweet, index) => (
+      {showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
         <TweetEmbedContainer key={index}>
           {(!tweet.claimed && !tweet.approved && !tweet.rejected) ? (
             <Img
@@ -203,7 +223,7 @@ export const Verified: React.FC = () => {
             }}
           />
         </TweetEmbedContainer>
-      ))}
+      )) : null}
     </Container>
   );
 };
