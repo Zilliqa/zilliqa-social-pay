@@ -100,6 +100,7 @@ export const Verified: React.FC = () => {
 
   const handleClickClaim = React.useCallback(async (tweet: Twitte) => {
     await UserStore.updateUserState(null);
+    await BlockchainStore.updateBlockchain(null);
 
     if (userState.synchronization) {
       EventStore.setContent({
