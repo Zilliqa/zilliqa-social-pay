@@ -87,11 +87,21 @@ export const Verified: React.FC = () => {
     [blockchainState, twitterState]
   );
   const sortedTweets = React.useMemo(() => {
+    const maxDateValue = Math.max.apply(Math, twitterState.tweets.map(
+      (tw) => new Date(tw.createdAt).valueOf())
+    );
+
     return deepCopy(twitterState.tweets)
-      .splice(paginateOffset, PAGE_LIMIT)
-      .sort((a: Twitte, b: Twitte) =>
-        new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf()
-      );
+      .sort((a: Twitte, b: Twitte) => {
+        if (a.claimed) {
+          return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf() + maxDateValue;
+        } else if (b.claimed) {
+          return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf() + maxDateValue;
+        }
+
+        return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
+      })
+      .splice(paginateOffset, PAGE_LIMIT);
   }, [
     twitterState,
     paginateOffset,
