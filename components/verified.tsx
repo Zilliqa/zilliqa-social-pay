@@ -135,11 +135,14 @@ export const Verified: React.FC = () => {
     setShowTwitterTweetEmbed(false);
     setPaginateOffset(offset);
 
+    if (offset >= twitterState.tweets.length) {
+      EventStore.setEvent(Events.Load);
 
-    // TwitterStore.update([]);
+      await TwitterStore.getTweets({ offset, limit: PAGE_LIMIT });
 
-    // EventStore.setEvent(Events.Load);
-    // await TwitterStore.getTweets({ offset, limit: PAGE_LIMIT });
+      EventStore.reset();
+    }
+
     setTimeout(() => setShowTwitterTweetEmbed(true), SLEEP);
   }, [
     setPaginateOffset,

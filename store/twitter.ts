@@ -54,7 +54,7 @@ export const store = TwitterDomain.store(initalState)
     if (result && Array.isArray(result.tweets)) {
       return {
         error: undefined,
-        tweets: result.tweets,
+        tweets: state.tweets.concat(result.tweets),
         count: result.count,
         verifiedCount: result.verifiedCount,
         lastBlockNumber: result.lastBlockNumber
