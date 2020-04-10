@@ -21,5 +21,5 @@ type Prop = {
 export const Span = styled.span`
   ${(props: Prop) => props.css}
   color: ${FontColors.white};
-  font-family: ${Fonts.AvenirNextLTProBold};
+  font-family: ${Fonts.AvenirNextLTProDemi};
 `;

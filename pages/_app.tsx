@@ -10,7 +10,7 @@ import BrowserStore from 'store/browser';
 import { Container } from 'components/container';
 import { FixedWrapper } from 'components/fixed-wrapper';
 
-import { Fonts, ImgFormats } from 'config';
+import { ImgFormats, Fonts } from 'config';
 import { authGuard } from 'utils/guard';
 import { supportsWebp } from 'utils/webp-support';
 
@@ -49,6 +49,28 @@ const GlobalStyle = createGlobalStyle`
 
   * {
     box-sizing: border-box;
+  }
+
+  button {
+    cursor: pointer;
+    border-radius: 20px;
+    width: 150px;
+
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 10px;
+    letter-spacing: 1px;
+
+    transition: all 0.5s ease-out;
+
+    font-family: ${Fonts.AvenirNextLTProRegular};
+
+    :hover {
+      background: #fff;
+      color: #5C63EF;
+      border: 1px solid transparent;
+    }
   }
 
   @keyframes fadeInUp {
@@ -131,7 +153,7 @@ const GlobalStyle = createGlobalStyle`
         min-width: 100px;
         border-radius: 30px;
         background: transparent;
-        border: 0.1rem solid #fff;
+        border: 1px solid #fff;
         color: #fff;
         transition: all 0.5s ease-out;
         padding: 9px 12px 9px 12px;
@@ -139,7 +161,7 @@ const GlobalStyle = createGlobalStyle`
         :hover {
           background: #fff;
           color: #5C63EF;
-          border: 0.1rem solid transparent;
+          border: 1px solid transparent;
         }
       }
     }
@@ -148,7 +170,7 @@ const GlobalStyle = createGlobalStyle`
       a {
         background: #fff;
         color: #5C63EF;
-        border: 0.1rem solid transparent;
+        border: 1px solid transparent;
       }
     }
 
@@ -157,7 +179,7 @@ const GlobalStyle = createGlobalStyle`
       :hover {
         background: transparent;
         color: #fff;
-        border: 0.1rem solid #fff;
+        border: 1px solid #fff;
       }
     }
 

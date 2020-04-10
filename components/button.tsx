@@ -60,6 +60,6 @@ export const Button = styled.button`
 Button.defaultProps = {
   variant: ButtonVariants.primary,
   sizeVariant: SizeComponent.xs,
-  fontVariant: Fonts.AvenirNextLTProDemi,
+  fontVariant: Fonts.AvenirNextLTProRegular,
   css: ''
 };

@@ -12,20 +12,9 @@ import {
   FontColors,
   Fonts,
   FontSize,
-  Sides,
-  APIs,
-  Events
+  APIs
 } from 'config';
 
-const TwitterLoginStyles = {
-  cursor: 'pointer',
-  borderRadius: '20px',
-  width: '150px',
-
-  background: 'transparent',
-  border: `0.1rem solid ${FontColors.white}`,
-  padding: '10px'
-};
 type Prop = {
   show?: boolean;
   connected: () => void;
@@ -52,26 +41,16 @@ export const TwitterConnect: React.FC<Prop> = ({ show, connected }) => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         size={FontSize.md}
       >
-        Sign in Twitter
+        Sign In by Twitter
       </Text>
       <TwitterLogin
-        style={TwitterLoginStyles}
         loginUrl={APIs.twitterAuth}
         requestTokenUrl={APIs.twitterAuthReverse}
         onSuccess={handleSuccess}
         onFailure={() => EventStore.reset()}
         showIcon
       >
-        <Text
-          align={Sides.center}
-          fontColors={FontColors.white}
-          fontVariant={Fonts.AvenirNextLTProDemi}
-          size={FontSize.sm}
-          css="margin: 0;"
-          onClick={() => EventStore.setEvent(Events.Load)}
-        >
-          Connect
-        </Text>
+        CONNECT
       </TwitterLogin>
     </AroundedContainer>
   );

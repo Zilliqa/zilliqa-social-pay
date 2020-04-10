@@ -57,7 +57,7 @@ export const Input = styled.input`
   }
   ::placeholder {
     color: ${FontColors.white};
-    opacity: 0.6;
+    // opacity: 0.9;
     font-size: 10px;
   }
 
