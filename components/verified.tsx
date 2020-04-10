@@ -99,6 +99,8 @@ export const Verified: React.FC = () => {
   ]);
 
   const handleClickClaim = React.useCallback(async (tweet: Twitte) => {
+    EventStore.setEvent(Events.Load);
+
     await UserStore.updateUserState(null);
     await BlockchainStore.updateBlockchain(null);
 
@@ -125,7 +127,6 @@ export const Verified: React.FC = () => {
       return null;
     }
 
-    EventStore.setEvent(Events.Load);
     await claimTweet(userState.jwtToken, tweet);
     EventStore.reset();
   }, [userState, timerDay]);
