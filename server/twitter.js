@@ -123,9 +123,6 @@ module.exports = class {
 
       const hashtags = tweet.entities.hashtags;
 
-      console.log(JSON.stringify(hashtags, null, 4));
-      console.log(hashtag);
-
       return hashtags.some(
         (tag) => String(tag.text).toLowerCase() === String(hashtag).toLowerCase()
       ) && userID === profileId;
