@@ -137,6 +137,13 @@ const GlobalStyle = createGlobalStyle`
     overflow: hidden;
   }
 
+  .pagination.desktop {
+    min-width: 500px;
+  }
+  .pagination.mobile {
+    min-width: 300px;
+  }
+
   .pagination {
     display: flex;
 

@@ -193,7 +193,7 @@ export const Verified: React.FC = () => {
           marginPagesDisplayed={1}
           pageRangeDisplayed={1}
           onPageChange={handleNextPageClick}
-          containerClassName={'pagination'}
+          containerClassName={'pagination' + ` ${isTabletOrMobile ? 'mobile' : 'desktop'}`}
           activeClassName={'active'}
         />
       ) : null}
