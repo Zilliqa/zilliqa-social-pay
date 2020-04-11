@@ -119,3 +119,5 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
     </AroundedContainer>
   );
 };
+
+export default ZilliqaConnect;

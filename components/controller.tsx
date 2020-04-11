@@ -266,3 +266,5 @@ export const Controller: React.FC = () => {
     </ControlContainer>
   );
 };
+
+export default Controller;

@@ -29,6 +29,8 @@ export const TwitterConnect: React.FC<Prop> = ({ show, connected }) => {
     const userData = await res.json();
 
     UserStore.setUser(userData);
+    UserStore.setJWT(userData.jwtToken);
+
     connected();
     EventStore.reset();
   }, [UserStore, EventStore, connected]);
@@ -55,3 +57,5 @@ export const TwitterConnect: React.FC<Prop> = ({ show, connected }) => {
     </AroundedContainer>
   );
 };
+
+export default TwitterConnect;

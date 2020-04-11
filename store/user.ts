@@ -6,7 +6,8 @@ import { fetchUpdateAddress, fetchUserData } from 'utils/user-api';
 
 export const UserDomain = createDomain();
 export const setUser = UserDomain.event<User>();
-export const update = UserDomain.event();
+export const setJWT = UserDomain.event<string>();
+export const getJWT = UserDomain.event();
 export const clear = UserDomain.event();
 
 export const updateAddress = UserDomain.effect<FetchUpdateAddress, {
@@ -34,42 +35,51 @@ const initalState: User = {
 
 export const store = UserDomain.store<User>(initalState)
   .on(setUser, (state, user) => {
-    const storage = window.localStorage;
     const updated = {
       ...state,
       ...user
     };
 
-    storage.clear();
-    storage.setItem(LocalStorageKeys.user, JSON.stringify(updated));
-
     return updated;
   })
-  .on(update, () => {
+  .on(setJWT, (state, jwtToken) => {
+    const storage = window.localStorage;
+
+    storage.clear();
+    storage.setItem(LocalStorageKeys.user, JSON.stringify({
+      jwtToken
+    }));
+
+    return {
+      ...state,
+      jwtToken
+    };
+  })
+  .on(getJWT, (state) => {
     const storage = window.localStorage;
     const userAsString = storage.getItem(LocalStorageKeys.user);
 
     if (!userAsString) {
-      return {};
+      return {
+        ...state,
+        jwtToken: ''
+      };
     }
 
-    const stateFromStorage = JSON.parse(userAsString) || initalState;
+    const stateFromStorage = JSON.parse(userAsString);
 
     return {
-      ...stateFromStorage,
+      ...state,
+      jwtToken: stateFromStorage.jwtToken || '',
       updated: true
     };
   })
   .on(updateAddress.done, (state, { result }) => {
-    const storage = window.localStorage;
     const newState = {
       ...result.user,
       jwtToken: state.jwtToken,
       updated: true
     };
-
-    storage.clear();
-    storage.setItem(LocalStorageKeys.user, JSON.stringify(newState));
 
     return newState;
   })
@@ -83,23 +93,20 @@ export const store = UserDomain.store<User>(initalState)
       return initalState;
     }
 
-    const storage = window.localStorage;
     const updated = {
       ...result,
       jwtToken: state.jwtToken,
       updated: true
     };
 
-    storage.clear();
-    storage.setItem(LocalStorageKeys.user, JSON.stringify(updated));
-
     return updated;
   });
 
 export default {
   store,
-  update,
   setUser,
+  getJWT,
+  setJWT,
   updateAddress,
   clear,
   updateUserState

@@ -6,6 +6,7 @@ import App from 'next/app';
 
 import UserStore from 'store/user';
 import BrowserStore from 'store/browser';
+import EventStore from 'store/event';
 
 import { Container } from 'components/container';
 import { FixedWrapper } from 'components/fixed-wrapper';
@@ -196,30 +197,22 @@ class SocialPay extends App {
       .then((isWebp) => isWebp ? null : BrowserStore.setformat(ImgFormats.png));
 
     if (typeof window !== 'undefined') {
-      UserStore.update();
+      UserStore.getJWT();
 
-      const state = UserStore.store.getState();
+      const userState = UserStore.store.getState();
+
+      if (!userState.jwtToken || !this.props.pageProps.user) {
+        UserStore.clear();
+        EventStore.signOut(null);
+        this.props.router.push('/about');
+      } else if (this.props.pageProps.user) {
+        UserStore.setUser(this.props.pageProps.user);
+      }
 
       if (this.props.router.route.includes('about')) {
         return null;
       } else if (this.props.router.route.includes('auth')) {
         return null;
-      }
-
-      if (!state || !state.jwtToken || state.message === 'Unauthorized') {
-        UserStore.clear();
-
-        this.props.router.push('/about');
-      }
-    }
-
-    if (!this.props.pageProps.user) {
-      window.localStorage.clear();
-
-      if (this.props.pageProps.firstStart) {
-        this.props.router.push('/about');
-      } else {
-        this.props.router.push('/auth');
       }
     }
   }

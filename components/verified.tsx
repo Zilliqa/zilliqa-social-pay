@@ -38,7 +38,7 @@ const TweetEmbedContainer = styled.div`
 
 const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
-const PAGE_LIMIT = 2;
+const PAGE_LIMIT = 3;
 const SLEEP = 10;
 /**
  * Show user tweets.
@@ -242,3 +242,5 @@ export const Verified: React.FC = () => {
     </Container>
   );
 };
+
+export default Verified;

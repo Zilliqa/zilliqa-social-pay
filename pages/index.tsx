@@ -1,5 +1,6 @@
 import React from 'react';
 import { NextPage } from 'next';
+import dynamic from 'next/dynamic';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
 import { useRouter } from 'next/router';
@@ -12,14 +13,15 @@ import EventStore from 'store/event';
 import BrowserStore from 'store/browser';
 
 import { Container } from 'components/container';
-import { TopBar } from 'components/top-bar';
 import { Img } from 'components/img';
-import { Verified } from 'components/verified';
-import { Controller } from 'components/controller';
 
 import { socket } from 'utils/socket';
 import { PageProp } from 'interfaces';
 import { Events } from 'config';
+
+const TopBar = dynamic(() => import('components/top-bar'));
+const Verified = dynamic(() => import('components/verified'));
+const Controller = dynamic(() => import('components/controller'));
 
 const MainPageContainer = styled.main`
   display: grid;
@@ -57,7 +59,6 @@ const Illustration = styled(Img)`
 
 const updater = async () => {
   const messageError = 'Unauthorized';
-  let userState = UserStore.store.getState();
   const blockchain = await BlockchainStore.updateBlockchain(null);
 
   const user = await UserStore.updateUserState(null);
@@ -75,7 +76,7 @@ const updater = async () => {
   if (tweetsResult.message && tweetsResult.message === messageError) {
     throw new Error(messageError);
   } else if (!tweetsResult.tweets || tweetsResult.tweets.length < 1) {
-    userState = UserStore.store.getState();
+    const userState = UserStore.store.getState();
 
     await TwitterStore.updateTweets(userState.jwtToken);
   }
@@ -102,12 +103,11 @@ export const MainPage: NextPage<PageProp> = (props) => {
           EventStore.reset();
         })
         .catch(() => {
-          window.localStorage.clear();
-
           EventStore.reset();
           EventStore.signOut(null);
+          UserStore.clear();
 
-          window.location.replace('/about');
+          router.push('/about');
         });
     }
   }, [

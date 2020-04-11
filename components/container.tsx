@@ -28,3 +28,5 @@ export const Container = styled.div`
 Container.defaultProps = {
   css: ''
 };
+
+export default Container;

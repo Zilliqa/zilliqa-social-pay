@@ -64,7 +64,7 @@ export const TopBar: React.FC = () => {
    */
   const trimAddress = React.useMemo(() => {
     if (!userState.zilAddress || userState.zilAddress.length < 1) {
-      return '';
+      return null;
     }
 
     const address = userState.zilAddress;
@@ -109,7 +109,9 @@ export const TopBar: React.FC = () => {
         {trimAddress}
       </Text>
       <ProfileContainer>
-        <ProfileImg src={userState.profileImageUrl} />
+        {userState.profileImageUrl ? (
+          <ProfileImg src={userState.profileImageUrl} />
+        ) : null}
         <Dropdown
           items={ITEMS}
           onClick={handleClick}
@@ -137,3 +139,5 @@ export const TopBar: React.FC = () => {
     </TopBarContainer>
   );
 };
+
+export default TopBar;
