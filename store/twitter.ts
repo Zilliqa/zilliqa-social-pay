@@ -31,7 +31,11 @@ const initalState: InitState = {
 };
 
 export const store = TwitterDomain.store(initalState)
-  .on(update, (state, tweets) => ({ ...state, tweets }))
+  .on(update, (state, tweets) => ({
+    ...state,
+    tweets,
+    verifiedCount: tweets.filter((el) => el.approved).length
+  }))
   .on(updateTweets.done, (state, { result }) => {
     if (Array.isArray(result.tweets) && result.tweets.length > 0) {
       NotificationManager.info(`SocialPay has been found ${result.tweets.length} tweets.`);
