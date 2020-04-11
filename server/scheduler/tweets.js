@@ -100,6 +100,10 @@ module.exports = async function () {
       });
       debug('Tweet with ID', tweet.idStr, 'sent to shard.');
     } catch (err) {
+      if (err.message === 'Danger tweet.') {
+        await tweet.destroy();
+      }
+
       debug('tweet:', tweet.idStr, 'has not verifed error:', err);
     }
   });
