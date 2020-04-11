@@ -51,7 +51,6 @@ export const Verified: React.FC = () => {
   const blockchainState = Effector.useStore(BlockchainStore.store);
 
   const [paginateOffset, setPaginateOffset] = React.useState(0);
-  const [showTwitterTweetEmbed, setShowTwitterTweetEmbed] = React.useState(true);
 
   /**
    * Hash tag from smart contract.
@@ -144,7 +143,7 @@ export const Verified: React.FC = () => {
     const selected = Number(data.selected);
     const offset = Math.ceil(selected * PAGE_LIMIT);
 
-    setShowTwitterTweetEmbed(false);
+    TwitterStore.setShowTwitterTweetEmbed(false);
     setPaginateOffset(offset);
 
     if (offset >= twitterState.tweets.length) {
@@ -155,10 +154,9 @@ export const Verified: React.FC = () => {
       EventStore.reset();
     }
 
-    setTimeout(() => setShowTwitterTweetEmbed(true), SLEEP);
+    setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
   }, [
     setPaginateOffset,
-    setShowTwitterTweetEmbed,
     twitterState,
     SLEEP
   ]);
@@ -197,7 +195,7 @@ export const Verified: React.FC = () => {
           activeClassName={'active'}
         />
       ) : null}
-      {showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
+      {twitterState.showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
         <TweetEmbedContainer key={index}>
           {(!tweet.claimed && !tweet.approved && !tweet.rejected) ? (
             <Img

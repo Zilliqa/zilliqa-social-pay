@@ -36,6 +36,7 @@ import { addTweet } from 'utils/update-tweets';
 const SPINER_SIZE = 150;
 const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
+const SLEEP = 10;
 
 /**
  * Container for modals and any componets with fixed postion.
@@ -143,6 +144,9 @@ export const FixedWrapper: React.FC = () => {
     EventStore.setEvent(Events.Load);
     const result = await addTweet(userState.jwtToken, eventState.content);
 
+    TwitterStore.setShowTwitterTweetEmbed(false)
+
+    setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
     if (result.message.includes('Added')) {
       TwitterStore.add(result.tweet);
 
