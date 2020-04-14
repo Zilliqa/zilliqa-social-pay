@@ -1,4 +1,4 @@
-{
+module.exports = {
   "development": {
     "database": "dev_social_pay",
     "dialect": "sqlite",
@@ -23,10 +23,10 @@
     }
   },
   "production": {
-    "username": "postgres",
-    "password": "postgres",
-    "database": "database_social_pay",
-    "host": "127.0.0.1",
+    "username": process.env.POSTGRES_USER,
+    "password": process.env.POSTGRES_PASSWORD,
+    "database": process.env.POSTGRES_DB,
+    "host": process.env.POSTGRES_HOST,
     "dialect": "postgres",
     "logging": false,
     "pool": {
