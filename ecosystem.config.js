@@ -3,7 +3,7 @@ module.exports = {
     name: "app",
     script: "node server/index.js",
     env: {
-      NODE_ENV: "production",
+      NODE_ENV: "test",
       DEBUG: "zilliqa-social-pay:*",
       SESSION: "session",
       JWT_SECRET: "SECRET",
