@@ -31,7 +31,7 @@ Also need to deposit few ZILs, call `Deposit` transition and send few ZIls.
  * NODE_ENV # development, test, production
 
 ## Run:
-Create database for only test or production mode.
+Create database for only test or `test`, `production` mode.
 ```bash
 $ npm run db:create
 # or
@@ -56,6 +56,23 @@ Runing for production mode.
 $ npm run build
 $ npm run start
 ```
+
+when server has runing server create admin account by `NUMBER_OF_ADMINS` env.
+```bash
+zilliqa-social-pay:server admin 0: zil170u8pswtmeu2zy9j0ssgwwaaswwf5j9c63rdq7, balance: 0, status: disabled
+zilliqa-social-pay:server admin 1: zil15asw80nsgjujmtvfj9cquuz8fhv662d0nyuqe9, balance: 0, status: disabled
+zilliqa-social-pay:server admin 2: zil1hgjcxss0mzya5t4h6ga64zncrnn9zjs3yew5h6, balance: 0, status: disabled
+zilliqa-social-pay:server admin 3: zil1pud3t54khen6r28juhkswan8kzusm95z92u0lv, balance: 0, status: disabled
+zilliqa-social-pay:server admin 4: zil1wdmu8fqyzfju939hdw3vfdlkytejcyzvlrwy93, balance: 0, status: disabled
+zilliqa-social-pay:server admin 5: zil1cg7vx5t8nulnrdzhadc3u3h7un9sfhkkjhv8lg, balance: 0, status: disabled
+zilliqa-social-pay:server admin 6: zil1edlve2f8qwwh5u43uwej8eq0eqzk46u5sl88sw, balance: 0, status: disabled
+zilliqa-social-pay:server admin 7: zil1hrfql2gtk0fztlr3tsf0t2x0rc4cpvlq3j2xym, balance: 0, status: disabled
+zilliqa-social-pay:server admin 8: zil1w8rz538g9202vl0f0dqf5cqhuaz734na0g6qwn, balance: 0, status: disabled
+zilliqa-social-pay:server admin 9: zil1clkwmtp4r4p4c8zl5pu6mql6tz7vf558tjrw2t, balance: 0, status: disabled
+```
+There accounts is `disabled`, for enable accounts need to call transition `ConfigureAdmin` on smart contract
+
+server will autodetect it and, change status to `enable`.
 
 ## setup database:
   * sequelize config - `server/config/config.js`

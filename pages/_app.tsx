@@ -210,16 +210,16 @@ class SocialPay extends App {
 
       if (!userState.jwtToken || !this.props.pageProps.user) {
         UserStore.clear();
-        EventStore.signOut(null);
+
+        if (this.props.router.route.includes('about')) {
+          return null;
+        } else if (this.props.router.route.includes('auth')) {
+          return null;
+        }
+
         this.props.router.push('/about');
       } else if (this.props.pageProps.user) {
         UserStore.setUser(this.props.pageProps.user);
-      }
-
-      if (this.props.router.route.includes('about')) {
-        return null;
-      } else if (this.props.router.route.includes('auth')) {
-        return null;
       }
     }
   }
