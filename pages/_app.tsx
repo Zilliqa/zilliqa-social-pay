@@ -6,7 +6,6 @@ import App from 'next/app';
 
 import UserStore from 'store/user';
 import BrowserStore from 'store/browser';
-import EventStore from 'store/event';
 
 import { Container } from 'components/container';
 import { FixedWrapper } from 'components/fixed-wrapper';
