@@ -17,7 +17,7 @@ const zilliqa = require('./zilliqa');
 
 const ENV = process.env.NODE_ENV;
 const port = process.env.PORT || 3000;
-const dev = !ENV || ENV === 'development';
+const dev = ENV !== 'production';
 
 const app = next({
   dev,
