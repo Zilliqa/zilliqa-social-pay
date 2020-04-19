@@ -71,7 +71,12 @@ export const FixedWrapper: React.FC = () => {
       twitterState.lastBlockNumber,
       Number(blockchainState.blocksPerWeek)
     ),
-    [blockchainState, twitterState, userState]
+    [
+      blockchainState,
+      blockchainState.BlockNum,
+      twitterState.lastBlockNumber,
+      userState
+    ]
   );
   const timerDay = React.useMemo(
     () => timerCalc(
@@ -80,7 +85,12 @@ export const FixedWrapper: React.FC = () => {
       twitterState.lastBlockNumber,
       Number(blockchainState.blocksPerDay)
     ),
-    [blockchainState, twitterState, userState]
+    [
+      blockchainState,
+      blockchainState.BlockNum,
+      twitterState.lastBlockNumber,
+      userState
+    ]
   );
 
   /**
@@ -144,7 +154,9 @@ export const FixedWrapper: React.FC = () => {
     EventStore.setEvent(Events.Load);
     const result = await addTweet(userState.jwtToken, eventState.content);
 
-    TwitterStore.setShowTwitterTweetEmbed(false)
+    BlockchainStore.updateBlockchain(null);
+
+    TwitterStore.setShowTwitterTweetEmbed(false);
 
     setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
     if (result.message.includes('Added')) {

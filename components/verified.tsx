@@ -136,9 +136,29 @@ export const Verified: React.FC = () => {
       return null;
     }
 
-    await claimTweet(userState.jwtToken, tweet);
-    EventStore.reset();
-  }, [userState, timerDay]);
+    const result = await claimTweet(userState.jwtToken, tweet);
+
+    if (result.message) {
+      TwitterStore.setLastBlock(result.lastTweet);
+      BlockchainStore.updateStore({
+        ...blockchainState,
+        BlockNum: result.currentBlock
+      });
+
+      const time = timerCalc(
+        blockchainState,
+        userState,
+        result.lastTweet,
+        Number(blockchainState.blocksPerDay)
+      );
+      EventStore.setContent({
+        message: `You can participate: ${moment(time).fromNow()}`
+      });
+      EventStore.setEvent(Events.Error);
+    } else {
+      EventStore.reset();
+    }
+  }, [userState, timerDay, blockchainState, twitterState]);
   const handleNextPageClick = React.useCallback(async (data) => {
     const selected = Number(data.selected);
     const offset = Math.ceil(selected * PAGE_LIMIT);

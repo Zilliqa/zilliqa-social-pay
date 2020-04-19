@@ -128,7 +128,9 @@ router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
 
   if (lastTweet && lastTweet.block > 0) {
     return res.status(502).json({
-      message: `Last tweet have block ${lastTweet.block} but current ${blockchainInfo.BlockNum}.`
+      message: `Last tweet have block ${lastTweet.block} but current ${blockchainInfo.BlockNum}.`,
+      lastTweet: lastTweet.block,
+      currentBlock: blockchainInfo.BlockNum
     });
   }
 

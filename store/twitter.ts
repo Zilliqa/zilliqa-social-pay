@@ -8,6 +8,7 @@ import { Twitte, FetchTweets } from 'interfaces';
 
 export const TwitterDomain = createDomain();
 export const update = TwitterDomain.event<Twitte[]>();
+export const setLastBlock = TwitterDomain.event<string | number>();
 export const add = TwitterDomain.event<Twitte>();
 export const clear = TwitterDomain.event();
 export const setShowTwitterTweetEmbed = TwitterDomain.event<boolean>();
@@ -87,7 +88,11 @@ export const store = TwitterDomain.store(initalState)
       count: state.count + 1,
       lastBlockNumber: tweet.block
     };
-  });
+  })
+  .on(setLastBlock, (state, blockNumber) => ({
+    ...state,
+    lastBlockNumber: blockNumber
+  }));
 
 export default {
   store,
@@ -95,6 +100,7 @@ export default {
   updateTweets,
   getTweets,
   clear,
+  setLastBlock,
   setShowTwitterTweetEmbed,
   add
 };
