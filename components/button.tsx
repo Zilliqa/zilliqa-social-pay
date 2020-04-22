@@ -29,19 +29,10 @@ type Prop = {
  * </Button>
  */
 export const Button = styled.button`
-  cursor: pointer;
-
-  min-width: 100px;
-
-  border: 0;
-  border-radius: 30px;
-
   font-family: ${(props: Prop) => props.fontVariant};
   ${(props: Prop) => props.variant}
   padding: ${(props: Prop) => props.sizeVariant};
   ${(props: Prop) => props.css}
-
-  transition: all 0.5s ease-out;
 
   :focus {
     outline: none;

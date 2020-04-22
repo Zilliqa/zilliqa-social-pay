@@ -9,7 +9,7 @@ export enum FontSize {
 export enum SizeComponent {
   xs = '0.1rem',
   sm = '0.3rem',
-  md = '0.5rem',
+  md = '10px',
   lg = '0.8rem',
   xl = '1rem'
 }

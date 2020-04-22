@@ -114,7 +114,7 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
         variant={ButtonVariants.outlet}
         sizeVariant={SizeComponent.md}
       >
-        Connect
+        CONNECT
       </Button>
     </AroundedContainer>
   );
