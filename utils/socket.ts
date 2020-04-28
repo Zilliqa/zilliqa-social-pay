@@ -50,10 +50,10 @@ export function socket() {
     TwitterStore.update(tweetsState.tweets);
 
     if (tweet.approved) {
-      NotificationManager.success('Your tweet is confirmed.');
+      NotificationManager.success('Rewards claimed!');
       UserStore.updateUserState(null);
     } else if (tweet.rejected) {
-      NotificationManager.success('Your tweet is rejected.');
+      NotificationManager.success('Rewards rejected.');
     }
   });
 }

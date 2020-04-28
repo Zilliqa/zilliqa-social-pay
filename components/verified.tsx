@@ -4,6 +4,7 @@ import * as Effector from 'effector-react';
 import { useMediaQuery } from 'react-responsive';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
+import { NotificationManager } from 'react-notifications';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
@@ -40,6 +41,7 @@ const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
 const PAGE_LIMIT = 3;
 const SLEEP = 10;
+const A_MINUTE = 60000;
 /**
  * Show user tweets.
  */
@@ -157,6 +159,7 @@ export const Verified: React.FC = () => {
       EventStore.setEvent(Events.Error);
     } else {
       EventStore.reset();
+      NotificationManager.warning('Claiming rewards…', 'Tweet', A_MINUTE);
     }
   }, [userState, timerDay, blockchainState, twitterState]);
   const handleNextPageClick = React.useCallback(async (data) => {
