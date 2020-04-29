@@ -5,13 +5,13 @@ import { TwitterTweetEmbed } from 'react-twitter-embed';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { useMediaQuery } from 'react-responsive';
 import moment from 'moment';
-import { NotificationContainer, NotificationManager } from 'react-notifications';
 
 import EventStore from 'store/event';
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
 import BrowserStore from 'store/browser';
 import BlockchainStore from 'store/blockchain';
+import NotificationStore from 'store/notification';
 
 import { Modal } from 'components/modal';
 import { Img } from 'components/img';
@@ -20,7 +20,12 @@ import { Text } from 'components/text';
 import { Button } from 'components/button';
 import { ContainerLoader } from 'components/container-loader';
 import { Container } from 'components/container';
-import { NotificationsControl } from 'components/notification-control';
+import { MinLoader } from 'components/min-loader';
+import {
+  NotificationsControl,
+  NotificationWarning,
+  NotificationSuccess
+} from 'components/notification-control';
 
 import {
   ButtonVariants,
@@ -123,7 +128,12 @@ export const FixedWrapper: React.FC = () => {
       jwt: userState.jwtToken
     });
 
-    NotificationManager.info('Syncing address...');
+    NotificationStore.addNotifly(
+      <NotificationWarning>
+        <MinLoader height="40" width="40" />
+        Syncing address...
+      </NotificationWarning>
+    );
 
     if (result.message && result.message !== 'ConfiguredUserAddress') {
       setAddressErr(result.message);
@@ -163,7 +173,11 @@ export const FixedWrapper: React.FC = () => {
     if (result.message.includes('Added')) {
       TwitterStore.add(result.tweet);
 
-      NotificationManager.info('Tweet added!');
+      NotificationStore.addNotifly(
+        <NotificationSuccess>
+          Tweet added!
+        </NotificationSuccess>
+      );
     }
 
     EventStore.reset();
@@ -286,9 +300,6 @@ export const FixedWrapper: React.FC = () => {
           loading={eventState.current === Events.Load}
         />
       </ContainerLoader>
-      {userState.jwtToken ? (
-        <NotificationContainer />
-      ) : null}
       <NotificationsControl />
     </React.Fragment>
   );

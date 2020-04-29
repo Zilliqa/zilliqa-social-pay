@@ -4,7 +4,6 @@ import * as Effector from 'effector-react';
 import { useMediaQuery } from 'react-responsive';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
-import { NotificationManager } from 'react-notifications';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
@@ -41,7 +40,6 @@ const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
 const PAGE_LIMIT = 3;
 const SLEEP = 10;
-const A_MINUTE = 60000;
 /**
  * Show user tweets.
  */
@@ -111,10 +109,6 @@ export const Verified: React.FC = () => {
 
   const handleClickClaim = React.useCallback(async (tweet: Twitte) => {
     EventStore.setEvent(Events.Load);
-
-    NotificationManager.warning('Claiming rewards…', 'Tweet', A_MINUTE);
-
-    return null;
 
     await UserStore.updateUserState(null);
     await BlockchainStore.updateBlockchain(null);

@@ -11,9 +11,11 @@ import TwitterStore from 'store/twitter';
 import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
 import BrowserStore from 'store/browser';
+import NotificationStore from 'store/notification';
 
 import { Container } from 'components/container';
 import { Img } from 'components/img';
+import { NotificationSuccess } from 'components/notification-control';
 
 import { socket } from 'utils/socket';
 import { PageProp } from 'interfaces';
@@ -78,7 +80,17 @@ const updater = async () => {
   } else if (!tweetsResult.tweets || tweetsResult.tweets.length < 1) {
     const userState = UserStore.store.getState();
 
-    await TwitterStore.updateTweets(userState.jwtToken);
+    const result = await TwitterStore.updateTweets(userState.jwtToken);
+
+    NotificationStore.addNotifly(
+      <NotificationSuccess>
+        <Img
+          src="/icons/ok.svg"
+          css="margin-right: 10px;"
+        />
+        SocialPay has found {result.tweets.length} tweets.
+      </NotificationSuccess>
+    );
   }
 };
 
@@ -102,12 +114,13 @@ export const MainPage: NextPage<PageProp> = (props) => {
           socket();
           EventStore.reset();
         })
-        .catch(() => {
+        .catch((err) => {
+          console.log(err);
           EventStore.reset();
-          EventStore.signOut(null);
-          UserStore.clear();
+          // EventStore.signOut(null);
+          // UserStore.clear();
 
-          router.push('/about');
+          // router.push('/about');
         });
     }
   }, [

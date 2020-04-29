@@ -1,5 +1,4 @@
 import { createDomain } from 'effector';
-import { NotificationManager } from 'react-notifications';
 
 import { fetchTweetsUpdate } from 'utils/update-tweets';
 import { fetchTweets } from 'utils/get-tweets';
@@ -43,8 +42,6 @@ export const store = TwitterDomain.store(initalState)
   .on(setShowTwitterTweetEmbed, (state, showTwitterTweetEmbed) => ({ ...state, showTwitterTweetEmbed }))
   .on(updateTweets.done, (state, { result }) => {
     if (Array.isArray(result.tweets) && result.tweets.length > 0) {
-      NotificationManager.info(`SocialPay has found ${result.tweets.length} tweets.`);
-
       const tweets = toUnique(state.tweets.concat(result.tweets), 'idStr');
 
       return {
