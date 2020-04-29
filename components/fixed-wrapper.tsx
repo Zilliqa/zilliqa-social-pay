@@ -20,7 +20,6 @@ import { Text } from 'components/text';
 import { Button } from 'components/button';
 import { ContainerLoader } from 'components/container-loader';
 import { Container } from 'components/container';
-import { MinLoader } from 'components/min-loader';
 import {
   NotificationsControl,
   NotificationWarning,
@@ -128,18 +127,21 @@ export const FixedWrapper: React.FC = () => {
       jwt: userState.jwtToken
     });
 
-    NotificationStore.addNotifly(
-      <NotificationWarning>
-        <MinLoader height="40" width="40" />
-        Syncing address...
-      </NotificationWarning>
-    );
-
     if (result.message && result.message !== 'ConfiguredUserAddress') {
       setAddressErr(result.message);
 
       return null;
     }
+
+    NotificationStore.addNotifly(
+      <NotificationWarning>
+        <Img
+          src="/icons/danger.svg"
+          css="height: 30px;width: 30px;"
+        />
+        Syncing address...
+      </NotificationWarning>
+    );
 
     EventStore.reset();
   }, [address, validation, setAddressErr, addressErr, userState]);
@@ -170,6 +172,7 @@ export const FixedWrapper: React.FC = () => {
     TwitterStore.setShowTwitterTweetEmbed(false);
 
     setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
+
     if (result.message.includes('Added')) {
       TwitterStore.add(result.tweet);
 

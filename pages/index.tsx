@@ -94,16 +94,18 @@ const updater = async () => {
   }
 };
 
-export const MainPage: NextPage<PageProp> = (props) => {
+export const MainPage: NextPage<PageProp> = () => {
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 446px)' });
   const router = useRouter();
 
-  const blockchainState = Effector.useStore(BlockchainStore.store);
   const userState = Effector.useStore(UserStore.store);
   const browserState = Effector.useStore(BrowserStore.store);
 
   const [mounted, setMounted] = React.useState(false);
 
+  /**
+   * Effect for fetch data from server.
+   */
   React.useEffect(() => {
     if (!mounted) {
       setMounted(true);
@@ -117,19 +119,16 @@ export const MainPage: NextPage<PageProp> = (props) => {
         .catch((err) => {
           console.log(err);
           EventStore.reset();
-          // EventStore.signOut(null);
-          // UserStore.clear();
+          EventStore.signOut(null);
+          UserStore.clear();
 
-          // router.push('/about');
+          router.push('/about');
         });
     }
   }, [
     mounted,
     setMounted,
-    blockchainState,
-    userState,
-    router,
-    props
+    userState
   ]);
 
   return (

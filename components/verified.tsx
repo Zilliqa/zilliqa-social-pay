@@ -9,11 +9,13 @@ import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
 import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
+import NotificationStore from 'store/notification';
 
 import { Text } from 'components/text';
 import { MinLoader } from 'components/min-loader';
 import { Img } from 'components/img';
 import { Container } from 'components/container';
+import { NotificationWarning } from 'components/notification-control';
 import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
 
 import { FontSize, Fonts, FontColors, Events } from 'config';
@@ -49,6 +51,7 @@ export const Verified: React.FC = () => {
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
   const blockchainState = Effector.useStore(BlockchainStore.store);
+  const notificationState = Effector.useStore(NotificationStore.store);
 
   const [paginateOffset, setPaginateOffset] = React.useState(0);
 
@@ -180,6 +183,27 @@ export const Verified: React.FC = () => {
     twitterState,
     SLEEP
   ]);
+
+  /**
+   * Effect for loading tweets rewards.
+   * If tweet is loading then show user notification.
+   */
+  React.useEffect(() => {
+    const foundTweet = twitterState.tweets.find(
+      (tweet) => Boolean(!tweet.approved && !tweet.rejected && tweet.claimed)
+    );
+
+    if (foundTweet) {
+      NotificationStore.addLoadingNotifly(
+        <NotificationWarning>
+          <MinLoader height="40" width="40" />
+          Claiming rewards…
+        </NotificationWarning>
+      );
+    } else {
+      NotificationStore.rmNotifly(notificationState.loadinguiid);
+    }
+  }, [twitterState]);
 
   return (
     <Container>

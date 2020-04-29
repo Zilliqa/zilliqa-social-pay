@@ -73,6 +73,7 @@ export interface NotificationState {
   }[];
   timeoutTransition: number;
   timeoutNotifications: number;
+  loadinguiid: string;
 }
 
 
