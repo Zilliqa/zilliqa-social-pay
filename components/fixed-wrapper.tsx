@@ -20,6 +20,7 @@ import { Text } from 'components/text';
 import { Button } from 'components/button';
 import { ContainerLoader } from 'components/container-loader';
 import { Container } from 'components/container';
+import { NotificationsControl } from 'components/notification-control';
 
 import {
   ButtonVariants,
@@ -285,7 +286,10 @@ export const FixedWrapper: React.FC = () => {
           loading={eventState.current === Events.Load}
         />
       </ContainerLoader>
-      {userState.jwtToken ? <NotificationContainer /> : null}
+      {userState.jwtToken ? (
+        <NotificationContainer />
+      ) : null}
+      <NotificationsControl />
     </React.Fragment>
   );
 };

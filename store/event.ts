@@ -8,6 +8,7 @@ export const EventDomain = createDomain();
 export const setEvent = EventDomain.event<Events>();
 export const setContent = EventDomain.event<any>();
 export const reset = EventDomain.event();
+export const setTimer = EventDomain.event<string | null>();
 export const signOut = EventDomain.effect<null, null, Error>();
 
 signOut.use(fetchSignOut);
@@ -26,12 +27,17 @@ export const store = EventDomain.store<EventState>(initalState)
    .on(setContent, (state, payload) => ({
      ...state,
      content: payload
+   }))
+   .on(setTimer, (state, timer) => ({
+     ...state,
+     timer
    }));
 
 export default {
   store,
   reset,
   signOut,
+  setTimer,
   setEvent,
   setContent
 };

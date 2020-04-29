@@ -63,7 +63,18 @@ export interface PageProp {
 export interface EventState {
   current: Events;
   content: null | any;
+  timer?: string | null;
 }
+
+export interface NotificationState {
+  notifications: {
+    element: JSX.Element,
+    uuid: string;
+  }[];
+  timeoutTransition: number;
+  timeoutNotifications: number;
+}
+
 
 export interface FetchTweets {
   tweets: Twitte[];

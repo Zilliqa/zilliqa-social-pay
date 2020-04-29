@@ -112,6 +112,10 @@ export const Verified: React.FC = () => {
   const handleClickClaim = React.useCallback(async (tweet: Twitte) => {
     EventStore.setEvent(Events.Load);
 
+    NotificationManager.warning('Claiming rewards…', 'Tweet', A_MINUTE);
+
+    return null;
+
     await UserStore.updateUserState(null);
     await BlockchainStore.updateBlockchain(null);
 
@@ -159,7 +163,6 @@ export const Verified: React.FC = () => {
       EventStore.setEvent(Events.Error);
     } else {
       EventStore.reset();
-      NotificationManager.warning('Claiming rewards…', 'Tweet', A_MINUTE);
     }
   }, [userState, timerDay, blockchainState, twitterState]);
   const handleNextPageClick = React.useCallback(async (data) => {

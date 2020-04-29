@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const MinLoader: React.FC = (props) => (
+export const MinLoader: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
       viewBox="0 0 100 100"
       {...props}

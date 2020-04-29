@@ -7,6 +7,7 @@ import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
+import NotificationStore from 'store/notification';
 
 import { Text } from 'components/text';
 import { ProgressCircle } from 'components/progress-circle';
@@ -15,6 +16,8 @@ import { Img } from 'components/img';
 import { Input, InputIcons } from 'components/Input';
 import { Button } from 'components/button';
 import { Container } from 'components/container';
+import { NotificationWarning } from 'components/notification-control';
+import { MinLoader } from 'components/min-loader';
 
 import {
   FontSize,
@@ -118,7 +121,12 @@ export const Controller: React.FC = () => {
   const handleSearch = React.useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    console.log(value);
+    NotificationStore.addNotifly(
+      <NotificationWarning>
+        <MinLoader height="40" width="40" />
+        sdadsadsad
+      </NotificationWarning>
+    );
 
     if (!value) {
       return null;
