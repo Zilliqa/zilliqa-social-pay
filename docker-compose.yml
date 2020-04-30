@@ -3,7 +3,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./docker/next
+      dockerfile: ./Dockerfile
     ports:
       - "3000:3000"
     env_file:

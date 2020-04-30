@@ -1,10 +1,14 @@
 FROM node:10
+
 WORKDIR /app
 COPY . .
 
+ARG DEPLOY_ENV="dev"
 RUN npm install
 RUN npm run build
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+ENV DEPLOY_ENV=${DEPLOY_ENV}
+ENTRYPOINT ["sh", "run.sh"]
+
