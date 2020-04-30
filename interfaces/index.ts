@@ -53,6 +53,8 @@ export interface Blockchain {
   balance: string | number;
   initBalance: string | number;
   message?: string;
+  dayTimer?: string | null;
+  weekTimer?: string | null;
 }
 
 export interface PageProp {

@@ -4,7 +4,6 @@ import { validation } from '@zilliqa-js/util';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { useMediaQuery } from 'react-responsive';
-import moment from 'moment';
 
 import EventStore from 'store/event';
 import UserStore from 'store/user';
@@ -35,7 +34,6 @@ import {
   Fonts,
   Sides
 } from 'config';
-import { timerCalc } from 'utils/timer';
 import { addTweet } from 'utils/update-tweets';
 
 const SPINER_SIZE = 150;
@@ -53,7 +51,6 @@ export const FixedWrapper: React.FC = () => {
   const browserState = Effector.useStore(BrowserStore.store);
   const eventState = Effector.useStore(EventStore.store);
   const userState = Effector.useStore(UserStore.store);
-  const twitterState = Effector.useStore(TwitterStore.store);
   const blockchainState = Effector.useStore(BlockchainStore.store);
   // Effector hooks //
 
@@ -66,37 +63,6 @@ export const FixedWrapper: React.FC = () => {
   const [twitterWidth] = React.useState(isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT);
   const [placeholder, setPlaceholder] = React.useState<string>();
   const [disabledAddress, setDisabledAddress] = React.useState<boolean>();
-  /**
-   * Calculate the time for next action.
-   */
-  const timerPerWeeks = React.useMemo(
-    () => timerCalc(
-      blockchainState,
-      userState,
-      twitterState.lastBlockNumber,
-      Number(blockchainState.blocksPerWeek)
-    ),
-    [
-      blockchainState,
-      blockchainState.BlockNum,
-      twitterState.lastBlockNumber,
-      userState
-    ]
-  );
-  const timerDay = React.useMemo(
-    () => timerCalc(
-      blockchainState,
-      userState,
-      twitterState.lastBlockNumber,
-      Number(blockchainState.blocksPerDay)
-    ),
-    [
-      blockchainState,
-      blockchainState.BlockNum,
-      twitterState.lastBlockNumber,
-      userState
-    ]
-  );
 
   /**
    * Handle submit (Zilliqa address) form.
@@ -187,15 +153,15 @@ export const FixedWrapper: React.FC = () => {
   }, [addTweet, EventStore, userState, eventState, TwitterStore]);
 
   React.useEffect(() => {
-    if (timerPerWeeks > 0) {
-      setPlaceholder(`You can change address: ${moment(timerPerWeeks).fromNow()}`);
+    if (Boolean(blockchainState.weekTimer)) {
+      setPlaceholder(`You can change address: ${blockchainState.weekTimer}`);
       setDisabledAddress(true);
       setAddress('');
     } else if (userState.synchronization) {
       setPlaceholder('Waiting for address to sync...');
       setDisabledAddress(true);
       setAddress('');
-    } else if (timerPerWeeks === 0 && !userState.synchronization && !address) {
+    } else if (!Boolean(blockchainState.weekTimer) && !userState.synchronization && !address) {
       setAddress(userState.zilAddress);
       setDisabledAddress(false);
     }
@@ -204,8 +170,8 @@ export const FixedWrapper: React.FC = () => {
     setAddress,
     userState,
     setPlaceholder,
-    timerPerWeeks,
-    disabledAddress
+    disabledAddress,
+    blockchainState
   ]);
   // React hooks //
 
@@ -261,7 +227,7 @@ export const FixedWrapper: React.FC = () => {
                 width: twitterWidth
               }}
             />
-            {timerDay === 0 ? (
+            {!Boolean(blockchainState.dayTimer) ? (
               <Button
                 sizeVariant={SizeComponent.lg}
                 variant={ButtonVariants.primary}
@@ -276,7 +242,7 @@ export const FixedWrapper: React.FC = () => {
                   fontVariant={Fonts.AvenirNextLTProDemi}
                   fontColors={FontColors.white}
                 >
-                  You can participate: {moment(timerDay).fromNow()}
+                  You can participate: {blockchainState.dayTimer}
                 </Text>
               )}
           </Container>

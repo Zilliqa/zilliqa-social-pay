@@ -1,14 +1,42 @@
 import { createDomain } from 'effector';
+import moment from 'moment';
 
 import { Blockchain } from 'interfaces';
+import UserStore from 'store/user';
+import twitterStore from 'store/twitter';
 import { fetchBlockchainData } from 'utils/get-blockchain';
+import { timerCalc } from 'utils/timer';
 
 export const blockchainDomain = createDomain();
-export const nextBlock = blockchainDomain.event();
 export const updateStore = blockchainDomain.event<Blockchain>();
 export const updateBlockchain = blockchainDomain.effect<null, Blockchain, Error>();
 
 updateBlockchain.use(fetchBlockchainData);
+
+const getTime = (blockchain: Blockchain) => {
+  const userState = UserStore.store.getState();
+  const twitterState = twitterStore.store.getState();
+  const week = timerCalc(
+    blockchain,
+    userState,
+    twitterState.lastBlockNumber,
+    Number(blockchain.blocksPerWeek)
+  );
+  const day = timerCalc(
+    blockchain,
+    userState,
+    twitterState.lastBlockNumber,
+    Number(blockchain.blocksPerDay)
+  );
+
+  const dayTimer = day !== 0 ? moment(day).fromNow() : null;
+  const weekTimer = week !== 0 ? moment(week).fromNow() : null;
+
+  return {
+    dayTimer,
+    weekTimer
+  };
+};
 
 const initalState: Blockchain = {
   contract: null,
@@ -24,19 +52,19 @@ const initalState: Blockchain = {
 };
 
 export const store = blockchainDomain.store<Blockchain>(initalState)
-  .on(updateStore, (state, newState) => ({ ...state, ...newState }))
+  .on(updateStore, (state, newState) => ({
+    ...state,
+    ...newState,
+    ...getTime(newState)
+  }))
   .on(updateBlockchain.done, (state, { result }) => ({
     ...state,
-    ...result
-  }))
-  .on(nextBlock, (state) => ({
-    ...state,
-    BlockNum: Number(state.BlockNum) + 1
+    ...result,
+    ...getTime(result)
   }));
 
 export default {
   store,
   updateBlockchain,
-  nextBlock,
   updateStore
 };

@@ -31,7 +31,7 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
 
     if (userExist > 0) {
       return res.status(401).json({
-        message: 'Such address is already registered.'
+        message: 'This address is already registered.'
       });
     }
 
