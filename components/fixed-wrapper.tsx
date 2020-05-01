@@ -262,7 +262,7 @@ export const FixedWrapper: React.FC = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
           >
-            Error
+            I'm sorry...
           </Text>
           {Boolean(eventState.content && eventState.content.message) ? <Text
             size={FontSize.sm}
