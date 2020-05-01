@@ -28,6 +28,7 @@ import { SearchTweet } from 'utils/get-tweets';
 
 const ControlContainer = styled(AroundedContainer)`
   padding: 30px;
+  margin-top: 7px;
   margin-bottom: 30px;
   align-items: flex-start;
 

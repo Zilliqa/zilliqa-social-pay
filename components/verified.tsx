@@ -219,20 +219,6 @@ export const Verified: React.FC = () => {
           /> : null}
         </HaventVerified>
       </Container>
-      {twitterState.count > PAGE_LIMIT ? (
-        <ReactPaginate
-          previousLabel={'previous'}
-          nextLabel={'next'}
-          breakLabel={'...'}
-          breakClassName={'break-me'}
-          pageCount={twitterState.count / PAGE_LIMIT}
-          marginPagesDisplayed={1}
-          pageRangeDisplayed={1}
-          onPageChange={handleNextPageClick}
-          containerClassName={'pagination' + ` ${isTabletOrMobile ? 'mobile' : 'desktop'}`}
-          activeClassName={'active'}
-        />
-      ) : null}
       {twitterState.showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
         <TweetEmbedContainer key={index}>
           {(!tweet.claimed && !tweet.approved && !tweet.rejected) ? (
@@ -278,6 +264,20 @@ export const Verified: React.FC = () => {
           />
         </TweetEmbedContainer>
       )) : null}
+      {twitterState.count > PAGE_LIMIT ? (
+        <ReactPaginate
+          previousLabel={'previous'}
+          nextLabel={'next'}
+          breakLabel={'...'}
+          breakClassName={'break-me'}
+          pageCount={twitterState.count / PAGE_LIMIT}
+          marginPagesDisplayed={1}
+          pageRangeDisplayed={1}
+          onPageChange={handleNextPageClick}
+          containerClassName={'pagination' + ` ${isTabletOrMobile ? 'mobile' : 'desktop'}`}
+          activeClassName={'active'}
+        />
+      ) : null}
     </Container>
   );
 };
