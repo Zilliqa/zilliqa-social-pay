@@ -37,6 +37,11 @@ const TweetEmbedContainer = styled.div`
   grid-template-columns: 100px 1fr;
   grid-gap: 10px;
   justify-items: end;
+
+  @media (max-width: 412px) {
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 1fr;
+  }
 `;
 
 const WIDTH_MOBILE = 250;
