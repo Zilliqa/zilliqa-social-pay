@@ -9,6 +9,7 @@ import { timerCalc } from 'utils/timer';
 
 export const blockchainDomain = createDomain();
 export const updateStore = blockchainDomain.event<Blockchain>();
+export const updateTimer = blockchainDomain.event();
 export const updateBlockchain = blockchainDomain.effect<null, Blockchain, Error>();
 
 updateBlockchain.use(fetchBlockchainData);
@@ -61,10 +62,15 @@ export const store = blockchainDomain.store<Blockchain>(initalState)
     ...state,
     ...result,
     ...getTime(result)
+  }))
+  .on(updateTimer, (state) => ({
+    ...state,
+    ...getTime(state)
   }));
 
 export default {
   store,
   updateBlockchain,
-  updateStore
+  updateStore,
+  updateTimer
 };

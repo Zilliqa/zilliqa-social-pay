@@ -151,6 +151,8 @@ export const Verified: React.FC = () => {
       });
       EventStore.setEvent(Events.Error);
     } else {
+      TwitterStore.setLastBlock(result.block);
+      BlockchainStore.updateTimer();
       EventStore.reset();
     }
   }, [userState, blockchainState, twitterState]);
