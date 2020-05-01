@@ -208,7 +208,7 @@ export const Verified: React.FC = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
           >
-            You have no verified tweets.
+            No tweets found.
           </Text>
           {hashTag ? <TwitterHashtagButton
             tag={hashTag}
