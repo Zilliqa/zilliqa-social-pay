@@ -3,7 +3,6 @@ import App from 'next/app';
 
 import UserStore from 'store/user';
 import BrowserStore from 'store/browser';
-import EventStore from 'store/event';
 
 import { Container } from 'components/container';
 import { FixedWrapper } from 'components/fixed-wrapper';
@@ -23,20 +22,8 @@ class SocialPay extends App {
     if (typeof window !== 'undefined') {
       UserStore.getJWT();
 
-      const userState = UserStore.store.getState();
-
-      if (!userState.jwtToken || !this.props.pageProps.user) {
-        UserStore.clear();
-        EventStore.signOut(null);
-        this.props.router.push('/about');
-      } else if (this.props.pageProps.user) {
+      if (this.props.pageProps.user) {
         UserStore.setUser(this.props.pageProps.user);
-      }
-
-      if (this.props.router.route.includes('about')) {
-        return null;
-      } else if (this.props.router.route.includes('auth')) {
-        return null;
       }
     }
   }
