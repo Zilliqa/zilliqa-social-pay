@@ -6,6 +6,7 @@ import UserStore from 'store/user';
 
 import { Img } from 'components/img';
 import { Text } from 'components/text';
+import { Container } from 'components/container';
 
 import { FontColors, FontSize, Fonts } from 'config';
 
@@ -68,6 +69,11 @@ const ImgContainer = styled(Img)`
   border-radius: 50%;
   border: 0.1rem #00ffff solid;
 `;
+const TitleContainer = styled(Container)`
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+`;
 
 export const Profile: React.FC = () => {
   const userState = Effector.useStore(UserStore.store);
@@ -84,12 +90,22 @@ export const Profile: React.FC = () => {
         <ImgContainer src={userState.profileImageUrl} />
       </ProfileContainer>
       <NotificationContainer show={notificationShow}>
-        <Text
-          size={FontSize.md}
-          fontVariant={Fonts.AvenirNextLTProRegular}
-        >
-          Notifications
-        </Text>
+        <TitleContainer>
+          <Text
+            size={FontSize.md}
+            fontVariant={Fonts.AvenirNextLTProRegular}
+          >
+            Notifications
+          </Text>
+          <Text
+            fontColors={FontColors.primary}
+            size={FontSize.md}
+            fontVariant={Fonts.AvenirNextLTProDemi}
+            css="cursor: pointer;z-index: 6;"
+          >
+            Clear all
+          </Text>
+        </TitleContainer>
       </NotificationContainer>
       <Closer
         show={notificationShow}
