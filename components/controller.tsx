@@ -133,10 +133,12 @@ export const Controller: React.FC = () => {
       setPlaceholder('Waiting for address to sync...');
       setDisabled(true);
       setIcon(InputIcons.refresh);
+      setValue('');
     } else if (Boolean(blockchainState.dayTimer)) {
       setPlaceholder(`You can participate: ${blockchainState.dayTimer}`);
       setDisabled(true);
       setIcon(InputIcons.timer);
+      setValue('');
     } else if (!Boolean(blockchainState.dayTimer) && !userState.synchronization) {
       setDisabled(false);
       setPlaceholder('Paste your tweet link here');
@@ -149,6 +151,7 @@ export const Controller: React.FC = () => {
     setPlaceholder,
     value,
     userState,
+    setValue,
     blockchainState
   ]);
 

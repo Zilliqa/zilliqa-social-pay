@@ -109,9 +109,9 @@ export const BaseStyles = createGlobalStyle`
 
     margin: 0;
     padding: 0;
-    padding-left: 40px;
-    margin-bottom: 15px;
-    margin-top: 15px;
+    padding-left: 100px;
+    margin-bottom: 30px;
+    margin-top: 30px;
 
     li {
       list-style-type: none;
