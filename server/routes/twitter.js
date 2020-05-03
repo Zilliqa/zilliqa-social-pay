@@ -11,7 +11,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const {
   User,
   Twittes,
-  Blockchain
+  blockchain
 } = models.sequelize.models;
 
 const userSign = (req, res) => {
@@ -82,7 +82,7 @@ router.get('/auth/twitter/callback', (req, res) => {
 
 router.put('/update/tweets', checkSession, verifyJwt, async (req, res) => {
   const { user } = req.verification;
-  const blockchain = await Blockchain.findOne({
+  const blockchain = await blockchain.findOne({
     where: {
       contract: CONTRACT_ADDRESS
     }
@@ -123,7 +123,7 @@ router.put('/update/tweets', checkSession, verifyJwt, async (req, res) => {
 router.post('/search/tweets/:query', checkSession, verifyJwt, async (req, res) => {
   const { query } = req.params;
   const { user } = req.verification;
-  const blockchain = await Blockchain.findOne({
+  const blockchain = await blockchain.findOne({
     where: {
       contract: CONTRACT_ADDRESS
     }
@@ -184,7 +184,7 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
     });
   }
 
-  const blockchainInfo = await Blockchain.findOne({
+  const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
 

@@ -8,7 +8,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const {
   User,
   Twittes,
-  Blockchain,
+  blockchain,
   Admin
 } = models.sequelize.models;
 
@@ -47,7 +47,7 @@ module.exports = async function () {
     return null;
   }
 
-  const blockchainInfo = await Blockchain.findOne({
+  const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
   const tweets = await Twittes.findAndCountAll({

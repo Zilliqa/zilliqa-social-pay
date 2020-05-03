@@ -4,11 +4,11 @@ const models = require('../models');
 const {
   User,
   Twittes,
-  Blockchain
+  blockchain
 } = models.sequelize.models;
 
 module.exports = (socket, io) => {
-  Blockchain.addHook('afterUpdate', (blockchain) => {
+  blockchain.addHook('afterUpdate', (blockchain) => {
     socket.emit(EVENTS.info, JSON.stringify(blockchain));
   });
   User.addHook('afterUpdate', (user) => {

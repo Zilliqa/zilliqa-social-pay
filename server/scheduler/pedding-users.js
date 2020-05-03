@@ -8,7 +8,7 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 
 const {
   User,
-  Blockchain
+  blockchain
 } = models.sequelize.models;
 
 module.exports = async function () {
@@ -32,7 +32,7 @@ module.exports = async function () {
     return null;
   }
 
-  const blockchainInfo = await Blockchain.findOne({
+  const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
   const onlyProfiles = users.rows.map(async (user) => {

@@ -5,7 +5,7 @@ const { toChecksumAddress, toBech32Address } = require('@zilliqa-js/crypto');
 
 const {
   User,
-  Blockchain,
+  blockchain,
   Admin,
   Twittes
 } = models.sequelize.models;
@@ -103,7 +103,7 @@ module.exports = {
         profileId: twitterId
       }
     });
-    const blockchainInfo = await Blockchain.findOne({
+    const blockchainInfo = await blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
 
@@ -131,7 +131,7 @@ module.exports = {
         model: User
       }
     });
-    const blockchainInfo = await Blockchain.findOne({
+    const blockchainInfo = await blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
 
@@ -156,7 +156,7 @@ module.exports = {
       throw new Error(`Not found ${this.keys.depositAmount} vname in:`, params);
     }
 
-    let blockchainInfo = await Blockchain.findOne({
+    let blockchainInfo = await blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
 

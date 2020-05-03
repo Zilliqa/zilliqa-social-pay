@@ -12,7 +12,7 @@ const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 5;
 const {
   User,
   Twittes,
-  Blockchain,
+  blockchain,
   Notification,
   Admin
 } = models.sequelize.models;
@@ -40,7 +40,7 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
       });
     }
 
-    const blockchainInfo = await Blockchain.findOne({
+    const blockchainInfo = await blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
     let block = Number(blockchainInfo.BlockNum);
@@ -119,7 +119,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
     });
   }
 
-  const blockchainInfo = await Blockchain.findOne({
+  const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
   const lastTweet = await Twittes.findOne({
@@ -207,13 +207,13 @@ router.get('/get/tweets', checkSession, async (req, res) => {
 
 router.get('/get/blockchain', checkSession, async (req, res) => {
   try {
-    const blockchain = await Blockchain.findOne({
+    const blockchainInfo = await blockchain.findOne({
       where: {
         contract: CONTRACT_ADDRESS
       }
     });
 
-    return res.status(200).json(blockchain);
+    return res.status(200).json(blockchainInfo);
   } catch (err) {
     return res.status(400).json({
       message: err.message
