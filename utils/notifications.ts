@@ -11,7 +11,8 @@ export const fetchNotifications = async ({
   offset = 0,
   limit
 }: Paginate) => {
-  const res = await fetch(`${APIs.getNotifications}?limit=${limit}&offset=${offset}`, {
+  const hasLimit = Boolean(limit) ? `limit=${limit}&` : '';
+  const res = await fetch(`${APIs.getNotifications}?${hasLimit}offset=${offset}`, {
     credentials: 'include'
   });
   const result = await res.json();
