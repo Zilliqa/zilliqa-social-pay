@@ -7,10 +7,15 @@ const verifyJwt = require('../middleware/verify-jwt');
 const router = express.Router();
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const User = models.sequelize.models.User;
-const Twittes = models.sequelize.models.Twittes;
-const Blockchain = models.sequelize.models.blockchain;
-const Admin = models.sequelize.models.Admin;
+const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 5;
+
+const {
+  User,
+  Twittes,
+  Blockchain,
+  Notification,
+  Admin
+} = models.sequelize.models;
 const actions = new User().actions;
 
 router.put('/update/address/:address', checkSession, verifyJwt, async (req, res) => {
@@ -209,6 +214,34 @@ router.get('/get/blockchain', checkSession, async (req, res) => {
     });
 
     return res.status(200).json(blockchain);
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    });
+  }
+});
+
+router.get('/get/notifications', checkSession, async (req, res) => {
+  const UserId = req.session.passport.user.id;
+
+  try {
+    const userNotification = Notification.findAll({
+      where: {
+        UserId
+      },
+      order: [
+        ['createdAt', 'DESC']
+      ],
+      attributes: {
+        exclude: [
+          'id',
+          'updatedAt'
+        ]
+      },
+      limit: MAX_AMOUNT_NOTIFICATIONS
+    });
+
+    return res.status(200).json(userNotification);
   } catch (err) {
     return res.status(400).json({
       message: err.message

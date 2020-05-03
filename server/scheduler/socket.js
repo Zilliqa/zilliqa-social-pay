@@ -4,7 +4,8 @@ const models = require('../models');
 const eventUtils = require('../event-utils');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const Blockchain = models.sequelize.models.blockchain;
+
+const { Blockchain } = models.sequelize.models;
 
 module.exports = async function () {
   try {

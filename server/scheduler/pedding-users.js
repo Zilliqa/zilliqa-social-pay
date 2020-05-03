@@ -5,8 +5,11 @@ const models = require('../models');
 const { toBech32Address } = require('@zilliqa-js/crypto');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const User = models.sequelize.models.User;
-const Blockchain = models.sequelize.models.blockchain;
+
+const {
+  User,
+  Blockchain
+} = models.sequelize.models;
 
 module.exports = async function () {
   const users = await User.findAndCountAll({

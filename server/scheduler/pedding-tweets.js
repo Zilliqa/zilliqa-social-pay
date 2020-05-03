@@ -4,9 +4,12 @@ const zilliqa = require('../zilliqa');
 const models = require('../models');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const Twittes = models.sequelize.models.Twittes;
-const User = models.sequelize.models.User;
-const Blockchain = models.sequelize.models.blockchain;
+
+const {
+  User,
+  Twittes,
+  Blockchain
+} = models.sequelize.models;
 
 module.exports = async function () {
   const twittes = await Twittes.findAndCountAll({

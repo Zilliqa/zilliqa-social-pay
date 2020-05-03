@@ -5,9 +5,12 @@ const models = require('../models');
 const { toBech32Address } = require('@zilliqa-js/crypto');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const User = models.sequelize.models.User;
-const Admin = models.sequelize.models.Admin;
-const Blockchain = models.sequelize.models.blockchain;
+
+const {
+  User,
+  Blockchain,
+  Admin
+} = models.sequelize.models;
 const actions = new User().actions;
 
 module.exports = async function () {

@@ -3,10 +3,13 @@ const models = require('./models');
 const { BN } = require('@zilliqa-js/util');
 const { toChecksumAddress, toBech32Address } = require('@zilliqa-js/crypto');
 
-const Admin = models.sequelize.models.Admin;
-const User = models.sequelize.models.User;
-const Twittes = models.sequelize.models.Twittes;
-const Blockchain = models.sequelize.models.blockchain;
+const {
+  User,
+  Blockchain,
+  Admin,
+  Twittes
+} = models.sequelize.models;
+
 const statuses = new Admin().statuses;
 const actions = new User().actions;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;

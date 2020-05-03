@@ -7,9 +7,12 @@ const Twitter = require('../twitter');
 const verifyJwt = require('../middleware/verify-jwt');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const User = models.sequelize.models.User;
-const Twittes = models.sequelize.models.Twittes;
-const Blockchain = models.sequelize.models.blockchain;
+
+const {
+  User,
+  Twittes,
+  Blockchain
+} = models.sequelize.models;
 
 const userSign = (req, res) => {
   if (!req.user) {

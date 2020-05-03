@@ -4,10 +4,13 @@ const zilliqa = require('../zilliqa');
 const models = require('../models');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const Twittes = models.sequelize.models.Twittes;
-const Blockchain = models.sequelize.models.blockchain;
-const User = models.sequelize.models.User;
-const Admin = models.sequelize.models.Admin;
+
+const {
+  User,
+  Twittes,
+  Blockchain,
+  Admin
+} = models.sequelize.models;
 
 function getPos(text, hashtag) {
   text = encodeURI(text.toLowerCase());
