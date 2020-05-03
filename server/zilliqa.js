@@ -15,7 +15,7 @@ const {
 const eventUtils = require('./event-utils');
 const models = require('./models');
 
-const Admin = models.sequelize.models.Admin;
+const { Admin } = models.sequelize.models;
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const HTTP_PROVIDERS = {

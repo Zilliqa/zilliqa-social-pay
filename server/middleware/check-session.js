@@ -1,5 +1,5 @@
 const models = require('../models');
-const User = models.sequelize.models.User;
+const { User } = models.sequelize.models;
 
 module.exports = function (req, res, next) {
   const statuses = new User().statuses;

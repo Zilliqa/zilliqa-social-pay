@@ -3,7 +3,8 @@ const zilliqa = require('../zilliqa');
 const models = require('../models');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const Blockchain = models.sequelize.models.blockchain;
+
+const { blockchain } = models.sequelize.models;
 
 module.exports = async function () {
   try {
@@ -11,14 +12,14 @@ module.exports = async function () {
     const contractInfo = await zilliqa.getInit();
     const { balance } = await zilliqa.getCurrentAccount(CONTRACT_ADDRESS);
 
-    let currenInfo = await Blockchain.findOne({
+    let currenInfo = await blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
 
     if (!currenInfo) {
       debug('cannot find to blockchain info. currenInfo:', currenInfo, 'contracta address', CONTRACT_ADDRESS);
 
-      await Blockchain.create({
+      await blockchain.create({
         ...blockchainInfo,
         ...contractInfo,
         balance,
@@ -28,7 +29,7 @@ module.exports = async function () {
         initBalance: balance
       });
 
-      currenInfo = await Blockchain.findOne({
+      currenInfo = await blockchain.findOne({
         where: { contract: CONTRACT_ADDRESS }
       });
     }

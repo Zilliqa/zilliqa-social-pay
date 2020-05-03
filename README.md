@@ -12,6 +12,7 @@ For first need to deploy smart contract via [Editor](https://zilpay.xyz/app/Edit
  * `zils_per_tweet` # Amount of ZIL per tweet in QA, for example (10000000000000) `10ZIL`.
  * `blocks_per_day` # Amount of block per day, for claim tweet.
  * `blocks_per_week` # Amount of block for address change.
+ * `MAX_AMOUNT_NOTIFICATIONS` # Amount of notifications count for show user.
 
 When contract has deployed, rename `.env.example` -> `.env` and change `CONTRACT_ADDRESS` to your contract address.
 Also need to deposit few ZILs, call `Deposit` transition and send few ZIls.

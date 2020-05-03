@@ -5,11 +5,17 @@ import BlockchainStore from 'store/blockchain';
 import NotificationStore from 'store/notification';
 import TwitterStore from 'store/twitter';
 
-import { NotificationSuccess, NotificationDanger } from 'components/notification-control';
+import {
+  NotificationWarning,
+  NotificationSuccess,
+  NotificationDanger
+} from 'components/notification-control';
 import { Img } from 'components/img';
+import { MinLoader } from 'components/min-loader';
 
 import EVENTS from 'config/socket-events';
-import { Twitte, User } from 'interfaces';
+import NOTIFICATIONS_TYPES from 'config/notifications-types';
+import { Twitte, User, NotificationModel } from 'interfaces';
 
 export function socket() {
   let userSate = UserStore.store.getState();
@@ -41,20 +47,6 @@ export function socket() {
       return null;
     }
 
-    if (user.synchronization === false && userSate.synchronization === true) {
-      // If address was synchronization this is show Notification about
-      // address has synchronized.
-      NotificationStore.addNotifly(
-        <NotificationSuccess>
-          <Img
-            src="/icons/ok.svg"
-            css="margin-right: 10px;"
-          />
-            Address configured!
-          </NotificationSuccess>
-      );
-    }
-
     UserStore.setUser(user);
   });
 
@@ -77,28 +69,91 @@ export function socket() {
     tweetsState.tweets[foundIndex] = tweet;
 
     TwitterStore.update(tweetsState.tweets);
+  });
 
-    if (tweet.approved) {
-      NotificationStore.addNotifly(
-        <NotificationSuccess>
-          <Img
-            src="/icons/ok.svg"
-            css="margin-right: 10px;"
-          />
-          Rewards claimed!
-        </NotificationSuccess>
-      );
-      UserStore.updateUserState(null);
-    } else if (tweet.rejected) {
-      NotificationStore.addNotifly(
-        <NotificationDanger>
-          <Img
-            src="/icons/close.svg"
-            css="margin-right: 10px;"
-          />
-          Rewards rejected!
-        </NotificationDanger>
-      );
+  socketConnector.on(EVENTS.notificationCreate, (data: string) => {
+    const notification = JSON.parse(data) as NotificationModel;
+
+    const notificationsState = NotificationStore.store.getState();
+    const has = notificationsState.serverNotifications.some(
+      (notifly) => notifly.id === notification.id
+    );
+
+    if (has) {
+      return null;
+    }
+
+    NotificationStore.addServerNotification(notification);
+
+    switch (notification.type) {
+      case NOTIFICATIONS_TYPES.addressConfiguring:
+        NotificationStore.addLoadingNotifly(
+          <NotificationWarning>
+            <MinLoader height="40" width="40" />
+            {notification.description}
+          </NotificationWarning>
+        );
+        break;
+      case NOTIFICATIONS_TYPES.addressConfigured:
+        NotificationStore.rmNotifly(notificationsState.loadinguiid);
+        NotificationStore.addNotifly(
+          <NotificationSuccess>
+            <Img
+              src="/icons/ok.svg"
+              css="height: 30px;width: 30px;"
+            />
+            {notification.description}
+          </NotificationSuccess>
+        );
+        break;
+      case NOTIFICATIONS_TYPES.addressReject:
+        NotificationStore.rmNotifly(notificationsState.loadinguiid);
+        NotificationStore.addNotifly(
+          <NotificationDanger>
+            <Img
+              src="/icons/close.svg"
+              css="height: 30px;width: 30px;"
+            />
+            {notification.description}
+          </NotificationDanger>
+        );
+        break;
+
+      case NOTIFICATIONS_TYPES.tweetClaiming:
+        NotificationStore.addLoadingNotifly(
+          <NotificationWarning>
+            <MinLoader height="40" width="40" />
+            {notification.description}
+          </NotificationWarning>
+        );
+        break;
+      case NOTIFICATIONS_TYPES.tweetClaimed:
+        NotificationStore.rmNotifly(notificationsState.loadinguiid);
+        NotificationStore.addNotifly(
+          <NotificationSuccess>
+            <Img
+              src="/icons/ok.svg"
+              css="height: 30px;width: 30px;"
+            />
+            {notification.description}
+          </NotificationSuccess>
+        );
+        break;
+      case NOTIFICATIONS_TYPES.tweetReject:
+        NotificationStore.rmNotifly(notificationsState.loadinguiid);
+        NotificationStore.addNotifly(
+          <NotificationDanger>
+            <Img
+              src="/icons/close.svg"
+              css="height: 30px;width: 30px;"
+            />
+            {notification.description}
+          </NotificationDanger>
+        );
+        break;
+
+      default:
+        break;
     }
   });
 }

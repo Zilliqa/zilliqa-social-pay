@@ -2,7 +2,7 @@ const debug = require('debug')('zilliqa-social-pay:scheduler:admins');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
 
-const Admin = models.sequelize.models.Admin;
+const { Admin } = models.sequelize.models;
 
 module.exports = async function () {
   const statuses = new Admin().statuses;

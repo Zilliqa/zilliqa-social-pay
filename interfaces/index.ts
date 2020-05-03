@@ -53,6 +53,8 @@ export interface Blockchain {
   balance: string | number;
   initBalance: string | number;
   message?: string;
+  dayTimer?: string | null;
+  weekTimer?: string | null;
 }
 
 export interface PageProp {
@@ -66,16 +68,38 @@ export interface EventState {
   timer?: string | null;
 }
 
+export interface NotificationModel {
+  id: number;
+  UserId: number;
+  type: string;
+  title: string;
+  description: string;
+  createdAt: string;
+}
+
+export interface Paginate {
+  limit?: number;
+  offset?: number;
+}
+
+export interface NotificationResponse {
+  count: number;
+  limit: number;
+  notification: NotificationModel[];
+}
+
 export interface NotificationState {
   notifications: {
     element: JSX.Element,
     uuid: string;
   }[];
+  serverNotifications: NotificationModel[];
   timeoutTransition: number;
   timeoutNotifications: number;
   loadinguiid: string;
+  count: number;
+  limit: number;
 }
-
 
 export interface FetchTweets {
   tweets: Twitte[];

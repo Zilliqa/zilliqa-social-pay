@@ -3,13 +3,19 @@ const models = require('./models');
 const { BN } = require('@zilliqa-js/util');
 const { toChecksumAddress, toBech32Address } = require('@zilliqa-js/crypto');
 
-const Admin = models.sequelize.models.Admin;
-const User = models.sequelize.models.User;
-const Twittes = models.sequelize.models.Twittes;
-const Blockchain = models.sequelize.models.blockchain;
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+
+const {
+  User,
+  blockchain,
+  Admin,
+  Twittes,
+  Notification
+} = models.sequelize.models;
+
 const statuses = new Admin().statuses;
 const actions = new User().actions;
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const notificationTypes = new Notification().types;
 
 module.exports = {
   events: {
@@ -100,7 +106,7 @@ module.exports = {
         profileId: twitterId
       }
     });
-    const blockchainInfo = await Blockchain.findOne({
+    const blockchainInfo = await blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
 
@@ -109,6 +115,13 @@ module.exports = {
       synchronization: false,
       actionName: actions.configureUsers,
       lastAction: Number(blockchainInfo.BlockNum)
+    });
+
+    await Notification.create({
+      UserId: user.id,
+      type: notificationTypes.addressConfigured,
+      title: 'Account',
+      description: 'Address configured!'
     });
 
     return twitterId;
@@ -128,7 +141,7 @@ module.exports = {
         model: User
       }
     });
-    const blockchainInfo = await Blockchain.findOne({
+    const blockchainInfo = await blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
 
@@ -140,6 +153,12 @@ module.exports = {
     await foundTweet.User.update({
       actionName: actions.verifyTweet,
       lastAction: Number(blockchainInfo.BlockNum)
+    });
+    await Notification.create({
+      UserId: foundTweet.User.id,
+      type: notificationTypes.tweetClaimed,
+      title: 'Tweet',
+      description: 'Rewards claimed!'
     });
 
     return idStr;
@@ -153,7 +172,7 @@ module.exports = {
       throw new Error(`Not found ${this.keys.depositAmount} vname in:`, params);
     }
 
-    let blockchainInfo = await Blockchain.findOne({
+    let blockchainInfo = await blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
 

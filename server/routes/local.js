@@ -7,11 +7,18 @@ const verifyJwt = require('../middleware/verify-jwt');
 const router = express.Router();
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const User = models.sequelize.models.User;
-const Twittes = models.sequelize.models.Twittes;
-const Blockchain = models.sequelize.models.blockchain;
-const Admin = models.sequelize.models.Admin;
+const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 3;
+
+const {
+  User,
+  Twittes,
+  blockchain,
+  Notification,
+  Admin
+} = models.sequelize.models;
+
 const actions = new User().actions;
+const notificationTypes = new Notification().types;
 
 router.put('/update/address/:address', checkSession, verifyJwt, async (req, res) => {
   const bech32Address = req.params.address;
@@ -31,11 +38,11 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
 
     if (userExist > 0) {
       return res.status(401).json({
-        message: 'Such address is already registered.'
+        message: 'This address is already registered.'
       });
     }
 
-    const blockchainInfo = await Blockchain.findOne({
+    const blockchainInfo = await blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
     let block = Number(blockchainInfo.BlockNum);
@@ -50,6 +57,13 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
       synchronization: true,
       actionName: actions.configureUsers,
       lastAction: block
+    });
+
+    await Notification.create({
+      UserId: user.id,
+      type: notificationTypes.addressConfiguring,
+      title: 'Account',
+      description: 'synchronize Address...'
     });
 
     delete user.dataValues.tokenSecret;
@@ -114,7 +128,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
     });
   }
 
-  const blockchainInfo = await Blockchain.findOne({
+  const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
   const lastTweet = await Twittes.findOne({
@@ -137,6 +151,13 @@ router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
   await foundTweet.update({
     block: blockchainInfo.BlockNum,
     claimed: true
+  });
+
+  await Notification.create({
+    UserId: user.id,
+    type: notificationTypes.tweetClaiming,
+    title: 'Tweet',
+    description: 'Claiming rewards…'
   });
 
   return res.status(201).json(foundTweet);
@@ -202,13 +223,70 @@ router.get('/get/tweets', checkSession, async (req, res) => {
 
 router.get('/get/blockchain', checkSession, async (req, res) => {
   try {
-    const blockchain = await Blockchain.findOne({
+    const blockchainInfo = await blockchain.findOne({
       where: {
         contract: CONTRACT_ADDRESS
       }
     });
 
-    return res.status(200).json(blockchain);
+    return res.status(200).json(blockchainInfo);
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    });
+  }
+});
+
+router.get('/get/notifications', checkSession, async (req, res) => {
+  const UserId = req.session.passport.user.id;
+  const limit = isNaN(req.query.limit) ? MAX_AMOUNT_NOTIFICATIONS : req.query.limit;
+  const offset = req.query.offset || 0;
+
+  try {
+    const notificationCount = await Notification.count({
+      where: {
+        UserId
+      }
+    });
+    const userNotification = await Notification.findAll({
+      limit,
+      offset,
+      where: {
+        UserId
+      },
+      order: [
+        ['createdAt', 'DESC']
+      ],
+      attributes: {
+        exclude: [
+          'updatedAt'
+        ]
+      }
+    });
+
+    return res.status(200).json({
+      limit,
+      notification: userNotification,
+      count: notificationCount
+    });
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    });
+  }
+});
+
+router.delete('/delete/notifications', checkSession, verifyJwt, async (req, res) => {
+  const { user } = req.verification;
+
+  try {
+    await Notification.destroy({
+      where: {
+        UserId: user.id
+      }
+    });
+
+    return res.status(204);
   } catch (err) {
     return res.status(400).json({
       message: err.message
