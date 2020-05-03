@@ -90,7 +90,7 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.Notification, {
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
-      allowNull: false
+      allowNull: true
     });
   };
   return User;

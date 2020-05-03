@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     Notification.belongsTo(models.User, {
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
-      allowNull: false
+      allowNull: true
     });
   };
   return Notification;
