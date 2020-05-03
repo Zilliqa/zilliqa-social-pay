@@ -22,5 +22,6 @@ export const APIs = {
   getblockchain: `${API_V1}/${Methods.get}/blockchain`,
   getAccount: `${API_V1}/${Methods.get}/account`,
   addTweet: `${API_V1}/${Methods.add}/tweet`,
-  claimTweet: `${API_V1}/${Methods.claim}/tweet`
+  claimTweet: `${API_V1}/${Methods.claim}/tweet`,
+  getNotifications: `${API_V1}/${Methods.claim}/notifications`
 };
