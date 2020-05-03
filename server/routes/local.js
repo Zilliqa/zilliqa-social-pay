@@ -225,7 +225,7 @@ router.get('/get/notifications', checkSession, async (req, res) => {
   const UserId = req.session.passport.user.id;
 
   try {
-    const userNotification = Notification.findAll({
+    const userNotification = await Notification.findAll({
       where: {
         UserId
       },

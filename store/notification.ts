@@ -1,14 +1,20 @@
 import { v4 as uuidv4 } from 'uuid';
 import { createDomain } from 'effector';
-import { NotificationState } from 'interfaces';
+
+import { NotificationState, NotificationModel } from 'interfaces';
+import { fetchNotifications } from 'utils/get-notifications';
 
 export const EventDomain = createDomain();
 export const addNotifly = EventDomain.event<JSX.Element>();
 export const addLoadingNotifly = EventDomain.event<JSX.Element>();
 export const rmNotifly = EventDomain.event<string>();
+export const getNotifications = EventDomain.effect<null, NotificationModel[], Error>();
+
+getNotifications.use(fetchNotifications);
 
 const initalState = {
   notifications: [],
+  serverNotifications: [],
   timeoutTransition: 400,
   timeoutNotifications: 5000,
   loadinguiid: uuidv4()
@@ -58,11 +64,22 @@ export const store = EventDomain.store<NotificationState>(initalState)
     notifications: state.notifications.filter(
       (el) => el.uuid !== uuid
     )
-  }));
+  }))
+  .on(getNotifications.done, (state, { result }) => {
+    if (!Array.isArray(result)) {
+      return state;
+    }
+
+    return {
+      ...state,
+      serverNotifications: result
+    };
+  });
 
 export default {
   store,
   addNotifly,
   addLoadingNotifly,
-  rmNotifly
+  rmNotifly,
+  getNotifications
 };

@@ -68,16 +68,22 @@ export interface EventState {
   timer?: string | null;
 }
 
+export interface NotificationModel {
+  title: string;
+  description: string;
+  createdAt: string;
+}
+
 export interface NotificationState {
   notifications: {
     element: JSX.Element,
     uuid: string;
   }[];
+  serverNotifications: NotificationModel[];
   timeoutTransition: number;
   timeoutNotifications: number;
   loadinguiid: string;
 }
-
 
 export interface FetchTweets {
   tweets: Twitte[];

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import * as Effector from 'effector-react';
 
 import UserStore from 'store/user';
+import NotificationStore from 'store/notification';
 
 import { Img } from 'components/img';
 import { Text } from 'components/text';
@@ -83,10 +84,12 @@ const FooterContainer = styled(Container)`
 
 export const Profile: React.FC = () => {
   const userState = Effector.useStore(UserStore.store);
+  const notificationState = Effector.useStore(NotificationStore.store);
 
   const [notificationShow, setNotificationShow] = React.useState(false);
 
-  const handleClickProfile = React.useCallback(() => {
+  const handleClickProfile = React.useCallback(async () => {
+    NotificationStore.getNotifications(null);
     setNotificationShow(!notificationShow);
   }, [notificationShow, setNotificationShow]);
 
@@ -112,7 +115,13 @@ export const Profile: React.FC = () => {
             Clear all
           </Text>
         </HeaderContainer>
-        <NotificationItemContainer>dasdsa</NotificationItemContainer>
+        {notificationState.serverNotifications.map((item) => (
+          <NotificationItemContainer>
+            {item.createdAt}
+            {item.title}
+            {item.description}
+          </NotificationItemContainer>
+        ))}
         <FooterContainer>
           <Text
             fontColors={FontColors.primary}
