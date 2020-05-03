@@ -130,15 +130,15 @@ export const Controller: React.FC = () => {
 
   React.useEffect(() => {
     if (userState.synchronization) {
+      setValue('');
       setPlaceholder('Waiting for address to sync...');
       setDisabled(true);
       setIcon(InputIcons.refresh);
-      setValue('');
     } else if (Boolean(blockchainState.dayTimer)) {
+      setValue('');
       setPlaceholder(`You can participate: ${blockchainState.dayTimer}`);
       setDisabled(true);
       setIcon(InputIcons.timer);
-      setValue('');
     } else if (!Boolean(blockchainState.dayTimer) && !userState.synchronization) {
       setDisabled(false);
       setPlaceholder('Paste your tweet link here');
@@ -234,7 +234,7 @@ export const Controller: React.FC = () => {
       </Text>
       <Input
         sizeVariant={SizeComponent.md}
-        defaultValue={value}
+        value={value}
         icon={icon}
         disabled={disabled}
         onChange={handleInput}
