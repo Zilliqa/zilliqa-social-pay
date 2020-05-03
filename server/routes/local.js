@@ -7,7 +7,7 @@ const verifyJwt = require('../middleware/verify-jwt');
 const router = express.Router();
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const MAX_AMOUNT_NOTIFICATIONS = Number(process.env.MAX_AMOUNT_NOTIFICATIONS);
+const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 3;
 
 const {
   User,
