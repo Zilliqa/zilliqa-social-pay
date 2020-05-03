@@ -96,7 +96,7 @@ const HeaderContainer = styled(Container)`
 `;
 const NotificationItemContainer = styled(Container)`
   padding: 10px;
-  border-bottom: 1px ${FontColors.black} solid;
+  ${(props: ShwoType) => props.show ? 'border-bottom: 1px #000 solid;' : ''}
 `;
 const FooterContainer = styled(Container)`
   display: flex;
@@ -200,7 +200,10 @@ export const Profile: React.FC = () => {
           </Text>
         </HeaderContainer>
         {notificationState.serverNotifications.map((item, index) => (
-          <NotificationItemContainer key={index}>
+          <NotificationItemContainer
+            key={index}
+            show={index !== notificationState.serverNotifications.length - 1}
+          >
             <Text
               fontColors={FontColors.black}
               size={FontSize.sm}
