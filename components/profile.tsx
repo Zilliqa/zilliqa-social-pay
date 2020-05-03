@@ -18,7 +18,12 @@ type ShwoType = {
 
 const NotificationContainer = styled.div`
   display: ${(props: ShwoType) => props.show ? 'block' : 'none'};
+
   position: absolute;
+  top: 100px;
+
+  transform: translate(-74%, 0);
+
   z-index: 5;
 
   min-width: 300px;
@@ -26,6 +31,9 @@ const NotificationContainer = styled.div`
 
   background: ${FontColors.gray};
   border-radius: 10px;
+
+  animation-duration: .5s;
+  animation-name: fadeShow;
 
   :before {
     content: "";
@@ -53,7 +61,7 @@ const Closer = styled.a`
 `;
 const ProfileContainer = styled.div`
   :before {
-    content: "";
+    ${(props: ShwoType) => props.show ? 'content: "";' : ''};
     position: absolute;
 
     width: 10px;
@@ -66,9 +74,10 @@ const ProfileContainer = styled.div`
   }
 `;
 const ImgContainer = styled(Img)`
-  cursor: pointer;
   border-radius: 50%;
-  border: 0.1rem #00ffff solid;
+
+  ${(props: ShwoType) => props.show ? 'cursor: pointer;' : ''};
+  ${(props: ShwoType) => props.show ? 'border: 0.1rem #00ffff solid;' : ''};
 `;
 const HeaderContainer = styled(Container)`
   display: flex;
@@ -91,15 +100,31 @@ export const Profile: React.FC = () => {
 
   const [notificationShow, setNotificationShow] = React.useState(false);
 
+  const haveNotifications = React.useMemo(
+    () => notificationState.serverNotifications.length > 0,
+    [notificationState]
+  );
+
   const handleClickProfile = React.useCallback(async () => {
-    NotificationStore.getNotifications(null);
+    await NotificationStore.getNotifications(null);
+
+    if (!haveNotifications) {
+      return null;
+    }
+
     setNotificationShow(!notificationShow);
-  }, [notificationShow, setNotificationShow]);
+  }, [notificationShow, setNotificationShow, haveNotifications]);
 
   return (
     <React.Fragment>
-      <ProfileContainer onClick={handleClickProfile}>
-        <ImgContainer src={userState.profileImageUrl} />
+      <ProfileContainer
+        onClick={handleClickProfile}
+        show={haveNotifications}
+      >
+        <ImgContainer
+          src={userState.profileImageUrl}
+          show={haveNotifications}
+        />
       </ProfileContainer>
       <NotificationContainer show={notificationShow}>
         <HeaderContainer>
@@ -122,7 +147,7 @@ export const Profile: React.FC = () => {
           <NotificationItemContainer key={index}>
             <Text
               fontColors={FontColors.black}
-              size={FontSize.md}
+              size={FontSize.sm}
               fontVariant={Fonts.AvenirNextLTProBold}
             >
               {item.title}
@@ -130,14 +155,14 @@ export const Profile: React.FC = () => {
             <Container css="display: flex;justify-content: space-between;">
               <Text
                 fontColors={FontColors.black}
-                size={FontSize.md}
+                size={FontSize.sm}
                 fontVariant={Fonts.AvenirNextLTProRegular}
               >
                 {item.description}
               </Text>
               <Text
                 fontColors={FontColors.black}
-                size={FontSize.md}
+                size={FontSize.sm}
                 fontVariant={Fonts.AvenirNextLTProRegular}
                 css="margin-left: 30px;"
               >
