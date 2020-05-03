@@ -62,7 +62,7 @@ module.exports = (socket, io) => {
    * When Notification model has been created,
    * then socket send notification to owner user.
    */
-  Notification.addHook('afterCreate', (notificationData) => {
+  Notification.addHook('afterCreate', async (notificationData) => {
     const foundUser = await User.findOne({
       where: {
         id: notificationData.UserId
