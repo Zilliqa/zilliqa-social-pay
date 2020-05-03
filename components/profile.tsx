@@ -69,10 +69,16 @@ const ImgContainer = styled(Img)`
   border-radius: 50%;
   border: 0.1rem #00ffff solid;
 `;
-const TitleContainer = styled(Container)`
+const HeaderContainer = styled(Container)`
   display: flex;
   justify-content: space-between;
   padding: 10px;
+  border-bottom: 1px ${FontColors.black} solid;
+`;
+const NotificationItemContainer = styled(Container)``;
+const FooterContainer = styled(Container)`
+  display: flex;
+  justify-content: center;
 `;
 
 export const Profile: React.FC = () => {
@@ -90,7 +96,7 @@ export const Profile: React.FC = () => {
         <ImgContainer src={userState.profileImageUrl} />
       </ProfileContainer>
       <NotificationContainer show={notificationShow}>
-        <TitleContainer>
+        <HeaderContainer>
           <Text
             size={FontSize.md}
             fontVariant={Fonts.AvenirNextLTProRegular}
@@ -105,7 +111,18 @@ export const Profile: React.FC = () => {
           >
             Clear all
           </Text>
-        </TitleContainer>
+        </HeaderContainer>
+        <NotificationItemContainer>dasdsa</NotificationItemContainer>
+        <FooterContainer>
+          <Text
+            fontColors={FontColors.primary}
+            size={FontSize.md}
+            fontVariant={Fonts.AvenirNextLTProDemi}
+            css="cursor: pointer;"
+          >
+            More
+          </Text>
+        </FooterContainer>
       </NotificationContainer>
       <Closer
         show={notificationShow}
