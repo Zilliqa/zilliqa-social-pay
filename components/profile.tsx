@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
+import moment from 'moment';
 
 import UserStore from 'store/user';
 import NotificationStore from 'store/notification';
@@ -24,7 +25,6 @@ const NotificationContainer = styled.div`
   min-height: 200px;
 
   background: ${FontColors.gray};
-  transform: translate(-74%, 40%);
   border-radius: 10px;
 
   :before {
@@ -76,7 +76,10 @@ const HeaderContainer = styled(Container)`
   padding: 10px;
   border-bottom: 1px ${FontColors.black} solid;
 `;
-const NotificationItemContainer = styled(Container)``;
+const NotificationItemContainer = styled(Container)`
+  padding: 10px;
+  border-bottom: 1px ${FontColors.black} solid;
+`;
 const FooterContainer = styled(Container)`
   display: flex;
   justify-content: center;
@@ -115,11 +118,32 @@ export const Profile: React.FC = () => {
             Clear all
           </Text>
         </HeaderContainer>
-        {notificationState.serverNotifications.map((item) => (
-          <NotificationItemContainer>
-            {item.createdAt}
-            {item.title}
-            {item.description}
+        {notificationState.serverNotifications.map((item, index) => (
+          <NotificationItemContainer key={index}>
+            <Text
+              fontColors={FontColors.black}
+              size={FontSize.md}
+              fontVariant={Fonts.AvenirNextLTProBold}
+            >
+              {item.title}
+            </Text>
+            <Container css="display: flex;justify-content: space-between;">
+              <Text
+                fontColors={FontColors.black}
+                size={FontSize.md}
+                fontVariant={Fonts.AvenirNextLTProRegular}
+              >
+                {item.description}
+              </Text>
+              <Text
+                fontColors={FontColors.black}
+                size={FontSize.md}
+                fontVariant={Fonts.AvenirNextLTProRegular}
+                css="margin-left: 30px;"
+              >
+                {moment(item.createdAt).fromNow()}
+              </Text>
+            </Container>
           </NotificationItemContainer>
         ))}
         <FooterContainer>
