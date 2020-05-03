@@ -12,6 +12,8 @@ const {
   Notification
 } = models.sequelize.models;
 
+const notificationTypes = new Notification().types;
+
 module.exports = async function () {
   const users = await User.findAndCountAll({
     where: {
@@ -50,6 +52,7 @@ module.exports = async function () {
       });
       await Notification.create({
         UserId: user.id,
+        type: notificationTypes.addressReject,
         title: 'Account',
         description: 'Address configuration error!'
       });
@@ -66,6 +69,7 @@ module.exports = async function () {
     });
     await Notification.create({
       UserId: user.id,
+      type: notificationTypes.addressConfigured,
       title: 'Account',
       description: 'Address configured!'
     });

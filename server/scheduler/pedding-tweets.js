@@ -12,6 +12,8 @@ const {
   Notification
 } = models.sequelize.models;
 
+const notificationTypes = new Notification().types;
+
 module.exports = async function () {
   const twittes = await Twittes.findAndCountAll({
     where: {
@@ -54,6 +56,7 @@ module.exports = async function () {
       });
       await Notification.create({
         UserId: tweet.User.id,
+        type: notificationTypes.tweetReject,
         title: 'Tweet',
         description: 'Rewards error!'
       });
@@ -70,6 +73,7 @@ module.exports = async function () {
     });
     await Notification.create({
       UserId: tweet.User.id,
+      type: notificationTypes.tweetClaimed,
       title: 'Tweet',
       description: 'Rewards claimed!'
     });

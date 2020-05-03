@@ -15,6 +15,8 @@ const {
   Notification
 } = models.sequelize.models;
 
+const notificationTypes = new Notification().types;
+
 const userSign = (req, res) => {
   if (!req.user) {
     return res.status(401).send('User Not Authenticated');
@@ -234,6 +236,7 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
 
     await Notification.create({
       UserId: user.id,
+      type: notificationTypes.tweetClaiming,
       title: 'Tweet',
       description: 'Claiming rewards…'
     });

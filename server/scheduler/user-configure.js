@@ -12,7 +12,9 @@ const {
   Admin,
   Notification
 } = models.sequelize.models;
+
 const actions = new User().actions;
+const notificationTypes = new Notification().types;
 
 module.exports = async function () {
   const statuses = new Admin().statuses;
@@ -56,7 +58,7 @@ module.exports = async function () {
 
   for (let index = 0; index < users.rows.length; index++) {
     const user = users.rows[index];
-
+    // Need to optimize.
     try {
       debug('try to configureUser with profileID:', user.profileId);
 
@@ -77,6 +79,7 @@ module.exports = async function () {
       debug('User with profileID:', user.profileId, 'tx sent to shard.');
     } catch (err) {
       debug('FAIL to configureUser with profileID:', user.profileId, 'error', err);
+
       const lastAddres = await zilliqa.getonfigureUsers([user.profileId]);
 
       if (!lastAddres || !lastAddres[user.profileId]) {
@@ -95,6 +98,7 @@ module.exports = async function () {
 
       await Notification.create({
         UserId: user.id,
+        type: notificationTypes.addressReject,
         title: 'Account',
         description: 'synchronize error!'
       });

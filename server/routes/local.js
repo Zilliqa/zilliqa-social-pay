@@ -16,7 +16,9 @@ const {
   Notification,
   Admin
 } = models.sequelize.models;
+
 const actions = new User().actions;
+const notificationTypes = new Notification().types;
 
 router.put('/update/address/:address', checkSession, verifyJwt, async (req, res) => {
   const bech32Address = req.params.address;
@@ -59,6 +61,7 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
 
     await Notification.create({
       UserId: user.id,
+      type: notificationTypes.addressConfiguring,
       title: 'Account',
       description: 'synchronize Address...'
     });

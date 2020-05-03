@@ -13,6 +13,8 @@ const {
   Notification
 } = models.sequelize.models;
 
+const notificationTypes = new Notification().types;
+
 function getPos(text, hashtag) {
   text = encodeURI(text.toLowerCase());
   hashtag = hashtag.toLowerCase();
@@ -91,6 +93,7 @@ module.exports = async function () {
         });
         await Notification.create({
           UserId: tweet.User.id,
+          type: notificationTypes.tweetClaimed,
           title: 'Tweet',
           description: 'Rewards claimed!'
         });
@@ -120,6 +123,7 @@ module.exports = async function () {
 
       await Notification.create({
         UserId: tweet.User.id,
+        type: notificationTypes.tweetReject,
         title: 'Tweet',
         description: 'Claiming error!'
       });

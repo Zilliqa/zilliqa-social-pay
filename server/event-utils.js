@@ -3,6 +3,8 @@ const models = require('./models');
 const { BN } = require('@zilliqa-js/util');
 const { toChecksumAddress, toBech32Address } = require('@zilliqa-js/crypto');
 
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+
 const {
   User,
   blockchain,
@@ -13,7 +15,7 @@ const {
 
 const statuses = new Admin().statuses;
 const actions = new User().actions;
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const notificationTypes = new Notification().types;
 
 module.exports = {
   events: {
@@ -117,6 +119,7 @@ module.exports = {
 
     await Notification.create({
       UserId: user.id,
+      type: notificationTypes.addressConfigured,
       title: 'Account',
       description: 'Address configured!'
     });
@@ -153,6 +156,7 @@ module.exports = {
     });
     await Notification.create({
       UserId: foundTweet.User.id,
+      type: notificationTypes.tweetClaimed,
       title: 'Tweet',
       description: 'Rewards claimed!'
     });
