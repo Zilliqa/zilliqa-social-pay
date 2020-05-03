@@ -114,6 +114,12 @@ module.exports = {
       lastAction: Number(blockchainInfo.BlockNum)
     });
 
+    await Notification.create({
+      UserId: user.id,
+      title: 'Account',
+      description: 'Address configured!'
+    });
+
     return twitterId;
   },
   async verifyTweetSuccessful(params) {
@@ -143,6 +149,11 @@ module.exports = {
     await foundTweet.User.update({
       actionName: actions.verifyTweet,
       lastAction: Number(blockchainInfo.BlockNum)
+    });
+    await Notification.create({
+      UserId: foundTweet.User.id,
+      title: 'Tweet',
+      description: 'Rewards claimed!'
     });
 
     return idStr;

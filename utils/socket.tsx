@@ -9,7 +9,7 @@ import { NotificationSuccess, NotificationDanger } from 'components/notification
 import { Img } from 'components/img';
 
 import EVENTS from 'config/socket-events';
-import { Twitte, User } from 'interfaces';
+import { Twitte, User, NotificationModel } from 'interfaces';
 
 export function socket() {
   let userSate = UserStore.store.getState();
@@ -100,5 +100,10 @@ export function socket() {
         </NotificationDanger>
       );
     }
+  });
+
+  socketConnector.on(EVENTS.notificationCreate, (data: string) => {
+    const notification = JSON.parse(data) as NotificationModel;
+    console.log(notification);
   });
 }

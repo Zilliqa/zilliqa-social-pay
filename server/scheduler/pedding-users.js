@@ -8,7 +8,8 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 
 const {
   User,
-  blockchain
+  blockchain,
+  Notification
 } = models.sequelize.models;
 
 module.exports = async function () {
@@ -42,18 +43,31 @@ module.exports = async function () {
     if (!usersFromContract || !usersFromContract[profileId]) {
       debug('FAIL to configureUser with profileID:', profileId);
 
-      return await user.update({
+      await user.update({
         synchronization: false,
         zilAddress: null,
         lastAction: 0
       });
+      await Notification.create({
+        UserId: user.id,
+        title: 'Account',
+        description: 'Address configuration error!'
+      });
+
+      return null;
     }
 
     debug('User with profileID:', profileId, 'has been synchronized from blockchain.');
-    return await user.update({
+
+    await user.update({
       synchronization: false,
       zilAddress: toBech32Address(usersFromContract[profileId]),
       lastAction: 0
+    });
+    await Notification.create({
+      UserId: user.id,
+      title: 'Account',
+      description: 'Address configured!'
     });
   });
 

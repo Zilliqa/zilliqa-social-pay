@@ -57,6 +57,12 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
       lastAction: block
     });
 
+    await Notification.create({
+      UserId: user.id,
+      title: 'Account',
+      description: 'synchronize Address...'
+    });
+
     delete user.dataValues.tokenSecret;
     delete user.dataValues.token;
 
@@ -234,7 +240,6 @@ router.get('/get/notifications', checkSession, async (req, res) => {
       ],
       attributes: {
         exclude: [
-          'id',
           'updatedAt'
         ]
       },

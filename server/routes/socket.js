@@ -79,6 +79,8 @@ module.exports = (socket, io) => {
       return null;
     }
 
+    delete notificationData.dataValues.updatedAt;
+
     io.to(foundUser.profileId).emit(EVENTS.notificationCreate, JSON.stringify(notificationData));
   });
 };

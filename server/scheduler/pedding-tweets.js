@@ -8,7 +8,8 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const {
   User,
   Twittes,
-  blockchain
+  blockchain,
+  Notification
 } = models.sequelize.models;
 
 module.exports = async function () {
@@ -44,20 +45,33 @@ module.exports = async function () {
     if (!hasInContract || !hasInContract[tweetId]) {
       debug('FAIL to VerifyTweet with ID:', tweetId, 'hash', tweet.txId);
 
-      return await tweet.update({
+      await tweet.update({
         approved: false,
         rejected: false,
         claimed: false,
         block: 0,
         txId: null
       });
+      await Notification.create({
+        UserId: tweet.User.id,
+        title: 'Tweet',
+        description: 'Rewards error!'
+      });
+
+      return null;
     }
 
     debug(`Tweet with ID:${tweetId} has been synchronized from blockchain.`);
-    return tweet.update({
+
+    await tweet.update({
       approved: true,
       rejected: false,
       block: Number(blockchainInfo.BlockNum)
+    });
+    await Notification.create({
+      UserId: tweet.User.id,
+      title: 'Tweet',
+      description: 'Rewards claimed!'
     });
   });
 

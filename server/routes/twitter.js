@@ -11,7 +11,8 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const {
   User,
   Twittes,
-  blockchain
+  blockchain,
+  Notification
 } = models.sequelize.models;
 
 const userSign = (req, res) => {
@@ -82,14 +83,14 @@ router.get('/auth/twitter/callback', (req, res) => {
 
 router.put('/update/tweets', checkSession, verifyJwt, async (req, res) => {
   const { user } = req.verification;
-  const blockchain = await blockchain.findOne({
+  const blockchainInfo = await blockchain.findOne({
     where: {
       contract: CONTRACT_ADDRESS
     }
   });
 
   try {
-    const twitter = new Twitter(user.token, user.tokenSecret, blockchain);
+    const twitter = new Twitter(user.token, user.tokenSecret, blockchainInfo);
     const tweets = await twitter.userTimeline(user.profileId);
 
     if (!tweets || tweets.length < 1) {
@@ -123,7 +124,7 @@ router.put('/update/tweets', checkSession, verifyJwt, async (req, res) => {
 router.post('/search/tweets/:query', checkSession, verifyJwt, async (req, res) => {
   const { query } = req.params;
   const { user } = req.verification;
-  const blockchain = await blockchain.findOne({
+  const blockchainInfo = await blockchain.findOne({
     where: {
       contract: CONTRACT_ADDRESS
     }
@@ -136,7 +137,7 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, async (req, res) =
   }
 
   try {
-    const twitter = new Twitter(user.token, user.tokenSecret, blockchain);
+    const twitter = new Twitter(user.token, user.tokenSecret, blockchainInfo);
     const { tweet, hasHashtag } = await twitter.showTweet(query);
     const foundTwittes = await Twittes.findOne({
       where: { idStr: tweet.id_str },
@@ -152,7 +153,7 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, async (req, res) =
       });
     } else if (!hasHashtag) {
       return res.status(404).json({
-        message: `This tweet does not have the #${capitalizeFirstLetter(blockchain.hashtag)} hashtag in it.`
+        message: `This tweet does not have the #${capitalizeFirstLetter(blockchainInfo.hashtag)} hashtag in it.`
       });
     } else if (tweet.user.id_str !== user.profileId) {
       return res.status(400).json({
@@ -205,7 +206,7 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
       });
     } else if (!hasHashtag) {
       return res.status(404).json({
-        message: `This tweet does not have the #${capitalizeFirstLetter(blockchain.hashtag)} hashtag in it.`
+        message: `This tweet does not have the #${capitalizeFirstLetter(blockchainInfo.hashtag)} hashtag in it.`
       });
     } else if (!user || user.profileId !== tweet.user.id_str) {
       return res.status(401).json({
@@ -229,6 +230,12 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
       username: tweet.user.name,
       screenName: tweet.user.screen_name,
       profileImageUrl: tweet.user.profile_image_url
+    });
+
+    await Notification.create({
+      UserId: tweet.User.id,
+      title: 'Tweet',
+      description: 'Claiming rewards…'
     });
 
     delete createdTweet.dataValues.text;

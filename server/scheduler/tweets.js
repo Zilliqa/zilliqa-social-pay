@@ -9,7 +9,8 @@ const {
   User,
   Twittes,
   blockchain,
-  Admin
+  Admin,
+  Notification
 } = models.sequelize.models;
 
 function getPos(text, hashtag) {
@@ -101,6 +102,7 @@ module.exports = async function () {
         txId: tx.TranID,
         block: Number(blockchainInfo.BlockNum)
       });
+
       debug('Tweet with ID', tweet.idStr, 'sent to shard.');
     } catch (err) {
       if (err.message === 'Danger tweet.') {
@@ -108,6 +110,12 @@ module.exports = async function () {
       }
 
       debug('tweet:', tweet.idStr, 'has not verifed error:', err);
+
+      await Notification.create({
+        UserId: tweet.User.id,
+        title: 'Tweet',
+        description: 'Claiming error!'
+      });
     }
   });
 }

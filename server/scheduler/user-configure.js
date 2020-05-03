@@ -9,7 +9,8 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const {
   User,
   blockchain,
-  Admin
+  Admin,
+  Notification
 } = models.sequelize.models;
 const actions = new User().actions;
 
@@ -58,6 +59,7 @@ module.exports = async function () {
 
     try {
       debug('try to configureUser with profileID:', user.profileId);
+
       const tx = await zilliqa.configureUsers(user.profileId, user.zilAddress);
       const userExist = await zilliqa.getonfigureUsers([user.profileId]);
       let currentBlock = 0;
@@ -71,6 +73,7 @@ module.exports = async function () {
         lastAction: currentBlock,
         actionName: actions.configureUsers
       });
+
       debug('User with profileID:', user.profileId, 'tx sent to shard.');
     } catch (err) {
       debug('FAIL to configureUser with profileID:', user.profileId, 'error', err);
@@ -89,6 +92,12 @@ module.exports = async function () {
           zilAddress: toBech32Address(lastAddres[user.profileId])
         });
       }
+
+      await Notification.create({
+        UserId: user.id,
+        title: 'Account',
+        description: 'synchronize error!'
+      });
     }
   }
 }
