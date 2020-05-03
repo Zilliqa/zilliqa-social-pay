@@ -1,4 +1,5 @@
 export enum HttpMethods {
   POST = 'POST',
-  PUT = 'PUT'
+  PUT = 'PUT',
+  DELETE = 'DELETE'
 }

@@ -249,6 +249,24 @@ router.get('/get/notifications', checkSession, async (req, res) => {
   }
 });
 
+router.delete('/delete/notifications', checkSession, verifyJwt, async (req, res) => {
+  const { user } = req.verification;
+
+  try {
+    await Notification.destroy({
+      where: {
+        UserId: user.id
+      }
+    });
+
+    return res.status(204);
+  } catch (err) {
+    return res.status(400).json({
+      message: err.message
+    });
+  }
+});
+
 router.get('/get/accounts', checkSession, async (req, res) => {
   const accounts = await Admin.findAll({
     attributes: [

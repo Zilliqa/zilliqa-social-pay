@@ -105,15 +105,17 @@ export const Profile: React.FC = () => {
     [notificationState]
   );
 
-  const handleClickProfile = React.useCallback(async () => {
-    await NotificationStore.getNotifications(null);
-
+  const handleClickProfile = React.useCallback(() => {
     if (!haveNotifications) {
       return null;
     }
 
     setNotificationShow(!notificationShow);
   }, [notificationShow, setNotificationShow, haveNotifications]);
+  const handleRemoveAllNotifications = React.useCallback(() => {
+    NotificationStore.removeNotifications(userState.jwtToken);
+    setNotificationShow(false);
+  }, [userState]);
 
   return (
     <React.Fragment>
@@ -139,6 +141,7 @@ export const Profile: React.FC = () => {
             size={FontSize.md}
             fontVariant={Fonts.AvenirNextLTProDemi}
             css="cursor: pointer;z-index: 6;"
+            onClick={handleRemoveAllNotifications}
           >
             Clear all
           </Text>

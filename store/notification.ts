@@ -2,15 +2,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { createDomain } from 'effector';
 
 import { NotificationState, NotificationModel } from 'interfaces';
-import { fetchNotifications } from 'utils/get-notifications';
+import { fetchNotifications, removeAllNotifications } from 'utils/notifications';
 
 export const EventDomain = createDomain();
 export const addNotifly = EventDomain.event<JSX.Element>();
 export const addLoadingNotifly = EventDomain.event<JSX.Element>();
 export const rmNotifly = EventDomain.event<string>();
 export const getNotifications = EventDomain.effect<null, NotificationModel[], Error>();
+export const removeNotifications = EventDomain.effect<string, string, Error>();
 
 getNotifications.use(fetchNotifications);
+removeNotifications.use(removeAllNotifications);
 
 const initalState = {
   notifications: [],
@@ -74,12 +76,17 @@ export const store = EventDomain.store<NotificationState>(initalState)
       ...state,
       serverNotifications: result
     };
-  });
+  })
+  .on(removeNotifications, (state) => ({
+    ...state,
+    serverNotifications: []
+  }));
 
 export default {
   store,
   addNotifly,
   addLoadingNotifly,
   rmNotifly,
-  getNotifications
+  getNotifications,
+  removeNotifications
 };
