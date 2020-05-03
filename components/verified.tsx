@@ -19,6 +19,7 @@ import { NotificationWarning } from 'components/notification-control';
 import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
 
 import { FontSize, Fonts, FontColors, Events } from 'config';
+import NOTIFICATIONS_TYPES from 'config/notifications-types';
 import { viewTx } from 'utils/viewblock';
 import { claimTweet } from 'utils/claim-tweet';
 import { Twitte } from 'interfaces';
@@ -188,21 +189,24 @@ export const Verified: React.FC = () => {
    * If tweet is loading then show user notification.
    */
   React.useEffect(() => {
-    const foundTweet = twitterState.tweets.find(
-      (tweet) => Boolean(!tweet.approved && !tweet.rejected && tweet.claimed)
-    );
+    const lastNotification = notificationState.serverNotifications[0];
 
-    if (foundTweet) {
+    if (lastNotification && lastNotification.type === NOTIFICATIONS_TYPES.addressConfiguring) {
       NotificationStore.addLoadingNotifly(
         <NotificationWarning>
           <MinLoader height="40" width="40" />
-          Claiming rewards…
+          {lastNotification.description}
         </NotificationWarning>
       );
-    } else {
-      NotificationStore.rmNotifly(notificationState.loadinguiid);
+    } else if (lastNotification && lastNotification.type === NOTIFICATIONS_TYPES.tweetClaiming) {
+      NotificationStore.addLoadingNotifly(
+        <NotificationWarning>
+          <MinLoader height="40" width="40" />
+          {lastNotification.description}
+        </NotificationWarning>
+      );
     }
-  }, [twitterState]);
+  }, [notificationState.serverNotifications]);
 
   return (
     <Container>

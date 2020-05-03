@@ -153,6 +153,13 @@ router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
     claimed: true
   });
 
+  await Notification.create({
+    UserId: user.id,
+    type: notificationTypes.tweetClaiming,
+    title: 'Tweet',
+    description: 'Claiming rewards…'
+  });
+
   return res.status(201).json(foundTweet);
 });
 

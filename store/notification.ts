@@ -6,6 +6,7 @@ import { fetchNotifications, removeAllNotifications } from 'utils/notifications'
 
 export const EventDomain = createDomain();
 export const addNotifly = EventDomain.event<JSX.Element>();
+export const addServerNotification = EventDomain.event<NotificationModel>();
 export const addLoadingNotifly = EventDomain.event<JSX.Element>();
 export const rmNotifly = EventDomain.event<string>();
 export const getNotifications = EventDomain.effect<null, NotificationModel[], Error>();
@@ -80,6 +81,10 @@ export const store = EventDomain.store<NotificationState>(initalState)
   .on(removeNotifications, (state) => ({
     ...state,
     serverNotifications: []
+  }))
+  .on(addServerNotification, (state, serverNotification) => ({
+    ...state,
+    serverNotifications: [serverNotification].concat(state.serverNotifications)
   }));
 
 export default {
@@ -88,5 +93,6 @@ export default {
   addLoadingNotifly,
   rmNotifly,
   getNotifications,
-  removeNotifications
+  removeNotifications,
+  addServerNotification
 };

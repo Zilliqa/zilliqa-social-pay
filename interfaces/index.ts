@@ -69,6 +69,9 @@ export interface EventState {
 }
 
 export interface NotificationModel {
+  id: number;
+  UserId: number;
+  type: string;
   title: string;
   description: string;
   createdAt: string;

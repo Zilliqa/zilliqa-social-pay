@@ -10,7 +10,6 @@ import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
 import BrowserStore from 'store/browser';
 import BlockchainStore from 'store/blockchain';
-import NotificationStore from 'store/notification';
 
 import { Modal } from 'components/modal';
 import { Img } from 'components/img';
@@ -19,11 +18,7 @@ import { Text } from 'components/text';
 import { Button } from 'components/button';
 import { ContainerLoader } from 'components/container-loader';
 import { Container } from 'components/container';
-import {
-  NotificationsControl,
-  NotificationWarning,
-  NotificationSuccess
-} from 'components/notification-control';
+import { NotificationsControl } from 'components/notification-control';
 
 import {
   ButtonVariants,
@@ -99,16 +94,6 @@ export const FixedWrapper: React.FC = () => {
       return null;
     }
 
-    NotificationStore.addNotifly(
-      <NotificationWarning>
-        <Img
-          src="/icons/danger.svg"
-          css="height: 30px;width: 30px;"
-        />
-        Syncing address...
-      </NotificationWarning>
-    );
-
     EventStore.reset();
   }, [address, validation, setAddressErr, addressErr, userState]);
   /**
@@ -141,12 +126,6 @@ export const FixedWrapper: React.FC = () => {
 
     if (result.message.includes('Added')) {
       TwitterStore.add(result.tweet);
-
-      NotificationStore.addNotifly(
-        <NotificationSuccess>
-          Tweet added!
-        </NotificationSuccess>
-      );
     }
 
     EventStore.reset();
