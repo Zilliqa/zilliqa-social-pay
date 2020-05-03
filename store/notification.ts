@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { createDomain } from 'effector';
 
-import { NotificationState, NotificationModel } from 'interfaces';
+import { NotificationState, NotificationModel, NotificationResponse } from 'interfaces';
 import { fetchNotifications, removeAllNotifications } from 'utils/notifications';
 
 export const EventDomain = createDomain();
@@ -9,7 +9,7 @@ export const addNotifly = EventDomain.event<JSX.Element>();
 export const addServerNotification = EventDomain.event<NotificationModel>();
 export const addLoadingNotifly = EventDomain.event<JSX.Element>();
 export const rmNotifly = EventDomain.event<string>();
-export const getNotifications = EventDomain.effect<null, NotificationModel[], Error>();
+export const getNotifications = EventDomain.effect<number, NotificationResponse, Error>();
 export const removeNotifications = EventDomain.effect<string, string, Error>();
 
 getNotifications.use(fetchNotifications);
@@ -20,7 +20,9 @@ const initalState = {
   serverNotifications: [],
   timeoutTransition: 400,
   timeoutNotifications: 5000,
-  loadinguiid: uuidv4()
+  loadinguiid: uuidv4(),
+  count: 0,
+  limit: 0
 };
 
 export const store = EventDomain.store<NotificationState>(initalState)
@@ -69,21 +71,25 @@ export const store = EventDomain.store<NotificationState>(initalState)
     )
   }))
   .on(getNotifications.done, (state, { result }) => {
-    if (!Array.isArray(result)) {
+    if (!Array.isArray(result.notification)) {
       return state;
     }
 
     return {
       ...state,
-      serverNotifications: result
+      count: result.count,
+      limit: result.limit,
+      serverNotifications: state.serverNotifications.concat(result.notification)
     };
   })
   .on(removeNotifications, (state) => ({
     ...state,
+    count: 0,
     serverNotifications: []
   }))
   .on(addServerNotification, (state, serverNotification) => ({
     ...state,
+    count: state.count + 1,
     serverNotifications: [serverNotification].concat(state.serverNotifications)
   }));
 

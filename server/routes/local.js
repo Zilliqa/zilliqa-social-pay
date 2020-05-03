@@ -7,7 +7,7 @@ const verifyJwt = require('../middleware/verify-jwt');
 const router = express.Router();
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 5;
+const MAX_AMOUNT_NOTIFICATIONS = Number(process.env.MAX_AMOUNT_NOTIFICATIONS);
 
 const {
   User,
@@ -239,9 +239,18 @@ router.get('/get/blockchain', checkSession, async (req, res) => {
 
 router.get('/get/notifications', checkSession, async (req, res) => {
   const UserId = req.session.passport.user.id;
+  const limit = MAX_AMOUNT_NOTIFICATIONS;
+  const offset = req.query.offset || 0;
 
   try {
+    const notificationCount = await Notification.count({
+      where: {
+        UserId
+      }
+    });
     const userNotification = await Notification.findAll({
+      limit,
+      offset,
       where: {
         UserId
       },
@@ -252,11 +261,14 @@ router.get('/get/notifications', checkSession, async (req, res) => {
         exclude: [
           'updatedAt'
         ]
-      },
-      limit: MAX_AMOUNT_NOTIFICATIONS
+      }
     });
 
-    return res.status(200).json(userNotification);
+    return res.status(200).json({
+      limit,
+      notification: userNotification,
+      count: notificationCount
+    });
   } catch (err) {
     return res.status(400).json({
       message: err.message

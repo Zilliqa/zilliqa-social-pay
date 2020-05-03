@@ -99,23 +99,50 @@ export const Profile: React.FC = () => {
   const notificationState = Effector.useStore(NotificationStore.store);
 
   const [notificationShow, setNotificationShow] = React.useState(false);
+  const [ofset, setOfset] = React.useState(0);
 
+  /**
+   * Reactive varible, show `true` if have any notifications.
+   */
   const haveNotifications = React.useMemo(
     () => notificationState.serverNotifications.length > 0,
     [notificationState]
   );
 
+  /**
+   * Handler click to profile icon.
+   * when clicked show popup with notifications.
+   * also handle click to closer for close popup.
+   */
   const handleClickProfile = React.useCallback(() => {
     if (!haveNotifications) {
       return null;
     }
 
     setNotificationShow(!notificationShow);
+    setOfset(0);
   }, [notificationShow, setNotificationShow, haveNotifications]);
+
+  /**
+   * Hanlder for remove all notifications.
+   */
   const handleRemoveAllNotifications = React.useCallback(() => {
     NotificationStore.removeNotifications(userState.jwtToken);
     setNotificationShow(false);
+    setOfset(0);
   }, [userState]);
+
+  /**
+   * Handle for Click to More.
+   * If clicked send to server requests.
+   */
+  const handleClickMore = React.useCallback(() => {
+    const newOfset = Number(notificationState.count) + ofset - 1;
+
+    setOfset(newOfset);
+
+    NotificationStore.getNotifications(newOfset);
+  }, [ofset, setOfset, notificationState.count]);
 
   return (
     <React.Fragment>
@@ -174,16 +201,19 @@ export const Profile: React.FC = () => {
             </Container>
           </NotificationItemContainer>
         ))}
-        <FooterContainer>
-          <Text
-            fontColors={FontColors.primary}
-            size={FontSize.md}
-            fontVariant={Fonts.AvenirNextLTProDemi}
-            css="cursor: pointer;"
-          >
-            More
+        {notificationState.count > notificationState.serverNotifications.length ? (
+          <FooterContainer>
+            <Text
+              fontColors={FontColors.primary}
+              size={FontSize.md}
+              fontVariant={Fonts.AvenirNextLTProDemi}
+              css="cursor: pointer;"
+              onClick={handleClickMore}
+            >
+              More
           </Text>
-        </FooterContainer>
+          </FooterContainer>
+        ) : null}
       </NotificationContainer>
       <Closer
         show={notificationShow}

@@ -5,8 +5,8 @@ import { APIs, HttpMethods } from 'config';
 /**
  * Get all notifications by user.
  */
-export const fetchNotifications = async () => {
-  const res = await fetch(`${APIs.getNotifications}`, {
+export const fetchNotifications = async (offset = 0) => {
+  const res = await fetch(`${APIs.getNotifications}?offset=${offset}`, {
     credentials: 'include'
   });
   const result = await res.json();

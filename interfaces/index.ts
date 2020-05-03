@@ -77,6 +77,12 @@ export interface NotificationModel {
   createdAt: string;
 }
 
+export interface NotificationResponse {
+  count: number;
+  limit: number;
+  notification: NotificationModel[];
+}
+
 export interface NotificationState {
   notifications: {
     element: JSX.Element,
@@ -86,6 +92,8 @@ export interface NotificationState {
   timeoutTransition: number;
   timeoutNotifications: number;
   loadinguiid: string;
+  count: number;
+  limit: number;
 }
 
 export interface FetchTweets {
