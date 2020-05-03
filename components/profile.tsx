@@ -29,7 +29,7 @@ const NotificationContainer = styled.div`
   min-width: 300px;
   min-height: 200px;
 
-  background: ${FontColors.gray};
+  background: #CCD1FF;
   border-radius: 10px;
 
   animation-duration: .5s;
@@ -43,7 +43,7 @@ const NotificationContainer = styled.div`
     width: 50px;
     height: 50px;
 
-    background: ${FontColors.gray};
+    background: #CCD1FF;
     right: 20px;
     top: -10px;
 

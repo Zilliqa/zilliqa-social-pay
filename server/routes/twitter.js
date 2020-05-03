@@ -233,7 +233,7 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
     });
 
     await Notification.create({
-      UserId: tweet.User.id,
+      UserId: user.id,
       title: 'Tweet',
       description: 'Claiming rewards…'
     });

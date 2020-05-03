@@ -7,7 +7,8 @@ const {
   User,
   blockchain,
   Admin,
-  Twittes
+  Twittes,
+  Notification
 } = models.sequelize.models;
 
 const statuses = new Admin().statuses;

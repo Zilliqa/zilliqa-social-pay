@@ -83,12 +83,19 @@ module.exports = async function () {
       const registered = await zilliqa.getVerifiedTweets([tweet.idStr]);
 
       if (registered && registered[tweet.idStr]) {
-        return await tweet.update({
+        await tweet.update({
           approved: true,
           claimed: true,
           rejected: false,
           block: 0
         });
+        await Notification.create({
+          UserId: tweet.User.id,
+          title: 'Tweet',
+          description: 'Rewards claimed!'
+        });
+
+        return null;
       }
 
       const { text, startIndex } = getPos(tweet.text, blockchainInfo.hashtag);
