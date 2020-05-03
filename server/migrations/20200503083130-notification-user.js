@@ -4,15 +4,14 @@ module.exports = {
     type: Sequelize.INTEGER,
     references: {
       model: 'Users',
-      key: 'id',
+      key: 'id'
     },
     onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
-    allowNull: false
+    onDelete: 'CASCADE'
   }),
   down: queryInterface =>
     queryInterface.removeColumn(
       'Notifications',
-      'UserId',
+      'UserId'
     )
 }

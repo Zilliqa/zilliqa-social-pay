@@ -3,15 +3,15 @@ module.exports = {
     type: Sequelize.INTEGER,
     references: {
       model: 'Users',
-      key: 'id',
+      key: 'id'
     },
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
-    allowNull: true,
+    allowNull: true
   }),
   down: queryInterface =>
     queryInterface.removeColumn(
       'Twittes',
-      'UserId',
+      'UserId'
     )
 }
