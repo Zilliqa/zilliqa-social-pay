@@ -85,7 +85,13 @@ module.exports = (sequelize, DataTypes) => {
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
       allowNull: false
-    })
+    });
+
+    User.hasMany(models.Notification, {
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+      allowNull: false
+    });
   };
   return User;
 };
