@@ -2,11 +2,16 @@ import fetch from 'isomorphic-unfetch';
 
 import { APIs, HttpMethods } from 'config';
 
+import { Paginate } from 'interfaces';
+
 /**
  * Get all notifications by user.
  */
-export const fetchNotifications = async (offset = 0) => {
-  const res = await fetch(`${APIs.getNotifications}?offset=${offset}`, {
+export const fetchNotifications = async ({
+  offset = 0,
+  limit
+}: Paginate) => {
+  const res = await fetch(`${APIs.getNotifications}?limit=${limit}&offset=${offset}`, {
     credentials: 'include'
   });
   const result = await res.json();

@@ -239,7 +239,7 @@ router.get('/get/blockchain', checkSession, async (req, res) => {
 
 router.get('/get/notifications', checkSession, async (req, res) => {
   const UserId = req.session.passport.user.id;
-  const limit = MAX_AMOUNT_NOTIFICATIONS;
+  const limit = isNaN(req.query.limit) ? MAX_AMOUNT_NOTIFICATIONS : req.query.limit;
   const offset = req.query.offset || 0;
 
   try {

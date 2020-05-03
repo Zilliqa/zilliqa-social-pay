@@ -1,15 +1,21 @@
 import { v4 as uuidv4 } from 'uuid';
 import { createDomain } from 'effector';
 
-import { NotificationState, NotificationModel, NotificationResponse } from 'interfaces';
+import {
+  NotificationState,
+  NotificationModel,
+  NotificationResponse,
+  Paginate
+} from 'interfaces';
 import { fetchNotifications, removeAllNotifications } from 'utils/notifications';
+import { toUnique } from 'utils/to-unique';
 
 export const EventDomain = createDomain();
 export const addNotifly = EventDomain.event<JSX.Element>();
 export const addServerNotification = EventDomain.event<NotificationModel>();
 export const addLoadingNotifly = EventDomain.event<JSX.Element>();
 export const rmNotifly = EventDomain.event<string>();
-export const getNotifications = EventDomain.effect<number, NotificationResponse, Error>();
+export const getNotifications = EventDomain.effect<Paginate, NotificationResponse, Error>();
 export const removeNotifications = EventDomain.effect<string, string, Error>();
 
 getNotifications.use(fetchNotifications);
@@ -75,11 +81,16 @@ export const store = EventDomain.store<NotificationState>(initalState)
       return state;
     }
 
+    const serverNotifications = toUnique(
+      state.serverNotifications.concat(result.notification),
+      'id'
+    );
+
     return {
       ...state,
+      serverNotifications,
       count: result.count,
-      limit: result.limit,
-      serverNotifications: state.serverNotifications.concat(result.notification)
+      limit: result.limit
     };
   })
   .on(removeNotifications, (state) => ({

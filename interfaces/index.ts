@@ -77,6 +77,11 @@ export interface NotificationModel {
   createdAt: string;
 }
 
+export interface Paginate {
+  limit?: number;
+  offset?: number;
+}
+
 export interface NotificationResponse {
   count: number;
   limit: number;

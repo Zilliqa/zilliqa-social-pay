@@ -35,6 +35,11 @@ const NotificationContainer = styled.div`
   animation-duration: .5s;
   animation-name: fadeShow;
 
+
+  @media (max-width: 494px) {
+    transform: translate(0, 0);
+  }
+
   :before {
     content: "";
 
@@ -48,6 +53,10 @@ const NotificationContainer = styled.div`
     top: -10px;
 
     transform: rotate(45deg);
+
+    @media (max-width: 494px) {
+      left: 10px;
+    }
   }
 `;
 const Closer = styled.a`
@@ -99,7 +108,7 @@ export const Profile: React.FC = () => {
   const notificationState = Effector.useStore(NotificationStore.store);
 
   const [notificationShow, setNotificationShow] = React.useState(false);
-  const [ofset, setOfset] = React.useState(0);
+  const [ofset, setOfset] = React.useState(notificationState.limit);
 
   /**
    * Reactive varible, show `true` if have any notifications.
@@ -107,6 +116,19 @@ export const Profile: React.FC = () => {
   const haveNotifications = React.useMemo(
     () => notificationState.serverNotifications.length > 0,
     [notificationState]
+  );
+  /**
+   * Show more notifications.
+   * If count of notifications > storing in effector store and
+   * ofset state <= count of notifications.
+   */
+  const showMore = React.useMemo(
+    () => Number(notificationState.count - 1) > notificationState.serverNotifications.length && ofset <= notificationState.count,
+    [
+      notificationState.count,
+      notificationState.serverNotifications,
+      ofset
+    ]
   );
 
   /**
@@ -120,8 +142,8 @@ export const Profile: React.FC = () => {
     }
 
     setNotificationShow(!notificationShow);
-    setOfset(0);
-  }, [notificationShow, setNotificationShow, haveNotifications]);
+    setOfset(notificationState.limit);
+  }, [notificationShow, setNotificationShow, haveNotifications, notificationState.count]);
 
   /**
    * Hanlder for remove all notifications.
@@ -129,20 +151,23 @@ export const Profile: React.FC = () => {
   const handleRemoveAllNotifications = React.useCallback(() => {
     NotificationStore.removeNotifications(userState.jwtToken);
     setNotificationShow(false);
-    setOfset(0);
-  }, [userState]);
+    setOfset(notificationState.limit);
+  }, [userState, notificationState.count]);
 
   /**
    * Handle for Click to More.
    * If clicked send to server requests.
    */
   const handleClickMore = React.useCallback(() => {
-    const newOfset = Number(notificationState.count) + ofset - 1;
+    const newOfset = ofset + 1;
 
     setOfset(newOfset);
 
-    NotificationStore.getNotifications(newOfset);
-  }, [ofset, setOfset, notificationState.count]);
+    NotificationStore.getNotifications({
+      offset: newOfset,
+      limit: 1
+    });
+  }, [ofset, setOfset]);
 
   return (
     <React.Fragment>
@@ -160,6 +185,7 @@ export const Profile: React.FC = () => {
           <Text
             size={FontSize.md}
             fontVariant={Fonts.AvenirNextLTProRegular}
+            css="z-index: 6;"
           >
             Notifications
           </Text>
@@ -201,7 +227,7 @@ export const Profile: React.FC = () => {
             </Container>
           </NotificationItemContainer>
         ))}
-        {notificationState.count > notificationState.serverNotifications.length ? (
+        {showMore ? (
           <FooterContainer>
             <Text
               fontColors={FontColors.primary}

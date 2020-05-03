@@ -69,7 +69,7 @@ const updater = async () => {
     throw new Error(messageError);
   }
 
-  await NotificationStore.getNotifications(0);
+  await NotificationStore.getNotifications({});
 
   if (blockchain && blockchain.message && blockchain.message === messageError) {
     throw new Error(messageError);
