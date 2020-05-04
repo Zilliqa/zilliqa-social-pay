@@ -224,6 +224,7 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
   try {
     const twitter = new Twitter(user.token, user.tokenSecret, blockchainInfo);
     const { tweet, hasHashtag } = await twitter.showTweet(id_str);
+    const favoriteCount = tweet.favorite_count;
     const foundTwittes = await Twittes.findOne({
       where: { idStr: id_str },
       attributes: [
@@ -251,6 +252,13 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
       return res.status(401).json({
         code: ERROR_CODES.badData,
         message: 'Invalid user data.'
+      });
+    } else if (favoriteCount < LIKES_FOR_CLAIM) {
+      return res.status(502).json({
+        code: ERROR_CODES.lowFavoriteCount,
+        favoriteCount,
+        favoriteCountForClaim: LIKES_FOR_CLAIM,
+        message: 'favorite_count is low.'
       });
     }
 

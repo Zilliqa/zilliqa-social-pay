@@ -185,7 +185,7 @@ export const FixedWrapper: React.FC = () => {
           />
           <Button
             sizeVariant={SizeComponent.lg}
-            variant={ButtonVariants.outlet}
+            variant={ButtonVariants.primary}
             disabled={Boolean(disabledAddress)}
             css="margin-top: 10px;"
           >
