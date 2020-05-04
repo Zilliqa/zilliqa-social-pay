@@ -131,7 +131,7 @@ export const Verified: React.FC = () => {
       return null;
     } else if (!userState.zilAddress) {
       EventStore.setContent({
-        message: 'For claim you need configuration Zilliqa address.'
+        message: 'Please configure your Zilliqa address.'
       });
       EventStore.setEvent(Events.Error);
 
