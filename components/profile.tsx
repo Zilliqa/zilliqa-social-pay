@@ -35,7 +35,6 @@ const NotificationContainer = styled.div`
   animation-duration: .5s;
   animation-name: fadeShow;
 
-
   @media (max-width: 494px) {
     transform: translate(0, 0);
   }
@@ -92,11 +91,11 @@ const HeaderContainer = styled(Container)`
   display: flex;
   justify-content: space-between;
   padding: 10px;
-  border-bottom: 1px ${FontColors.black} solid;
+  border-bottom: 1px #d0d0d7 solid;
 `;
 const NotificationItemContainer = styled(Container)`
   padding: 10px;
-  ${(props: ShwoType) => props.show ? 'border-bottom: 1px #000 solid;' : ''}
+  ${(props: ShwoType) => props.show ? 'border-bottom: 1px #d0d0d7 solid;' : ''}
 `;
 const FooterContainer = styled(Container)`
   display: flex;
@@ -184,7 +183,7 @@ export const Profile: React.FC = () => {
         <HeaderContainer>
           <Text
             size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProRegular}
+            fontVariant={Fonts.AvenirNextLTProMedium}
             css="z-index: 6;"
           >
             Notifications
@@ -192,7 +191,7 @@ export const Profile: React.FC = () => {
           <Text
             fontColors={FontColors.primary}
             size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProDemi}
+            fontVariant={Fonts.AvenirNextLTProBold}
             css="cursor: pointer;z-index: 6;"
             onClick={handleRemoveAllNotifications}
           >
@@ -207,7 +206,7 @@ export const Profile: React.FC = () => {
             <Text
               fontColors={FontColors.black}
               size={FontSize.sm}
-              fontVariant={Fonts.AvenirNextLTProBold}
+              fontVariant={Fonts.AvenirNextLTProMedium}
             >
               {item.title}
             </Text>
@@ -215,14 +214,14 @@ export const Profile: React.FC = () => {
               <Text
                 fontColors={FontColors.black}
                 size={FontSize.sm}
-                fontVariant={Fonts.AvenirNextLTProRegular}
+                fontVariant={Fonts.AvenirNextLTProDemi}
               >
                 {item.description}
               </Text>
               <Text
                 fontColors={FontColors.black}
                 size={FontSize.sm}
-                fontVariant={Fonts.AvenirNextLTProRegular}
+                fontVariant={Fonts.AvenirNextLTProDemi}
                 css="margin-left: 30px;"
               >
                 {moment(item.createdAt).fromNow()}
@@ -235,7 +234,7 @@ export const Profile: React.FC = () => {
             <Text
               fontColors={FontColors.primary}
               size={FontSize.sm}
-              fontVariant={Fonts.AvenirNextLTProDemi}
+              fontVariant={Fonts.AvenirNextLTProBold}
               css="cursor: pointer;"
               onClick={handleClickMore}
             >
