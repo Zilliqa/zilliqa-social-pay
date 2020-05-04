@@ -1,5 +1,5 @@
 const models = require('../models');
-const User = models.sequelize.models.User;
+const { User } = models.sequelize.models;
 
 module.exports = async function (req, res, next) {
   const jwtToken = req.headers.authorization;

@@ -5,8 +5,14 @@ const models = require('../models');
 const { toBech32Address } = require('@zilliqa-js/crypto');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const User = models.sequelize.models.User;
-const Blockchain = models.sequelize.models.blockchain;
+
+const {
+  User,
+  blockchain,
+  Notification
+} = models.sequelize.models;
+
+const notificationTypes = new Notification().types;
 
 module.exports = async function () {
   const users = await User.findAndCountAll({
@@ -29,7 +35,7 @@ module.exports = async function () {
     return null;
   }
 
-  const blockchainInfo = await Blockchain.findOne({
+  const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
   const onlyProfiles = users.rows.map(async (user) => {
@@ -39,18 +45,33 @@ module.exports = async function () {
     if (!usersFromContract || !usersFromContract[profileId]) {
       debug('FAIL to configureUser with profileID:', profileId);
 
-      return await user.update({
+      await user.update({
         synchronization: false,
         zilAddress: null,
         lastAction: 0
       });
+      await Notification.create({
+        UserId: user.id,
+        type: notificationTypes.addressReject,
+        title: 'Account',
+        description: 'Address configuration error!'
+      });
+
+      return null;
     }
 
     debug('User with profileID:', profileId, 'has been synchronized from blockchain.');
-    return await user.update({
+
+    await user.update({
       synchronization: false,
       zilAddress: toBech32Address(usersFromContract[profileId]),
       lastAction: 0
+    });
+    await Notification.create({
+      UserId: user.id,
+      type: notificationTypes.addressConfigured,
+      title: 'Account',
+      description: 'Address configured!'
     });
   });
 

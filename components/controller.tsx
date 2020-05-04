@@ -1,7 +1,6 @@
 import React from 'react';
 import * as Effector from 'effector-react';
 import styled from 'styled-components';
-import moment from 'moment';
 
 import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
@@ -25,11 +24,11 @@ import {
   ButtonVariants
 } from 'config';
 import { fromZil } from 'utils/from-zil';
-import { timerCalc } from 'utils/timer';
 import { SearchTweet } from 'utils/get-tweets';
 
 const ControlContainer = styled(AroundedContainer)`
   padding: 30px;
+  margin-top: 7px;
   margin-bottom: 30px;
   align-items: flex-start;
 
@@ -63,19 +62,6 @@ export const Controller: React.FC = () => {
   const [placeholder, setPlaceholder] = React.useState<string>();
   const [disabled, setDisabled] = React.useState<boolean>();
   const [icon, setIcon] = React.useState<InputIcons>(InputIcons.timer);
-
-  /**
-   * Calculate the time for next action.
-   */
-  const timerDay = React.useMemo(
-    () => timerCalc(
-      blockchainState,
-      userState,
-      twitterState.lastBlockNumber,
-      Number(blockchainState.blocksPerDay)
-    ),
-    [blockchainState, twitterState, userState]
-  );
 
   /**
    * Validation and parse tweet url or ID, before send to server and blockchain.
@@ -144,14 +130,16 @@ export const Controller: React.FC = () => {
 
   React.useEffect(() => {
     if (userState.synchronization) {
+      setValue('');
       setPlaceholder('Waiting for address to sync...');
       setDisabled(true);
       setIcon(InputIcons.refresh);
-    } else if (timerDay > 0) {
-      setPlaceholder(`You can participate: ${moment(timerDay).fromNow()}`);
+    } else if (Boolean(blockchainState.dayTimer)) {
+      setValue('');
+      setPlaceholder(`You can participate: ${blockchainState.dayTimer}`);
       setDisabled(true);
       setIcon(InputIcons.timer);
-    } else if (timerDay === 0 && !userState.synchronization) {
+    } else if (!Boolean(blockchainState.dayTimer) && !userState.synchronization) {
       setDisabled(false);
       setPlaceholder('Paste your tweet link here');
       setIcon(InputIcons.search);
@@ -163,7 +151,8 @@ export const Controller: React.FC = () => {
     setPlaceholder,
     value,
     userState,
-    timerDay
+    setValue,
+    blockchainState
   ]);
 
   /**
@@ -245,7 +234,7 @@ export const Controller: React.FC = () => {
       </Text>
       <Input
         sizeVariant={SizeComponent.md}
-        defaultValue={value}
+        value={value}
         icon={icon}
         disabled={disabled}
         onChange={handleInput}

@@ -19,6 +19,7 @@ import { NotificationWarning } from 'components/notification-control';
 import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
 
 import { FontSize, Fonts, FontColors, Events } from 'config';
+import NOTIFICATIONS_TYPES from 'config/notifications-types';
 import { viewTx } from 'utils/viewblock';
 import { claimTweet } from 'utils/claim-tweet';
 import { Twitte } from 'interfaces';
@@ -34,8 +35,14 @@ const HaventVerified = styled.div`
 const TweetEmbedContainer = styled.div`
   display: grid;
   align-items: center;
-  grid-template-columns: 40px 1fr;
+  grid-template-columns: 100px 1fr;
   grid-gap: 10px;
+  justify-items: end;
+
+  @media (max-width: 412px) {
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 1fr;
+  }
 `;
 
 const WIDTH_MOBILE = 250;
@@ -79,15 +86,6 @@ export const Verified: React.FC = () => {
 
     return 'display: none;';
   }, [twitterState]);
-  const timerDay = React.useMemo(
-    () => timerCalc(
-      blockchainState,
-      userState,
-      twitterState.lastBlockNumber,
-      Number(blockchainState.blocksPerDay)
-    ),
-    [blockchainState, twitterState]
-  );
   const sortedTweets = React.useMemo(() => {
     const maxDateValue = Math.max.apply(Math, twitterState.tweets.map(
       (tw) => new Date(tw.createdAt).valueOf())
@@ -123,9 +121,9 @@ export const Verified: React.FC = () => {
       EventStore.setEvent(Events.Error);
 
       return null;
-    } else if (timerDay !== 0) {
+    } else if (Boolean(blockchainState.dayTimer)) {
       EventStore.setContent({
-        message: `You can participate: ${moment(timerDay).fromNow()}`
+        message: `You can participate: ${blockchainState.dayTimer}`
       });
       EventStore.setEvent(Events.Error);
 
@@ -159,9 +157,11 @@ export const Verified: React.FC = () => {
       });
       EventStore.setEvent(Events.Error);
     } else {
+      TwitterStore.setLastBlock(result.block);
+      BlockchainStore.updateTimer();
       EventStore.reset();
     }
-  }, [userState, timerDay, blockchainState, twitterState]);
+  }, [userState, blockchainState, twitterState]);
   const handleNextPageClick = React.useCallback(async (data) => {
     const selected = Number(data.selected);
     const offset = Math.ceil(selected * PAGE_LIMIT);
@@ -189,21 +189,24 @@ export const Verified: React.FC = () => {
    * If tweet is loading then show user notification.
    */
   React.useEffect(() => {
-    const foundTweet = twitterState.tweets.find(
-      (tweet) => Boolean(!tweet.approved && !tweet.rejected && tweet.claimed)
-    );
+    const lastNotification = notificationState.serverNotifications[0];
 
-    if (foundTweet) {
+    if (lastNotification && lastNotification.type === NOTIFICATIONS_TYPES.addressConfiguring) {
       NotificationStore.addLoadingNotifly(
         <NotificationWarning>
           <MinLoader height="40" width="40" />
-          Claiming rewards…
+          {lastNotification.description}
         </NotificationWarning>
       );
-    } else {
-      NotificationStore.rmNotifly(notificationState.loadinguiid);
+    } else if (lastNotification && lastNotification.type === NOTIFICATIONS_TYPES.tweetClaiming) {
+      NotificationStore.addLoadingNotifly(
+        <NotificationWarning>
+          <MinLoader height="40" width="40" />
+          {lastNotification.description}
+        </NotificationWarning>
+      );
     }
-  }, [twitterState]);
+  }, [notificationState.serverNotifications]);
 
   return (
     <Container>
@@ -214,7 +217,7 @@ export const Verified: React.FC = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
           >
-            You have no verified tweets.
+            No tweets found.
           </Text>
           {hashTag ? <TwitterHashtagButton
             tag={hashTag}
@@ -225,26 +228,12 @@ export const Verified: React.FC = () => {
           /> : null}
         </HaventVerified>
       </Container>
-      {twitterState.count > PAGE_LIMIT ? (
-        <ReactPaginate
-          previousLabel={'previous'}
-          nextLabel={'next'}
-          breakLabel={'...'}
-          breakClassName={'break-me'}
-          pageCount={twitterState.count / PAGE_LIMIT}
-          marginPagesDisplayed={1}
-          pageRangeDisplayed={1}
-          onPageChange={handleNextPageClick}
-          containerClassName={'pagination' + ` ${isTabletOrMobile ? 'mobile' : 'desktop'}`}
-          activeClassName={'active'}
-        />
-      ) : null}
       {twitterState.showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
         <TweetEmbedContainer key={index}>
           {(!tweet.claimed && !tweet.approved && !tweet.rejected) ? (
             <Img
               src="/icons/refund.svg"
-              css="cursor: pointer;"
+              css="cursor: pointer;width: 100px;height: 40px;"
               onClick={() => handleClickClaim(tweet)}
             />
           ) : null}
@@ -261,7 +250,10 @@ export const Verified: React.FC = () => {
               href={tweet.txId ? viewTx(tweet.txId) : undefined}
               target="_blank"
             >
-              <Img src="/icons/close.svg" />
+              <Img
+                src="/icons/close.svg"
+                css="width: 40px;height: 40px;"
+              />
             </a>
           ) : null}
           {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed) ? (
@@ -269,7 +261,7 @@ export const Verified: React.FC = () => {
               href={tweet.txId ? viewTx(tweet.txId) : undefined}
               target="_blank"
             >
-              <MinLoader />
+              <MinLoader width="40" height="40" />
             </a>
           ) : null}
           <TwitterTweetEmbed
@@ -281,6 +273,20 @@ export const Verified: React.FC = () => {
           />
         </TweetEmbedContainer>
       )) : null}
+      {twitterState.count > PAGE_LIMIT ? (
+        <ReactPaginate
+          previousLabel={'previous'}
+          nextLabel={'next'}
+          breakLabel={'...'}
+          breakClassName={'break-me'}
+          pageCount={twitterState.count / PAGE_LIMIT}
+          marginPagesDisplayed={1}
+          pageRangeDisplayed={1}
+          onPageChange={handleNextPageClick}
+          containerClassName={'pagination' + ` ${isTabletOrMobile ? 'mobile' : 'desktop'}`}
+          activeClassName={'active'}
+        />
+      ) : null}
     </Container>
   );
 };

@@ -5,10 +5,16 @@ const models = require('../models');
 const { toBech32Address } = require('@zilliqa-js/crypto');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const User = models.sequelize.models.User;
-const Admin = models.sequelize.models.Admin;
-const Blockchain = models.sequelize.models.blockchain;
+
+const {
+  User,
+  blockchain,
+  Admin,
+  Notification
+} = models.sequelize.models;
+
 const actions = new User().actions;
+const notificationTypes = new Notification().types;
 
 module.exports = async function () {
   const statuses = new Admin().statuses;
@@ -27,7 +33,7 @@ module.exports = async function () {
     return null;
   }
 
-  const blockchainInfo = await Blockchain.findOne({
+  const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
   const users = await User.findAndCountAll({
@@ -52,9 +58,10 @@ module.exports = async function () {
 
   for (let index = 0; index < users.rows.length; index++) {
     const user = users.rows[index];
-
+    // Need to optimize.
     try {
       debug('try to configureUser with profileID:', user.profileId);
+
       const tx = await zilliqa.configureUsers(user.profileId, user.zilAddress);
       const userExist = await zilliqa.getonfigureUsers([user.profileId]);
       let currentBlock = 0;
@@ -68,9 +75,11 @@ module.exports = async function () {
         lastAction: currentBlock,
         actionName: actions.configureUsers
       });
+
       debug('User with profileID:', user.profileId, 'tx sent to shard.');
     } catch (err) {
       debug('FAIL to configureUser with profileID:', user.profileId, 'error', err);
+
       const lastAddres = await zilliqa.getonfigureUsers([user.profileId]);
 
       if (!lastAddres || !lastAddres[user.profileId]) {
@@ -86,6 +95,13 @@ module.exports = async function () {
           zilAddress: toBech32Address(lastAddres[user.profileId])
         });
       }
+
+      await Notification.create({
+        UserId: user.id,
+        type: notificationTypes.addressReject,
+        title: 'Account',
+        description: 'synchronize error!'
+      });
     }
   }
 }

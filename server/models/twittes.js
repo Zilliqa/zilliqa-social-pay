@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
       allowNull: false
-    })
+    });
   };
   return Twittes;
 };

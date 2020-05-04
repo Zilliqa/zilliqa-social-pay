@@ -8,7 +8,8 @@ export enum Methods {
   search = 'search',
   sing = 'sing',
   add = 'add',
-  claim = 'claim'
+  claim = 'claim',
+  delete = 'delete'
 }
 
 export const APIs = {
@@ -22,5 +23,7 @@ export const APIs = {
   getblockchain: `${API_V1}/${Methods.get}/blockchain`,
   getAccount: `${API_V1}/${Methods.get}/account`,
   addTweet: `${API_V1}/${Methods.add}/tweet`,
-  claimTweet: `${API_V1}/${Methods.claim}/tweet`
+  claimTweet: `${API_V1}/${Methods.claim}/tweet`,
+  getNotifications: `${API_V1}/${Methods.get}/notifications`,
+  rmNotifications: `${API_V1}/${Methods.delete}/notifications`
 };

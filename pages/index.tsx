@@ -61,19 +61,19 @@ const Illustration = styled(Img)`
 
 const updater = async () => {
   const messageError = 'Unauthorized';
-  const blockchain = await BlockchainStore.updateBlockchain(null);
-
+  const tweetsResult = await TwitterStore.getTweets({});
   const user = await UserStore.updateUserState(null);
+  const blockchain = await BlockchainStore.updateBlockchain(null);
 
   if (user && user.message && user.message === messageError) {
     throw new Error(messageError);
   }
 
+  await NotificationStore.getNotifications({});
+
   if (blockchain && blockchain.message && blockchain.message === messageError) {
     throw new Error(messageError);
   }
-
-  const tweetsResult = await TwitterStore.getTweets({});
 
   if (tweetsResult.message && tweetsResult.message === messageError) {
     throw new Error(messageError);

@@ -8,9 +8,9 @@ import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
 
 import { Text } from 'components/text';
-import { Img } from 'components/img';
 import { Dropdown } from 'components/dropdown';
 import { Arrow } from 'components/arrow';
+import { Profile } from 'components/profile';
 import ReactTooltip from 'react-tooltip';
 
 import { FontSize, Fonts, FontColors, Events } from 'config';
@@ -36,9 +36,6 @@ const ProfileContainer = styled.div`
   grid-template-columns: 70px 1fr;
   align-items: center;
   justify-items: center;
-`;
-const ProfileImg = styled(Img)`
-  border-radius: 50%;
 `;
 const ITEMS = [
   'Settings',
@@ -109,9 +106,7 @@ export const TopBar: React.FC = () => {
         {trimAddress}
       </Text>
       <ProfileContainer>
-        {userState.profileImageUrl ? (
-          <ProfileImg src={userState.profileImageUrl} />
-        ) : null}
+        <Profile />
         <Dropdown
           items={ITEMS}
           onClick={handleClick}

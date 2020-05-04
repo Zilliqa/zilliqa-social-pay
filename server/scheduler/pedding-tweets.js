@@ -4,9 +4,15 @@ const zilliqa = require('../zilliqa');
 const models = require('../models');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const Twittes = models.sequelize.models.Twittes;
-const User = models.sequelize.models.User;
-const Blockchain = models.sequelize.models.blockchain;
+
+const {
+  User,
+  Twittes,
+  blockchain,
+  Notification
+} = models.sequelize.models;
+
+const notificationTypes = new Notification().types;
 
 module.exports = async function () {
   const twittes = await Twittes.findAndCountAll({
@@ -31,7 +37,7 @@ module.exports = async function () {
     return null;
   }
 
-  const blockchainInfo = await Blockchain.findOne({
+  const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
   const needTestForVerified = twittes.rows.map(async (tweet) => {
@@ -41,20 +47,35 @@ module.exports = async function () {
     if (!hasInContract || !hasInContract[tweetId]) {
       debug('FAIL to VerifyTweet with ID:', tweetId, 'hash', tweet.txId);
 
-      return await tweet.update({
+      await tweet.update({
         approved: false,
         rejected: false,
         claimed: false,
         block: 0,
         txId: null
       });
+      await Notification.create({
+        UserId: tweet.User.id,
+        type: notificationTypes.tweetReject,
+        title: 'Tweet',
+        description: 'Rewards error!'
+      });
+
+      return null;
     }
 
     debug(`Tweet with ID:${tweetId} has been synchronized from blockchain.`);
-    return tweet.update({
+
+    await tweet.update({
       approved: true,
       rejected: false,
       block: Number(blockchainInfo.BlockNum)
+    });
+    await Notification.create({
+      UserId: tweet.User.id,
+      type: notificationTypes.tweetClaimed,
+      title: 'Tweet',
+      description: 'Rewards claimed!'
     });
   });
 

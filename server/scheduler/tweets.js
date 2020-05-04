@@ -4,10 +4,16 @@ const zilliqa = require('../zilliqa');
 const models = require('../models');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const Twittes = models.sequelize.models.Twittes;
-const Blockchain = models.sequelize.models.blockchain;
-const User = models.sequelize.models.User;
-const Admin = models.sequelize.models.Admin;
+
+const {
+  User,
+  Twittes,
+  blockchain,
+  Admin,
+  Notification
+} = models.sequelize.models;
+
+const notificationTypes = new Notification().types;
 
 function getPos(text, hashtag) {
   text = encodeURI(text.toLowerCase());
@@ -44,7 +50,7 @@ module.exports = async function () {
     return null;
   }
 
-  const blockchainInfo = await Blockchain.findOne({
+  const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
   const tweets = await Twittes.findAndCountAll({
@@ -79,12 +85,20 @@ module.exports = async function () {
       const registered = await zilliqa.getVerifiedTweets([tweet.idStr]);
 
       if (registered && registered[tweet.idStr]) {
-        return await tweet.update({
+        await tweet.update({
           approved: true,
           claimed: true,
           rejected: false,
           block: 0
         });
+        await Notification.create({
+          UserId: tweet.User.id,
+          type: notificationTypes.tweetClaimed,
+          title: 'Tweet',
+          description: 'Rewards claimed!'
+        });
+
+        return null;
       }
 
       const { text, startIndex } = getPos(tweet.text, blockchainInfo.hashtag);
@@ -98,6 +112,7 @@ module.exports = async function () {
         txId: tx.TranID,
         block: Number(blockchainInfo.BlockNum)
       });
+
       debug('Tweet with ID', tweet.idStr, 'sent to shard.');
     } catch (err) {
       if (err.message === 'Danger tweet.') {
@@ -105,6 +120,13 @@ module.exports = async function () {
       }
 
       debug('tweet:', tweet.idStr, 'has not verifed error:', err);
+
+      await Notification.create({
+        UserId: tweet.User.id,
+        type: notificationTypes.tweetReject,
+        title: 'Tweet',
+        description: 'Claiming error!'
+      });
     }
   });
 }
