@@ -107,6 +107,7 @@ export function socket() {
             {notification.description}
           </NotificationSuccess>
         );
+        UserStore.updateUserState(null);
         break;
       case NOTIFICATIONS_TYPES.addressReject:
         NotificationStore.rmNotifly(notificationsState.loadinguiid);
@@ -140,6 +141,7 @@ export function socket() {
             {notification.description}
           </NotificationSuccess>
         );
+        UserStore.updateUserState(null);
         break;
       case NOTIFICATIONS_TYPES.tweetReject:
         NotificationStore.rmNotifly(notificationsState.loadinguiid);

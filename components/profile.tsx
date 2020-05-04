@@ -108,7 +108,7 @@ export const Profile: React.FC = () => {
   const notificationState = Effector.useStore(NotificationStore.store);
 
   const [notificationShow, setNotificationShow] = React.useState(false);
-  const [ofset, setOfset] = React.useState(notificationState.limit);
+  const [ofset, setOfset] = React.useState(Number(notificationState.limit));
 
   /**
    * Reactive varible, show `true` if have any notifications.
@@ -123,7 +123,7 @@ export const Profile: React.FC = () => {
    * ofset state <= count of notifications.
    */
   const showMore = React.useMemo(
-    () => Number(notificationState.count - 1) > notificationState.serverNotifications.length && ofset <= notificationState.count,
+    () => Number(notificationState.count - 1) > notificationState.serverNotifications.length,
     [
       notificationState.count,
       notificationState.serverNotifications,
@@ -142,7 +142,7 @@ export const Profile: React.FC = () => {
     }
 
     setNotificationShow(!notificationShow);
-    setOfset(notificationState.limit);
+    setOfset(Number(notificationState.limit));
   }, [notificationShow, setNotificationShow, haveNotifications, notificationState.count]);
 
   /**
@@ -151,7 +151,7 @@ export const Profile: React.FC = () => {
   const handleRemoveAllNotifications = React.useCallback(() => {
     NotificationStore.removeNotifications(userState.jwtToken);
     setNotificationShow(false);
-    setOfset(notificationState.limit);
+    setOfset(Number(notificationState.limit));
   }, [userState, notificationState.count]);
 
   /**
