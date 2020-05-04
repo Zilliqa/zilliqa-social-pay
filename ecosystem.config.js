@@ -11,7 +11,11 @@ module.exports = {
       TWITTER_CONSUMER_KEY: "",
       NUMBER_OF_ADMINS: "10",
       TWITTER_CONSUMER_SECRET: "",
-      CONTRACT_ADDRESS: ""
+      CONTRACT_ADDRESS: "",
+      POSTGRES_USER: "postgres",
+      POSTGRES_PASSWORD: "postgres",
+      POSTGRES_DB: "database_social_pay",
+      POSTGRES_HOST: "127.0.0.1"
     }
   }]
 }
