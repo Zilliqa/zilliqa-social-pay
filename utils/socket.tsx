@@ -69,6 +69,8 @@ export function socket() {
     tweetsState.tweets[foundIndex] = tweet;
 
     TwitterStore.update(tweetsState.tweets);
+    TwitterStore.setLastBlock(tweet.block);
+    BlockchainStore.updateTimer();
   });
 
   socketConnector.on(EVENTS.notificationCreate, (data: string) => {

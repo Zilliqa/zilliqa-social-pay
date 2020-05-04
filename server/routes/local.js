@@ -8,6 +8,7 @@ const router = express.Router();
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 3;
+const BLOCK_FOR_CONFIRM = 2;
 
 const {
   User,
@@ -45,7 +46,7 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
     const blockchainInfo = await blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
-    let block = Number(blockchainInfo.BlockNum);
+    let block = BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerWeek);
 
     if (!user.actionName) {
       block = 0;
@@ -63,7 +64,7 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
       UserId: user.id,
       type: notificationTypes.addressConfiguring,
       title: 'Account',
-      description: 'synchronize Address...'
+      description: 'Syncing Address...'
     });
 
     delete user.dataValues.tokenSecret;
@@ -144,7 +145,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
     return res.status(502).json({
       message: `Last tweet have block ${lastTweet.block} but current ${blockchainInfo.BlockNum}.`,
       lastTweet: lastTweet.block,
-      currentBlock: blockchainInfo.BlockNum
+      currentBlock: BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay)
     });
   }
 
