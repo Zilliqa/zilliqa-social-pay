@@ -27,7 +27,6 @@ const NotificationContainer = styled.div`
   z-index: 5;
 
   min-width: 300px;
-  min-height: 200px;
 
   background: #F0F1FF;
   border-radius: 10px;
