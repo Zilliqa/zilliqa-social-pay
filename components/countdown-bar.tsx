@@ -17,7 +17,7 @@ const CountdownBarContainer = styled(Container)`
 
   grid-area: countdown-bar;
 
-  min-height: 60px;
+  min-height: 40px;
   width: 100%;
 
   background-color: ${FontColors.primary};
@@ -36,10 +36,10 @@ export const CountdownBar: React.FC = () => {
     const difference = campaignEnd.valueOf() - now.valueOf();
 
     if (difference < 0) {
-      return 'Campaign is end!';
+      return 'SocialPay Campaign has ended!';
     }
 
-    return `Campaign end: ${moment(campaignEnd).from(now)}`;
+    return `SocialPay Campaign ends: ${moment(campaignEnd).from(now)}`;
   }, [blockchainState]);
 
   return (
