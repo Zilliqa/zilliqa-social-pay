@@ -68,15 +68,15 @@ export const FixedWrapper: React.FC = () => {
     event.preventDefault();
 
     if (!address) {
-      setAddressErr('This field is required.');
+      setAddressErr('Please enter a valid address.');
 
       return null;
     } else if (!validation.isBech32(address)) {
-      setAddressErr('Incorect address format.');
+      setAddressErr('Incorrect address format.');
 
       return null;
     } else if (address === userState.zilAddress) {
-      setAddressErr(`You're already connected with this address`);
+      setAddressErr(`You're already connected to this address.`);
 
       return null;
     }
