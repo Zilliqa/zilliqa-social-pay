@@ -266,9 +266,9 @@ router.get('/get/notifications', checkSession, async (req, res) => {
     });
 
     return res.status(200).json({
-      limit,
+      limit: Number(limit),
       notification: userNotification,
-      count: notificationCount
+      count: Number(notificationCount)
     });
   } catch (err) {
     return res.status(400).json({
