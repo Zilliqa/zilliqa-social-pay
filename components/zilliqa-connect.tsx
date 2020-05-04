@@ -60,11 +60,11 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
     event.preventDefault();
 
     if (!address) {
-      setAddressErr('address must be required.');
+      setAddressErr('An address is required.');
 
       return null;
     } else if (!validation.isBech32(address)) {
-      setAddressErr('Incorect address format.');
+      setAddressErr('Incorrect address format.');
 
       return null;
     }
