@@ -1,6 +1,6 @@
 import { createDomain } from 'effector';
 
-import { User, FetchUpdateAddress } from 'interfaces';
+import { User, FetchUpdateAddress, ErrorResponse } from 'interfaces';
 import { LocalStorageKeys } from 'config';
 import { fetchUpdateAddress, fetchUserData } from 'utils/user-api';
 
@@ -13,8 +13,8 @@ export const clear = UserDomain.event();
 export const updateAddress = UserDomain.effect<FetchUpdateAddress, {
   message: string;
   user: User;
-}, Error>();
-export const updateUserState = UserDomain.effect<null, User, Error>();
+}, ErrorResponse>();
+export const updateUserState = UserDomain.effect<null, User, ErrorResponse>();
 
 updateAddress.use(fetchUpdateAddress);
 updateUserState.use(fetchUserData);

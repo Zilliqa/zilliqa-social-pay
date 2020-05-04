@@ -1,13 +1,18 @@
 const router = require('express').Router();
+const { Op } = require('sequelize');
 const passport = require('passport');
 const models = require('../models');
 const zilliqa = require('../zilliqa');
 const checkSession = require('../middleware/check-session');
 const Twitter = require('../twitter');
 const verifyJwt = require('../middleware/verify-jwt');
+const ERROR_CODES = require('../../config/error-codes');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const LIKES_FOR_CLAIM = process.env.LIKES_FOR_CLAIM || 5;
+const ENV = process.env.NODE_ENV;
 
+const dev = ENV !== 'production';
 const {
   User,
   Twittes,
@@ -97,6 +102,7 @@ router.put('/update/tweets', checkSession, verifyJwt, async (req, res) => {
 
     if (!tweets || tweets.length < 1) {
       return res.json({
+        code: ERROR_CODES.noFound,
         message: 'not found',
         tweets: []
       });
@@ -117,8 +123,13 @@ router.put('/update/tweets', checkSession, verifyJwt, async (req, res) => {
       tweets: tweetsUpdated.filter(Boolean)
     });
   } catch (err) {
-    return res.status(400).json({
-      message: err.message || err
+    if (dev) {
+      return res.status(401).send(err.message || err);
+    }
+
+    return res.status(401).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.'
     });
   }
 });
@@ -132,8 +143,9 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, async (req, res) =
     }
   });
 
-  if (!query || isNaN(Number(query))) {
+  if (!query || isNaN(query)) {
     return res.status(400).json({
+      code: ERROR_CODES.badQuery,
       message: 'Bad query.'
     });
   }
@@ -141,6 +153,14 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, async (req, res) =
   try {
     const twitter = new Twitter(user.token, user.tokenSecret, blockchainInfo);
     const { tweet, hasHashtag } = await twitter.showTweet(query);
+
+    if (!tweet) {
+      return res.json({
+        code: ERROR_CODES.noFound,
+        message: 'not found'
+      });
+    }
+
     const foundTwittes = await Twittes.findOne({
       where: { idStr: tweet.id_str },
       attributes: [
@@ -151,18 +171,22 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, async (req, res) =
 
     if (!tweet) {
       return res.status(401).json({
+        code: ERROR_CODES.limitReached,
         message: 'Daily limit reached.'
       });
     } else if (!hasHashtag) {
       return res.status(404).json({
+        code: ERROR_CODES.noHasHashtag,
         message: `This tweet does not have the #${capitalizeFirstLetter(blockchainInfo.hashtag)} hashtag in it.`
       });
     } else if (tweet.user.id_str !== user.profileId) {
       return res.status(400).json({
+        code: ERROR_CODES.badData,
         message: 'Wrong account'
       });
     } else if (foundTwittes) {
       return res.status(400).json({
+        code: ERROR_CODES.alreadyExists,
         message: 'Tweet already exists.'
       });
     }
@@ -171,8 +195,13 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, async (req, res) =
       id_str: tweet.id_str
     });
   } catch (err) {
-    return res.status(400).json({
-      message: err.message || err
+    if (dev) {
+      return res.status(401).send(err.message || err);;
+    }
+
+    return res.status(401).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.'
     });
   }
 });
@@ -183,6 +212,7 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
 
   if (!id_str) {
     return res.status(401).json({
+      code: ERROR_CODES.badData,
       message: 'Invalid tweet data.'
     });
   }
@@ -204,18 +234,22 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
 
     if (foundTwittes) {
       return res.status(400).json({
+        code: ERROR_CODES.alreadyExists,
         message: 'Tweet already exists.'
       });
     } else if (!hasHashtag) {
       return res.status(404).json({
+        code: ERROR_CODES.noHasHashtag,
         message: `This tweet does not have the #${capitalizeFirstLetter(blockchainInfo.hashtag)} hashtag in it.`
       });
     } else if (!user || user.profileId !== tweet.user.id_str) {
       return res.status(401).json({
+        code: ERROR_CODES.badData,
         message: 'Invalid user data.'
       });
     } else if (!tweet.user || tweet.user.id_str !== user.profileId) {
       return res.status(401).json({
+        code: ERROR_CODES.badData,
         message: 'Invalid user data.'
       });
     }
@@ -249,8 +283,119 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
       tweet: createdTweet
     });
   } catch (err) {
-    return res.status(400).json({
-      message: err.message
+    if (dev) {
+      return res.status(401).send(err.message || err);;
+    }
+
+    return res.status(401).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.'
+    });
+  }
+});
+
+router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
+  const { user } = req.verification;
+  const tweet = req.body;
+  let foundTweet = null;
+
+  if (!user.zilAddress) {
+    return res.status(401).json({
+      code: ERROR_CODES.noAddress,
+      message: 'need to sync zilAddress.'
+    });
+  } else if (user.synchronization) {
+    return res.status(401).json({
+      code: ERROR_CODES.noAddressSynchronized,
+      message: 'User zilAddress is not synchronized.'
+    });
+  }
+
+  const blockchainInfo = await blockchain.findOne({
+    where: { contract: CONTRACT_ADDRESS }
+  });
+
+  try {
+    foundTweet = await Twittes.findOne({
+      where: {
+        UserId: user.id,
+        idStr: tweet.idStr,
+        id: tweet.id,
+        rejected: false,
+        approved: false,
+        claimed: false
+      },
+      attributes: {
+        exclude: [
+          'text',
+          'updatedAt'
+        ]
+      }
+    });
+  } catch (err) {
+    if (dev) {
+      return res.status(401).send(err.message || err);;
+    }
+
+    return res.status(401).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.'
+    });
+  }
+
+  const lastTweet = await Twittes.findOne({
+    where: {
+      block: {
+        [Op.gt]: Number(blockchainInfo.BlockNum) - Number(blockchainInfo.blocksPerDay)
+      },
+      UserId: user.id
+    }
+  });
+
+  if (lastTweet && Number(lastTweet.block) > 0) {
+    return res.status(502).json({
+      code: ERROR_CODES.countdown,
+      message: `Last tweet have block ${lastTweet.block} but current ${blockchainInfo.BlockNum}.`,
+      lastTweet: lastTweet.block,
+      currentBlock: BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay)
+    });
+  }
+
+  try {
+    const twitter = new Twitter(user.token, user.tokenSecret, blockchainInfo);
+    const { tweet } = await twitter.showTweet(foundTweet.idStr);
+    const favoriteCount = tweet.favorite_count;
+
+    if (favoriteCount < LIKES_FOR_CLAIM) {
+      return res.status(502).json({
+        code: ERROR_CODES.lowFavoriteCount,
+        favoriteCount,
+        favoriteCountForClaim: LIKES_FOR_CLAIM,
+        message: 'favorite_count is low.'
+      });
+    }
+
+    await foundTweet.update({
+      block: blockchainInfo.BlockNum,
+      claimed: true
+    });
+
+    await Notification.create({
+      UserId: user.id,
+      type: notificationTypes.tweetClaiming,
+      title: 'Tweet',
+      description: 'Claiming rewards…'
+    });
+
+    return res.status(201).json(foundTweet);
+  } catch (err) {
+    if (dev) {
+      return res.status(401).send(err.message || err);;
+    }
+
+    return res.status(401).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.'
     });
   }
 });
@@ -275,8 +420,13 @@ router.get('/get/account', checkSession, async (req, res) => {
 
     return res.status(200).json(user);
   } catch (err) {
-    return res.status(400).json({
-      message: err.message
+    if (dev) {
+      return res.status(401).send(err.message || err);;
+    }
+
+    return res.status(401).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.'
     });
   }
 });

@@ -25,4 +25,6 @@ export const AroundedContainer = styled.form`
     margin: 0;
     width: 310px;
   }
+
+  ${(props: { css?: string; }) => props.css}
 `;
