@@ -69,6 +69,8 @@ export function socket() {
     tweetsState.tweets[foundIndex] = tweet;
 
     TwitterStore.update(tweetsState.tweets);
+    TwitterStore.setLastBlock(tweet.block);
+    BlockchainStore.updateTimer();
   });
 
   socketConnector.on(EVENTS.notificationCreate, (data: string) => {
@@ -105,6 +107,7 @@ export function socket() {
             {notification.description}
           </NotificationSuccess>
         );
+        UserStore.updateUserState(null);
         break;
       case NOTIFICATIONS_TYPES.addressReject:
         NotificationStore.rmNotifly(notificationsState.loadinguiid);
@@ -138,6 +141,7 @@ export function socket() {
             {notification.description}
           </NotificationSuccess>
         );
+        UserStore.updateUserState(null);
         break;
       case NOTIFICATIONS_TYPES.tweetReject:
         NotificationStore.rmNotifly(notificationsState.loadinguiid);

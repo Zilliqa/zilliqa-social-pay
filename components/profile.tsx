@@ -27,14 +27,12 @@ const NotificationContainer = styled.div`
   z-index: 5;
 
   min-width: 300px;
-  min-height: 200px;
 
-  background: #CCD1FF;
+  background: #F0F1FF;
   border-radius: 10px;
 
   animation-duration: .5s;
   animation-name: fadeShow;
-
 
   @media (max-width: 494px) {
     transform: translate(0, 0);
@@ -48,7 +46,7 @@ const NotificationContainer = styled.div`
     width: 50px;
     height: 50px;
 
-    background: #CCD1FF;
+    background: #F0F1FF;
     right: 20px;
     top: -10px;
 
@@ -92,11 +90,11 @@ const HeaderContainer = styled(Container)`
   display: flex;
   justify-content: space-between;
   padding: 10px;
-  border-bottom: 1px ${FontColors.black} solid;
+  border-bottom: 1px #d0d0d7 solid;
 `;
 const NotificationItemContainer = styled(Container)`
   padding: 10px;
-  ${(props: ShwoType) => props.show ? 'border-bottom: 1px #000 solid;' : ''}
+  ${(props: ShwoType) => props.show ? 'border-bottom: 1px #d0d0d7 solid;' : ''}
 `;
 const FooterContainer = styled(Container)`
   display: flex;
@@ -108,7 +106,7 @@ export const Profile: React.FC = () => {
   const notificationState = Effector.useStore(NotificationStore.store);
 
   const [notificationShow, setNotificationShow] = React.useState(false);
-  const [ofset, setOfset] = React.useState(notificationState.limit);
+  const [ofset, setOfset] = React.useState(Number(notificationState.limit));
 
   /**
    * Reactive varible, show `true` if have any notifications.
@@ -123,7 +121,7 @@ export const Profile: React.FC = () => {
    * ofset state <= count of notifications.
    */
   const showMore = React.useMemo(
-    () => Number(notificationState.count - 1) > notificationState.serverNotifications.length && ofset <= notificationState.count,
+    () => Number(notificationState.count - 1) > notificationState.serverNotifications.length,
     [
       notificationState.count,
       notificationState.serverNotifications,
@@ -142,7 +140,7 @@ export const Profile: React.FC = () => {
     }
 
     setNotificationShow(!notificationShow);
-    setOfset(notificationState.limit);
+    setOfset(Number(notificationState.limit));
   }, [notificationShow, setNotificationShow, haveNotifications, notificationState.count]);
 
   /**
@@ -151,7 +149,7 @@ export const Profile: React.FC = () => {
   const handleRemoveAllNotifications = React.useCallback(() => {
     NotificationStore.removeNotifications(userState.jwtToken);
     setNotificationShow(false);
-    setOfset(notificationState.limit);
+    setOfset(Number(notificationState.limit));
   }, [userState, notificationState.count]);
 
   /**
@@ -183,16 +181,16 @@ export const Profile: React.FC = () => {
       <NotificationContainer show={notificationShow}>
         <HeaderContainer>
           <Text
-            size={FontSize.md}
-            fontVariant={Fonts.AvenirNextLTProRegular}
+            size={FontSize.sm}
+            fontVariant={Fonts.AvenirNextLTProMedium}
             css="z-index: 6;"
           >
             Notifications
           </Text>
           <Text
             fontColors={FontColors.primary}
-            size={FontSize.md}
-            fontVariant={Fonts.AvenirNextLTProDemi}
+            size={FontSize.sm}
+            fontVariant={Fonts.AvenirNextLTProBold}
             css="cursor: pointer;z-index: 6;"
             onClick={handleRemoveAllNotifications}
           >
@@ -202,12 +200,12 @@ export const Profile: React.FC = () => {
         {notificationState.serverNotifications.map((item, index) => (
           <NotificationItemContainer
             key={index}
-            show={index !== notificationState.serverNotifications.length - 1}
+            show={!(index === notificationState.serverNotifications.length - 1 && !showMore)}
           >
             <Text
               fontColors={FontColors.black}
               size={FontSize.sm}
-              fontVariant={Fonts.AvenirNextLTProBold}
+              fontVariant={Fonts.AvenirNextLTProMedium}
             >
               {item.title}
             </Text>
@@ -215,14 +213,14 @@ export const Profile: React.FC = () => {
               <Text
                 fontColors={FontColors.black}
                 size={FontSize.sm}
-                fontVariant={Fonts.AvenirNextLTProRegular}
+                fontVariant={Fonts.AvenirNextLTProDemi}
               >
                 {item.description}
               </Text>
               <Text
                 fontColors={FontColors.black}
                 size={FontSize.sm}
-                fontVariant={Fonts.AvenirNextLTProRegular}
+                fontVariant={Fonts.AvenirNextLTProDemi}
                 css="margin-left: 30px;"
               >
                 {moment(item.createdAt).fromNow()}
@@ -234,8 +232,8 @@ export const Profile: React.FC = () => {
           <FooterContainer>
             <Text
               fontColors={FontColors.primary}
-              size={FontSize.md}
-              fontVariant={Fonts.AvenirNextLTProDemi}
+              size={FontSize.sm}
+              fontVariant={Fonts.AvenirNextLTProBold}
               css="cursor: pointer;"
               onClick={handleClickMore}
             >
