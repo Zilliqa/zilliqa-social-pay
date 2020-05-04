@@ -29,7 +29,7 @@ const NotificationContainer = styled.div`
   min-width: 300px;
   min-height: 200px;
 
-  background: #CCD1FF;
+  background: #F0F1FF;
   border-radius: 10px;
 
   animation-duration: .5s;
@@ -48,7 +48,7 @@ const NotificationContainer = styled.div`
     width: 50px;
     height: 50px;
 
-    background: #CCD1FF;
+    background: #F0F1FF;
     right: 20px;
     top: -10px;
 
@@ -183,7 +183,7 @@ export const Profile: React.FC = () => {
       <NotificationContainer show={notificationShow}>
         <HeaderContainer>
           <Text
-            size={FontSize.md}
+            size={FontSize.sm}
             fontVariant={Fonts.AvenirNextLTProRegular}
             css="z-index: 6;"
           >
@@ -191,7 +191,7 @@ export const Profile: React.FC = () => {
           </Text>
           <Text
             fontColors={FontColors.primary}
-            size={FontSize.md}
+            size={FontSize.sm}
             fontVariant={Fonts.AvenirNextLTProDemi}
             css="cursor: pointer;z-index: 6;"
             onClick={handleRemoveAllNotifications}
@@ -202,7 +202,7 @@ export const Profile: React.FC = () => {
         {notificationState.serverNotifications.map((item, index) => (
           <NotificationItemContainer
             key={index}
-            show={index !== notificationState.serverNotifications.length - 1}
+            show={!(index === notificationState.serverNotifications.length - 1 && !showMore)}
           >
             <Text
               fontColors={FontColors.black}
@@ -234,7 +234,7 @@ export const Profile: React.FC = () => {
           <FooterContainer>
             <Text
               fontColors={FontColors.primary}
-              size={FontSize.md}
+              size={FontSize.sm}
               fontVariant={Fonts.AvenirNextLTProDemi}
               css="cursor: pointer;"
               onClick={handleClickMore}
