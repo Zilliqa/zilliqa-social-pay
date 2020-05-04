@@ -52,6 +52,8 @@ export interface Blockchain {
   rate: string | number;
   balance: string | number;
   initBalance: string | number;
+  campaignEnd: Date | null;
+  now: Date | null;
   message?: string;
   dayTimer?: string | null;
   weekTimer?: string | null;

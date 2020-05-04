@@ -49,7 +49,9 @@ const initalState: Blockchain = {
   DSBlockNum: 0,
   rate: 0,
   balance: 0,
-  initBalance: 0
+  initBalance: 0,
+  campaignEnd: null,
+  now: null
 };
 
 export const store = blockchainDomain.store<Blockchain>(initalState)

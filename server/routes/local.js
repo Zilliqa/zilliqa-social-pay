@@ -7,6 +7,7 @@ const router = express.Router();
 
 const ERROR_CODES = require('../../config/error-codes');
 const ENV = process.env.NODE_ENV;
+const END_OF_CAMPAIGN = process.env.END_OF_CAMPAIGN;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 3;
 const BLOCK_FOR_CONFIRM = 2;
@@ -22,6 +23,10 @@ const {
 
 const actions = new User().actions;
 const notificationTypes = new Notification().types;
+
+if (!END_OF_CAMPAIGN) {
+  throw new Error('ENV: END_OF_CAMPAIGN is required!!!');
+}
 
 router.put('/update/address/:address', checkSession, verifyJwt, async (req, res) => {
   const bech32Address = req.params.address;
@@ -171,6 +176,9 @@ router.get('/get/blockchain', checkSession, async (req, res) => {
         contract: CONTRACT_ADDRESS
       }
     });
+
+    blockchainInfo.dataValues.campaignEnd = new Date(END_OF_CAMPAIGN);
+    blockchainInfo.dataValues.now = new Date();
 
     return res.status(200).json(blockchainInfo);
   } catch (err) {

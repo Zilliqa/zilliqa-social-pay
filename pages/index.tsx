@@ -16,6 +16,7 @@ import NotificationStore from 'store/notification';
 import { Container } from 'components/container';
 import { Img } from 'components/img';
 import { NotificationSuccess } from 'components/notification-control';
+import { CountdownBar } from 'components/countdown-bar';
 
 import { socket } from 'utils/socket';
 import { PageProp } from 'interfaces';
@@ -29,7 +30,8 @@ const MainPageContainer = styled.main`
   display: grid;
 
   grid-template-rows: max-content;
-  grid-template-areas: "header"
+  grid-template-areas: "countdown-bar"
+                       "header"
                        "container";
 
   background: #7882f3;
@@ -116,8 +118,7 @@ export const MainPage: NextPage<PageProp> = () => {
           socket();
           EventStore.reset();
         })
-        .catch((err) => {
-          console.log(err);
+        .catch(() => {
           EventStore.reset();
           EventStore.signOut(null);
           UserStore.clear();
@@ -133,6 +134,7 @@ export const MainPage: NextPage<PageProp> = () => {
 
   return (
     <MainPageContainer>
+      <CountdownBar />
       <TopBar />
       <DashboardContainer area="container">
         <Verified />
