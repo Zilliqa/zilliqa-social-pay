@@ -19,6 +19,7 @@ import { NotificationWarning } from 'components/notification-control';
 import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
 
 import { FontSize, Fonts, FontColors, Events } from 'config';
+import ERROR_CODES from 'config/error-codes';
 import NOTIFICATIONS_TYPES from 'config/notifications-types';
 import { viewTx } from 'utils/viewblock';
 import { claimTweet } from 'utils/claim-tweet';
@@ -138,6 +139,13 @@ export const Verified: React.FC = () => {
     }
 
     const result = await claimTweet(userState.jwtToken, tweet);
+
+    if (result.code === ERROR_CODES.lowFavoriteCount) {
+      EventStore.setContent(result);
+      EventStore.setEvent(Events.Error);
+
+      return null;
+    }
 
     if (result.message) {
       TwitterStore.setLastBlock(result.lastTweet);

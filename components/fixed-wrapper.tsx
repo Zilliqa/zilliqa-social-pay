@@ -29,6 +29,7 @@ import {
   Fonts,
   Sides
 } from 'config';
+import ERROR_CODES from 'config/error-codes';
 import { addTweet } from 'utils/update-tweets';
 
 const SPINER_SIZE = 150;
@@ -117,6 +118,14 @@ export const FixedWrapper: React.FC = () => {
   const handlePay = React.useCallback(async () => {
     EventStore.setEvent(Events.Load);
     const result = await addTweet(userState.jwtToken, eventState.content);
+
+    if (result.code === ERROR_CODES.lowFavoriteCount) {
+      EventStore.reset();
+      EventStore.setContent(result);
+      EventStore.setEvent(Events.Error);
+
+      return null;
+    }
 
     BlockchainStore.updateBlockchain(null);
 

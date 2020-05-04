@@ -9,7 +9,7 @@ const verifyJwt = require('../middleware/verify-jwt');
 const ERROR_CODES = require('../../config/error-codes');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const LIKES_FOR_CLAIM = process.env.LIKES_FOR_CLAIM || 5;
+const LIKES_FOR_CLAIM = Number(process.env.LIKES_FOR_CLAIM) || 5;
 const ENV = process.env.NODE_ENV;
 
 const dev = ENV !== 'production';
@@ -224,7 +224,7 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
   try {
     const twitter = new Twitter(user.token, user.tokenSecret, blockchainInfo);
     const { tweet, hasHashtag } = await twitter.showTweet(id_str);
-    const favoriteCount = tweet.favorite_count;
+    const favoriteCount = Number(tweet.favorite_count);
     const foundTwittes = await Twittes.findOne({
       where: { idStr: id_str },
       attributes: [
@@ -253,12 +253,12 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
         code: ERROR_CODES.badData,
         message: 'Invalid user data.'
       });
-    } else if (favoriteCount < LIKES_FOR_CLAIM) {
+    } else if (favoriteCount < Number(LIKES_FOR_CLAIM)) {
       return res.status(502).json({
         code: ERROR_CODES.lowFavoriteCount,
         favoriteCount,
-        favoriteCountForClaim: LIKES_FOR_CLAIM,
-        message: 'favorite_count is low.'
+        favoriteCountForClaim: Number(LIKES_FOR_CLAIM),
+        message: `Reward is only claimable when tweet has > ${LIKES_FOR_CLAIM} likes.`
       });
     }
 
@@ -372,14 +372,14 @@ router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
   try {
     const twitter = new Twitter(user.token, user.tokenSecret, blockchainInfo);
     const { tweet } = await twitter.showTweet(foundTweet.idStr);
-    const favoriteCount = tweet.favorite_count;
+    const favoriteCount = Number(tweet.favorite_count);
 
-    if (favoriteCount < LIKES_FOR_CLAIM) {
+    if (favoriteCount < Number(LIKES_FOR_CLAIM)) {
       return res.status(502).json({
         code: ERROR_CODES.lowFavoriteCount,
         favoriteCount,
-        favoriteCountForClaim: LIKES_FOR_CLAIM,
-        message: 'favorite_count is low.'
+        favoriteCountForClaim: Number(LIKES_FOR_CLAIM),
+        message: `Reward is only claimable when tweet has > ${LIKES_FOR_CLAIM} likes.`
       });
     }
 
