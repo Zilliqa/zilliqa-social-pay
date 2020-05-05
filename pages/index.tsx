@@ -21,6 +21,7 @@ import { CountdownBar } from 'components/countdown-bar';
 import { socket } from 'utils/socket';
 import { PageProp } from 'interfaces';
 import { Events } from 'config';
+import ERROR_CODES from 'config/error-codes';
 
 const TopBar = dynamic(() => import('components/top-bar'));
 const Verified = dynamic(() => import('components/verified'));
@@ -62,38 +63,35 @@ const Illustration = styled(Img)`
 `;
 
 const updater = async () => {
-  const messageError = 'Unauthorized';
   const tweetsResult = await TwitterStore.getTweets({});
   const user = await UserStore.updateUserState(null);
   const blockchain = await BlockchainStore.updateBlockchain(null);
 
-  if (user && user.message && user.message === messageError) {
-    throw new Error(messageError);
-  }
-
-  await NotificationStore.getNotifications({});
-
-  if (blockchain && blockchain.message && blockchain.message === messageError) {
-    throw new Error(messageError);
-  }
-
-  if (tweetsResult.message && tweetsResult.message === messageError) {
-    throw new Error(messageError);
+  if (tweetsResult && tweetsResult.code === ERROR_CODES.unauthorized) {
+    throw new Error(tweetsResult.message);
+  } else if (user && user.code === ERROR_CODES.unauthorized) {
+    throw new Error(tweetsResult.message);
+  } else if (blockchain && blockchain.code === ERROR_CODES.unauthorized) {
+    throw new Error(tweetsResult.message);
   } else if (!tweetsResult.tweets || tweetsResult.tweets.length < 1) {
     const userState = UserStore.store.getState();
 
     const result = await TwitterStore.updateTweets(userState.jwtToken);
 
-    NotificationStore.addNotifly(
-      <NotificationSuccess>
-        <Img
-          src="/icons/ok.svg"
-          css="margin-right: 10px;"
-        />
+    if (Array.isArray(result.tweets)) {
+      NotificationStore.addNotifly(
+        <NotificationSuccess>
+          <Img
+            src="/icons/ok.svg"
+            css="margin-right: 10px;"
+          />
         SocialPay has found {result.tweets.length} tweets.
       </NotificationSuccess>
-    );
+      );
+    }
   }
+
+  await NotificationStore.getNotifications({});
 };
 
 export const MainPage: NextPage<PageProp> = () => {

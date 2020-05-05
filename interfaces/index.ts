@@ -14,6 +14,7 @@ export interface User {
   zilAddress: string;
   jwtToken: string;
   message?: string;
+  code?: number;
   profileId: string;
   balance: string;
   lastAction: string;
@@ -55,6 +56,7 @@ export interface Blockchain {
   campaignEnd: Date | null;
   now: Date | null;
   message?: string;
+  code?: number;
   dayTimer?: string | null;
   weekTimer?: string | null;
 }
