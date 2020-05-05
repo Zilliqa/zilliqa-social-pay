@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Text } from 'components/text';
+import { Arrow } from 'components/arrow';
 
 import { FontSize, Fonts, FontColors } from 'config';
 
@@ -20,6 +21,7 @@ const DropdownList = styled.ul`
   background-color: ${FontColors.white};
   color: ${FontColors.black};
   z-index: 5;
+  width: inherit;
 `;
 const Dropdownitem = styled.li`
   cursor: pointer;
@@ -47,6 +49,7 @@ const DropdownCloser = styled.a`
 
 type Prop = {
   items: string[];
+  title: string;
   onClick: (item: string) => void;
 };
 
@@ -66,7 +69,7 @@ type Prop = {
  */
 export const Dropdown: React.FC<Prop> = ({
   items,
-  children,
+  title,
   onClick
 }) => {
   const [isMenu, setIsMenu] = React.useState(false);
@@ -76,7 +79,19 @@ export const Dropdown: React.FC<Prop> = ({
 
   return (
     <DropdownContent onClick={hanldeClick}>
-      {children}
+      <Text
+        size={FontSize.sm}
+        fontVariant={Fonts.AvenirNextLTProBold}
+        fontColors={FontColors.white}
+        css="display: grid;grid-template-columns: 1fr 15px;grid-gap: 15px;"
+        nowrap
+      >
+        {title}
+        <Arrow
+          width="2"
+          height="12"
+        />
+      </Text>
       <DropdownList style={{ display: isMenu ? 'block' : 'none' }}>
         {items.map((item) => (
           <Dropdownitem
@@ -85,7 +100,7 @@ export const Dropdown: React.FC<Prop> = ({
           >
             <Text
               size={FontSize.sm}
-              fontVariant={Fonts.AvenirNextLTProBold}
+              fontVariant={Fonts.AvenirNextLTProDemi}
               css="margin: 0;"
               nowrap
             >
