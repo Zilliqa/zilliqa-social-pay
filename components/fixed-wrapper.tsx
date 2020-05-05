@@ -187,7 +187,7 @@ export const FixedWrapper: React.FC = () => {
         onBlur={() => EventStore.reset()}
       >
         <form onSubmit={handleAddressChange}>
-          <TextWarning>
+          <TextWarning fontVariant={Fonts.AvenirNextLTProDemi}>
             DO NOT LINK EXCHANGE ADDRESSES!!!
           </TextWarning>
           <FieldInput
