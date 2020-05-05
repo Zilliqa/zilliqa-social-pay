@@ -35,7 +35,7 @@ const NotificationContainer = styled.div`
   animation-name: fadeShow;
 
   @media (max-width: 494px) {
-    transform: translate(0, 0);
+    transform: translate(-18%,15%);
   }
 
   :before {
@@ -53,7 +53,7 @@ const NotificationContainer = styled.div`
     transform: rotate(45deg);
 
     @media (max-width: 494px) {
-      left: 10px;
+      left: 65px;
     }
   }
 `;
@@ -182,7 +182,7 @@ export const Profile: React.FC = () => {
         <HeaderContainer>
           <Text
             size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProMedium}
+            fontVariant={Fonts.AvenirNextLTProDemi}
             css="z-index: 6;"
           >
             Notifications
@@ -205,7 +205,7 @@ export const Profile: React.FC = () => {
             <Text
               fontColors={FontColors.black}
               size={FontSize.sm}
-              fontVariant={Fonts.AvenirNextLTProMedium}
+              fontVariant={Fonts.AvenirNextLTProDemi}
             >
               {item.title}
             </Text>
@@ -213,14 +213,14 @@ export const Profile: React.FC = () => {
               <Text
                 fontColors={FontColors.black}
                 size={FontSize.sm}
-                fontVariant={Fonts.AvenirNextLTProDemi}
+                fontVariant={Fonts.AvenirNextLTProRegular}
               >
                 {item.description}
               </Text>
               <Text
                 fontColors={FontColors.black}
                 size={FontSize.sm}
-                fontVariant={Fonts.AvenirNextLTProDemi}
+                fontVariant={Fonts.AvenirNextLTProRegular}
                 css="margin-left: 30px;"
               >
                 {moment(item.createdAt).fromNow()}

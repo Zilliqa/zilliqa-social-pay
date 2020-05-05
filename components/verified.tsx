@@ -140,7 +140,7 @@ export const Verified: React.FC = () => {
 
     const result = await claimTweet(userState.jwtToken, tweet);
 
-    if (result.code === ERROR_CODES.lowFavoriteCount) {
+    if (result.code === ERROR_CODES.lowFavoriteCount || result.code === ERROR_CODES.campaignDown) {
       EventStore.setContent(result);
       EventStore.setEvent(Events.Error);
 

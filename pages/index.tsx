@@ -29,7 +29,7 @@ const Controller = dynamic(() => import('components/controller'));
 const MainPageContainer = styled.main`
   display: grid;
 
-  grid-template-rows: max-content;
+  grid-template-rows: max-content max-content 1fr;
   grid-template-areas: "countdown-bar"
                        "header"
                        "container";
@@ -49,7 +49,7 @@ const DashboardContainer = styled(Container)`
   max-hight: 100vh;
   z-index: 1;
 
-  padding-top: 5%;
+  // padding-top: 100px;
 `;
 const Illustration = styled(Img)`
   position: fixed;
