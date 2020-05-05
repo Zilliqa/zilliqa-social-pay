@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useRouter } from 'next/router';
 import * as Effector from 'effector-react';
 import { useMediaQuery } from 'react-responsive';
 import moment from 'moment';
@@ -54,6 +55,7 @@ const SLEEP = 10;
  * Show user tweets.
  */
 export const Verified: React.FC = () => {
+  const router = useRouter();
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
 
   const userState = Effector.useStore(UserStore.store);
@@ -145,6 +147,10 @@ export const Verified: React.FC = () => {
       EventStore.setEvent(Events.Error);
 
       return null;
+    } else if (result.code === ERROR_CODES.unauthorized) {
+      router.push('/auth');
+
+      return null;
     }
 
     if (result.message) {
@@ -169,7 +175,7 @@ export const Verified: React.FC = () => {
       BlockchainStore.updateTimer();
       EventStore.reset();
     }
-  }, [userState, blockchainState, twitterState]);
+  }, [userState, blockchainState, twitterState, router]);
   const handleNextPageClick = React.useCallback(async (data) => {
     const selected = Number(data.selected);
     const offset = Math.ceil(selected * PAGE_LIMIT);

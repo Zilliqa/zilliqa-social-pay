@@ -4,6 +4,7 @@ import { validation } from '@zilliqa-js/util';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { useMediaQuery } from 'react-responsive';
+import { useRouter } from 'next/router';
 
 import EventStore from 'store/event';
 import UserStore from 'store/user';
@@ -41,6 +42,7 @@ const SLEEP = 10;
  * Container for modals and any componets with fixed postion.
  */
 export const FixedWrapper: React.FC = () => {
+  const router = useRouter();
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
 
   // Effector hooks //
@@ -89,6 +91,14 @@ export const FixedWrapper: React.FC = () => {
       jwt: userState.jwtToken
     });
 
+    if (result.code === ERROR_CODES.unauthorized) {
+      EventStore.reset();
+      UserStore.clear();
+      router.push('/auth');
+
+      return null;
+    }
+
     if (result.message && result.message !== 'ConfiguredUserAddress') {
       setAddressErr(result.message);
 
@@ -96,7 +106,7 @@ export const FixedWrapper: React.FC = () => {
     }
 
     EventStore.reset();
-  }, [address, validation, setAddressErr, addressErr, userState]);
+  }, [address, validation, setAddressErr, addressErr, userState, router]);
   /**
    * Handle input address for Input component.
    * @param event HTMLInput event.
@@ -123,6 +133,12 @@ export const FixedWrapper: React.FC = () => {
       EventStore.reset();
       EventStore.setContent(result);
       EventStore.setEvent(Events.Error);
+
+      return null;
+    } else if (result.code === ERROR_CODES.unauthorized) {
+      EventStore.reset();
+      UserStore.clear();
+      router.push('/auth');
 
       return null;
     }

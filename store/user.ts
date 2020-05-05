@@ -12,6 +12,7 @@ export const clear = UserDomain.event();
 
 export const updateAddress = UserDomain.effect<FetchUpdateAddress, {
   message: string;
+  code: number;
   user: User;
 }, ErrorResponse>();
 export const updateUserState = UserDomain.effect<null, User, ErrorResponse>();
@@ -75,6 +76,10 @@ export const store = UserDomain.store<User>(initalState)
     };
   })
   .on(updateAddress.done, (state, { result }) => {
+    if (!result.user) {
+      return state;
+    }
+
     const newState = {
       ...result.user,
       jwtToken: state.jwtToken,

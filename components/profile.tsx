@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useRouter } from 'next/router';
 import * as Effector from 'effector-react';
 import moment from 'moment';
 
@@ -11,6 +12,7 @@ import { Text } from 'components/text';
 import { Container } from 'components/container';
 
 import { FontColors, FontSize, Fonts } from 'config';
+import ERROR_CODES from 'config/error-codes';
 
 type ShwoType = {
   show: boolean;
@@ -102,6 +104,8 @@ const FooterContainer = styled(Container)`
 `;
 
 export const Profile: React.FC = () => {
+  const router = useRouter();
+
   const userState = Effector.useStore(UserStore.store);
   const notificationState = Effector.useStore(NotificationStore.store);
 
@@ -146,11 +150,20 @@ export const Profile: React.FC = () => {
   /**
    * Hanlder for remove all notifications.
    */
-  const handleRemoveAllNotifications = React.useCallback(() => {
-    NotificationStore.removeNotifications(userState.jwtToken);
+  const handleRemoveAllNotifications = React.useCallback(async () => {
+    const result = await NotificationStore.removeNotifications(userState.jwtToken);
+
+    if (typeof result !== 'string' && result.code === ERROR_CODES.unauthorized) {
+      setNotificationShow(false);
+      UserStore.clear();
+      router.push('/auth');
+
+      return null;
+    }
+
     setNotificationShow(false);
     setOfset(Number(notificationState.limit));
-  }, [userState, notificationState.count]);
+  }, [userState, notificationState.count, router]);
 
   /**
    * Handle for Click to More.
@@ -212,14 +225,14 @@ export const Profile: React.FC = () => {
             <Container css="display: flex;justify-content: space-between;">
               <Text
                 fontColors={FontColors.black}
-                size={FontSize.sm}
+                size={FontSize.xs}
                 fontVariant={Fonts.AvenirNextLTProRegular}
               >
                 {item.description}
               </Text>
               <Text
                 fontColors={FontColors.black}
-                size={FontSize.sm}
+                size={FontSize.xs}
                 fontVariant={Fonts.AvenirNextLTProRegular}
                 css="margin-left: 30px;"
               >
