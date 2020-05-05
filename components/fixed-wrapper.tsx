@@ -222,7 +222,7 @@ export const FixedWrapper: React.FC = () => {
                 css="justify-self: center;margin-top: 30px;"
                 onClick={handlePay}
               >
-                Pay
+                Claim
               </Button>
             ) : (
                 <Text
