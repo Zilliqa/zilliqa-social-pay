@@ -6,6 +6,7 @@ const zilliqa = require('../zilliqa');
 const checkSession = require('../middleware/check-session');
 const Twitter = require('../twitter');
 const verifyJwt = require('../middleware/verify-jwt');
+const verifyCampaign = require('../middleware/campaign-check');
 const ERROR_CODES = require('../../config/error-codes');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
@@ -88,7 +89,7 @@ router.get('/auth/twitter/callback', (req, res) => {
   return res.status(200).send('');
 });
 
-router.put('/update/tweets', checkSession, verifyJwt, async (req, res) => {
+router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
   const blockchainInfo = await blockchain.findOne({
     where: {
@@ -134,7 +135,7 @@ router.put('/update/tweets', checkSession, verifyJwt, async (req, res) => {
   }
 });
 
-router.post('/search/tweets/:query', checkSession, verifyJwt, async (req, res) => {
+router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { query } = req.params;
   const { user } = req.verification;
   const blockchainInfo = await blockchain.findOne({
@@ -206,7 +207,7 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, async (req, res) =
   }
 });
 
-router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
+router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
   const { id_str } = req.body;
 
@@ -302,7 +303,7 @@ router.post('/add/tweet', checkSession, verifyJwt, async (req, res) => {
   }
 });
 
-router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
+router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
   const tweet = req.body;
   let foundTweet = null;

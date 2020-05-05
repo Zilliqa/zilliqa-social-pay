@@ -3,6 +3,7 @@ const { validation } = require('@zilliqa-js/util');
 const checkSession = require('../middleware/check-session');
 const models = require('../models');
 const verifyJwt = require('../middleware/verify-jwt');
+const verifyCampaign = require('../middleware/campaign-check');
 const router = express.Router();
 
 const ERROR_CODES = require('../../config/error-codes');
@@ -28,7 +29,7 @@ if (!END_OF_CAMPAIGN) {
   throw new Error('ENV: END_OF_CAMPAIGN is required!!!');
 }
 
-router.put('/update/address/:address', checkSession, verifyJwt, async (req, res) => {
+router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const bech32Address = req.params.address;
   const { user } = req.verification;
 
