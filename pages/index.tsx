@@ -16,10 +16,12 @@ import NotificationStore from 'store/notification';
 import { Container } from 'components/container';
 import { Img } from 'components/img';
 import { NotificationSuccess } from 'components/notification-control';
+import { CountdownBar } from 'components/countdown-bar';
 
 import { socket } from 'utils/socket';
 import { PageProp } from 'interfaces';
 import { Events } from 'config';
+import ERROR_CODES from 'config/error-codes';
 
 const TopBar = dynamic(() => import('components/top-bar'));
 const Verified = dynamic(() => import('components/verified'));
@@ -28,8 +30,9 @@ const Controller = dynamic(() => import('components/controller'));
 const MainPageContainer = styled.main`
   display: grid;
 
-  grid-template-rows: max-content;
-  grid-template-areas: "header"
+  grid-template-rows: max-content max-content 1fr;
+  grid-template-areas: "countdown-bar"
+                       "header"
                        "container";
 
   background: #7882f3;
@@ -47,7 +50,7 @@ const DashboardContainer = styled(Container)`
   max-hight: 100vh;
   z-index: 1;
 
-  padding-top: 5%;
+  // padding-top: 100px;
 `;
 const Illustration = styled(Img)`
   position: fixed;
@@ -60,38 +63,35 @@ const Illustration = styled(Img)`
 `;
 
 const updater = async () => {
-  const messageError = 'Unauthorized';
   const tweetsResult = await TwitterStore.getTweets({});
   const user = await UserStore.updateUserState(null);
   const blockchain = await BlockchainStore.updateBlockchain(null);
 
-  if (user && user.message && user.message === messageError) {
-    throw new Error(messageError);
-  }
-
-  await NotificationStore.getNotifications({});
-
-  if (blockchain && blockchain.message && blockchain.message === messageError) {
-    throw new Error(messageError);
-  }
-
-  if (tweetsResult.message && tweetsResult.message === messageError) {
-    throw new Error(messageError);
+  if (tweetsResult && tweetsResult.code === ERROR_CODES.unauthorized) {
+    throw new Error(tweetsResult.message);
+  } else if (user && user.code === ERROR_CODES.unauthorized) {
+    throw new Error(tweetsResult.message);
+  } else if (blockchain && blockchain.code === ERROR_CODES.unauthorized) {
+    throw new Error(tweetsResult.message);
   } else if (!tweetsResult.tweets || tweetsResult.tweets.length < 1) {
     const userState = UserStore.store.getState();
 
     const result = await TwitterStore.updateTweets(userState.jwtToken);
 
-    NotificationStore.addNotifly(
-      <NotificationSuccess>
-        <Img
-          src="/icons/ok.svg"
-          css="margin-right: 10px;"
-        />
+    if (Array.isArray(result.tweets)) {
+      NotificationStore.addNotifly(
+        <NotificationSuccess>
+          <Img
+            src="/icons/ok.svg"
+            css="margin-right: 10px;"
+          />
         SocialPay has found {result.tweets.length} tweets.
       </NotificationSuccess>
-    );
+      );
+    }
   }
+
+  await NotificationStore.getNotifications({});
 };
 
 export const MainPage: NextPage<PageProp> = () => {
@@ -116,8 +116,7 @@ export const MainPage: NextPage<PageProp> = () => {
           socket();
           EventStore.reset();
         })
-        .catch((err) => {
-          console.log(err);
+        .catch(() => {
           EventStore.reset();
           EventStore.signOut(null);
           UserStore.clear();
@@ -133,6 +132,7 @@ export const MainPage: NextPage<PageProp> = () => {
 
   return (
     <MainPageContainer>
+      <CountdownBar />
       <TopBar />
       <DashboardContainer area="container">
         <Verified />

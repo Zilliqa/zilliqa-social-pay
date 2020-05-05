@@ -12,7 +12,6 @@ For first need to deploy smart contract via [Editor](https://zilpay.xyz/app/Edit
  * `zils_per_tweet` # Amount of ZIL per tweet in QA, for example (10000000000000) `10ZIL`.
  * `blocks_per_day` # Amount of block per day, for claim tweet.
  * `blocks_per_week` # Amount of block for address change.
- * `MAX_AMOUNT_NOTIFICATIONS` # Amount of notifications count for show user.
 
 When contract has deployed, rename `.env.example` -> `.env` and change `CONTRACT_ADDRESS` to your contract address.
 Also need to deposit few ZILs, call `Deposit` transition and send few ZIls.
@@ -21,6 +20,9 @@ Also need to deposit few ZILs, call `Deposit` transition and send few ZIls.
  * TWITTER_CONSUMER_KEY # Get from [twitter-apps](https://developer.twitter.com/en/apps).
  * TWITTER_CONSUMER_SECRET # Get from [twitter-apps](https://developer.twitter.com/en/apps).
  * CALLBACk # See on [twitter-apps](https://developer.twitter.com/en/apps).
+ * LIKES_FOR_CLAIM #  Amount of Likes for claim tweet. When user click to claim server check amount of likes for tweet.
+ * MAX_AMOUNT_NOTIFICATIONS # Amount of notifications count for show user. Maximum number of notifications for show user.
+ * END_OF_CAMPAIGN # Date time when compaign has end. When comapaign had end, then all claim and serch tweet just disable.
  * JWT_SECRET # Any string for generate JWT.
  * SESSION # Any string for generate cookies session.
  * NUMBER_OF_ADMINS # Number of admin accounts.

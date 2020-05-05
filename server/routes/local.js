@@ -1,15 +1,19 @@
 const express = require('express');
-const { Op } = require('sequelize');
 const { validation } = require('@zilliqa-js/util');
 const checkSession = require('../middleware/check-session');
 const models = require('../models');
 const verifyJwt = require('../middleware/verify-jwt');
+const verifyCampaign = require('../middleware/campaign-check');
 const router = express.Router();
 
+const ERROR_CODES = require('../../config/error-codes');
+const ENV = process.env.NODE_ENV;
+const END_OF_CAMPAIGN = process.env.END_OF_CAMPAIGN;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 3;
 const BLOCK_FOR_CONFIRM = 2;
 
+const dev = ENV !== 'production';
 const {
   User,
   Twittes,
@@ -21,16 +25,22 @@ const {
 const actions = new User().actions;
 const notificationTypes = new Notification().types;
 
-router.put('/update/address/:address', checkSession, verifyJwt, async (req, res) => {
+if (!END_OF_CAMPAIGN) {
+  throw new Error('ENV: END_OF_CAMPAIGN is required!!!');
+}
+
+router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const bech32Address = req.params.address;
   const { user } = req.verification;
 
   try {
     if (!validation.isBech32(bech32Address)) {
       return res.status(401).json({
+        code: ERROR_CODES.invalidAddressFormat,
         message: 'Invalid address format.'
       });
     }
+
     const userExist = await User.count({
       where: {
         zilAddress: bech32Address
@@ -39,6 +49,7 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
 
     if (userExist > 0) {
       return res.status(401).json({
+        code: ERROR_CODES.alreadyExists,
         message: 'This address is already registered.'
       });
     }
@@ -75,8 +86,13 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
       message: 'ConfiguredUserAddress',
     });
   } catch (err) {
-    return res.status(501).json({
-      message: 'Address must be unique!'
+    if (dev) {
+      return res.status(401).send(err.message || err);;
+    }
+
+    return res.status(401).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.'
     });
   }
 });
@@ -89,79 +105,6 @@ router.put('/sing/out', checkSession, (req, res) => {
   return res.status(200).json({
     message: 'cleared'
   });
-});
-
-router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
-  const { user } = req.verification;
-  const tweet = req.body;
-  let foundTweet = null;
-
-  if (!user.zilAddress) {
-    return res.status(401).json({
-      message: 'need to sync zilAddress.'
-    });
-  } else if (user.synchronization) {
-    return res.status(401).json({
-      message: 'User zilAddress is not synchronized.'
-    });
-  }
-
-  try {
-    foundTweet = await Twittes.findOne({
-      where: {
-        UserId: user.id,
-        idStr: tweet.idStr,
-        id: tweet.id,
-        rejected: false,
-        approved: false,
-        claimed: false
-      },
-      attributes: {
-        exclude: [
-          'text',
-          'updatedAt'
-        ]
-      }
-    });
-  } catch (err) {
-    return res.status(401).json({
-      message: 'Bad request.'
-    });
-  }
-
-  const blockchainInfo = await blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
-  const lastTweet = await Twittes.findOne({
-    where: {
-      block: {
-        [Op.gt]: Number(blockchainInfo.BlockNum) - Number(blockchainInfo.blocksPerDay)
-      },
-      UserId: user.id
-    }
-  });
-
-  if (lastTweet && lastTweet.block > 0) {
-    return res.status(502).json({
-      message: `Last tweet have block ${lastTweet.block} but current ${blockchainInfo.BlockNum}.`,
-      lastTweet: lastTweet.block,
-      currentBlock: BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay)
-    });
-  }
-
-  await foundTweet.update({
-    block: blockchainInfo.BlockNum,
-    claimed: true
-  });
-
-  await Notification.create({
-    UserId: user.id,
-    type: notificationTypes.tweetClaiming,
-    title: 'Tweet',
-    description: 'Claiming rewards…'
-  });
-
-  return res.status(201).json(foundTweet);
 });
 
 router.get('/get/tweets', checkSession, async (req, res) => {
@@ -216,8 +159,13 @@ router.get('/get/tweets', checkSession, async (req, res) => {
       lastBlockNumber: !lastActionTweet ? 0 : lastActionTweet.block
     });
   } catch (err) {
-    return res.status(400).json({
-      message: err.message
+    if (dev) {
+      return res.status(401).send(err.message || err);;
+    }
+
+    return res.status(401).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.'
     });
   }
 });
@@ -230,10 +178,18 @@ router.get('/get/blockchain', checkSession, async (req, res) => {
       }
     });
 
+    blockchainInfo.dataValues.campaignEnd = new Date(END_OF_CAMPAIGN);
+    blockchainInfo.dataValues.now = new Date();
+
     return res.status(200).json(blockchainInfo);
   } catch (err) {
-    return res.status(400).json({
-      message: err.message
+    if (dev) {
+      return res.status(401).send(err.message || err);;
+    }
+
+    return res.status(401).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.'
     });
   }
 });
@@ -271,8 +227,13 @@ router.get('/get/notifications', checkSession, async (req, res) => {
       count: Number(notificationCount)
     });
   } catch (err) {
-    return res.status(400).json({
-      message: err.message
+    if (dev) {
+      return res.status(401).send(err.message || err);;
+    }
+
+    return res.status(401).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.'
     });
   }
 });
@@ -289,8 +250,13 @@ router.delete('/delete/notifications', checkSession, verifyJwt, async (req, res)
 
     return res.status(204);
   } catch (err) {
-    return res.status(400).json({
-      message: err.message
+    if (dev) {
+      return res.status(401).send(err.message || err);;
+    }
+
+    return res.status(401).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.'
     });
   }
 });

@@ -5,7 +5,8 @@ import {
   NotificationState,
   NotificationModel,
   NotificationResponse,
-  Paginate
+  Paginate,
+  ErrorResponse
 } from 'interfaces';
 import { fetchNotifications, removeAllNotifications } from 'utils/notifications';
 import { toUnique } from 'utils/to-unique';
@@ -16,7 +17,7 @@ export const addServerNotification = EventDomain.event<NotificationModel>();
 export const addLoadingNotifly = EventDomain.event<JSX.Element>();
 export const rmNotifly = EventDomain.event<string>();
 export const getNotifications = EventDomain.effect<Paginate, NotificationResponse, Error>();
-export const removeNotifications = EventDomain.effect<string, string, Error>();
+export const removeNotifications = EventDomain.effect<string, string | ErrorResponse, Error>();
 
 getNotifications.use(fetchNotifications);
 removeNotifications.use(removeAllNotifications);

@@ -9,7 +9,6 @@ import TwitterStore from 'store/twitter';
 
 import { Text } from 'components/text';
 import { Dropdown } from 'components/dropdown';
-import { Arrow } from 'components/arrow';
 import { Profile } from 'components/profile';
 import ReactTooltip from 'react-tooltip';
 
@@ -17,18 +16,23 @@ import { FontSize, Fonts, FontColors, Events } from 'config';
 
 const TopBarContainer = styled.header`
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
 
   min-height: 60px;
   width: 100%;
   grid-area: header;
+  justify-self: center;
 
-  padding: 15px;
+  max-width: 1024px;
+
+  padding-top: 15px;
+  padding-bottom: 15px;
 
   @media (max-width: 500px) {
     justify-content: left;
+    flex-direction: column;
   }
 `;
 const ProfileContainer = styled.div`
@@ -99,7 +103,6 @@ export const TopBar: React.FC = () => {
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProBold}
         fontColors={FontColors.white}
-        css="width: 200px;display: flex;align-items: center;"
         data-tip={userState.synchronization ? 'Syncing address...' : 'Address configured.'}
         nowrap
       >
@@ -109,22 +112,9 @@ export const TopBar: React.FC = () => {
         <Profile />
         <Dropdown
           items={ITEMS}
+          title={userState.username}
           onClick={handleClick}
-        >
-          <Text
-            size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProBold}
-            fontColors={FontColors.white}
-            css="display: grid;grid-template-columns: 1fr 1fr;grid-gap: 15px;"
-            nowrap
-          >
-            {userState.screenName}
-            <Arrow
-              width="2"
-              height="12"
-            />
-          </Text>
-        </Dropdown>
+        />
       </ProfileContainer>
       {userState.jwtToken ? <ReactTooltip
         type={userState.synchronization ? TOOLTIP_TYPES.warning : TOOLTIP_TYPES.success}

@@ -29,7 +29,6 @@ import { SearchTweet } from 'utils/get-tweets';
 const ControlContainer = styled(AroundedContainer)`
   padding: 30px;
   margin-top: 7px;
-  margin-bottom: 30px;
   align-items: flex-start;
 
   @media (max-width: 440px) {
@@ -110,21 +109,20 @@ export const Controller: React.FC = () => {
 
     EventStore.setEvent(Events.Load);
     // Send to server tweet ID (`value`).
-    const tweet = await SearchTweet(
+    const result = await SearchTweet(
       value,
       userState.jwtToken
     );
     EventStore.reset();
 
-    // Show result from server.
-    EventStore.setContent(tweet);
-
-    // If server responsed error.
-    if (tweet.message) {
+    if (result.message) {
+      EventStore.setContent(result);
       EventStore.setEvent(Events.Error);
+
       return null;
     }
 
+    EventStore.setContent(result);
     EventStore.setEvent(Events.Twitter);
   }, [value, userState]);
 

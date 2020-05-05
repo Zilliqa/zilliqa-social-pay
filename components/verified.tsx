@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useRouter } from 'next/router';
 import * as Effector from 'effector-react';
 import { useMediaQuery } from 'react-responsive';
 import moment from 'moment';
@@ -19,6 +20,7 @@ import { NotificationWarning } from 'components/notification-control';
 import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
 
 import { FontSize, Fonts, FontColors, Events } from 'config';
+import ERROR_CODES from 'config/error-codes';
 import NOTIFICATIONS_TYPES from 'config/notifications-types';
 import { viewTx } from 'utils/viewblock';
 import { claimTweet } from 'utils/claim-tweet';
@@ -53,6 +55,7 @@ const SLEEP = 10;
  * Show user tweets.
  */
 export const Verified: React.FC = () => {
+  const router = useRouter();
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
 
   const userState = Effector.useStore(UserStore.store);
@@ -130,7 +133,7 @@ export const Verified: React.FC = () => {
       return null;
     } else if (!userState.zilAddress) {
       EventStore.setContent({
-        message: 'For claim you need configuration Zilliqa address.'
+        message: 'Please configure your Zilliqa address.'
       });
       EventStore.setEvent(Events.Error);
 
@@ -138,6 +141,17 @@ export const Verified: React.FC = () => {
     }
 
     const result = await claimTweet(userState.jwtToken, tweet);
+
+    if (result.code === ERROR_CODES.lowFavoriteCount || result.code === ERROR_CODES.campaignDown) {
+      EventStore.setContent(result);
+      EventStore.setEvent(Events.Error);
+
+      return null;
+    } else if (result.code === ERROR_CODES.unauthorized) {
+      router.push('/auth');
+
+      return null;
+    }
 
     if (result.message) {
       TwitterStore.setLastBlock(result.lastTweet);
@@ -161,7 +175,7 @@ export const Verified: React.FC = () => {
       BlockchainStore.updateTimer();
       EventStore.reset();
     }
-  }, [userState, blockchainState, twitterState]);
+  }, [userState, blockchainState, twitterState, router]);
   const handleNextPageClick = React.useCallback(async (data) => {
     const selected = Number(data.selected);
     const offset = Math.ceil(selected * PAGE_LIMIT);

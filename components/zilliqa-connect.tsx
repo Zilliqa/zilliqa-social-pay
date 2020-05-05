@@ -60,11 +60,11 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
     event.preventDefault();
 
     if (!address) {
-      setAddressErr('address must be required.');
+      setAddressErr('An address is required.');
 
       return null;
     } else if (!validation.isBech32(address)) {
-      setAddressErr('Incorect address format.');
+      setAddressErr('Incorrect address format.');
 
       return null;
     }
@@ -89,6 +89,7 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
     <AroundedContainer
       style={{ display: show ? 'flex' : 'none' }}
       onSubmit={handleAddAddress}
+      css="padding-bottom: 10px;"
     >
       <Img
         src="/icons/zilliqa-logo.svg"
@@ -116,6 +117,20 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
       >
         CONNECT
       </Button>
+      <Container css="display: flex;align-items: center;">
+        <Img
+          src="/icons/warn.svg"
+          css="height: 30px;width: 30px;"
+        />
+        <Text
+          size={FontSize.xs}
+          fontVariant={Fonts.AvenirNextLTProDemi}
+          fontColors={FontColors.warning}
+          css="margin-left: 5px;"
+        >
+          DO NOT LINK EXCHANGE ADDRESSES!!!
+        </Text>
+      </Container>
     </AroundedContainer>
   );
 };
