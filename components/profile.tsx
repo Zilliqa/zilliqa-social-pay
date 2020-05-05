@@ -20,7 +20,7 @@ const NotificationContainer = styled.div`
   display: ${(props: ShwoType) => props.show ? 'block' : 'none'};
 
   position: absolute;
-  top: 100px;
+  top: 130px;
 
   transform: translate(-74%, 0);
 

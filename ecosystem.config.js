@@ -7,7 +7,7 @@ module.exports = {
       DEBUG: "zilliqa-social-pay:*",
       SESSION: "session",
       MAX_AMOUNT_NOTIFICATIONS: 3,
-      END_OF_CAMPAIGN="04/24/2021",
+      END_OF_CAMPAIGN:"04/24/2021",
       JWT_SECRET: "SECRET",
       TWITTER_CONSUMER_KEY: "",
       NUMBER_OF_ADMINS: "10",
