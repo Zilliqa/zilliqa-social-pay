@@ -119,7 +119,7 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
         align={Sides.right}
         fontColors={FontColors.white}
         fontVariant={Fonts.AvenirNextLTProRegular}
-        css="font-size: 12px;width: 80%;"
+        css="font-size: 12px;width: 80%;margin-block-start: -9px;"
       >
         Don't Have&nbsp;
         <Link
