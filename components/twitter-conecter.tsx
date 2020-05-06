@@ -43,7 +43,7 @@ export const TwitterConnect: React.FC<Prop> = ({ show, connected }) => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         size={FontSize.md}
       >
-        Sign In by Twitter
+        Sign in using your Twitter account
       </Text>
       <TwitterLogin
         loginUrl={APIs.twitterAuth}
