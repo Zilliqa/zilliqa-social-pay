@@ -73,6 +73,20 @@ procedure IssueErrorEvent(err: Error)
   event e
 end
 
+procedure ConfigureAdmin(admin_address: ByStr20)
+  is_admin <- exists admins[admin_address];
+  match is_admin with
+  | True =>
+      delete admins[admin_address];
+      e = {_eventname : "DeletedAdmin"; admin_address: admin_address};
+      event e
+  | False =>
+      admins[admin_address] := tt;
+      e = {_eventname : "AddedAdmin"; admin_address: admin_address};
+      event e
+  end
+end
+
 (* Only owner can deposit ZIL *)
 transition Deposit()
     is_owner = builtin eq owner _sender;
@@ -87,24 +101,14 @@ transition Deposit()
     end
 end
 
-transition ConfigureAdmin(admin_address: ByStr20)
+transition ConfigureAdmins(admin_addresses: List ByStr20)
     is_owner = builtin eq owner _sender;
     match is_owner with
     | False =>
         err = CodeNotAuthorized;
         IssueErrorEvent err
     | True =>
-        is_admin <- exists admins[admin_address];
-        match is_admin with
-        | True =>
-            delete admins[admin_address];
-            e = {_eventname : "DeletedAdmin"; admin_address: admin_address};
-            event e
-        | False =>
-            admins[admin_address] := tt;
-            e = {_eventname : "AddedAdmin"; admin_address: admin_address};
-            event e
-        end
+        forall admin_addresses ConfigureAdmin
     end
 end
 
