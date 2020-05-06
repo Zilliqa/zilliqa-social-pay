@@ -18,13 +18,18 @@ module.exports = async function () {
         return null;
       }
 
+      let defualtRate = 60000;
       const { balance } = await zilliqa.getCurrentAccount(CONTRACT_ADDRESS);
-      const rate = new Date() - new Date(currenInfo.updatedAt);
+      const calcRate = new Date().valueOf() - new Date(currenInfo.updatedAt).valueOf();
+
+      if (calcRate > defualtRate) {
+        defualtRate = calcRate;
+      }
 
       await currenInfo.update({
         ...newBlock,
-        rate,
-        balance
+        balance,
+        rate: defualtRate
       });
 
       debug('next block has been created, block:', newBlock.BlockNum);
