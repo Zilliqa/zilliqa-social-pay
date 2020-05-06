@@ -11,6 +11,8 @@ import { FieldInput } from 'components/Input';
 import { Container } from 'components/container';
 import { Button } from 'components/button';
 import { AroundedContainer } from 'components/rounded-container';
+import { TextWarning } from 'components/warning-text';
+import { Link } from 'components/link';
 
 import {
   FontColors,
@@ -93,13 +95,14 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
     >
       <Img
         src="/icons/zilliqa-logo.svg"
-        css="width: 70px;"
+        css="width: 50px;"
       />
       <Text
         align={Sides.center}
         fontColors={FontColors.white}
         fontVariant={Fonts.AvenirNextLTProDemi}
         size={FontSize.sm}
+        css="width: 130px;"
       >
         Connect your Zilliqa address
       </Text>
@@ -108,29 +111,33 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
           sizeVariant={SizeComponent.md}
           error={addressErr}
           placeholder="Zilliqa address (zil1)"
+          css="::placeholder { font-size: 15px; }"
           onChange={handleAddressChange}
         />
       </Container>
+      <Text
+        align={Sides.right}
+        fontColors={FontColors.white}
+        fontVariant={Fonts.AvenirNextLTProRegular}
+        css="font-size: 12px;width: 80%;margin-block-start: -9px;"
+      >
+        Don't Have&nbsp;
+        <Link
+          href="https://www.zilliqa.com/about-zil"
+          target="blanck"
+        >
+          ZIL address
+        </Link>?
+      </Text>
       <Button
         variant={ButtonVariants.outlet}
         sizeVariant={SizeComponent.md}
       >
         CONNECT
       </Button>
-      <Container css="display: flex;align-items: center;">
-        <Img
-          src="/icons/warn.svg"
-          css="height: 30px;width: 30px;"
-        />
-        <Text
-          size={FontSize.xs}
-          fontVariant={Fonts.AvenirNextLTProDemi}
-          fontColors={FontColors.warning}
-          css="margin-left: 5px;"
-        >
-          DO NOT LINK EXCHANGE ADDRESSES!!!
-        </Text>
-      </Container>
+      <TextWarning fontVariant={Fonts.AvenirNextLTProDemi}>
+        DO NOT LINK EXCHANGE ADDRESSES!!!
+      </TextWarning>
     </AroundedContainer>
   );
 };

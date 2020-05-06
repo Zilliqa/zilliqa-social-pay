@@ -20,6 +20,7 @@ import { Button } from 'components/button';
 import { ContainerLoader } from 'components/container-loader';
 import { Container } from 'components/container';
 import { NotificationsControl } from 'components/notification-control';
+import { TextWarning } from 'components/warning-text';
 
 import {
   ButtonVariants,
@@ -186,19 +187,9 @@ export const FixedWrapper: React.FC = () => {
         onBlur={() => EventStore.reset()}
       >
         <form onSubmit={handleAddressChange}>
-          <Container>
-            <Img
-              src="/icons/warn.svg"
-              css="height: 30px;width: 30px;"
-            />
-            <Text
-              size={FontSize.sm}
-              fontVariant={Fonts.AvenirNextLTProDemi}
-              fontColors={FontColors.warning}
-            >
-                DO NOT LINK EXCHANGE ADDRESSES!!!
-            </Text>
-          </Container>
+          <TextWarning fontVariant={Fonts.AvenirNextLTProDemi}>
+            DO NOT LINK EXCHANGE ADDRESSES!!!
+          </TextWarning>
           <FieldInput
             defaultValue={address}
             sizeVariant={SizeComponent.lg}
