@@ -43,7 +43,7 @@ passport.use(
             username: profile.username,
             profileId: profile.id,
             screenName: profile._json.screen_name,
-            profileImageUrl: profile._json.profile_image_url
+            profileImageUrl: profile._json.profile_image_url_https
           },
           attributes: {
             exclude: [

@@ -274,7 +274,7 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
     await user.update({
       username: tweet.user.name,
       screenName: tweet.user.screen_name,
-      profileImageUrl: tweet.user.profile_image_url
+      profileImageUrl: tweet.user.profile_image_url_https
     });
 
     await Notification.create({
