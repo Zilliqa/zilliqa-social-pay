@@ -150,16 +150,18 @@ export const Profile: React.FC = () => {
   /**
    * Hanlder for remove all notifications.
    */
-  const handleRemoveAllNotifications = React.useCallback(async () => {
-    const result = await NotificationStore.removeNotifications(userState.jwtToken);
+  const handleRemoveAllNotifications = React.useCallback(() => {
+    NotificationStore
+      .removeNotifications(userState.jwtToken)
+      .then((result) => {
+        if (typeof result !== 'string' && result.code === ERROR_CODES.unauthorized) {
+          setNotificationShow(false);
+          UserStore.clear();
+          router.push('/auth');
 
-    if (typeof result !== 'string' && result.code === ERROR_CODES.unauthorized) {
-      setNotificationShow(false);
-      UserStore.clear();
-      router.push('/auth');
-
-      return null;
-    }
+          return null;
+        }
+      });
 
     setNotificationShow(false);
     setOfset(Number(notificationState.limit));
