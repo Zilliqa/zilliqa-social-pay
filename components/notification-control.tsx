@@ -7,7 +7,7 @@ import { FontColors } from 'config';
 
 export const NotificationList = styled.div`
   position: fixed;
-  top: 10px;
+  top: 60px;
   right: 10px;
   z-index: 99;
 

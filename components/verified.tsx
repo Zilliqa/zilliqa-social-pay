@@ -162,7 +162,6 @@ export const Verified: React.FC = () => {
 
       const time = timerCalc(
         blockchainState,
-        userState,
         result.lastTweet,
         Number(blockchainState.blocksPerDay)
       );

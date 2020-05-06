@@ -1,14 +1,16 @@
-import { Blockchain, User } from 'interfaces';
+import { Blockchain } from 'interfaces';
 
 export function timerCalc(
   blockchainState: Blockchain,
-  user: User,
   lastBlockNumber: number | string,
-  blocksPer: number
+  blocksPer: number,
+  userLastAction?: number | string,
 ) {
   const tweetslock = [Number(lastBlockNumber)];
 
-  tweetslock.push(Number(user.lastAction));
+  if (userLastAction) {
+    tweetslock.push(Number(userLastAction));
+  }
 
   let maxBlock = Math.max.apply(Math, tweetslock);
 
