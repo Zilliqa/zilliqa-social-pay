@@ -255,7 +255,7 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
         message: 'Invalid user data.'
       });
     } else if (favoriteCount < Number(LIKES_FOR_CLAIM)) {
-      return res.status(502).json({
+      return res.status(200).json({
         code: ERROR_CODES.lowFavoriteCount,
         favoriteCount,
         favoriteCountForClaim: Number(LIKES_FOR_CLAIM),
@@ -362,7 +362,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, 
   });
 
   if (lastTweet && Number(lastTweet.block) > 0) {
-    return res.status(502).json({
+    return res.status(200).json({
       code: ERROR_CODES.countdown,
       message: `Last tweet have block ${lastTweet.block} but current ${blockchainInfo.BlockNum}.`,
       lastTweet: lastTweet.block,
@@ -376,7 +376,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, 
     const favoriteCount = Number(tweet.favorite_count);
 
     if (favoriteCount < Number(LIKES_FOR_CLAIM)) {
-      return res.status(502).json({
+      return res.status(200).json({
         code: ERROR_CODES.lowFavoriteCount,
         favoriteCount,
         favoriteCountForClaim: Number(LIKES_FOR_CLAIM),
