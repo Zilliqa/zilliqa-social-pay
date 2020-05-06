@@ -23,6 +23,7 @@ module.exports = async function () {
         ...blockchainInfo,
         ...contractInfo,
         balance,
+        rate: 60000,
         contract: CONTRACT_ADDRESS,
         BlockNum: blockchainInfo.NumTxBlocks,
         DSBlockNum: blockchainInfo.CurrentDSEpoch,
