@@ -49,8 +49,6 @@ const DashboardContainer = styled(Container)`
   max-width: 1024px;
   max-hight: 100vh;
   z-index: 1;
-
-  // padding-top: 100px;
 `;
 const Illustration = styled(Img)`
   position: fixed;
