@@ -64,7 +64,7 @@ export const CountdownBar: React.FC = () => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         fontColors={FontColors.white}
       >
-        SocialPay Campaign ends: {moment(countDown).days() * DAYS_OF_HOURS}:{moment(countDown).format('mm:ss')}
+        SocialPay Campaign ends in: {moment(countDown).days() * DAYS_OF_HOURS}:{moment(countDown).format('mm:ss')}
       </Text>
     </CountdownBarContainer>
   );
