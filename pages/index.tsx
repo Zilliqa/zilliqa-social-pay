@@ -61,6 +61,8 @@ const Illustration = styled(Img)`
 `;
 
 const updater = async (router: NextRouter) => {
+  const tweetsResult = await TwitterStore.getTweets({});
+  const user = await UserStore.updateUserState(null);
   const blockchain = await BlockchainStore.updateBlockchain(null);
   const campaignEnd = new Date((blockchain.campaignEnd as any)).valueOf();
   const now = new Date((blockchain.now as any)).valueOf();
@@ -69,9 +71,6 @@ const updater = async (router: NextRouter) => {
   if (diff <= 0) {
     router.push('/end');
   }
-
-  const tweetsResult = await TwitterStore.getTweets({});
-  const user = await UserStore.updateUserState(null);
 
   if (tweetsResult && tweetsResult.code === ERROR_CODES.unauthorized) {
     throw new Error(tweetsResult.message);
