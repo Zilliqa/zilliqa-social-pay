@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
 import * as Effector from 'effector-react';
 
 import BlockchainStore from 'store/blockchain';
@@ -26,39 +25,31 @@ const CountdownBarContainer = styled(Container)`
 export const CountdownBar: React.FC = () => {
   const blockchainState = Effector.useStore(BlockchainStore.store);
 
-  const [countDown, setCountDown] = React.useState<number>(0);
-  const [hours, sethours] = React.useState<number>(0);
+  const [countDown, setCountDown] = React.useState<string>('');
+  const [secondsLeft, setsecondsLeft] = React.useState<number>(0);
 
   React.useEffect(() => {
     const interval = 1000;
 
     const timer = setInterval(() => {
-      let diffTime = null;
-
       if (!blockchainState.campaignEnd || !blockchainState.now) {
         return null;
       }
 
-      if (!countDown) {
-        const campaignEnd = new Date(blockchainState.campaignEnd).valueOf();
-        const now = new Date(blockchainState.now).valueOf();
+      const countDownDate = new Date(blockchainState.campaignEnd).getTime();
+      const now = new Date(blockchainState.now).getTime();
+      const timeleft = countDownDate - now - secondsLeft;
 
-        diffTime = moment(campaignEnd - now);
-      } else {
-        diffTime = moment(countDown);
-      }
+      const days = Math.floor(timeleft / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeleft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
 
-      diffTime.subtract(1, 'second');
-
-      const days = diffTime.date();
-      const months = diffTime.month();
-
-      sethours((days * 24) + (months * 730));
-      setCountDown(diffTime.valueOf());
+      setCountDown(`${days * 24 + hours}:${minutes}:${seconds}`);
+      setsecondsLeft(interval + secondsLeft);
     }, interval);
-
     return () => clearTimeout(timer);
-  }, [blockchainState.campaignEnd, countDown]);
+  }, [blockchainState.campaignEnd, countDown, secondsLeft]);
 
   return (
     <CountdownBarContainer>
@@ -67,7 +58,7 @@ export const CountdownBar: React.FC = () => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         fontColors={FontColors.white}
       >
-        SocialPay Campaign ends in: {hours}:{moment(countDown).format('mm:ss')}
+        SocialPay Campaign ends in: {countDown}
       </Text>
     </CountdownBarContainer>
   );
