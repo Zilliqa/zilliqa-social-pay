@@ -70,6 +70,8 @@ const updater = async (router: NextRouter) => {
 
   if (diff <= 0) {
     router.push('/end');
+
+    return null;
   }
 
   if (tweetsResult && tweetsResult.code === ERROR_CODES.unauthorized) {
