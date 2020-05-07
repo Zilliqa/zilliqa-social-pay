@@ -3,7 +3,7 @@ import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
-import { useRouter } from 'next/router';
+import { useRouter, NextRouter } from 'next/router';
 import { useMediaQuery } from 'react-responsive';
 
 import UserStore from 'store/user';
@@ -60,10 +60,18 @@ const Illustration = styled(Img)`
   z-index: 0;
 `;
 
-const updater = async () => {
+const updater = async (router: NextRouter) => {
+  const blockchain = await BlockchainStore.updateBlockchain(null);
+  const campaignEnd = new Date((blockchain.campaignEnd as any)).valueOf();
+  const now = new Date((blockchain.now as any)).valueOf();
+  const diff = campaignEnd - now;
+
+  if (diff <= 0) {
+    router.push('/end');
+  }
+
   const tweetsResult = await TwitterStore.getTweets({});
   const user = await UserStore.updateUserState(null);
-  const blockchain = await BlockchainStore.updateBlockchain(null);
 
   if (tweetsResult && tweetsResult.code === ERROR_CODES.unauthorized) {
     throw new Error(tweetsResult.message);
@@ -109,7 +117,7 @@ export const MainPage: NextPage<PageProp> = () => {
       setMounted(true);
       EventStore.setEvent(Events.Load);
 
-      updater()
+      updater(router)
         .then(() => {
           socket();
           EventStore.reset();
