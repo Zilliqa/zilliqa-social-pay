@@ -6,7 +6,7 @@ if [ "$DEPLOY_ENV" = "dev" ]; then
 else
     echo "Callback: $CALLBACK"
     echo "Contract Address: $CONTRACT_ADDRESS"
-    echo date
+    date
     npm run db:create
     npm run start
 fi
