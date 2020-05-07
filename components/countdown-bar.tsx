@@ -50,7 +50,7 @@ export const CountdownBar: React.FC = () => {
 
       diffTime.subtract(1, 'second');
 
-      const days = diffTime.days();
+      const days = diffTime.date();
       const months = diffTime.month();
       const gotHours = diffTime.hours();
 
