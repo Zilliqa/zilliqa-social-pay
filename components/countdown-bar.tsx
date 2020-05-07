@@ -23,12 +23,11 @@ const CountdownBarContainer = styled(Container)`
   background-color: ${FontColors.primary};
 `;
 
-const DAYS_OF_HOURS = 24;
-
 export const CountdownBar: React.FC = () => {
   const blockchainState = Effector.useStore(BlockchainStore.store);
 
   const [countDown, setCountDown] = React.useState<number>(0);
+  const [hours, sethours] = React.useState<number>(0);
 
   React.useEffect(() => {
     const interval = 1000;
@@ -51,6 +50,11 @@ export const CountdownBar: React.FC = () => {
 
       diffTime.subtract(1, 'second');
 
+      const days = diffTime.days();
+      const months = diffTime.months();
+      const gotHours = diffTime.hours();
+
+      sethours((days * 24) + (months * 730) + gotHours);
       setCountDown(diffTime.valueOf());
     }, interval);
 
@@ -64,7 +68,7 @@ export const CountdownBar: React.FC = () => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         fontColors={FontColors.white}
       >
-        SocialPay Campaign ends in: {moment(countDown).days() * DAYS_OF_HOURS}:{moment(countDown).format('mm:ss')}
+        SocialPay Campaign ends in: {hours}:{moment(countDown).format('mm:ss')}
       </Text>
     </CountdownBarContainer>
   );
