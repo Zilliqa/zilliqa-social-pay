@@ -139,7 +139,7 @@ export const Controller: React.FC = () => {
       setIcon(InputIcons.timer);
     } else if (!Boolean(blockchainState.dayTimer) && !userState.synchronization) {
       setDisabled(false);
-      setPlaceholder('Paste your tweet link here');
+      setPlaceholder('Paste the link to your tweet here');
       setIcon(InputIcons.search);
     }
   }, [
@@ -174,7 +174,7 @@ export const Controller: React.FC = () => {
           size={FontSize.sm}
           fontColors={FontColors.white}
         >
-          Verified tweets
+          Verified Tweets
         </Text>
       </DashboardContainer>
       <Text

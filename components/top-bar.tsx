@@ -43,7 +43,7 @@ const ProfileContainer = styled.div`
 `;
 const ITEMS = [
   'Settings',
-  'Sign Out'
+  'Sign out'
 ];
 const TOOLTIP_TYPES = {
   success: 'success',
