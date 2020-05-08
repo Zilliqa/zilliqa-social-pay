@@ -123,7 +123,7 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
       >
         Don't have a&nbsp;
         <Link
-          href="https://www.zilliqa.com/about-zil"
+          href="https://www.zilliqa.com/about-zil/#rec152896547"
           target="blanck"
         >
           Zilliqa address
