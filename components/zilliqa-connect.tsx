@@ -116,18 +116,17 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
         />
       </Container>
       <Text
-        align={Sides.right}
         fontColors={FontColors.white}
         fontVariant={Fonts.AvenirNextLTProRegular}
-        css="font-size: 12px;width: 80%;margin-block-start: -9px;"
+        css="font-size: 12px;width: 80%;margin-block-start: -9px;text-indent: 10px;"
       >
-        Don't have a&nbsp;
+        Don’t have a $ZIL address?&nbsp;
         <Link
-          href="https://www.zilliqa.com/about-zil"
+          href="https://www.zilliqa.com/about-zil/#rec152896547"
           target="blanck"
         >
-          Zilliqa address
-        </Link>?
+          Click here!
+        </Link>
       </Text>
       <Button
         variant={ButtonVariants.outlet}

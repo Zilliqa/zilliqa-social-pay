@@ -159,7 +159,7 @@ export const FixedWrapper: React.FC = () => {
 
   React.useEffect(() => {
     if (Boolean(blockchainState.weekTimer)) {
-      setPlaceholder(`You can change address: ${blockchainState.weekTimer}`);
+      setPlaceholder(`You can change your address: ${blockchainState.weekTimer}`);
       setDisabledAddress(true);
       setAddress('');
     } else if (userState.synchronization) {

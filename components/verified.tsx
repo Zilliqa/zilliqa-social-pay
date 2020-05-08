@@ -28,6 +28,11 @@ import { Twitte } from 'interfaces';
 import { timerCalc } from 'utils/timer';
 import { deepCopy } from 'utils/deep-copy';
 
+type TweetEmbedContainerProp = {
+  mobileMode?: boolean;
+  first?: boolean;
+};
+
 const HaventVerified = styled.div`
   display: flex;
   justify-content: space-around;
@@ -41,9 +46,12 @@ const TweetEmbedContainer = styled.div`
   grid-gap: 10px;
   justify-items: end;
 
-  @media (max-width: 412px) {
+  @media (max-width: 546px) {
+    ${(props: TweetEmbedContainerProp) => props.mobileMode && !props.first ? 'margin-top: 70px;' : ''}
     grid-template-rows: auto 1fr;
     grid-template-columns: 1fr;
+    justify-items: center;
+    grid-gap: 0;
   }
 `;
 
@@ -242,8 +250,12 @@ export const Verified: React.FC = () => {
         </HaventVerified>
       </Container>
       {twitterState.showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
-        <TweetEmbedContainer key={index}>
-          {(!tweet.claimed && !tweet.approved && !tweet.rejected) ? (
+        <TweetEmbedContainer
+          mobileMode={isTabletOrMobile}
+          first={index === 0}
+          key={index}
+        >
+          {(!tweet.claimed && !tweet.approved && !tweet.rejected && !isTabletOrMobile) ? (
             <Img
               src="/icons/refund.svg"
               css="cursor: pointer;width: 100px;height: 40px;"
@@ -284,6 +296,13 @@ export const Verified: React.FC = () => {
               width: isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT
             }}
           />
+          {(!tweet.claimed && !tweet.approved && !tweet.rejected && isTabletOrMobile) ? (
+            <Img
+              src="/icons/refund.svg"
+              css="cursor: pointer;width: 100px;height: 40px;"
+              onClick={() => handleClickClaim(tweet)}
+            />
+          ) : null}
         </TweetEmbedContainer>
       )) : null}
       {twitterState.count > PAGE_LIMIT ? (

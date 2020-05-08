@@ -259,7 +259,7 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
         code: ERROR_CODES.lowFavoriteCount,
         favoriteCount,
         favoriteCountForClaim: Number(LIKES_FOR_CLAIM),
-        message: `The reward is only claimable when the tweet has more than ${LIKES_FOR_CLAIM} likes.`
+        message: `The reward is only claimable when the tweet has ${LIKES_FOR_CLAIM} like(s) or more.`
       });
     }
 
@@ -380,7 +380,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, 
         code: ERROR_CODES.lowFavoriteCount,
         favoriteCount,
         favoriteCountForClaim: Number(LIKES_FOR_CLAIM),
-        message: `Reward is only claimable when tweet has > ${LIKES_FOR_CLAIM} likes.`
+        message: `The reward is only claimable when the tweet has ${LIKES_FOR_CLAIM} likes or more.`
       });
     }
 
