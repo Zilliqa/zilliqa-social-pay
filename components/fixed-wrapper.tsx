@@ -86,6 +86,8 @@ export const FixedWrapper: React.FC = () => {
 
     setAddress(address);
 
+    EventStore.setEvent(Events.Load);
+
     // Send to server for validation and update address.
     const result = await UserStore.updateAddress({
       address,
@@ -101,7 +103,8 @@ export const FixedWrapper: React.FC = () => {
     }
 
     if (result.message && result.message !== 'ConfiguredUserAddress') {
-      setAddressErr(result.message);
+      EventStore.setContent(result);
+      EventStore.setEvent(Events.Error);
 
       return null;
     }

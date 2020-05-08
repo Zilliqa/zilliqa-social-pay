@@ -21,7 +21,7 @@ module.exports = async function () {
       rejected: false,
       claimed: true,
       updatedAt: {
-        [Op.lt]: new Date(new Date() - 24 * 60 * 50)
+        [Op.lt]: new Date(new Date() - 24 * 60 * 100)
       },
       txId: {
         [Op.not]: null
