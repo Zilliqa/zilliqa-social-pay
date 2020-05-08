@@ -4,11 +4,8 @@ const zilliqa = require('../zilliqa');
 const models = require('../models');
 const { toBech32Address } = require('@zilliqa-js/crypto');
 
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-
 const {
   User,
-  blockchain,
   Notification
 } = models.sequelize.models;
 
@@ -35,9 +32,6 @@ module.exports = async function () {
     return null;
   }
 
-  const blockchainInfo = await blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
   const onlyProfiles = users.rows.map(async (user) => {
     const profileId = user.profileId;
     const usersFromContract = await zilliqa.getonfigureUsers([profileId]);

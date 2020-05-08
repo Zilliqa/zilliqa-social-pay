@@ -35,6 +35,10 @@ module.exports = async function () {
 
   let limit = 10;
 
+  if (freeAdmins < limit) {
+    limit = freeAdmins
+  }
+
   const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
