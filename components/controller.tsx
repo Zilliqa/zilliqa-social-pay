@@ -96,6 +96,7 @@ export const Controller: React.FC = () => {
     // If value is valid than update `value` state.
     setValue(foundTweetId);
   }, [setValue]);
+
   /**
    * Handle when form has been submited and send tweet ID to server.
    * @param event - HTMLForm event.
