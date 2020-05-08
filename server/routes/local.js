@@ -57,7 +57,7 @@ router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, 
     const blockchainInfo = await blockchain.findOne({
       where: { contract: CONTRACT_ADDRESS }
     });
-    let block = BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerWeek);
+    let block = Number(blockchainInfo.BlockNum);
 
     if (!user.actionName) {
       block = 0;

@@ -45,7 +45,7 @@ export const CountdownBar: React.FC = () => {
       const minutes = Math.floor((timeleft % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((timeleft % (1000 * 60)) / 1000);
 
-      setCountDown(`${days * 24 + hours}:${minutes}:${seconds}`);
+      setCountDown(`${days * 24 + hours} hrs : ${minutes} mins : ${seconds} secs`);
       setsecondsLeft(interval + secondsLeft);
     }, interval);
     return () => clearTimeout(timer);

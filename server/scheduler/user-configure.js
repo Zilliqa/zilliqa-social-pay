@@ -13,7 +13,7 @@ const {
   Notification
 } = models.sequelize.models;
 
-const actions = new User().actions;
+const { actions, statuses } = new User();
 const notificationTypes = new Notification().types;
 
 module.exports = async function () {
@@ -33,10 +33,13 @@ module.exports = async function () {
     return null;
   }
 
+  let limit = 10;
+
   const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
   const users = await User.findAndCountAll({
+    limit,
     where: {
       synchronization: true,
       zilAddress: {
@@ -45,9 +48,9 @@ module.exports = async function () {
       lastAction: {
         [Op.lte]: Number(blockchainInfo.BlockNum)
       },
-      hash: null
-    },
-    limit: 3
+      hash: null,
+      status: statuses.enabled
+    }
   });
 
   debug('Need synchronization users:', users.count);

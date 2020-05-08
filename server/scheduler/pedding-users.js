@@ -23,7 +23,7 @@ module.exports = async function () {
       },
       updatedAt: {
         // Ten minuts.
-        [Op.lt]: new Date(new Date() - 24 * 60 * 50)
+        [Op.lt]: new Date(new Date() - 24 * 60 * 100)
       }
     },
     limit: 20
