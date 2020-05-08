@@ -58,7 +58,7 @@ export const CountdownBar: React.FC = () => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         fontColors={FontColors.white}
       >
-        SocialPay Campaign ends in: {countDown}
+        The current SocialPay pilot campaign ends in: {countDown}
       </Text>
     </CountdownBarContainer>
   );

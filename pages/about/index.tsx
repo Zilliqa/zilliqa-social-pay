@@ -53,7 +53,7 @@ export const FirstAboutPage: NextPage = () => {
               SocialPay is an innovative new solution that allows you to earn <Span>$ZIL</Span> by sharing social media updates on Twitter.
             </p>
             <p>
-              To use SocialPay you need to login with your Twitter account and use the campaign hashtag in your tweet.
+              To use SocialPay, you need to login with your Twitter account and include the campaign hashtag in your tweet.
             </p>
           </DescriptionText>
           <Button

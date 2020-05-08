@@ -121,12 +121,12 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
         fontVariant={Fonts.AvenirNextLTProRegular}
         css="font-size: 12px;width: 80%;margin-block-start: -9px;"
       >
-        Don't Have&nbsp;
+        Don't have a&nbsp;
         <Link
           href="https://www.zilliqa.com/about-zil"
           target="blanck"
         >
-          ZIL address
+          Zilliqa address
         </Link>?
       </Text>
       <Button
