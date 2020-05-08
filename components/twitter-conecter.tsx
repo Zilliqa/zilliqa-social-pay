@@ -44,6 +44,7 @@ export const TwitterConnect: React.FC<Prop> = ({ show, connected }) => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         size={FontSize.md}
         align={Sides.center}
+        css="max-width: 200px;"
       >
         Sign in using your Twitter account
       </Text>
