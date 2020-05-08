@@ -45,6 +45,7 @@ const TweetEmbedContainer = styled.div`
   grid-template-columns: 100px 1fr;
   grid-gap: 10px;
   justify-items: end;
+  width: intrinsic;
 
   @media (max-width: 546px) {
     ${(props: TweetEmbedContainerProp) => props.mobileMode && !props.first ? 'margin-top: 70px;' : ''}
