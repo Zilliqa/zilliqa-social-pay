@@ -9,7 +9,7 @@ export const AroundedContainer = styled.form`
   flex-direction: column;
   align-items: center;
 
-  background-color: #5c63efb3;
+  background-color: rgba(92, 99, 239, 0.7019607843137254);
   width: 300px;
   min-height: 400px;
   z-index: 1;
