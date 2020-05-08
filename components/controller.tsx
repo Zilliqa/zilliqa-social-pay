@@ -174,7 +174,7 @@ export const Controller: React.FC = () => {
           size={FontSize.sm}
           fontColors={FontColors.white}
         >
-          Verified tweets
+          Verified Tweets
         </Text>
       </DashboardContainer>
       <Text
