@@ -42,10 +42,10 @@ export const SecondAboutPage: NextPage = () => {
             size={FontSize.md}
           >
             <p>
-              Every time you Tweet a Zilliqa-related message, you are able to earn rewards. These rewards can vary depending on the hashtag and campaign <Span>#Zilliqa</Span> is running.
+              Every time you tweet a SocialPay-related message, you can earn rewards. These reward amounts will vary depending on the campaign that Zilliqa might be running at any given time.
             </p>
             <p>
-              Make sure to always check out what hashtag and campaign is available while you take part in our events!
+              We recommend to always check the details of any on-going campaigns before you tweet.
             </p>
           </DescriptionText>
           <Button
