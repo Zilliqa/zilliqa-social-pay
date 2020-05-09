@@ -263,7 +263,7 @@ export const Verified: React.FC = () => {
               onClick={() => handleClickClaim(tweet)}
             />
           ) : null}
-          {tweet.approved ? (
+          {tweet.approved && !isTabletOrMobile ? (
             <a
               href={tweet.txId ? viewTx(tweet.txId) : undefined}
               target="_blank"
@@ -271,7 +271,7 @@ export const Verified: React.FC = () => {
               <Img src="/icons/ok.svg" />
             </a>
           ) : null}
-          {Boolean(tweet.rejected) ? (
+          {Boolean(tweet.rejected && !isTabletOrMobile) ? (
             <a
               href={tweet.txId ? viewTx(tweet.txId) : undefined}
               target="_blank"
@@ -282,7 +282,7 @@ export const Verified: React.FC = () => {
               />
             </a>
           ) : null}
-          {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed) ? (
+          {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed && !isTabletOrMobile) ? (
             <a
               href={tweet.txId ? viewTx(tweet.txId) : undefined}
               target="_blank"
@@ -303,6 +303,33 @@ export const Verified: React.FC = () => {
               css="cursor: pointer;width: 100px;height: 40px;"
               onClick={() => handleClickClaim(tweet)}
             />
+          ) : null}
+          {tweet.approved && isTabletOrMobile ? (
+            <a
+              href={tweet.txId ? viewTx(tweet.txId) : undefined}
+              target="_blank"
+            >
+              <Img src="/icons/ok.svg" />
+            </a>
+          ) : null}
+          {Boolean(tweet.rejected && isTabletOrMobile) ? (
+            <a
+              href={tweet.txId ? viewTx(tweet.txId) : undefined}
+              target="_blank"
+            >
+              <Img
+                src="/icons/close.svg"
+                css="width: 40px;height: 40px;"
+              />
+            </a>
+          ) : null}
+          {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed && isTabletOrMobile) ? (
+            <a
+              href={tweet.txId ? viewTx(tweet.txId) : undefined}
+              target="_blank"
+            >
+              <MinLoader width="40" height="40" />
+            </a>
           ) : null}
         </TweetEmbedContainer>
       )) : null}
