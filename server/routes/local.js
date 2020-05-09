@@ -275,4 +275,46 @@ router.get('/get/accounts', checkSession, async (req, res) => {
   return res.json(accounts);
 });
 
+router.get('/get/stats', checkSession, async (req, res) => {
+  const peddingTweet = await Twittes.count({
+    where: {
+      approved: false,
+      rejected: false,
+      claimed: true
+    }
+  });
+  const approvedTweet = await Twittes.count({
+    where: {
+      approved: true,
+      rejected: false,
+      claimed: true
+    }
+  });
+  const tweets = await Twittes.count();
+  const peddingUsers = await User.count({
+    where: {
+      synchronization: true,
+      zilAddress: {
+        [Op.not]: null
+      }
+    }
+  });
+  const registeredUsers = await User.count({
+    where: {
+      synchronization: false,
+      zilAddress: {
+        [Op.not]: null
+      }
+    }
+  });
+
+  return res.json({
+    peddingTweet,
+    peddingUsers,
+    registeredUsers,
+    approvedTweet,
+    tweets
+  });
+});
+
 module.exports = router;
