@@ -12,6 +12,7 @@ const ERROR_CODES = require('../../config/error-codes');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const LIKES_FOR_CLAIM = Number(process.env.LIKES_FOR_CLAIM) || 5;
 const ENV = process.env.NODE_ENV;
+const BLOCK_FOR_CONFIRM = 2;
 
 const dev = ENV !== 'production';
 const {
