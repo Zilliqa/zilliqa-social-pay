@@ -1,4 +1,5 @@
 const express = require('express');
+const { Op } = require('sequelize');
 const { validation } = require('@zilliqa-js/util');
 const checkSession = require('../middleware/check-session');
 const models = require('../models');
