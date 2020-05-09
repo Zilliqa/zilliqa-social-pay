@@ -33,7 +33,11 @@ module.exports = class {
 
         const bodyString = '{ "' + body.replace(/&/g, '", "').replace(/=/g, '": "') + '"}';
 
-        return resolve(JSON.parse(bodyString));
+        try {
+          return resolve(JSON.parse(bodyString));
+        } catch (err) {
+          return reject(body);
+        }
       });
     });
   }
