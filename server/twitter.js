@@ -34,7 +34,8 @@ module.exports = class {
         const bodyString = '{ "' + body.replace(/&/g, '", "').replace(/=/g, '": "') + '"}';
 
         try {
-          return resolve(JSON.parse(bodyString));
+          const parsed = JSON.parse(bodyString);
+          return resolve(parsed);
         } catch (err) {
           return reject(body);
         }

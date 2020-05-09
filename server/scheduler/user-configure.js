@@ -13,7 +13,7 @@ const {
   Notification
 } = models.sequelize.models;
 
-const { actions, statuses } = new User();
+const { actions } = new User();
 const notificationTypes = new Notification().types;
 
 module.exports = async function () {
@@ -49,7 +49,7 @@ module.exports = async function () {
         [Op.lte]: Number(blockchainInfo.BlockNum)
       },
       hash: null,
-      status: statuses.enabled
+      status: new User().statuses.enabled
     }
   });
 
