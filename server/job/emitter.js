@@ -31,8 +31,8 @@ module.exports = class QueueEmitter extends EventEmitter {
     this._queue.addTask(task);
     this.emit(this.events.taskAdded, task);
 
-    if (!this._queue.hasJobs) {
-      this.emit(this.events.trigger, this._queue.getTask);
+    if (this._queue.firstJob) {
+      this.emit(this.events.trigger, this._queue.firstTask);
     }
 
     return task;
@@ -43,7 +43,7 @@ module.exports = class QueueEmitter extends EventEmitter {
     this.emit(this.events.taskDone, task);
 
     if (this._queue.hasJobs) {
-      this.emit(this.events.trigger);
+      this.emit(this.events.trigger, this._queue.firstTask);
     }
 
     return task;

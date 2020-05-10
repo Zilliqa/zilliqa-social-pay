@@ -3,15 +3,19 @@ const Job = require('./job');
 module.exports = class Queue {
 
   get hasJobs() {
-    return this.queue.size === 0
+    return this.queue.length > 0;
   }
 
-  get getTask() {
-    return this.queue.values().next();
+  get firstJob() {
+    return this.queue.length === 1;
+  }
+
+  get firstTask() {
+    return this.queue[0];
   }
 
   constructor() {
-    this.queue = new Set();
+    this.queue = new Array();
   }
 
   _testTask(task) {
@@ -23,23 +27,19 @@ module.exports = class Queue {
   addTask(task) {
     this._testTask(task);
 
-    this.queue.forEach((taskJob) => {
-      if (taskJob.uuid === task.uuid) {
-        throw new Error('Such task id already exist');
-      }
-    });
+    const existed = this.queue.some((el) => el.uuid === task.uuid);
 
-    this.queue.add(task);
+    if (existed) {
+      throw new Error('Such task id already exist');
+    }
+
+    this.queue.push(task);
 
     return task;
   }
 
   removeTask(task) {
-    if (!task || !this.hasJobs) {
-      return null;
-    }
-
     this._testTask(task);
-    this.queue.delete(task);
+    this.queue = this.queue.filter((el) => el.uuid !== task.uuid);
   }
 }

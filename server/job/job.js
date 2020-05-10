@@ -2,16 +2,19 @@ const uuids = require('uuid');
 
 module.exports = class Job {
 
-  constructor(name, payload, type) {
-    if (!name) {
-      throw new Error('name is required.');
-    } else if (!type) {
+  constructor(type, payload, uuid) {
+    if (!type) {
       throw new Error('type is required.');
     }
 
-    this.payload = payload;
     this.type = type;
-    this.uuid = uuids.v4();
+    this.payload = payload;
+
+    if (uuid) {
+      this.uuid = uuid;
+    } else {
+      this.uuid = uuids.v4();
+    }
   }
 
 }
