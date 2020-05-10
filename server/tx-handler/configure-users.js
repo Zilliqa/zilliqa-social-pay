@@ -1,3 +1,4 @@
+const { toBech32Address } = require('@zilliqa-js/crypto');
 const zilliqa = require('../zilliqa');
 const { Op } = require('sequelize');
 const models = require('../models');
@@ -5,13 +6,16 @@ const models = require('../models');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const {
   User,
-  Twittes,
   blockchain,
   Notification
 } = models.sequelize.models;
 const notificationTypes = new Notification().types;
 
 module.exports = async function (task, admin) {
+  let currentBlock = 0;
+  const blockchainInfo = await blockchain.findOne({
+    where: { contract: CONTRACT_ADDRESS }
+  });
   const user = await User.findOne({
     where: {
       id: task.payload.userId,
@@ -25,7 +29,46 @@ module.exports = async function (task, admin) {
   });
   const userExist = await zilliqa.getonfigureUsers([user.profileId]);
 
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(), 3000);
-  });
+  if (userExist) {
+    currentBlock = Number(blockchainInfo.BlockNum);
+  }
+
+  try {
+    const tx = await zilliqa.configureUsers(
+      user.profileId,
+      user.zilAddress,
+      admin
+    );
+
+    await user.update({
+      hash: tx.TranID,
+      lastAction: currentBlock,
+      actionName: new User().actions.configureUsers
+    });
+  } catch (err) {
+    const lastAddres = await zilliqa.getonfigureUsers([user.profileId]);
+
+    if (!lastAddres || !lastAddres[user.profileId]) {
+      await user.update({
+        synchronization: false,
+        zilAddress: null,
+        lastAction: 0
+      });
+    } else {
+      await user.update({
+        synchronization: false,
+        lastAction: Number(blockchainInfo.BlockNum),
+        zilAddress: toBech32Address(lastAddres[user.profileId])
+      });
+    }
+
+    await Notification.create({
+      UserId: user.id,
+      type: notificationTypes.addressReject,
+      title: 'Account',
+      description: 'synchronize error!'
+    });
+
+    throw new Error(err);
+  }
 }
