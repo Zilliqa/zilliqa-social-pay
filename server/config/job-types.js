@@ -1,4 +1,4 @@
 module.exports = {
   verifyTweet: 'VerifyTweet',
-  configureUsers: 'VerifyTweet'
+  configureUsers: 'ConfigureUsers'
 };

@@ -4,11 +4,12 @@ const models = require('../models');
 
 const { Job, QueueWorker } = require('../job');
 const verifyTweet = require('./verify-tweet');
+const configureUsers = require('./configure-users');
 
 const JOB_TYPES = require('../config/job-types');
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 
-const { User, Twittes, Admin } = models.sequelize.models;
-const statuses = new Admin().statuses;
+const { User, Twittes, Admin, blockchain } = models.sequelize.models;
 
 async function taskHandler(task, jobQueue) {
   switch (task.type) {
@@ -16,7 +17,7 @@ async function taskHandler(task, jobQueue) {
     case JOB_TYPES.verifyTweet:
       try {
         await verifyTweet(task, jobQueue.name);
-        debug('SUCCESS', 'task:', JSON.stringify(task, null, 4));
+        debug('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
       } catch (err) {
         debug('ERROR', 'task:', task.type, err, JSON.stringify(task, null, 4));
       } finally {
@@ -25,8 +26,14 @@ async function taskHandler(task, jobQueue) {
       break;
 
     case JOB_TYPES.configureUsers:
-      JSON.stringify(task, null, 4);
-      jobQueue.taskDone(task);
+      try {
+        await configureUsers(task, jobQueue.name);
+        debug('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
+      } catch (err) {
+        debug('ERROR', 'task:', task.type, 'admin:', jobQueue.name, err, JSON.stringify(task, null, 4));
+      } finally {
+        jobQueue.taskDone(task);
+      }
       break;
 
     default:
@@ -36,9 +43,12 @@ async function taskHandler(task, jobQueue) {
 }
 
 async function queueFillingTweets() {
+  const blockchainInfo = await blockchain.findOne({
+    where: { contract: CONTRACT_ADDRESS }
+  });
   const admins = await Admin.findAll({
     where: {
-      status: statuses.enabled,
+      status: new Admin().statuses.enabled,
       balance: {
         [Op.gte]: '5000000000000' // 5ZILs
       }
@@ -71,12 +81,28 @@ async function queueFillingTweets() {
       'id'
     ]
   });
+  const users = await User.findAndCountAll({
+    where: {
+      synchronization: true,
+      zilAddress: {
+        [Op.not]: null
+      },
+      lastAction: {
+        [Op.lte]: Number(blockchainInfo.BlockNum)
+      },
+      hash: null,
+      status: new User().statuses.enabled
+    },
+    attributes: [
+      'id'
+    ]
+  });
 
   worker.jobQueues.forEach((jobQueue) => {
     jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
   });
 
-  debug('INFO', tweets.count, 'will add to queue.');
+  debug('INFO', 'tasks', tweets.count + users.count, 'will add to queue.');
 
   const tasks = tweets.rows.map((tweet) => {
     try {
@@ -84,13 +110,24 @@ async function queueFillingTweets() {
         tweetId: tweet.id,
         userId: tweet.User.id
       };
-      return new Job(JOB_TYPES.verifyTweet, payload, tweet.id);
+      return new Job(JOB_TYPES.verifyTweet, payload);
     } catch (err) {
       debug('ERROR', 'task', JOB_TYPES.verifyTweet, err);
 
       return null;
     }
-  }).filter(Boolean);
+  }).filter(Boolean).concat(users.rows.map((user) => {
+    try {
+      const payload = {
+        userId: user.id
+      };
+      return new Job(JOB_TYPES.configureUsers, payload);
+    } catch (err) {
+      debug('ERROR', 'task', JOB_TYPES.verifyTweet, err);
+
+      return null;
+    }
+  }));
 
   worker.distributeTasks(tasks);
 
