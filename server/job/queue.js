@@ -2,6 +2,14 @@ const Job = require('./job');
 
 module.exports = class Queue {
 
+  get hasJobs() {
+    return this.queue.size === 0
+  }
+
+  get getTask() {
+    return this.queue.values().next();
+  }
+
   constructor() {
     this.queue = new Set();
   }
@@ -27,11 +35,11 @@ module.exports = class Queue {
   }
 
   removeTask(task) {
+    if (!task || !this.hasJobs) {
+      return null;
+    }
+
     this._testTask(task);
     this.queue.delete(task);
-  }
-
-  hasJobs() {
-    return this.queue.size === 0
   }
 }

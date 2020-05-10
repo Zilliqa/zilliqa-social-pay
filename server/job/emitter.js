@@ -1,6 +1,5 @@
 const uuids = require('uuid');
 const { EventEmitter } = require('events');
-const Job = require('./job');
 const Queue = require('./queue');
 
 const EVENTS_TYPE = {
@@ -8,7 +7,7 @@ const EVENTS_TYPE = {
   taskError: uuids.v4(),
   taskDone: uuids.v4(),
   taskRestart: uuids.v4(),
-  runJob: uuids.v4()
+  trigger: uuids.v4()
 };
 
 module.exports = class QueueEmitter extends EventEmitter {
@@ -22,23 +21,30 @@ module.exports = class QueueEmitter extends EventEmitter {
 
     this.name = name;
     this.settings = settings;
+    this.events = EVENTS_TYPE;
+    this.inProcessing = false;
 
     this._queue = new Queue();
-    this._events = EVENTS_TYPE;
   }
 
   addTask(task) {
     this._queue.addTask(task);
-    this.emit(this._events.taskAdded, task);
-    this.emit(this._events.runJob);
+    this.emit(this.events.taskAdded, task);
+
+    if (!this._queue.hasJobs) {
+      this.emit(this.events.trigger, this._queue.getTask);
+    }
 
     return task;
   }
 
   taskDone(task) {
     this._queue.removeTask(task);
-    this.emit(this._events.taskDone, task);
-    this.emit(this._events.runJob);
+    this.emit(this.events.taskDone, task);
+
+    if (this._queue.hasJobs) {
+      this.emit(this.events.trigger);
+    }
 
     return task;
   }
