@@ -12,8 +12,6 @@ const EVENTS = {
 
 module.exports = class QueueEmitter extends EventEmitter {
 
-  static events = EVENTS;
-
   constructor(name, settings = {}) {
     super();
 
@@ -24,15 +22,13 @@ module.exports = class QueueEmitter extends EventEmitter {
     this.name = name;
     this.settings = settings;
 
-    this.queue = new Queue();
+    this._queue = new Queue();
+    this._events = EVENTS;
   }
 
   addTask(task) {
-    if (!(task instanceof Job)) {
-      throw new Error('task should be instance of Job');
-    }
-
-    this.emit(QueueEmitter.events.taskAdded, task);
+    this._queue.addTask(task);
+    this.emit(this._events.taskAdded, task);
 
     return task;
   }

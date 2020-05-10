@@ -2,14 +2,18 @@ const Job = require('./job');
 
 module.exports = class Queue {
 
-  queue = new Set();
+  constructor() {
+    this.queue = new Set();
+  }
 
-  constructor() { }
-  
-  addTask(task) {
+  _testTask(task) {
     if (!(task instanceof Job)) {
       throw new Error('task should be instance of Job');
     }
+  }
+  
+  addTask(task) {
+    this._testTask(task);
 
     this.queue.forEach((taskJob) => {
       if (taskJob.uuid === task.uuid) {
@@ -20,5 +24,10 @@ module.exports = class Queue {
     this.queue.add(task);
 
     return task;
+  }
+
+  removeTask(task) {
+    this._testTask(task);
+    this.queue.delete(task);
   }
 }
