@@ -99,4 +99,4 @@ app
     txHandler.queueFillingTweets();
   });
 
-// require('./scheduler');
+require('./scheduler');
