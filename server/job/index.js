@@ -1,23 +1,42 @@
-// const QueueEmitter = require('./emitter');
-// const Job = require('./job');
+const QueueEmitter = require('./emitter');
 
-// const jobQueue = new QueueEmitter('test');
+class QueueWorker {
+  constructor(keys) {
+    if (!Array.isArray(keys)) {
+      throw new Error('keys should be Array');
+    }
 
-// jobQueue.addListener(jobQueue.events.trigger, (task) => {
+    this.jobQueues = keys.map((key) => new QueueEmitter(key));
+  }
 
-//   setTimeout(() => {
-//     jobQueue.taskDone(task);
-//     console.log(JSON.stringify(task, null, 4));
-//   }, 2000);
-// });
+  _toMin() {
+    this.jobQueues.sort((jobA, jobB) => {
+      return jobA.queueLength - jobB.queueLength;
+    });
+  }
 
+  distributeTasks(tasks) {
+    if (!Array.isArray(tasks)) {
+      throw new Error('tasks should be Array');
+    }
 
-// jobQueue.addTask(new Job('userConfigurate', { id: 2 }, '1'));
-// jobQueue.addTask(new Job('userConfigurate', { id: 2 }, '2'));
-// jobQueue.addTask(new Job('userConfigurate', { id: 2 }, '3'));
-// jobQueue.addTask(new Job('userConfigurate', { id: 2 }, '4'));
+    this._toMin();
+
+    for (let taskIndex = 0; taskIndex < tasks.length + this.jobQueues.length; taskIndex += this.jobQueues.length) {
+      for (let queueIndex = 0; queueIndex < this.jobQueues.length; queueIndex++) {
+        const task = tasks[taskIndex + queueIndex];
+
+        if (task) {
+          this.jobQueues[queueIndex].addTask(tasks[taskIndex + queueIndex]);
+        }
+      }
+    }
+  }
+}
+
 module.exports = {
-  QueueEmitter: require('./emitter'),
+  QueueWorker,
+  QueueEmitter,
   Job: require('./job'),
   Queue: require('./queue')
 };

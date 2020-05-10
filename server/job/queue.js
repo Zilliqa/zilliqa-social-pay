@@ -14,6 +14,10 @@ module.exports = class Queue {
     return this.queue[0];
   }
 
+  get length() {
+    return this.queue.length;
+  }
+
   constructor() {
     this.queue = new Array();
   }

@@ -2,15 +2,19 @@ const uuids = require('uuid');
 const { EventEmitter } = require('events');
 const Queue = require('./queue');
 
-const EVENTS_TYPE = {
+const EVENTS_TYPE = () => ({
   taskAdded: uuids.v4(),
   taskError: uuids.v4(),
   taskDone: uuids.v4(),
   taskRestart: uuids.v4(),
   trigger: uuids.v4()
-};
+});
 
 module.exports = class QueueEmitter extends EventEmitter {
+
+  get queueLength() {
+    return this._queue.length;
+  }
 
   constructor(name, settings = {}) {
     super();
@@ -21,8 +25,7 @@ module.exports = class QueueEmitter extends EventEmitter {
 
     this.name = name;
     this.settings = settings;
-    this.events = EVENTS_TYPE;
-    this.inProcessing = false;
+    this.events = EVENTS_TYPE();
 
     this._queue = new Queue();
   }

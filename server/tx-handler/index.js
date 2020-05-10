@@ -2,15 +2,15 @@ const debug = require('debug')('zilliqa-social-pay:tx-handler');
 const { Op } = require('sequelize');
 const models = require('../models');
 
-const { QueueEmitter, Job } = require('../job');
+const { QueueEmitter, Job, QueueWorker } = require('../job');
 const verifyTweet = require('./verify-tweet');
 
 const JOB_TYPES = require('../config/job-types');
-const jobQueue = new QueueEmitter('tx/handler');
 
-const { User, Twittes } = models.sequelize.models;
+const { User, Twittes, Admin } = models.sequelize.models;
+const statuses = new Admin().statuses;
 
-jobQueue.addListener(jobQueue.events.trigger, async (task) => {
+async function taskHandler(task, jobQueue) {
   switch (task.type) {
 
     case JOB_TYPES.verifyTweet:
@@ -33,22 +33,48 @@ jobQueue.addListener(jobQueue.events.trigger, async (task) => {
       jobQueue.taskDone(task);
       break;
   }
-});
+}
+
+async function createJobsQueue() {
+  const admins = await Admin.findAndCountAll({
+    where: {
+      status: statuses.enabled,
+      balance: {
+        [Op.gte]: '5000000000000' // 5ZILs
+      }
+    },
+    attributes: [
+      'bech32Address'
+    ]
+  });
+
+  if (admins.count === 0) {
+    throw new Error('Not enough free admin accounts.', freeAdmins);
+  }
+
+  admins.rows.forEach((admin) => jobQueues.push(
+    new QueueEmitter(admin.bech32Address)
+  ));
+  jobQueues.forEach((jobQueue) => {
+    jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
+  });
+
+  return jobQueues;
+}
 
 async function queueFillingTweets() {
-  // for (let index = 0; index < 1000; index++) {
-  //   await Twittes.create({
-  //     approved: false,
-  //     rejected: false,
-  //     txId: null,
-  //     claimed: true,
-  //     UserId: 1,
-  //     idStr: uuids.v1(),
-  //     text: `#Zilliqa ${uuids.v1()}`
-  //   });
-
-  //   debug(index, 'tweets added to queue');
-  // }
+  const admins = await Admin.findAll({
+    where: {
+      status: statuses.enabled,
+      balance: {
+        [Op.gte]: '5000000000000' // 5ZILs
+      }
+    },
+    attributes: [
+      'bech32Address'
+    ]
+  }).map((el) => el.bech32Address);
+  const worker = new QueueWorker(admins);
   const tweets = await Twittes.findAndCountAll({
     where: {
       approved: false,
@@ -70,22 +96,27 @@ async function queueFillingTweets() {
     },
     attributes: [
       'id'
-    ]
+    ],
+    limit: 20
   });
 
-  tweets.rows.forEach((tweet) => {
+  debug('INFO', tweets.count, 'will add to queue.');
+
+  const tasks = tweets.rows.map((tweet) => {
     try {
       const payload = {
         tweetId: tweet.id,
         userId: tweet.User.id
       };
-      const job = new Job(JOB_TYPES.verifyTweet, payload, tweet.id);
-
-      jobQueue.addTask(job);
+      return new Job(JOB_TYPES.verifyTweet, payload, tweet.id);
     } catch (err) {
-      debug('ERROR', err);
+      debug('ERROR', 'task', JOB_TYPES.verifyTweet, err);
+
+      return null;
     }
-  });
+  }).filter(Boolean);
+
+  worker.distributeTasks(tasks);
 
   debug(tweets.count, 'tweets added to queue');
 }

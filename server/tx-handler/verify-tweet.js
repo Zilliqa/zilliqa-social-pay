@@ -7,11 +7,9 @@ const {
   User,
   Twittes,
   blockchain,
-  Admin,
   Notification
 } = models.sequelize.models;
 const notificationTypes = new Notification().types;
-const statuses = new Admin().statuses;
 const dangerTweet = 'Danger tweet.';
 
 function getPos(text, hashtag) {
@@ -33,19 +31,6 @@ function getPos(text, hashtag) {
 }
 
 module.exports = async function (task) {
-  const freeAdmins = await Admin.count({
-    where: {
-      status: statuses.enabled,
-      balance: {
-        [Op.gte]: '5000000000000' // 5ZILs
-      }
-    }
-  });
-
-  if (freeAdmins === 0) {
-    throw new Error('Not enough free admin accounts.', freeAdmins);
-  }
-
   const tweet = await Twittes.findOne({
     where: {
       id: task.payload.tweetId,
