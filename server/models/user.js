@@ -55,8 +55,7 @@ module.exports = (sequelize, DataTypes) => {
     const payload = {
       id: this.id,
       profileId: this.profileId,
-      username: this.username,
-      exp: Math.floor(Date.now() / 1000) + (60 * 60 * 60 * 60),
+      username: this.username
     }
 
     return new Promise((resolve, reject) => {
