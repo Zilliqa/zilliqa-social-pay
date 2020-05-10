@@ -30,4 +30,8 @@ module.exports = class Queue {
     this._testTask(task);
     this.queue.delete(task);
   }
+
+  hasJobs() {
+    return this.queue.size === 0
+  }
 }
