@@ -2,7 +2,7 @@ const debug = require('debug')('zilliqa-social-pay:tx-handler');
 const { Op } = require('sequelize');
 const models = require('../models');
 
-const { QueueEmitter, Job, QueueWorker } = require('../job');
+const { Job, QueueWorker } = require('../job');
 const verifyTweet = require('./verify-tweet');
 
 const JOB_TYPES = require('../config/job-types');
@@ -15,7 +15,7 @@ async function taskHandler(task, jobQueue) {
 
     case JOB_TYPES.verifyTweet:
       try {
-        await verifyTweet(task);
+        await verifyTweet(task, jobQueue.name);
         debug('SUCCESS', 'task:', JSON.stringify(task, null, 4));
       } catch (err) {
         debug('ERROR', 'task:', task.type, err, JSON.stringify(task, null, 4));
@@ -33,33 +33,6 @@ async function taskHandler(task, jobQueue) {
       jobQueue.taskDone(task);
       break;
   }
-}
-
-async function createJobsQueue() {
-  const admins = await Admin.findAndCountAll({
-    where: {
-      status: statuses.enabled,
-      balance: {
-        [Op.gte]: '5000000000000' // 5ZILs
-      }
-    },
-    attributes: [
-      'bech32Address'
-    ]
-  });
-
-  if (admins.count === 0) {
-    throw new Error('Not enough free admin accounts.', freeAdmins);
-  }
-
-  admins.rows.forEach((admin) => jobQueues.push(
-    new QueueEmitter(admin.bech32Address)
-  ));
-  jobQueues.forEach((jobQueue) => {
-    jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
-  });
-
-  return jobQueues;
 }
 
 async function queueFillingTweets() {
@@ -96,8 +69,11 @@ async function queueFillingTweets() {
     },
     attributes: [
       'id'
-    ],
-    limit: 20
+    ]
+  });
+
+  worker.jobQueues.forEach((jobQueue) => {
+    jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
   });
 
   debug('INFO', tweets.count, 'will add to queue.');

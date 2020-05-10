@@ -30,7 +30,7 @@ function getPos(text, hashtag) {
   };
 }
 
-module.exports = async function (task) {
+module.exports = async function (task, admin) {
   const tweet = await Twittes.findOne({
     where: {
       id: task.payload.tweetId,
@@ -80,7 +80,7 @@ module.exports = async function (task) {
       tweetId: tweet.idStr,
       tweetText: text,
       startPos: startIndex
-    });
+    }, admin);
     await tweet.update({
       txId: tx.TranID,
       block: Number(blockchainInfo.BlockNum)

@@ -27,7 +27,7 @@ class QueueWorker {
         const task = tasks[taskIndex + queueIndex];
 
         if (task) {
-          this.jobQueues[queueIndex].addTask(tasks[taskIndex + queueIndex]);
+          this.jobQueues[queueIndex].addTask(task);
         }
       }
     }

@@ -80,12 +80,13 @@ module.exports = {
       return null;
     }
   },
-  async getAccount() {
+  async getAccount(adminAccount) {
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
     const statuses = new Admin().statuses;
     const account = await Admin.findOne({
       where: {
+        bech32Address: adminAccount,
         status: statuses.enabled,
         balance: {
           [Op.gte]: '5000000000000' // 5ZILs
@@ -175,11 +176,11 @@ module.exports = {
 
     return result;
   },
-  async configureUsers(profileId, address) {
+  async configureUsers(profileId, address, adminAccount) {
     if (validation.isBech32(address)) {
       address = fromBech32Address(address);
     }
-    const { contract, nonce, zilliqa, account } = await this.getAccount();
+    const { contract, nonce, zilliqa, account } = await this.getAccount(adminAccount);
     const version = await this.version();
     const data = JSON.stringify({
       _tag: 'ConfigureUsers',
@@ -232,8 +233,8 @@ module.exports = {
 
     return tx.result;
   },
-  async verifyTweet({ profileId, tweetId, tweetText, startPos }) {
-    const { contract, nonce, account, zilliqa } = await this.getAccount();
+  async verifyTweet({ profileId, tweetId, tweetText, startPos }, adminAccount) {
+    const { contract, nonce, account, zilliqa } = await this.getAccount(adminAccount);
     const version = await this.version();
     const data = JSON.stringify({
       _tag: 'VerifyTweet',
