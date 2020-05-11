@@ -85,9 +85,8 @@ module.exports = async function () {
         }
       } catch (err) {
         debug('Event ', _eventname, 'ERROR', err);
+        console.log(JSON.stringify(event, null, 4));
       }
-
-      console.log(JSON.stringify(event, null, 4));
     });
   } catch (err) {
     debug('ERROR contract losg socket connection:', err);

@@ -21,7 +21,7 @@ module.exports = async function () {
       rejected: false,
       claimed: true,
       updatedAt: {
-        [Op.lt]: new Date(new Date() - 24 * 60 * 100)
+        [Op.lt]: new Date(new Date() - 24 * 60 * 250)
       },
       txId: {
         [Op.not]: null
@@ -30,7 +30,7 @@ module.exports = async function () {
     include: {
       model: User
     },
-    limit: 10
+    limit: 500
   });
 
   if (twittes.count === 0) {
@@ -50,7 +50,7 @@ module.exports = async function () {
       await tweet.update({
         approved: false,
         rejected: false,
-        claimed: false,
+        claimed: true,
         block: 0,
         txId: null
       });
