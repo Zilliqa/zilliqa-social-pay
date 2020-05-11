@@ -199,6 +199,8 @@ router.get('/get/notifications', checkSession, async (req, res) => {
   const limit = isNaN(req.query.limit) ? MAX_AMOUNT_NOTIFICATIONS : req.query.limit;
   const offset = req.query.offset || 0;
 
+  // console.log(req.app.settings.redis);
+
   try {
     const notificationCount = await Notification.count({
       where: {

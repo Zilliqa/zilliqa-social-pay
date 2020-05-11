@@ -21,19 +21,7 @@ const REDIS_CONFIG = require('./config/redis')[ENV];
 const port = process.env.PORT || 3000;
 const dev = ENV !== 'production';
 const redisClient = redis.createClient(REDIS_CONFIG);
-
-redisClient.on("error", function (error) {
-  console.error(error);
-});
-
-redisClient.set("key", "value", redis.print);
-redisClient.get("key", redis.print);
-
-
-const app = next({
-  dev,
-  dir: './'
-});
+const app = next({ dev, dir: './' });
 const indexRouter = require('./routes/index');
 const handle = app.getRequestHandler();
 const session = cookieSession({
@@ -63,6 +51,8 @@ server.use(bodyParser.urlencoded({ extended: true }))
 // parse application/json
 server.use(bodyParser.json());
 
+server.set('redis', redisClient);
+
 server.use('/', indexRouter);
 
 app
@@ -72,6 +62,7 @@ app
     accounts.forEach((account, index) => {
       const address = account.bech32Address;
       const balance = zilliqa.fromZil(account.balance);
+
       debug(`admin ${index}: ${address}, balance: ${balance}, status: ${account.status}`);
     });
 
@@ -103,6 +94,7 @@ app
     });
 
     http.listen(port, () => {
+      debug('INFO', 'redis version', redisClient.server_info.redis_version);
       console.log(`listening on port ${port}`);
     });
   });
