@@ -12,7 +12,6 @@ const ENV = process.env.NODE_ENV;
 const END_OF_CAMPAIGN = process.env.END_OF_CAMPAIGN;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 3;
-const BLOCK_FOR_CONFIRM = 2;
 
 const dev = ENV !== 'production';
 const {
