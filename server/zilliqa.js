@@ -80,6 +80,21 @@ module.exports = {
       return null;
     }
   },
+  async getLastWithdrawal(profileIds) {
+    const zilliqa = new Zilliqa(httpNode);
+    const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
+    const result = await contract.getSubState(
+      'last_withdrawal',
+      profileIds
+    );
+    const [profileId] = profileIds;
+
+    if (result && result.last_withdrawal && result.last_withdrawal[profileId]) {
+      return Number(result.last_withdrawal[profileId]);
+    }
+
+    return null;
+  },
   async getAccount(adminAccount) {
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
@@ -206,7 +221,7 @@ module.exports = {
       pubKey: zilliqa.wallet.defaultAccount.publicKey,
       amount: new BN(0),
       gasPrice: new BN('1000000000'),
-      gasLimit: Long.fromNumber(9000)
+      gasLimit: Long.fromNumber(9500)
     });
     const { txParams } = await zilliqa.wallet.sign(zilTxData);
     const tx = await zilliqa.provider.send(
@@ -269,7 +284,7 @@ module.exports = {
       pubKey: zilliqa.wallet.defaultAccount.publicKey,
       amount: new BN(0),
       gasPrice: new BN('1000000000'),
-      gasLimit: Long.fromNumber(9000)
+      gasLimit: Long.fromNumber(9500)
     });
     const { txParams } = await zilliqa.wallet.sign(zilTxData);
     const tx = await zilliqa.provider.send(

@@ -9,7 +9,6 @@ const {
   blockchain,
   Notification
 } = models.sequelize.models;
-const notificationTypes = new Notification().types;
 
 module.exports = async function (task, admin) {
   let currentBlock = 0;

@@ -131,7 +131,7 @@ async function queueFilling() {
 
   worker.distributeTasks(tasks);
 
-  debug(tweets.count, 'tweets added to queue');
+  debug(tweets.count + users.count, 'tasks added to queue');
 
   User.addHook('afterUpdate', (user) => {
     if (!user.synchronization) {
@@ -143,7 +143,7 @@ async function queueFilling() {
     };
     const job = new Job(JOB_TYPES.configureUsers, payload);
 
-    worker.distributeTasks([job]);
+    worker.addTask(job);
 
     debug('User added to queue', user.id);
   });
@@ -158,7 +158,7 @@ async function queueFilling() {
     };
     const job = new Job(JOB_TYPES.verifyTweet, payload);
 
-    worker.distributeTasks([job]);
+    worker.addTask(job);
 
     debug('Tweet added to job', tweet.id, );
   });

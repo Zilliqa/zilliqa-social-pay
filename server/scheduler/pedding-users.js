@@ -20,7 +20,7 @@ module.exports = async function () {
       },
       updatedAt: {
         // Ten minuts.
-        [Op.lt]: new Date(new Date() - 24 * 60 * 100)
+        [Op.lt]: new Date(new Date() - 24 * 60 * 250)
       }
     },
     limit: 500
@@ -40,15 +40,8 @@ module.exports = async function () {
       debug('FAIL to configureUser with profileID:', profileId);
 
       await user.update({
-        synchronization: false,
-        zilAddress: null,
+        synchronization: true,
         lastAction: 0
-      });
-      await Notification.create({
-        UserId: user.id,
-        type: notificationTypes.addressReject,
-        title: 'Account',
-        description: 'Address configuration error!'
       });
 
       return null;

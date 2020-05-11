@@ -32,6 +32,11 @@ class QueueWorker {
       }
     }
   }
+
+  addTask(taskJob) {
+    this._toMin();
+    this.jobQueues[0].addTask(taskJob);
+  }
 }
 
 module.exports = {

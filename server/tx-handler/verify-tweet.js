@@ -69,9 +69,17 @@ module.exports = async function (task, admin) {
       }
     }
   });
-  
+
   if (!tweet) {
     return null;
+  }
+
+  const lastWithdrawal = await zilliqa.getLastWithdrawal([tweet.User.profileId]);
+
+  if (!lastWithdrawal) {
+    return null;
+  } else if (lastWithdrawal >= Number(blockchainInfo.BlockNum)) {
+    throw new Error(`Current blockNumber ${blockchainInfo.BlockNum} but user last blocknumber ${lastWithdrawal}`);
   }
 
   const registered = await zilliqa.getVerifiedTweets([tweet.idStr]);
@@ -81,7 +89,7 @@ module.exports = async function (task, admin) {
       approved: true,
       claimed: true,
       rejected: false,
-      block: 0
+      block: lastWithdrawal
     });
     await Notification.create({
       UserId: tweet.User.id,
@@ -92,6 +100,10 @@ module.exports = async function (task, admin) {
 
     return null;
   }
+
+  await tweet.update({
+    block: blockchainInfo.BlockNum
+  });
 
   try {
     const { text, startIndex } = getPos(tweet.text, blockchainInfo.hashtag);
@@ -119,6 +131,10 @@ module.exports = async function (task, admin) {
 
       throw new Error(err);
     }
+
+    await tweet.update({
+      block: lastWithdrawal
+    });
 
     throw new Error(err);
   }

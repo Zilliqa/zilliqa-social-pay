@@ -1,4 +1,3 @@
-const debug = require('debug')('zilliqa-social-pay:stress-test');
 const uuids = require('uuid');
 const { Op } = require('sequelize');
 const models = require('./models');
@@ -7,9 +6,9 @@ const { getAddressFromPrivateKey, schnorr, toBech32Address } = require('@zilliqa
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const { User, Twittes, blockchain } = models.sequelize.models;
 
-const USERS_CREATER = 50000;
-const USER_TO_CONFIGURE = 1000;
-const TWEET_CREATER = 10000;
+const USERS_CREATER = 5000;
+const USER_TO_CONFIGURE = 5000;
+const TWEET_CREATER = 5000;
 
 module.exports = function () {
   setInterval(async() => {
@@ -34,8 +33,7 @@ module.exports = function () {
         },
         hash: null,
         status: new User().statuses.enabled
-      },
-      limit: 100
+      }
     });
 
     users.forEach(async (user) => {
@@ -52,46 +50,34 @@ module.exports = function () {
 
   setInterval(async () => {
     const users = await User.findAll({
+      where: {
+        synchronization: false,
+        zilAddress: {
+          [Op.not]: null
+        }
+      },
       attributes: [
         'id'
       ]
     });
 
     users.forEach(async (user) => {
+      const tweetCount = await Twittes.count({
+        where: {
+          UserId: user.id,
+          approved: false,
+          rejected: false
+        }
+      });
+
+      if (tweetCount > 0) {
+        return null;
+      }
+
       await Twittes.create({
         idStr: uuids.v4(),
         text: `#Zilliqa ${uuids.v4()}`,
-        UserId: user.id
-      });
-    });
-  }, TWEET_CREATER);
-
-  setInterval(async () => {
-    const tweets = await Twittes.findAll({
-      where: {
-        approved: false,
-        rejected: false,
-        txId: null,
-        claimed: false
-      },
-      includes: {
-        model: User,
-        where: {
-          synchronization: false,
-          zilAddress: {
-            [Op.not]: null
-          },
-          hash: {
-            [Op.not]: null
-          },
-          status: new User().statuses.enabled
-        },
-      },
-      limit: 100
-    });
-
-    tweets.forEach(async (tweet) => {
-      await tweet.update({
+        UserId: user.id,
         claimed: true
       });
     });
