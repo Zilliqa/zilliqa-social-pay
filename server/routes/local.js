@@ -277,7 +277,7 @@ router.get('/get/accounts', checkSession, async (req, res) => {
 });
 
 router.get('/get/stats', checkSession, async (req, res) => {
-  const paddingTweet = await Twittes.count({
+  const paddingTweet = await Twittes.findAndCountAll({
     where: {
       approved: false,
       rejected: false,
