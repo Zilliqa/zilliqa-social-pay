@@ -31,6 +31,7 @@ Also need to deposit few ZILs, call `Deposit` transition and send few ZIls.
  * `POSTGRES_PASSWORD` # DataBase password.
  * `POSTGRES_USER` # DataBase username.
  * `POSTGRES_HOST` # DataBase host for example (127.0.0.1) for production build use 'postgres'.
+ * `REDIS_URL` # Redie connection url, for cache.
  * `NODE_ENV` # development, test, production
 
 ## Run:
