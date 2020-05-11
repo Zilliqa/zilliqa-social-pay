@@ -30,7 +30,7 @@ module.exports = async function () {
     include: {
       model: User
     },
-    limit: 10
+    limit: 500
   });
 
   if (twittes.count === 0) {
@@ -50,7 +50,7 @@ module.exports = async function () {
       await tweet.update({
         approved: false,
         rejected: false,
-        claimed: false,
+        claimed: true,
         block: 0,
         txId: null
       });

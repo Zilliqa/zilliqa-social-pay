@@ -31,6 +31,25 @@ function getPos(text, hashtag) {
 }
 
 module.exports = async function (task, admin) {
+  const blockchainInfo = await blockchain.findOne({
+    where: { contract: CONTRACT_ADDRESS }
+  });
+  const lastActionTweet = await Twittes.findOne({
+    order: [
+      ['block', 'DESC']
+    ],
+    where: {
+      UserId: task.payload.userId
+    },
+    attributes: [
+      'block'
+    ]
+  });
+
+  if (lastActionTweet && Number(lastActionTweet.block) >= Number(blockchainInfo.BlockNum)) {
+    throw new Error(`Current blockNumber ${blockchainInfo.BlockNum} but user last blocknumber ${lastActionTweet.block}`);
+  }
+
   const tweet = await Twittes.findOne({
     where: {
       id: task.payload.tweetId,
@@ -50,6 +69,11 @@ module.exports = async function (task, admin) {
       }
     }
   });
+  
+  if (!tweet) {
+    return null;
+  }
+
   const registered = await zilliqa.getVerifiedTweets([tweet.idStr]);
 
   if (registered && registered[tweet.idStr]) {
@@ -68,10 +92,6 @@ module.exports = async function (task, admin) {
 
     return null;
   }
-
-  const blockchainInfo = await blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
 
   try {
     const { text, startIndex } = getPos(tweet.text, blockchainInfo.hashtag);
@@ -99,20 +119,6 @@ module.exports = async function (task, admin) {
 
       throw new Error(err);
     }
-
-    await Notification.create({
-      UserId: tweet.User.id,
-      type: notificationTypes.tweetReject,
-      title: 'Tweet',
-      description: 'Claiming error!'
-    });
-    await tweet.update({
-      approved: false,
-      rejected: false,
-      claimed: false,
-      block: 0,
-      txId: null
-    });
 
     throw new Error(err);
   }

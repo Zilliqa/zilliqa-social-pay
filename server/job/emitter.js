@@ -51,4 +51,9 @@ module.exports = class QueueEmitter extends EventEmitter {
 
     return task;
   }
+
+  next(task) {
+    this._queue.moveToLast(task);
+    this.emit(this.events.trigger, this._queue.firstTask);
+  }
 }

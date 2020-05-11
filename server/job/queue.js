@@ -46,4 +46,9 @@ module.exports = class Queue {
     this._testTask(task);
     this.queue = this.queue.filter((el) => el.uuid !== task.uuid);
   }
+
+  moveToLast(task) {
+    this.queue = this.queue.filter((el) => el.uuid !== task.uuid);
+    this.queue.push(task);
+  }
 }

@@ -3,7 +3,7 @@ require('dotenv').config();
 const { Op } = require('sequelize');
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
 const { RPCMethod } = require('@zilliqa-js/core');
-const { StatusType, MessageType, SocketState } = require('@zilliqa-js/subscriptions');
+const { StatusType, MessageType } = require('@zilliqa-js/subscriptions');
 const { Account } = require('@zilliqa-js/account');
 const { validation, BN, Long, bytes, units } = require('@zilliqa-js/util');
 const {
@@ -286,7 +286,6 @@ module.exports = {
       });
     }
     if (tx.error && tx.error.message) {
-      console.error(JSON.stringify(txParams, null, 4));
       throw new Error(tx.error.message);
     }
 

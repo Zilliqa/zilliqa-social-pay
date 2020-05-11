@@ -27,12 +27,12 @@ require('./socket')();
 //   require('./tweets')();
 // });
 
-// schedule.scheduleJob('* * * * *', (fireDate) => {
-//   debug(`run check broken tweets ${fireDate}`);
-//   require('./pedding-tweets')();
-// });
+schedule.scheduleJob('* * * * *', (fireDate) => {
+  debug(`run check broken tweets ${fireDate}`);
+  require('./pedding-tweets')();
+});
 
-// schedule.scheduleJob('* * * * *', (fireDate) => {
-//   debug(`run check broken users ${fireDate}`);
-//   require('./pedding-users')();
-// });
+schedule.scheduleJob('* * * * *', (fireDate) => {
+  debug(`run check broken users ${fireDate}`);
+  require('./pedding-users')();
+});

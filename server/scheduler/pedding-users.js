@@ -23,7 +23,7 @@ module.exports = async function () {
         [Op.lt]: new Date(new Date() - 24 * 60 * 100)
       }
     },
-    limit: 20
+    limit: 500
   });
 
   debug('Need check', users.count, 'users.');

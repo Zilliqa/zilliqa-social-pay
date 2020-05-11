@@ -17,22 +17,22 @@ async function taskHandler(task, jobQueue) {
     case JOB_TYPES.verifyTweet:
       try {
         await verifyTweet(task, jobQueue.name);
+        jobQueue.taskDone(task);
         debug('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
       } catch (err) {
-        debug('ERROR', 'task:', task.type, err, JSON.stringify(task, null, 4));
-      } finally {
-        jobQueue.taskDone(task);
+        jobQueue.next(task);
+        debug('ERROR', err.message, 'task:', task.type);
       }
       break;
 
     case JOB_TYPES.configureUsers:
       try {
         await configureUsers(task, jobQueue.name);
+        jobQueue.taskDone(task);
         debug('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
       } catch (err) {
-        debug('ERROR', 'task:', task.type, 'admin:', jobQueue.name, err, JSON.stringify(task, null, 4));
-      } finally {
-        jobQueue.taskDone(task);
+        jobQueue.next(task);
+        debug('ERROR', err.message, 'task:', task.type, 'admin:', jobQueue.name, JSON.stringify(task, null, 4));
       }
       break;
 
@@ -42,7 +42,7 @@ async function taskHandler(task, jobQueue) {
   }
 }
 
-async function queueFillingTweets() {
+async function queueFilling() {
   const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
@@ -132,8 +132,38 @@ async function queueFillingTweets() {
   worker.distributeTasks(tasks);
 
   debug(tweets.count, 'tweets added to queue');
+
+  User.addHook('afterUpdate', (user) => {
+    if (!user.synchronization) {
+      return null;
+    }
+
+    const payload = {
+      userId: user.id
+    };
+    const job = new Job(JOB_TYPES.configureUsers, payload);
+
+    worker.distributeTasks([job]);
+
+    debug('User added to queue', user.id);
+  });
+  Twittes.addHook('afterUpdate', (tweet) => {
+    if (tweet.approved || tweet.rejected || tweet.claimed || tweet.txId) {
+      return null;
+    }
+
+    const payload = {
+      tweetId: tweet.id,
+      userId: tweet.UserId
+    };
+    const job = new Job(JOB_TYPES.verifyTweet, payload);
+
+    worker.distributeTasks([job]);
+
+    debug('Tweet added to job', tweet.id, );
+  });
 }
 
 module.exports = {
-  queueFillingTweets
+  queueFilling
 };

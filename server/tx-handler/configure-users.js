@@ -27,6 +27,13 @@ module.exports = async function (task, admin) {
       status: new User().statuses.enabled
     }
   });
+
+  if (!user) {
+    return null;
+  } else if (Number(user.lastAction) >= Number(blockchainInfo.BlockNum)) {
+    throw new Error(`Current blockNumber ${blockchainInfo.BlockNum} but user lastAction ${lastActionTweet.block}`);
+  }
+
   const userExist = await zilliqa.getonfigureUsers([user.profileId]);
 
   if (userExist) {
@@ -48,26 +55,13 @@ module.exports = async function (task, admin) {
   } catch (err) {
     const lastAddres = await zilliqa.getonfigureUsers([user.profileId]);
 
-    if (!lastAddres || !lastAddres[user.profileId]) {
-      await user.update({
-        synchronization: false,
-        zilAddress: null,
-        lastAction: 0
-      });
-    } else {
+    if (lastAddres && lastAddres[user.profileId]) {
       await user.update({
         synchronization: false,
         lastAction: Number(blockchainInfo.BlockNum),
         zilAddress: toBech32Address(lastAddres[user.profileId])
       });
     }
-
-    await Notification.create({
-      UserId: user.id,
-      type: notificationTypes.addressReject,
-      title: 'Account',
-      description: 'synchronize error!'
-    });
 
     throw new Error(err);
   }

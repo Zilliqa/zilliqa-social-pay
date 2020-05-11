@@ -15,6 +15,7 @@ const socketRoute = require('./routes/socket');
 const socketMiddleware = require('./middleware/socket-auth');
 const zilliqa = require('./zilliqa');
 const txHandler = require('./tx-handler');
+const stressTest = require('./stress-test');
 
 const ENV = process.env.NODE_ENV;
 const port = process.env.PORT || 3000;
@@ -96,7 +97,9 @@ app
       console.log(`listening on port ${port}`);
     });
 
-    txHandler.queueFillingTweets();
+    txHandler.queueFilling();
+
+    stressTest();
   });
 
 require('./scheduler');
