@@ -11,13 +11,24 @@ const uuidv4 = require('uuid').v4;
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const server = express();
+const redis = require('redis');
 const socketRoute = require('./routes/socket');
 const socketMiddleware = require('./middleware/socket-auth');
 const zilliqa = require('./zilliqa');
 
 const ENV = process.env.NODE_ENV;
+const REDIS_CONFIG = require('./config/redis')[ENV];
 const port = process.env.PORT || 3000;
 const dev = ENV !== 'production';
+const redisClient = redis.createClient(REDIS_CONFIG);
+
+redisClient.on("error", function (error) {
+  console.error(error);
+});
+
+redisClient.set("key", "value", redis.print);
+redisClient.get("key", redis.print);
+
 
 const app = next({
   dev,
