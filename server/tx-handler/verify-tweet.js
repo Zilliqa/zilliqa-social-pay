@@ -76,9 +76,7 @@ module.exports = async function (task, admin) {
 
   const lastWithdrawal = await zilliqa.getLastWithdrawal([tweet.User.profileId]);
 
-  if (!lastWithdrawal) {
-    return null;
-  } else if (lastWithdrawal >= Number(blockchainInfo.BlockNum)) {
+  if (lastWithdrawal && lastWithdrawal >= Number(blockchainInfo.BlockNum)) {
     throw new Error(`Current blockNumber ${blockchainInfo.BlockNum} but user last blocknumber ${lastWithdrawal}`);
   }
 
