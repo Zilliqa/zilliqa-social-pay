@@ -370,7 +370,7 @@ module.exports = {
     );
 
     subscriber.emitter.on(StatusType.SUBSCRIBE_NEW_BLOCK, (event) => {
-      console.log('get SubscribeNewBlock echo: ', event);
+      //
     });
 
     subscriber.emitter.on(MessageType.NEW_BLOCK, (event) => {

@@ -15,6 +15,7 @@ const redis = require('redis');
 const socketRoute = require('./routes/socket');
 const socketMiddleware = require('./middleware/socket-auth');
 const zilliqa = require('./zilliqa');
+const PACKAGE = require('../package.json');
 
 const ENV = process.env.NODE_ENV;
 const REDIS_CONFIG = require('./config/redis')[ENV];
@@ -96,7 +97,8 @@ app
     });
 
     http.listen(port, () => {
-      log.info('INFO', 'redis version', redisClient.server_info.redis_version);
+      log.info('SocialPay version', PACKAGE.version);
+      log.info('redis version', redisClient.server_info.redis_version);
       log.info('listening on port', port);
     });
 
