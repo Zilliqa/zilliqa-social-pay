@@ -48,10 +48,10 @@ async function taskHandler(task, jobQueue) {
 
     case JOB_TYPES.configureUsers:
       try {
-        await configureUsers(task, jobQueue.name);
+        const user = await configureUsers(task, jobQueue.name);
         jobQueue.taskDone(task);
         log.info('task:', task.type, 'admin:', jobQueue.name);
-        redisSend(Twittes, tweet);
+        redisSend(User, user);
       } catch (err) {
         jobQueue.next(task);
         log.error(err, 'task:', task.type, 'admin:', jobQueue.name, JSON.stringify(task, null, 4));

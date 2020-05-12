@@ -58,27 +58,17 @@ router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, 
       });
     }
 
-    const blockchainInfo = await blockchain.findOne({
-      where: { contract: CONTRACT_ADDRESS }
-    });
-    let block = Number(blockchainInfo.BlockNum);
-
-    if (!user.actionName) {
-      block = 0;
-    }
-
     await user.update({
       zilAddress: bech32Address,
       hash: null,
       synchronization: true,
-      actionName: actions.configureUsers,
-      lastAction: block
+      actionName: actions.configureUsers
     });
-    const payload = JSON.stringify({
+
+    redis.publish(REDIS_CONFIG.channels.TX_HANDLER, JSON.stringify({
       type: JOB_TYPES.configureUsers,
       userId: user.id
-    });
-    redis.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
+    }));
 
     await Notification.create({
       UserId: user.id,

@@ -11,6 +11,8 @@ const {
 module.exports = async (socket, io, message) => {
   const payload = JSON.parse(message);
 
+  console.log(payload);
+
   switch (payload.model) {
     case blockchain.tableName:
       socket.emit(EVENTS.info, JSON.stringify(payload.body));
@@ -31,10 +33,25 @@ module.exports = async (socket, io, message) => {
           ]
         }
       });
-
       io
         .to(foundTweet.User.profileId)
         .emit(EVENTS.tweetsUpdate, JSON.stringify(foundTweet));
+      break;
+    case User.tableName:
+      const foundUser = await User.findOne({
+        where: {
+          id: payload.body.id
+        },
+        attributes: {
+          exclude: [
+            'tokenSecret',
+            'token'
+          ]
+        }
+      });
+      io
+        .to(foundUser.profileId)
+        .emit(EVENTS.userUpdated, JSON.stringify(foundUser));
       break;
   }
   /**
@@ -67,10 +84,10 @@ module.exports = async (socket, io, message) => {
   //       id: tweet.UserId
   //     },
   //     attributes: {
-  //       exclude: [
-  //         'tokenSecret',
-  //         'token'
-  //       ]
+        // exclude: [
+        //   'tokenSecret',
+        //   'token'
+        // ]
   //     }
   //   });
 
