@@ -70,12 +70,12 @@ module.exports = async function (redisClient) {
             break;
 
           case eventUtils.events.ConfiguredUserAddress:
-            const userProfileId = await eventUtils.configuredUserAddress(params);
+            const userProfileId = await eventUtils.configuredUserAddress(params, redisClient);
             log.info('User address has been updated, profileID', userProfileId);
             break;
 
           case eventUtils.events.VerifyTweetSuccessful:
-            const tweetID = await eventUtils.verifyTweetSuccessful(params);
+            const tweetID = await eventUtils.verifyTweetSuccessful(params, redisClient);
             log.info('Tweet with id:', tweetID, 'has been verified.');
             break;
 

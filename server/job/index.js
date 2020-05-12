@@ -23,6 +23,7 @@ class QueueWorker {
       log.error('redis:', err);
     });
     this.redisClient.on('message', (channel, message) => {
+      console.log(channel, message);
       try {
         let payload = {};
         let type = null;
