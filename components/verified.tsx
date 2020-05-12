@@ -115,7 +115,7 @@ export const Verified: React.FC = () => {
       })
       .splice(paginateOffset, PAGE_LIMIT);
   }, [
-    twitterState,
+    twitterState.tweets,
     paginateOffset,
     PAGE_LIMIT
   ]);
