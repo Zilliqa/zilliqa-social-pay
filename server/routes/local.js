@@ -5,13 +5,16 @@ const checkSession = require('../middleware/check-session');
 const models = require('../models');
 const verifyJwt = require('../middleware/verify-jwt');
 const verifyCampaign = require('../middleware/campaign-check');
+
 const router = express.Router();
 
 const ERROR_CODES = require('../../config/error-codes');
-const ENV = process.env.NODE_ENV;
+const ENV = process.env.NODE_ENV || 'development';
 const END_OF_CAMPAIGN = process.env.END_OF_CAMPAIGN;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 3;
+const REDIS_CONFIG = require('../config/redis')[ENV];
+const JOB_TYPES = require('../config/job-types');
 
 const dev = ENV !== 'production';
 const {
@@ -32,6 +35,7 @@ if (!END_OF_CAMPAIGN) {
 router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const bech32Address = req.params.address;
   const { user } = req.verification;
+  const { redis } = req.app.settings;
 
   try {
     if (!validation.isBech32(bech32Address)) {
@@ -70,6 +74,11 @@ router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, 
       actionName: actions.configureUsers,
       lastAction: block
     });
+    const payload = JSON.stringify({
+      type: JOB_TYPES.configureUsers,
+      userId: user.id
+    });
+    redis.publish(REDIS_CONFIG.channel, payload);
 
     await Notification.create({
       UserId: user.id,
@@ -198,8 +207,6 @@ router.get('/get/notifications', checkSession, async (req, res) => {
   const UserId = req.session.passport.user.id;
   const limit = isNaN(req.query.limit) ? MAX_AMOUNT_NOTIFICATIONS : req.query.limit;
   const offset = req.query.offset || 0;
-
-  // console.log(req.app.settings.redis);
 
   try {
     const notificationCount = await Notification.count({

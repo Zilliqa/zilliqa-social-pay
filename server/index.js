@@ -17,11 +17,11 @@ const socketMiddleware = require('./middleware/socket-auth');
 const zilliqa = require('./zilliqa');
 const PACKAGE = require('../package.json');
 
-const ENV = process.env.NODE_ENV;
+const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('./config/redis')[ENV];
 const port = process.env.PORT || 3000;
 const dev = ENV !== 'production';
-const redisClient = redis.createClient(REDIS_CONFIG);
+const redisClient = redis.createClient(REDIS_CONFIG.url);
 const log = bunyan.createLogger({ name: 'next-server' });
 const app = next({ dev, dir: './' });
 const indexRouter = require('./routes/index');

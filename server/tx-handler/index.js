@@ -133,36 +133,6 @@ async function queueFilling() {
   worker.distributeTasks(tasks);
 
   log.info(tweets.count + users.count, 'tasks added to queue');
-
-  User.addHook('afterUpdate', (user) => {
-    if (!user.synchronization) {
-      return null;
-    }
-
-    const payload = {
-      userId: user.id
-    };
-    const job = new Job(JOB_TYPES.configureUsers, payload);
-
-    worker.addTask(job);
-
-    log.info('User added to queue', user.id);
-  });
-  Twittes.addHook('afterUpdate', (tweet) => {
-    if (tweet.approved || tweet.rejected || tweet.claimed || tweet.txId) {
-      return null;
-    }
-
-    const payload = {
-      tweetId: tweet.id,
-      userId: tweet.UserId
-    };
-    const job = new Job(JOB_TYPES.verifyTweet, payload);
-
-    worker.addTask(job);
-
-    log.info('Tweet added to job', tweet.id);
-  });
 }
 
 queueFilling();

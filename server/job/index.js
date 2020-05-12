@@ -1,8 +1,13 @@
 const bunyan = require('bunyan');
 const log = bunyan.createLogger({ name: 'queueworker' });
 const redis = require('redis');
+
 const QueueEmitter = require('./emitter');
-const REDIS_CONFIG = require('../config/redis')[process.env.NODE_ENV];
+const Job = require('./job');
+const JOB_TYPES = require('../config/job-types');
+
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
 
 class QueueWorker {
   constructor(keys) {
@@ -11,13 +16,38 @@ class QueueWorker {
     }
 
     this.jobQueues = keys.map((key) => new QueueEmitter(key));
-    this.redisClient = redis.createClient(REDIS_CONFIG);
+    this.redisClient = redis.createClient(REDIS_CONFIG.url);
+    this.redisClient.subscribe(REDIS_CONFIG.channel);
 
     this.redisClient.on('error', (err) => {
       log.error('redis:', err);
     });
     this.redisClient.on('message', (channel, message) => {
-      log.info(channel, message);
+      try {
+        let payload = {};
+        let type = null;
+        const body = JSON.parse(message);
+
+        switch (body.type) {
+          case JOB_TYPES.configureUsers:
+            payload.userId = body.userId;
+            type = body.type;
+            break;
+          case JOB_TYPES.verifyTweet:
+            payload.userId = body.userId;
+            payload.tweetId = body.tweetId;
+            type = body.type;
+            break;
+          default:
+            return null;
+        }
+
+        const job = new Job(type, payload);
+
+        this.addTask(job);
+      } catch (err) {
+        log.error('channel:', channel, 'message', message, 'error', err);
+      }
     });
   }
 
@@ -62,6 +92,6 @@ class QueueWorker {
 module.exports = {
   QueueWorker,
   QueueEmitter,
-  Job: require('./job'),
+  Job,
   Queue: require('./queue')
 };
