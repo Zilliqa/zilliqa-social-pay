@@ -34,6 +34,14 @@ class QueueWorker {
   }
 
   addTask(taskJob) {
+    for (let index = 0; index < this.jobQueues.length; index++) {
+      const job = this.jobQueues[index];
+
+      if (job.queue.hasTask(taskJob)) {
+        return null;
+      }
+    }
+
     this._toMin();
     this.jobQueues[0].addTask(taskJob);
   }

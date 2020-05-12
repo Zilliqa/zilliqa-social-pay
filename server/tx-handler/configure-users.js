@@ -29,8 +29,10 @@ module.exports = async function (task, admin) {
 
   if (!user) {
     return null;
-  } else if (Number(user.lastAction) >= Number(blockchainInfo.BlockNum)) {
-    throw new Error(`Current blockNumber ${blockchainInfo.BlockNum} but user lastAction ${lastActionTweet.block}`);
+  } else if (Number(user.lastAction) > Number(blockchainInfo.BlockNum)) {
+    throw new Error(
+      `Current blockNumber ${blockchainInfo.BlockNum} but user lastAction ${user.lastAction}`
+    );
   }
 
   const userExist = await zilliqa.getonfigureUsers([user.profileId]);

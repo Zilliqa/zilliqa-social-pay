@@ -51,4 +51,15 @@ module.exports = class Queue {
     this.queue = this.queue.filter((el) => el.uuid !== task.uuid);
     this.queue.push(task);
   }
+
+  hasTask(task) {
+    this._testTask(task);
+
+    return this.queue.some((t) => {
+      const test0 = t.uuid === task.uuid;
+      const test1 = JSON.stringify(t.payload) === JSON.stringify(task.payload);
+
+      return test0 || test1;
+    });
+  }
 }

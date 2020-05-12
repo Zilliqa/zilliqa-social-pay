@@ -46,7 +46,7 @@ module.exports = async function (task, admin) {
     ]
   });
 
-  if (lastActionTweet && Number(lastActionTweet.block) >= Number(blockchainInfo.BlockNum)) {
+  if (lastActionTweet && Number(lastActionTweet.block) > Number(blockchainInfo.BlockNum)) {
     throw new Error(`Current blockNumber ${blockchainInfo.BlockNum} but user last blocknumber ${lastActionTweet.block}`);
   }
 

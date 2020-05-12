@@ -160,7 +160,7 @@ async function queueFilling() {
 
     worker.addTask(job);
 
-    debug('Tweet added to job', tweet.id, );
+    debug('Tweet added to job', tweet.id);
   });
 }
 

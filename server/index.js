@@ -97,4 +97,7 @@ app
       debug('INFO', 'redis version', redisClient.server_info.redis_version);
       console.log(`listening on port ${port}`);
     });
+
+    require('./tx-handler').queueFilling();
+    require('./scheduler');
   });
