@@ -22,10 +22,10 @@ require('./socket')();
 //   require('./user-configure')();
 // });
 
-// schedule.scheduleJob('* * * * *', (fireDate) => {
-//   debug(`run VerifyTweet job ${fireDate}`);
-//   require('./tweets')();
-// });
+schedule.scheduleJob('* * * * *', (fireDate) => {
+  debug(`run VerifyTweet job ${fireDate}`);
+  require('./tweets')();
+});
 
 schedule.scheduleJob('* * * * *', (fireDate) => {
   debug(`run check broken tweets ${fireDate}`);
