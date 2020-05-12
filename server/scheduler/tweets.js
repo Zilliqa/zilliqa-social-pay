@@ -49,13 +49,10 @@ module.exports = async function () {
     return null;
   }
 
-  let limit = Math.round(freeAdmins / 2) - 1;
-
   const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
   const tweets = await Twittes.findAndCountAll({
-    limit,
     where: {
       approved: false,
       rejected: false,
@@ -70,7 +67,8 @@ module.exports = async function () {
           [Op.not]: null
         }
       }
-    }
+    },
+    limit: 40
   });
 
   debug('Need verify', tweets.count, 'tweet');
