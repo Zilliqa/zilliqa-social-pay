@@ -78,7 +78,7 @@ router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, 
       type: JOB_TYPES.configureUsers,
       userId: user.id
     });
-    redis.publish(REDIS_CONFIG.channel, payload);
+    redis.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
 
     await Notification.create({
       UserId: user.id,

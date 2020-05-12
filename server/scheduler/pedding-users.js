@@ -29,7 +29,7 @@ module.exports = async function () {
 
   log.info('Need check', users.count, 'users.');
 
-  if (users.count < 1) {
+  if (users.count < 0) {
     return null;
   }
 

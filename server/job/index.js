@@ -17,7 +17,7 @@ class QueueWorker {
 
     this.jobQueues = keys.map((key) => new QueueEmitter(key));
     this.redisClient = redis.createClient(REDIS_CONFIG.url);
-    this.redisClient.subscribe(REDIS_CONFIG.channel);
+    this.redisClient.subscribe(REDIS_CONFIG.channels.TX_HANDLER);
 
     this.redisClient.on('error', (err) => {
       log.error('redis:', err);

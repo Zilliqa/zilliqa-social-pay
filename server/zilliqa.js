@@ -96,6 +96,10 @@ module.exports = {
     return null;
   },
   async getAccount(adminAccount) {
+    if (!adminAccount) {
+      throw new Error('admin account is required.');
+    }
+
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
     const statuses = new Admin().statuses;

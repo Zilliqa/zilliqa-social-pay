@@ -58,6 +58,11 @@ server.set('log', log);
 
 server.use('/', indexRouter);
 
+redisClient.on('error', (err) => {
+  log.error('redis:', err);
+});
+redisClient.subscribe(REDIS_CONFIG.channels.WEB);
+
 app
   .prepare()
   .then(() => zilliqa.generateAddresses(process.env.NUMBER_OF_ADMINS))
@@ -93,7 +98,10 @@ app
     io.use(socketMiddleware);
 
     io.on('connection', (socket) => {
-      socketRoute(socket, io);
+      redisClient.on('message', (channel, message) => {
+        console.log(channel, message);
+        // socketRoute(socket, io);
+      });
     });
 
     http.listen(port, () => {

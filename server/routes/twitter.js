@@ -286,7 +286,7 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
       tweetId: createdTweet.id,
       userId: user.id
     });
-    redis.publish(REDIS_CONFIG.channel, payload);
+    redis.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
 
     await Notification.create({
       UserId: user.id,
@@ -406,7 +406,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, 
       tweetId: foundTweet.id,
       userId: user.id
     });
-    redis.publish(REDIS_CONFIG.channel, payload);
+    redis.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
 
     await Notification.create({
       UserId: user.id,

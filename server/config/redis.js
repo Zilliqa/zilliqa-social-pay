@@ -1,16 +1,20 @@
-const channel = 'socialPay';
+const channels = {
+  TX_HANDLER: 'TX_HANDLER',
+  SCHEDULER: 'SCHEDULER',
+  WEB: 'WEB'
+};
 
 module.exports = {
   development: {
-    channel,
+    channels,
     url: process.env.REDIS_URL || 'redis://127.0.0.1:6379'
   },
   test: {
-    channel,
+    channels,
     url: process.env.REDIS_URL
   },
   production: {
-    channel,
+    channels,
     url: process.env.REDIS_URL
   }
 }
