@@ -8,12 +8,12 @@ const {
   Notification
 } = models.sequelize.models;
 
-module.exports = async (socket, io, message) => {
+module.exports = async (io, message) => {
   const payload = JSON.parse(message);
 
   switch (payload.model) {
     case blockchain.tableName:
-      socket.emit(EVENTS.info, JSON.stringify(payload.body));
+      io.emit(EVENTS.info, JSON.stringify(payload.body));
       break;
     case Twittes.tableName:
       const foundTweet = await Twittes.findOne({

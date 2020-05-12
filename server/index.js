@@ -99,14 +99,12 @@ app
 
     io.use(socketMiddleware);
 
-    io.on('connection', (socket) => {
-      redisClientSubscriber.on('message', (channel, message) => {
-        try {
-          socketRoute(socket, io, message);
-        } catch (err) {
-          log.error('SOCKET', err);
-        }
-      });
+    redisClientSubscriber.on('message', (channel, message) => {
+      try {
+        socketRoute(io, message);
+      } catch (err) {
+        log.error('SOCKET', err);
+      }
     });
 
     http.listen(port, () => {
