@@ -63,6 +63,7 @@ redisClientSubscriber.on('error', (err) => {
   log.error('redis:', err);
 });
 redisClientSubscriber.subscribe(REDIS_CONFIG.channels.WEB);
+redisClientSubscriber.setMaxListeners(redisClientSubscriber.getMaxListeners() + 1);
 
 app
   .prepare()
