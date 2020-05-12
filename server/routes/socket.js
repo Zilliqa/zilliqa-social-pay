@@ -8,16 +8,35 @@ const {
   Notification
 } = models.sequelize.models;
 
-module.exports = (socket, io, message) => {
+module.exports = async (socket, io, message) => {
   const payload = JSON.parse(message);
 
   switch (payload.model) {
     case blockchain.tableName:
       socket.emit(EVENTS.info, JSON.stringify(payload.body));
       break;
-  }
+    case Twittes.tableName:
+      const foundTweet = await Twittes.findOne({
+        where: payload.body.id,
+        include: {
+          model: User,
+          attributes: [
+            'profileId'
+          ]
+        },
+        attributes: {
+          exclude: [
+            'text',
+            'updatedAt'
+          ]
+        }
+      });
 
-  console.log(payload);
+      io
+        .to(foundTweet.User.profileId)
+        .emit(EVENTS.tweetsUpdate, JSON.stringify(foundTweet));
+      break;
+  }
   /**
    * When blockchain has been updated,
    * then socket send blockchain data to all user.
@@ -38,10 +57,10 @@ module.exports = (socket, io, message) => {
   //   io.to(user.profileId).emit(EVENTS.userUpdated, JSON.stringify(user));
   // });
 
-  // /**
-  //  * When Tweet model has been updated,
-  //  * then socket send to tweet owenr msg with tweet data.
-  //  */
+  /**
+   * When Tweet model has been updated,
+   * then socket send to tweet owenr msg with tweet data.
+   */
   // Twittes.addHook('afterUpdate', async (tweet) => {
   //   const foundUser = await User.findOne({
   //     where: {
@@ -60,7 +79,6 @@ module.exports = (socket, io, message) => {
   //   }
 
   //   delete tweet.dataValues.text;
-  //   delete tweet.dataValues.updatedAt;
   //   delete tweet.dataValues.createdAt;
 
   //   io.to(foundUser.profileId).emit(EVENTS.userUpdated, JSON.stringify(foundUser));

@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const bunyan = require('bunyan');
 const log = bunyan.createLogger({ name: 'tx-handler' });
+const redis = require('redis');
 const { Op } = require('sequelize');
 const models = require('../models');
 
@@ -11,17 +12,34 @@ const configureUsers = require('./configure-users');
 
 const JOB_TYPES = require('../config/job-types');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
 
 const { User, Twittes, Admin, blockchain } = models.sequelize.models;
+const redisSender = redis.createClient(REDIS_CONFIG.url);
+
+function redisSend(model, payload) {
+  if (!model || !payload) {
+    return null;
+  }
+
+  redisSender.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+    body: {
+      id: payload.id
+    },
+    model: model.tableName
+  }));
+}
 
 async function taskHandler(task, jobQueue) {
   switch (task.type) {
 
     case JOB_TYPES.verifyTweet:
       try {
-        await verifyTweet(task, jobQueue.name);
+        const tweet = await verifyTweet(task, jobQueue.name);
         jobQueue.taskDone(task);
         log.info('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
+        redisSend(Twittes, tweet);
       } catch (err) {
         jobQueue.next(task);
         log.error('ERROR', err, 'task:', task.type);
@@ -33,6 +51,7 @@ async function taskHandler(task, jobQueue) {
         await configureUsers(task, jobQueue.name);
         jobQueue.taskDone(task);
         log.info('task:', task.type, 'admin:', jobQueue.name);
+        redisSend(Twittes, tweet);
       } catch (err) {
         jobQueue.next(task);
         log.error(err, 'task:', task.type, 'admin:', jobQueue.name, JSON.stringify(task, null, 4));

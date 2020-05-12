@@ -16,14 +16,13 @@ class QueueWorker {
     }
 
     this.jobQueues = keys.map((key) => new QueueEmitter(key));
-    this.redisClient = redis.createClient(REDIS_CONFIG.url);
-    this.redisClient.subscribe(REDIS_CONFIG.channels.TX_HANDLER);
+    this._redisSubscribe = redis.createClient(REDIS_CONFIG.url);
+    this._redisSubscribe.subscribe(REDIS_CONFIG.channels.TX_HANDLER);
 
-    this.redisClient.on('error', (err) => {
+    this._redisSubscribe.on('error', (err) => {
       log.error('redis:', err);
     });
-    this.redisClient.on('message', (channel, message) => {
-      console.log(channel, message);
+    this._redisSubscribe.on('message', (channel, message) => {
       try {
         let payload = {};
         let type = null;

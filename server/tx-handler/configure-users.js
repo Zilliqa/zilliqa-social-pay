@@ -57,9 +57,9 @@ module.exports = async function (task, admin) {
       lastAction: currentBlock,
       actionName: new User().actions.configureUsers
     });
-  } catch (err) {
-    log.error('userID:', task.payload.userId, 'error', err);
 
+    return user;
+  } catch (err) {
     const lastAddres = await zilliqa.getonfigureUsers([user.profileId]);
 
     if (lastAddres && lastAddres[user.profileId]) {
@@ -68,7 +68,13 @@ module.exports = async function (task, admin) {
         lastAction: Number(blockchainInfo.BlockNum),
         zilAddress: toBech32Address(lastAddres[user.profileId])
       });
+
+      log.warn('UserID', user.id, 'to initial state', err);
+
+      return user;
     }
+
+    log.error('userID:', task.payload.userId, 'error', err);
 
     throw new Error(err);
   }

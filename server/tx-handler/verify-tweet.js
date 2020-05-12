@@ -101,7 +101,7 @@ module.exports = async function (task, admin) {
 
     log.warn('Tweet: ', tweet.idStr, 'already registered');
 
-    return null;
+    return tweet;
   }
 
   await tweet.update({

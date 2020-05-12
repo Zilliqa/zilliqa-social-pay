@@ -180,19 +180,12 @@ router.get('/get/tweets', checkSession, async (req, res) => {
 });
 
 router.get('/get/blockchain', checkSession, async (req, res) => {
-  const { redis } = req.app.settings;
   try {
     const blockchainInfo = await blockchain.findOne({
       where: {
         contract: CONTRACT_ADDRESS
       }
     });
-
-    const payload = JSON.stringify({
-      type: 1
-    });
-    redis.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
-
 
     blockchainInfo.dataValues.campaignEnd = new Date(END_OF_CAMPAIGN);
     blockchainInfo.dataValues.now = new Date();
