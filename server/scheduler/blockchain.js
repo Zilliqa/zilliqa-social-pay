@@ -1,10 +1,11 @@
-const debug = require('debug')('zilliqa-social-pay:scheduler:blockchain');
+const bunyan = require('bunyan');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 
 const { blockchain } = models.sequelize.models;
+const log = bunyan.createLogger({ name: 'scheduler:blockchain' });
 
 module.exports = async function () {
   try {
@@ -17,7 +18,7 @@ module.exports = async function () {
     });
 
     if (!currenInfo) {
-      debug('cannot find to blockchain info. currenInfo:', currenInfo, 'contracta address', CONTRACT_ADDRESS);
+      log.warn('cannot find to blockchain info. currenInfo:', currenInfo, 'contracta address', CONTRACT_ADDRESS);
 
       await blockchain.create({
         ...blockchainInfo,
@@ -49,8 +50,8 @@ module.exports = async function () {
       DSBlockNum: blockchainInfo.CurrentDSEpoch
     });
 
-    debug('blockchain info has been updated.');
+    log.info('blockchain info has been updated.');
   } catch (err) {
-    debug('update blockchain info error:', err);
+    log.error('update blockchain info error:', err);
   }
 }

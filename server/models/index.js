@@ -2,12 +2,13 @@
 
 const fs = require('fs');
 const path = require('path');
-const debug = require('debug')('zilliqa-social-pay:sequelize');
+const bunyan = require('bunyan');
 const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config')[env];
 const db = {};
+const log = bunyan.createLogger({ name: 'sequelize' });
 
 let sequelize;
 if (config.use_env_variable) {
@@ -33,15 +34,15 @@ Object.keys(db).forEach(modelName => {
 });
 
 sequelize.authenticate().then(() => {
-  debug(`Sequelize: Connection ${config.database} successfully.`);
+  log.info(`Sequelize: Connection ${config.database} successfully.`);
 
   if (env === 'development' && config.sync && config.sync.enable) {
     return sequelize.sync(config.sync);
   }
 }).catch(error => {
-  console.error('\x1b[31mSequelize: Unable to connect to the database:\x1b[0m', error);
+  log.error('Unable to connect to the database', error);
 }).catch(error => {
-  console.error('\x1b[31mSequelize: Sync models failed:\x1b[0m', error);
+  log.error('Sync models failed', error);
 });
 
 db.sequelize = sequelize;

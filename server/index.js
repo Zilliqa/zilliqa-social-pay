@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const debug = require('debug')('zilliqa-social-pay:server');
+const bunyan = require('bunyan');
 const express = require('express');
 const socket = require('socket.io');
 const cookieSession = require('cookie-session');
@@ -21,6 +21,7 @@ const REDIS_CONFIG = require('./config/redis')[ENV];
 const port = process.env.PORT || 3000;
 const dev = ENV !== 'production';
 const redisClient = redis.createClient(REDIS_CONFIG);
+const log = bunyan.createLogger({ name: 'next-server' });
 const app = next({ dev, dir: './' });
 const indexRouter = require('./routes/index');
 const handle = app.getRequestHandler();
@@ -52,6 +53,7 @@ server.use(bodyParser.urlencoded({ extended: true }))
 server.use(bodyParser.json());
 
 server.set('redis', redisClient);
+server.set('log', log);
 
 server.use('/', indexRouter);
 
@@ -63,7 +65,7 @@ app
       const address = account.bech32Address;
       const balance = zilliqa.fromZil(account.balance);
 
-      debug(`admin ${index}: ${address}, balance: ${balance}, status: ${account.status}`);
+      log.warn(`admin ${index}: ${address}, balance: ${balance}, status: ${account.status}`);
     });
 
     // handling everything else with Next.js
@@ -94,8 +96,8 @@ app
     });
 
     http.listen(port, () => {
-      debug('INFO', 'redis version', redisClient.server_info.redis_version);
-      console.log(`listening on port ${port}`);
+      log.info('INFO', 'redis version', redisClient.server_info.redis_version);
+      log.info('listening on port', port);
     });
 
     require('./tx-handler').queueFilling();

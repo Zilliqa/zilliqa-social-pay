@@ -1,4 +1,4 @@
-const debug = require('debug')('zilliqa-social-pay:scheduler:peddign-users');
+const bunyan = require('bunyan');
 const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
@@ -10,6 +10,7 @@ const {
 } = models.sequelize.models;
 
 const notificationTypes = new Notification().types;
+const log = bunyan.createLogger({ name: 'scheduler:peddign-users' });
 
 module.exports = async function () {
   const users = await User.findAndCountAll({
@@ -23,10 +24,10 @@ module.exports = async function () {
         [Op.lt]: new Date(new Date() - 24 * 60 * 250)
       }
     },
-    limit: 500
+    limit: 100
   });
 
-  debug('Need check', users.count, 'users.');
+  log.info('Need check', users.count, 'users.');
 
   if (users.count < 1) {
     return null;
@@ -37,7 +38,7 @@ module.exports = async function () {
     const usersFromContract = await zilliqa.getonfigureUsers([profileId]);
 
     if (!usersFromContract || !usersFromContract[profileId]) {
-      debug('FAIL to configureUser with profileID:', profileId);
+      log.warn('FAIL to configureUser with profileID:', profileId);
 
       await user.update({
         synchronization: true,
@@ -47,7 +48,7 @@ module.exports = async function () {
       return null;
     }
 
-    debug('User with profileID:', profileId, 'has been synchronized from blockchain.');
+    log.info('User with profileID:', profileId, 'has been synchronized from blockchain.');
 
     await user.update({
       synchronization: false,

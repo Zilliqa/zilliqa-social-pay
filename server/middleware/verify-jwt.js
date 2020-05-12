@@ -1,3 +1,4 @@
+
 const models = require('../models');
 const { User } = models.sequelize.models;
 
@@ -30,6 +31,8 @@ module.exports = async function (req, res, next) {
 
     next();
   } catch (err) {
+    req.app.settings.log.error('middleware/verify-jwt', err);
+
     res.clearCookie(process.env.SESSION);
     res.clearCookie(`${process.env.SESSION}.sig`);
     res.clearCookie('io');

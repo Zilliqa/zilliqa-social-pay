@@ -1,3 +1,5 @@
+const bunyan = require('bunyan');
+const log = bunyan.createLogger({ name: 'tx-handler:verify-tweet' });
 const { toBech32Address } = require('@zilliqa-js/crypto');
 const zilliqa = require('../zilliqa');
 const { Op } = require('sequelize');
@@ -6,8 +8,7 @@ const models = require('../models');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const {
   User,
-  blockchain,
-  Notification
+  blockchain
 } = models.sequelize.models;
 
 module.exports = async function (task, admin) {
@@ -28,11 +29,12 @@ module.exports = async function (task, admin) {
   });
 
   if (!user) {
+    log.warn('no found userID', task.payload.userId);
     return null;
   } else if (Number(user.lastAction) > Number(blockchainInfo.BlockNum)) {
-    throw new Error(
-      `Current blockNumber ${blockchainInfo.BlockNum} but user lastAction ${user.lastAction}`
-    );
+    const msg = `Current blockNumber ${blockchainInfo.BlockNum} but user lastAction ${user.lastAction}`;
+    log.warn(msg);
+    throw new Error(msg);
   }
 
   const userExist = await zilliqa.getonfigureUsers([user.profileId]);
@@ -48,12 +50,16 @@ module.exports = async function (task, admin) {
       admin
     );
 
+    log.info('userID:', task.payload.userId, 'send to shard txID:', tx.TranID);
+
     await user.update({
       hash: tx.TranID,
       lastAction: currentBlock,
       actionName: new User().actions.configureUsers
     });
   } catch (err) {
+    log.error('userID:', task.payload.userId, 'error', err);
+
     const lastAddres = await zilliqa.getonfigureUsers([user.profileId]);
 
     if (lastAddres && lastAddres[user.profileId]) {

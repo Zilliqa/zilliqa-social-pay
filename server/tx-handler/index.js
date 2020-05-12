@@ -1,4 +1,5 @@
-const debug = require('debug')('zilliqa-social-pay:tx-handler');
+const bunyan = require('bunyan');
+const log = bunyan.createLogger({ name: 'tx-handler' });
 const { Op } = require('sequelize');
 const models = require('../models');
 
@@ -18,10 +19,10 @@ async function taskHandler(task, jobQueue) {
       try {
         await verifyTweet(task, jobQueue.name);
         jobQueue.taskDone(task);
-        debug('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
+        log.info('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
       } catch (err) {
         jobQueue.next(task);
-        debug('ERROR', err.message, 'task:', task.type);
+        log.error('ERROR', err, 'task:', task.type);
       }
       break;
 
@@ -29,10 +30,10 @@ async function taskHandler(task, jobQueue) {
       try {
         await configureUsers(task, jobQueue.name);
         jobQueue.taskDone(task);
-        debug('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
+        log.info('task:', task.type, 'admin:', jobQueue.name);
       } catch (err) {
         jobQueue.next(task);
-        debug('ERROR', err.message, 'task:', task.type, 'admin:', jobQueue.name, JSON.stringify(task, null, 4));
+        log.error(err, 'task:', task.type, 'admin:', jobQueue.name, JSON.stringify(task, null, 4));
       }
       break;
 
@@ -102,7 +103,7 @@ async function queueFilling() {
     jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
   });
 
-  debug('INFO', 'tasks', tweets.count + users.count, 'will add to queue.');
+  log.info('tasks', tweets.count + users.count, 'will add to queue.');
 
   const tasks = tweets.rows.map((tweet) => {
     try {
@@ -112,7 +113,7 @@ async function queueFilling() {
       };
       return new Job(JOB_TYPES.verifyTweet, payload);
     } catch (err) {
-      debug('ERROR', 'task', JOB_TYPES.verifyTweet, err);
+      log.error('task', JOB_TYPES.verifyTweet, err);
 
       return null;
     }
@@ -131,7 +132,7 @@ async function queueFilling() {
 
   worker.distributeTasks(tasks);
 
-  debug(tweets.count + users.count, 'tasks added to queue');
+  log.info(tweets.count + users.count, 'tasks added to queue');
 
   User.addHook('afterUpdate', (user) => {
     if (!user.synchronization) {
@@ -145,7 +146,7 @@ async function queueFilling() {
 
     worker.addTask(job);
 
-    debug('User added to queue', user.id);
+    log.info('User added to queue', user.id);
   });
   Twittes.addHook('afterUpdate', (tweet) => {
     if (tweet.approved || tweet.rejected || tweet.claimed || tweet.txId) {
@@ -160,7 +161,7 @@ async function queueFilling() {
 
     worker.addTask(job);
 
-    debug('Tweet added to job', tweet.id);
+    log.info('Tweet added to job', tweet.id);
   });
 }
 

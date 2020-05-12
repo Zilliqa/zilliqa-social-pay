@@ -1,3 +1,5 @@
+const bunyan = require('bunyan');
+const log = bunyan.createLogger({ name: 'tx-handler:verify-tweet' });
 const zilliqa = require('../zilliqa');
 const { Op } = require('sequelize');
 const models = require('../models');
@@ -71,6 +73,7 @@ module.exports = async function (task, admin) {
   });
 
   if (!tweet) {
+    log.warn('tweet is null. tweetID:', task.payload.tweetId);
     return null;
   }
 
@@ -96,6 +99,8 @@ module.exports = async function (task, admin) {
       description: 'Rewards claimed!'
     });
 
+    log.warn('Tweet: ', tweet.idStr, 'already registered');
+
     return null;
   }
 
@@ -116,8 +121,12 @@ module.exports = async function (task, admin) {
       block: Number(blockchainInfo.BlockNum)
     });
 
+    log.info('Tweet: ', tweet.idStr, 'sent to shard txID:', tx.TranID);
+
     return tweet;
   } catch (err) {
+    log.error('TweetID:', task.payload.tweetId, 'error', err);
+
     if (err.message === dangerTweet) {
       await tweet.destroy();
       await Notification.create({

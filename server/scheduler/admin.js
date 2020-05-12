@@ -1,8 +1,9 @@
-const debug = require('debug')('zilliqa-social-pay:scheduler:admins');
+const bunyan = require('bunyan');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
 
 const { Admin } = models.sequelize.models;
+const log = bunyan.createLogger({ name: 'scheduler:admins' });
 
 module.exports = async function () {
   const statuses = new Admin().statuses;
@@ -25,5 +26,5 @@ module.exports = async function () {
   });
   const updated = await Promise.all(needUpdate);
 
-  debug('Admins updated:', updated.length, 'admin accounts.');
+  log.info('Admins updated:', updated.length, 'admin accounts.');
 }
