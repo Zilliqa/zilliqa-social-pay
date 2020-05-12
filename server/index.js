@@ -96,7 +96,7 @@ app
       console.log(`listening on port ${port}`);
     });
 
-    txHandler.queueFilling();
+    // txHandler.queueFilling();
   });
 
 require('./scheduler');

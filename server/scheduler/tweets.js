@@ -34,10 +34,9 @@ function getPos(text, hashtag) {
 }
 
 module.exports = async function () {
-  const statuses = new Admin().statuses;
   const freeAdmins = await Admin.count({
     where: {
-      status: statuses.enabled,
+      status: new Admin().statuses.enabled,
       balance: {
         [Op.gte]: '5000000000000' // 5ZILs
       }

@@ -20,10 +20,10 @@ module.exports = async function () {
       },
       updatedAt: {
         // Ten minuts.
-        [Op.lt]: new Date(new Date() - 24 * 60 * 250)
+        [Op.lt]: new Date(new Date() - 24 * 60 * 150)
       }
     },
-    limit: 500
+    limit: 100
   });
 
   debug('Need check', users.count, 'users.');
