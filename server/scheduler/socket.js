@@ -4,11 +4,13 @@ const models = require('../models');
 const eventUtils = require('../event-utils');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
 
 const { blockchain } = models.sequelize.models;
 const log = bunyan.createLogger({ name: 'scheduler:socket' });
 
-module.exports = async function () {
+module.exports = async function (redisClient) {
   try {
     await zilliqa.blockSubscribe(async (newBlock) => {
       const currenInfo = await blockchain.findOne({
@@ -32,6 +34,12 @@ module.exports = async function () {
         balance,
         rate: defualtRate
       });
+
+      const payload = JSON.stringify({
+        model: blockchain.tableName,
+        body: currenInfo
+      });
+      redisClient.publish(REDIS_CONFIG.channels.WEB, payload);
 
       log.info('next block has been created, block:', newBlock.BlockNum);
     })

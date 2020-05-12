@@ -3,11 +3,13 @@ const zilliqa = require('../zilliqa');
 const models = require('../models');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
 
 const { blockchain } = models.sequelize.models;
 const log = bunyan.createLogger({ name: 'scheduler:blockchain' });
 
-module.exports = async function () {
+module.exports = async function (redisClient) {
   try {
     const blockchainInfo = await zilliqa.blockchainInfo();
     const contractInfo = await zilliqa.getInit();
@@ -49,6 +51,12 @@ module.exports = async function () {
       BlockNum: blockchainInfo.NumTxBlocks,
       DSBlockNum: blockchainInfo.CurrentDSEpoch
     });
+
+    const payload = JSON.stringify({
+      model: blockchain.tableName,
+      body: currenInfo
+    });
+    redisClient.publish(REDIS_CONFIG.channels.WEB, payload);
 
     log.info('blockchain info has been updated.');
   } catch (err) {

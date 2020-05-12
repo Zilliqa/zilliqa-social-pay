@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const bunyan = require('bunyan');
 const log = bunyan.createLogger({ name: 'tx-handler' });
 const { Op } = require('sequelize');

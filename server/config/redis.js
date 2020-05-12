@@ -1,6 +1,5 @@
 const channels = {
   TX_HANDLER: 'TX_HANDLER',
-  SCHEDULER: 'SCHEDULER',
   WEB: 'WEB'
 };
 

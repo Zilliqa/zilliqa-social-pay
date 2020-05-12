@@ -1,17 +1,22 @@
 require('dotenv').config();
 
-const bunyan = require('bunyan');
 const schedule = require('node-schedule');
+const bunyan = require('bunyan');
 const log = bunyan.createLogger({ name: 'scheduler:blockchain' });
+const redis = require('redis');
 
-require('./blockchain')();
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
+const redisClient = redis.createClient(REDIS_CONFIG.url);
+
+require('./blockchain')(redisClient);
 require('./admin')();
-require('./socket')();
+require('./socket')(redisClient);
 
-// schedule.scheduleJob('* * * * *', (fireDate) => {
-//   log.info(`run blockchain update job ${fireDate}`);
-//   require('./blockchain')();
-// });
+schedule.scheduleJob('* * * * *', (fireDate) => {
+  log.info(`run blockchain update job ${fireDate}`);
+  require('./blockchain')(redisClient);
+});
 
 // schedule.scheduleJob('0/1 * * * *', (fireDate) => {
 //   log.info(`run admin accounts update job ${fireDate}`);
@@ -30,10 +35,10 @@ require('./socket')();
 
 schedule.scheduleJob('* * * * *', (fireDate) => {
   log.info(`run check broken tweets ${fireDate}`);
-  require('./pedding-tweets')();
+  require('./pedding-tweets')(redisClient);
 });
 
 schedule.scheduleJob('* * * * *', (fireDate) => {
   log.info(`run check broken users ${fireDate}`);
-  require('./pedding-users')();
+  require('./pedding-users')(redisClient);
 });

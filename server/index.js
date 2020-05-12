@@ -99,8 +99,11 @@ app
 
     io.on('connection', (socket) => {
       redisClient.on('message', (channel, message) => {
-        console.log(channel, message);
-        // socketRoute(socket, io);
+        try {
+          socketRoute(socket, io, message);
+        } catch (err) {
+          log.error('SOCKET', err);
+        }
       });
     });
 

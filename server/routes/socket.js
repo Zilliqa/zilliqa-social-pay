@@ -8,79 +8,88 @@ const {
   Notification
 } = models.sequelize.models;
 
-module.exports = (socket, io) => {
+module.exports = (socket, io, message) => {
+  const payload = JSON.parse(message);
+
+  switch (payload.model) {
+    case blockchain.tableName:
+      socket.emit(EVENTS.info, JSON.stringify(payload.body));
+      break;
+  }
+
+  console.log(payload);
   /**
    * When blockchain has been updated,
    * then socket send blockchain data to all user.
    */
-  blockchain.addHook('afterUpdate', (blockchain) => {
-    socket.emit(EVENTS.info, JSON.stringify(blockchain));
-  });
+  // blockchain.addHook('afterUpdate', (blockchain) => {
+  //   socket.emit(EVENTS.info, JSON.stringify(blockchain));
+  // });
 
   /**
    * When User model has been updated,
    * then socket send msg with user data send
    * to only one user by `user profile id`.
    */
-  User.addHook('afterUpdate', (user) => {
-    delete user.dataValues.tokenSecret;
-    delete user.dataValues.token;
+  // User.addHook('afterUpdate', (user) => {
+  //   delete user.dataValues.tokenSecret;
+  //   delete user.dataValues.token;
 
-    io.to(user.profileId).emit(EVENTS.userUpdated, JSON.stringify(user));
-  });
+  //   io.to(user.profileId).emit(EVENTS.userUpdated, JSON.stringify(user));
+  // });
 
-  /**
-   * When Tweet model has been updated,
-   * then socket send to tweet owenr msg with tweet data.
-   */
-  Twittes.addHook('afterUpdate', async (tweet) => {
-    const foundUser = await User.findOne({
-      where: {
-        id: tweet.UserId
-      },
-      attributes: {
-        exclude: [
-          'tokenSecret',
-          'token'
-        ]
-      }
-    });
+  // /**
+  //  * When Tweet model has been updated,
+  //  * then socket send to tweet owenr msg with tweet data.
+  //  */
+  // Twittes.addHook('afterUpdate', async (tweet) => {
+  //   const foundUser = await User.findOne({
+  //     where: {
+  //       id: tweet.UserId
+  //     },
+  //     attributes: {
+  //       exclude: [
+  //         'tokenSecret',
+  //         'token'
+  //       ]
+  //     }
+  //   });
 
-    if (!foundUser) {
-      return null;
-    }
+  //   if (!foundUser) {
+  //     return null;
+  //   }
 
-    delete tweet.dataValues.text;
-    delete tweet.dataValues.updatedAt;
-    delete tweet.dataValues.createdAt;
+  //   delete tweet.dataValues.text;
+  //   delete tweet.dataValues.updatedAt;
+  //   delete tweet.dataValues.createdAt;
 
-    io.to(foundUser.profileId).emit(EVENTS.userUpdated, JSON.stringify(foundUser));
-    io.to(foundUser.profileId).emit(EVENTS.tweetsUpdate, JSON.stringify(tweet));
-  });
+  //   io.to(foundUser.profileId).emit(EVENTS.userUpdated, JSON.stringify(foundUser));
+  //   io.to(foundUser.profileId).emit(EVENTS.tweetsUpdate, JSON.stringify(tweet));
+  // });
 
-  /**
-   * When Notification model has been created,
-   * then socket send notification to owner user.
-   */
-  Notification.addHook('afterCreate', async (notificationData) => {
-    const foundUser = await User.findOne({
-      where: {
-        id: notificationData.UserId
-      },
-      attributes: {
-        exclude: [
-          'tokenSecret',
-          'token'
-        ]
-      }
-    });
+  // /**
+  //  * When Notification model has been created,
+  //  * then socket send notification to owner user.
+  //  */
+  // Notification.addHook('afterCreate', async (notificationData) => {
+  //   const foundUser = await User.findOne({
+  //     where: {
+  //       id: notificationData.UserId
+  //     },
+  //     attributes: {
+  //       exclude: [
+  //         'tokenSecret',
+  //         'token'
+  //       ]
+  //     }
+  //   });
 
-    if (!foundUser) {
-      return null;
-    }
+  //   if (!foundUser) {
+  //     return null;
+  //   }
 
-    delete notificationData.dataValues.updatedAt;
+  //   delete notificationData.dataValues.updatedAt;
 
-    io.to(foundUser.profileId).emit(EVENTS.notificationCreate, JSON.stringify(notificationData));
-  });
+  //   io.to(foundUser.profileId).emit(EVENTS.notificationCreate, JSON.stringify(notificationData));
+  // });
 };
