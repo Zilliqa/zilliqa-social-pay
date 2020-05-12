@@ -1,4 +1,8 @@
+const bunyan = require('bunyan');
+const log = bunyan.createLogger({ name: 'queueworker' });
+const redis = require('redis');
 const QueueEmitter = require('./emitter');
+const REDIS_CONFIG = require('../config/redis')[process.env.NODE_ENV];
 
 class QueueWorker {
   constructor(keys) {
@@ -7,6 +11,14 @@ class QueueWorker {
     }
 
     this.jobQueues = keys.map((key) => new QueueEmitter(key));
+    this.redisClient = redis.createClient(REDIS_CONFIG);
+
+    this.redisClient.on('error', (err) => {
+      log.error('redis:', err);
+    });
+    this.redisClient.on('message', (channel, message) => {
+      log.info(channel, message);
+    });
   }
 
   _toMin() {

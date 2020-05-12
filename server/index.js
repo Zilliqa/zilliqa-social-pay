@@ -101,7 +101,4 @@ app
       log.info('redis version', redisClient.server_info.redis_version);
       log.info('listening on port', port);
     });
-
-    require('./tx-handler').queueFilling();
-    require('./scheduler');
   });

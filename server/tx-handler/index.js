@@ -165,6 +165,8 @@ async function queueFilling() {
   });
 }
 
+queueFilling();
+
 module.exports = {
   queueFilling
 };
