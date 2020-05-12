@@ -288,12 +288,17 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
     });
     redis.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
 
-    await Notification.create({
+    const notification = await Notification.create({
       UserId: user.id,
       type: notificationTypes.tweetClaiming,
       title: 'Tweet',
       description: 'Claiming rewards…'
     });
+
+    redis.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
+    }));
 
     delete createdTweet.dataValues.text;
     delete createdTweet.dataValues.updatedAt;
@@ -408,12 +413,17 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, 
     });
     redis.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
 
-    await Notification.create({
+    const notification = await Notification.create({
       UserId: user.id,
       type: notificationTypes.tweetClaiming,
       title: 'Tweet',
       description: 'Claiming rewards…'
     });
+
+    redis.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
+    }));
 
     return res.status(201).json(foundTweet);
   } catch (err) {

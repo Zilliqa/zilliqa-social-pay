@@ -4,6 +4,8 @@ const zilliqa = require('../zilliqa');
 const models = require('../models');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
 
 const {
   User,
@@ -15,7 +17,7 @@ const log = bunyan.createLogger({ name: 'scheduler:pedding-verifytweet' });
 
 const notificationTypes = new Notification().types;
 
-module.exports = async function () {
+module.exports = async function (redisClient) {
   const twittes = await Twittes.findAndCountAll({
     where: {
       approved: false,
@@ -55,12 +57,17 @@ module.exports = async function () {
         block: 0,
         txId: null
       });
-      await Notification.create({
+      const notification = await Notification.create({
         UserId: tweet.User.id,
         type: notificationTypes.tweetReject,
         title: 'Tweet',
         description: 'Rewards error!'
       });
+
+      redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+        model: Notification.tableName,
+        body: notification
+      }));
 
       return null;
     }
@@ -72,12 +79,17 @@ module.exports = async function () {
       rejected: false,
       block: Number(blockchainInfo.BlockNum)
     });
-    await Notification.create({
+    const notification = await Notification.create({
       UserId: tweet.User.id,
       type: notificationTypes.tweetClaimed,
       title: 'Tweet',
       description: 'Rewards claimed!'
     });
+
+    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
+    }));
   });
 
   await Promise.all(needTestForVerified);

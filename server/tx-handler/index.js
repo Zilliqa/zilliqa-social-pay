@@ -36,7 +36,7 @@ async function taskHandler(task, jobQueue) {
 
     case JOB_TYPES.verifyTweet:
       try {
-        const tweet = await verifyTweet(task, jobQueue.name);
+        const tweet = await verifyTweet(task, jobQueue.name, redisSender);
         jobQueue.taskDone(task);
         log.info('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
         redisSend(Twittes, tweet);

@@ -8,11 +8,12 @@ const {
   User,
   Notification
 } = models.sequelize.models;
-
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
 const notificationTypes = new Notification().types;
 const log = bunyan.createLogger({ name: 'scheduler:peddign-users' });
 
-module.exports = async function () {
+module.exports = async function (redisClient) {
   const users = await User.findAndCountAll({
     where: {
       synchronization: true,
@@ -55,12 +56,17 @@ module.exports = async function () {
       zilAddress: toBech32Address(usersFromContract[profileId]),
       lastAction: 0
     });
-    await Notification.create({
+    const notification = await Notification.create({
       UserId: user.id,
       type: notificationTypes.addressConfigured,
       title: 'Account',
       description: 'Address configured!'
     });
+
+    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
+    }));
   });
 
   await Promise.all(onlyProfiles);

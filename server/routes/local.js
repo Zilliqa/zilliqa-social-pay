@@ -70,12 +70,17 @@ router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, 
       userId: user.id
     }));
 
-    await Notification.create({
+    const notification = await Notification.create({
       UserId: user.id,
       type: notificationTypes.addressConfiguring,
       title: 'Account',
       description: 'Syncing Address...'
     });
+
+    redis.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
+    }));
 
     delete user.dataValues.tokenSecret;
     delete user.dataValues.token;
