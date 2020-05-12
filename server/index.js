@@ -21,7 +21,8 @@ const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('./config/redis')[ENV];
 const port = process.env.PORT || 3000;
 const dev = ENV !== 'production';
-const redisClient = redis.createClient(REDIS_CONFIG.url);
+const redisClientSubscriber = redis.createClient(REDIS_CONFIG.url);
+const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 const log = bunyan.createLogger({ name: 'next-server' });
 const app = next({ dev, dir: './' });
 const indexRouter = require('./routes/index');
@@ -53,15 +54,15 @@ server.use(bodyParser.urlencoded({ extended: true }))
 // parse application/json
 server.use(bodyParser.json());
 
-server.set('redis', redisClient);
+server.set('redis', redisClientSender);
 server.set('log', log);
 
 server.use('/', indexRouter);
 
-redisClient.on('error', (err) => {
+redisClientSubscriber.on('error', (err) => {
   log.error('redis:', err);
 });
-redisClient.subscribe(REDIS_CONFIG.channels.WEB);
+redisClientSubscriber.subscribe(REDIS_CONFIG.channels.WEB);
 
 app
   .prepare()
@@ -98,7 +99,7 @@ app
     io.use(socketMiddleware);
 
     io.on('connection', (socket) => {
-      redisClient.on('message', (channel, message) => {
+      redisClientSubscriber.on('message', (channel, message) => {
         try {
           socketRoute(socket, io, message);
         } catch (err) {
@@ -109,7 +110,7 @@ app
 
     http.listen(port, () => {
       log.info('SocialPay version', PACKAGE.version);
-      log.info('redis version', redisClient.server_info.redis_version);
+      log.info('redis version', redisClientSubscriber.server_info.redis_version);
       log.info('listening on port', port);
     });
   });
