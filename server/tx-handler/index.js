@@ -85,6 +85,10 @@ async function queueFilling() {
         [Op.gte]: '5000000000000' // 5ZILs
       }
     },
+    order: [
+      ['balance', 'DESC'],
+      ['nonce', 'ASC']
+    ],
     attributes: [
       'bech32Address'
     ]

@@ -55,7 +55,7 @@ class QueueWorker {
 
   _toMin() {
     this.jobQueues.sort((jobA, jobB) => {
-      return jobA.queueLength - jobB.queueLength;
+      return jobA.timestamp - jobB.timestamp;
     });
   }
 

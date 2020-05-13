@@ -27,6 +27,7 @@ module.exports = class QueueEmitter extends EventEmitter {
     this.settings = settings;
     this.events = EVENTS_TYPE();
     this.queue = new Queue();
+    this.timestamp = new Date().valueOf();
   }
 
   addTask(task) {
@@ -47,6 +48,8 @@ module.exports = class QueueEmitter extends EventEmitter {
     if (this.queue.hasJobs) {
       this.emit(this.events.trigger, this.queue.firstTask);
     }
+
+    this.timestamp = new Date().valueOf();
 
     return task;
   }
