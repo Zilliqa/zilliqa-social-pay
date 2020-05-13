@@ -25,10 +25,10 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
   require('./blockchain')(redisClient);
 });
 
-// schedule.scheduleJob('0/1 * * * *', (fireDate) => {
-//   log.info(`run admin accounts update job ${fireDate}`);
-//   require('./admin')();
-// });
+schedule.scheduleJob('* * * * *', (fireDate) => {
+  log.info(`run admin accounts update job ${fireDate}`);
+  require('./admin')();
+});
 
 // schedule.scheduleJob('* * * * *', (fireDate) => {
 //   log.info(`run user address configure ${fireDate}`);

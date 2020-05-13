@@ -90,7 +90,6 @@ async function queueFilling() {
     ]
   });
   const keys = admins.map((el) => el.bech32Address);
-
   const worker = new QueueWorker(keys);
   const tweets = await Twittes.findAndCountAll({
     where: {
@@ -175,6 +174,6 @@ queueFilling()
     const interval = setInterval(() => {
       queueFilling()
         .then(() => clearInterval(interval))
-        .catch(log.error);
+        .catch((e) => log.error('queueFilling', e));
     }, 5000);
   });

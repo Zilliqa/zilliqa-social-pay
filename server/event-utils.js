@@ -129,9 +129,7 @@ module.exports = {
     redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
       model: User.tableName,
       body: {
-        ...user,
-        token: undefined,
-        tokenSecret: undefined
+        id: user.id
       }
     }));
     redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({

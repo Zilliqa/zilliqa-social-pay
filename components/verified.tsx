@@ -179,8 +179,20 @@ export const Verified: React.FC = () => {
       });
       EventStore.setEvent(Events.Error);
     } else {
-      TwitterStore.setLastBlock(result.block);
-      BlockchainStore.updateTimer();
+      const mapetTweets = twitterState.tweets.map((t) => {
+        if (t.id === result.id) {
+          return result;
+        }
+
+        return t;
+      });
+
+      if (Number(result.block) > Number(twitterState.lastBlockNumber)) {
+        TwitterStore.setLastBlock(result.block);
+        BlockchainStore.updateTimer();
+      }
+
+      TwitterStore.update(mapetTweets);
       EventStore.reset();
     }
   }, [userState, blockchainState, twitterState, router]);
