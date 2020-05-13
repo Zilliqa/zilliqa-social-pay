@@ -65,7 +65,7 @@ module.exports = async function (redisClient) {
             break;
 
           case eventUtils.events.AddedAdmin:
-            const addedAdmin = await eventUtils.addedAdmin(params);
+            const addedAdmin = await eventUtils.addedAdmin(params, redisClient);
             log.info('Admin has been added', addedAdmin);
             break;
 

@@ -31,11 +31,18 @@ class QueueWorker {
     });
   }
 
+  _toRandom() {
+    this.jobQueues.sort(() => {
+      return 0.5 - Math.random();
+    });
+  }
+
   distributeTasks(tasks) {
     if (!Array.isArray(tasks)) {
       throw new Error('tasks should be Array');
     }
 
+    this._toRandom();
     this._toMin();
 
     for (let taskIndex = 0; taskIndex < tasks.length + this.jobQueues.length; taskIndex += this.jobQueues.length) {
@@ -47,6 +54,8 @@ class QueueWorker {
         }
       }
     }
+
+    this.jobQueues.forEach(job => console.log(job.queueLength));
   }
 
   addTask(taskJob) {

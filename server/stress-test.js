@@ -1,16 +1,21 @@
 const uuids = require('uuid');
 const { Op } = require('sequelize');
+const redis = require('redis');
 const models = require('./models');
 const { getAddressFromPrivateKey, schnorr, toBech32Address } = require('@zilliqa-js/crypto');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const { User, Twittes, blockchain } = models.sequelize.models;
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('./config/redis')[ENV];
+const JOB_TYPES = require('./config/job-types');
+const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 
-const USERS_CREATER = 5000;
-const USER_TO_CONFIGURE = 5000;
-const TWEET_CREATER = 5000;
+const USERS_CREATER = 500;
+const USER_TO_CONFIGURE = 500;
+const TWEET_CREATER = 500;
 
-module.exports = function () {
+function test() {
   setInterval(async() => {
     await User.create({
       username: `test${uuids.v4()}`,
@@ -45,6 +50,10 @@ module.exports = function () {
         synchronization: true,
         zilAddress: bech32Address
       });
+      redisClientSender.publish(REDIS_CONFIG.channels.TX_HANDLER, JSON.stringify({
+        type: JOB_TYPES.configureUsers,
+        userId: user.id
+      }));
     });
   }, USER_TO_CONFIGURE);
 
@@ -66,7 +75,8 @@ module.exports = function () {
         where: {
           UserId: user.id,
           approved: false,
-          rejected: false
+          rejected: false,
+          claimed: false
         }
       });
 
@@ -74,12 +84,20 @@ module.exports = function () {
         return null;
       }
 
-      await Twittes.create({
+      const tweet = await Twittes.create({
         idStr: uuids.v4(),
         text: `#Zilliqa ${uuids.v4()}`,
         UserId: user.id,
         claimed: true
       });
+      
+      const payload = JSON.stringify({
+        type: JOB_TYPES.verifyTweet,
+        tweetId: tweet.id,
+        userId: user.id
+      });
+      redisClientSender.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
     });
   }, TWEET_CREATER);
 }
+test();

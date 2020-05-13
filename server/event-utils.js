@@ -54,7 +54,7 @@ module.exports = {
 
     return toBech32Address(address);
   },
-  async addedAdmin(params) {
+  async addedAdmin(params, redisClient) {
     const { value } = params.find(
       ({ vname }) => vname === this.keys.adminAddress
     );
@@ -83,6 +83,11 @@ module.exports = {
     }, {
       where: { address }
     });
+
+    redisClient.publish(REDIS_CONFIG.channels.TX_HANDLER, JSON.stringify({
+      type: Admin.tableName,
+      address: toBech32Address(address)
+    }));
 
     return toBech32Address(address);
   },
