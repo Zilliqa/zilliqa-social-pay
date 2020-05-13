@@ -169,6 +169,38 @@ async function queueFilling() {
   worker.distributeTasks(tasks);
 
   log.info(tweets.count + users.count, 'tasks added to queue');
+
+  worker.redisSubscribe.on('message', (channel, message) => {
+    try {
+      let payload = {};
+      let type = null;
+      const body = JSON.parse(message);
+
+      switch (body.type) {
+        case JOB_TYPES.configureUsers:
+          payload.userId = body.userId;
+          type = body.type;
+          break;
+        case JOB_TYPES.verifyTweet:
+          payload.userId = body.userId;
+          payload.tweetId = body.tweetId;
+          type = body.type;
+          break;
+        case Admin.tableName:
+          const newJob = worker.addJobQueues(body.address);
+          newJob.addListener(newJob.events.trigger, (task) => taskHandler(task, newJob));
+          return null;
+        default:
+          return null;
+      }
+
+      const job = new Job(type, payload);
+
+      worker.addTask(job);
+    } catch (err) {
+      log.error('channel:', channel, 'message', message, 'error', err);
+    }
+  });
 }
 
 queueFilling()

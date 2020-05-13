@@ -17,7 +17,7 @@ if (!validation.isBech32(CONTRACT_ADDRESS)) {
 const redisClient = redis.createClient(REDIS_CONFIG.url);
 
 require('./blockchain')(redisClient);
-require('./admin')();
+require('./admin')(redisClient);
 require('./socket')(redisClient);
 
 schedule.scheduleJob('* * * * *', (fireDate) => {
@@ -27,7 +27,7 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
 
 schedule.scheduleJob('* * * * *', (fireDate) => {
   log.info(`run admin accounts update job ${fireDate}`);
-  require('./admin')();
+  require('./admin')(redisClient);
 });
 
 // schedule.scheduleJob('* * * * *', (fireDate) => {
