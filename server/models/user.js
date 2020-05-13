@@ -1,5 +1,6 @@
 'use strict';
 const jwt = require('jsonwebtoken');
+const { validation } = require('@zilliqa-js/util');
 const secret = process.env.JWT_SECRET;
 const statuses = {
   baned: 'baned',
@@ -23,7 +24,14 @@ module.exports = (sequelize, DataTypes) => {
     tokenSecret: DataTypes.STRING,
     zilAddress: {
       type: DataTypes.STRING,
-      unique: true
+      unique: true,
+      validate: {
+        isBech32(value) {
+          if (!validation.isBech32(value)) {
+            throw new Error('Invalid address format.')
+          }
+        }
+      }
     },
     hash: {
       type: DataTypes.STRING,

@@ -6,7 +6,7 @@ const channels = {
 module.exports = {
   development: {
     channels,
-    url: process.env.REDIS_URL || 'redis://127.0.0.1:6379'
+    url: 'redis://127.0.0.1:6379'
   },
   test: {
     channels,

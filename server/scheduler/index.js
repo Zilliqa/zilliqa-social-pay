@@ -4,9 +4,16 @@ const schedule = require('node-schedule');
 const bunyan = require('bunyan');
 const log = bunyan.createLogger({ name: 'scheduler:blockchain' });
 const redis = require('redis');
+const { validation } = require('@zilliqa-js/util');
 
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+
+if (!validation.isBech32(CONTRACT_ADDRESS)) {
+  throw new Error('incorect contract address');
+}
+
 const redisClient = redis.createClient(REDIS_CONFIG.url);
 
 require('./blockchain')(redisClient);

@@ -3,15 +3,45 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./next
     ports:
       - "3000:3000"
     env_file:
       - .env
     depends_on:
       - postgres
+      - redis
+      - scheduler
     links:
       - postgres
+      - redis
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: ./scheduler
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - postgres
+      - redis
+
+  txhandler:
+    build:
+      context: .
+      dockerfile: ./tx-handler
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+      - scheduler
+    links:
+      - postgres
+      - redis
 
   postgres:
     image: postgres
@@ -29,4 +59,5 @@ services:
       - /data/redis:/data
 
 volumes:
+  redis-data:
   postgres:

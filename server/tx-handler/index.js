@@ -4,6 +4,7 @@ const bunyan = require('bunyan');
 const log = bunyan.createLogger({ name: 'tx-handler' });
 const redis = require('redis');
 const { Op } = require('sequelize');
+const { validation } = require('@zilliqa-js/util');
 const models = require('../models');
 
 const { Job, QueueWorker } = require('../job');
@@ -14,6 +15,10 @@ const JOB_TYPES = require('../config/job-types');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
+
+if (!validation.isBech32(CONTRACT_ADDRESS)) {
+  throw new Error('incorect contract address');
+}
 
 const { User, Twittes, Admin, blockchain } = models.sequelize.models;
 const redisSender = redis.createClient(REDIS_CONFIG.url);
@@ -41,8 +46,8 @@ async function taskHandler(task, jobQueue) {
         log.info('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
         redisSend(Twittes, tweet);
       } catch (err) {
-        jobQueue.next(task);
         log.error('ERROR', err, 'task:', task.type);
+        jobQueue.next(task);
       }
       break;
 
@@ -53,8 +58,8 @@ async function taskHandler(task, jobQueue) {
         log.info('task:', task.type, 'admin:', jobQueue.name);
         redisSend(User, user);
       } catch (err) {
-        jobQueue.next(task);
         log.error(err, 'task:', task.type, 'admin:', jobQueue.name, JSON.stringify(task, null, 4));
+        jobQueue.next(task);
       }
       break;
 
@@ -68,6 +73,11 @@ async function queueFilling() {
   const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
+
+  if (!blockchainInfo) {
+    throw new Error('NEXT');
+  }
+
   const admins = await Admin.findAll({
     where: {
       status: new Admin().statuses.enabled,
@@ -78,8 +88,10 @@ async function queueFilling() {
     attributes: [
       'bech32Address'
     ]
-  }).map((el) => el.bech32Address);
-  const worker = new QueueWorker(admins);
+  });
+  const keys = admins.map((el) => el.bech32Address);
+
+  const worker = new QueueWorker(keys);
   const tweets = await Twittes.findAndCountAll({
     where: {
       approved: false,
@@ -156,8 +168,13 @@ async function queueFilling() {
   log.info(tweets.count + users.count, 'tasks added to queue');
 }
 
-queueFilling();
+queueFilling()
+  .catch((err) => {
+    log.error('queueFilling', err);
 
-module.exports = {
-  queueFilling
-};
+    const interval = setInterval(() => {
+      queueFilling()
+        .then(() => clearInterval(interval))
+        .catch(log.error);
+    }, 5000);
+  });

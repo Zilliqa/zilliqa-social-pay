@@ -13,6 +13,8 @@ class QueueWorker {
   constructor(keys) {
     if (!Array.isArray(keys)) {
       throw new Error('keys should be Array');
+    } else if (keys.length === 0) {
+      throw new Error('keys is emnty.');
     }
 
     this.jobQueues = keys.map((key) => new QueueEmitter(key));

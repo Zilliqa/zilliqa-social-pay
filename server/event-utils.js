@@ -69,7 +69,7 @@ module.exports = {
 
     try {
       const res = await zilliqa.getCurrentAccount(address);
-    
+
       balance = res.balance;
       nonce = res.nonce;
     } catch (err) {
