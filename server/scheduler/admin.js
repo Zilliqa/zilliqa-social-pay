@@ -20,7 +20,7 @@ module.exports = async function (redisClient) {
   });
   const admins = await zilliqa.getAdmins();
   const needUpdate = admins.map(async (adminAddress) => {
-    const { balance } = await zilliqa.getCurrentAccount(adminAddress);
+    const { balance, nonce } = await zilliqa.getCurrentAccount(adminAddress);
     const willUpdate = adminsDB.some((account) => adminAddress === account.address);
 
     if (willUpdate) {
@@ -32,6 +32,7 @@ module.exports = async function (redisClient) {
 
     return Admin.update({
       balance,
+      nonce,
       status: statuses.enabled
     }, {
       where: {

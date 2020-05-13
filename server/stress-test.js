@@ -58,6 +58,9 @@ function test() {
   }, USER_TO_CONFIGURE);
 
   setInterval(async () => {
+    const blockchainInfo = await blockchain.findOne({
+      where: { contract: CONTRACT_ADDRESS }
+    });
     const users = await User.findAll({
       where: {
         synchronization: false,
@@ -76,7 +79,10 @@ function test() {
           UserId: user.id,
           approved: false,
           rejected: false,
-          claimed: false
+          claimed: false,
+          block: {
+            [Op.lt]: Number(blockchainInfo.BlockNum) + 5
+          }
         }
       });
 

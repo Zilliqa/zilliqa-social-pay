@@ -100,7 +100,10 @@ async function queueFilling() {
       approved: false,
       rejected: false,
       txId: null,
-      claimed: true
+      claimed: true,
+      block: {
+        [Op.lt]: Number(blockchainInfo.BlockNum)
+      }
     },
     include: {
       model: User,

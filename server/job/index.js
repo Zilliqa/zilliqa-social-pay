@@ -27,7 +27,7 @@ class QueueWorker {
 
   _toMin() {
     this.jobQueues.sort((jobA, jobB) => {
-      return jobB.timestamp - jobA.timestamp;
+      return jobA.queueLength - jobB.queueLength;
     });
   }
 
@@ -55,7 +55,9 @@ class QueueWorker {
       }
     }
 
-    this.jobQueues.forEach(job => console.log(job.queueLength));
+    this.jobQueues.forEach((job) => {
+      log.info('JOB', job.name, 'queue:', job.queueLength);
+    });
   }
 
   addTask(taskJob) {
@@ -67,8 +69,11 @@ class QueueWorker {
       }
     }
 
+    this._toRandom();
     this._toMin();
     this.jobQueues[0].addTask(taskJob);
+
+    log.info('JOB added', this.jobQueues[0].name, 'queue:', this.jobQueues[0].queueLength);
   }
 
   addJobQueues(key) {
@@ -79,6 +84,10 @@ class QueueWorker {
     const job = new QueueEmitter(key);
 
     this.jobQueues.push(job);
+
+    this.jobQueues.forEach((job) => {
+      log.info('JOB', job.name, 'queue:', job.queueLength);
+    });
 
     return job;
   }

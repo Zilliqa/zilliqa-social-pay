@@ -25,7 +25,7 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
   require('./blockchain')(redisClient);
 });
 
-schedule.scheduleJob('* * * * *', (fireDate) => {
+schedule.scheduleJob('0/5 * * * *', (fireDate) => {
   log.info(`run admin accounts update job ${fireDate}`);
   require('./admin')(redisClient);
 });
