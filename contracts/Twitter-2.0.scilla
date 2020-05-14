@@ -194,8 +194,9 @@ procedure VerifyTweet(verify_info: VerifyInfo)
               _eventname : "VerifyTweetSuccessful";
               sender: _sender;
               recipient: recipient_address;
-              reward_amount: zils_per_tweet;
-              tweet_id: tweet_id
+              twitter_id: twitter_id;
+              tweet_id: tweet_id;
+              reward_amount: zils_per_tweet
             };
             event e;
             msg = { 
