@@ -71,30 +71,13 @@ async function taskHandler(task, jobQueue) {
   }
 }
 
-async function queueFilling() {
+async function getTasks() {
   const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
 
   if (!blockchainInfo) {
     throw new Error('NEXT');
   }
 
-  const admins = await Admin.findAll({
-    where: {
-      status: new Admin().statuses.enabled,
-      balance: {
-        [Op.gte]: '5000000000000' // 5ZILs
-      }
-    },
-    order: [
-      ['balance', 'DESC'],
-      ['nonce', 'ASC']
-    ],
-    attributes: [
-      'bech32Address'
-    ]
-  });
-  const keys = admins.map((el) => el.bech32Address);
-  const worker = new QueueWorker(keys);
   const tweets = await Twittes.findAndCountAll({
     where: {
       approved: false,
@@ -137,13 +120,6 @@ async function queueFilling() {
       'id'
     ]
   });
-
-  worker.jobQueues.forEach((jobQueue) => {
-    jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
-  });
-
-  log.info('tasks', tweets.count + users.count, 'will add to queue.');
-
   const tasks = tweets.rows.map((tweet) => {
     try {
       const payload = {
@@ -169,11 +145,38 @@ async function queueFilling() {
     }
   }));
 
+  return tasks;
+}
+
+async function queueFilling() {
+  const admins = await Admin.findAll({
+    where: {
+      status: new Admin().statuses.enabled,
+      balance: {
+        [Op.gte]: '5000000000000' // 5ZILs
+      }
+    },
+    order: [
+      ['balance', 'DESC'],
+      ['nonce', 'ASC']
+    ],
+    attributes: [
+      'bech32Address'
+    ]
+  });
+  const keys = admins.map((el) => el.bech32Address);
+  const worker = new QueueWorker(keys);
+
+  worker.jobQueues.forEach((jobQueue) => {
+    jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
+  });
+
+  const tasks = await getTasks();
   worker.distributeTasks(tasks);
 
-  log.info(tweets.count + users.count, 'tasks added to queue');
+  log.info(tasks.length, 'tasks added to queue');
 
-  worker.redisSubscribe.on('message', (channel, message) => {
+  worker.redisSubscribe.on('message', async (channel, message) => {
     try {
       let payload = {};
       let type = null;
@@ -192,6 +195,12 @@ async function queueFilling() {
         case Admin.tableName:
           const newJob = worker.addJobQueues(body.address);
           newJob.addListener(newJob.events.trigger, (task) => taskHandler(task, newJob));
+          log.info('Added new job admin:', body.address);
+          return null;
+        case blockchain.tableName:
+          const tasks = await getTasks();
+          worker.distributeTasks(tasks);
+          log.info(tasks.length, 'tasks added to queue');
           return null;
         default:
           return null;

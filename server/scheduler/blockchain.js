@@ -61,7 +61,10 @@ module.exports = async function (redisClient) {
       body: currenInfo
     });
     redisClient.publish(REDIS_CONFIG.channels.WEB, payload);
-    redisClient.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
+    redisClient.publish(REDIS_CONFIG.channels.TX_HANDLER, JSON.stringify({
+      type: blockchain.tableName,
+      body: currenInfo
+    }));
     redisClient.set(blockchain.tableName, JSON.stringify(currenInfo));
 
     log.info('blockchain info has been updated.');
