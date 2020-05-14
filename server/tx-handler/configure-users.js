@@ -11,7 +11,7 @@ const {
   blockchain
 } = models.sequelize.models;
 
-module.exports = async function (task, admin) {
+module.exports = async function (task, admin, redisClient) {
   const getAsync = promisify(redisClient.get).bind(redisClient);
   const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
   const user = await User.findOne({

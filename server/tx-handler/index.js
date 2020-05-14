@@ -55,7 +55,7 @@ async function taskHandler(task, jobQueue) {
 
     case JOB_TYPES.configureUsers:
       try {
-        const user = await configureUsers(task, jobQueue.name);
+        const user = await configureUsers(task, jobQueue.name, redisSender);
         jobQueue.taskDone(task);
         log.info('task:', task.type, 'admin:', jobQueue.name);
         redisSend(User, user);

@@ -25,7 +25,7 @@ module.exports = async function (redisClient) {
         [Op.lt]: new Date(new Date() - 24 * 60 * 250)
       }
     },
-    limit: 100
+    limit: 500
   });
 
   log.info('Need check', users.count, 'users.');
@@ -43,7 +43,8 @@ module.exports = async function (redisClient) {
 
       await user.update({
         synchronization: true,
-        lastAction: 0
+        lastAction: 0,
+        hash: null
       });
 
       return null;
