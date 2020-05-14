@@ -5,6 +5,7 @@ const checkSession = require('../middleware/check-session');
 const models = require('../models');
 const verifyJwt = require('../middleware/verify-jwt');
 const verifyCampaign = require('../middleware/campaign-check');
+const blockchainCache = require('../middleware/blockchain-cache');
 
 const router = express.Router();
 
@@ -174,28 +175,8 @@ router.get('/get/tweets', checkSession, async (req, res) => {
   }
 });
 
-router.get('/get/blockchain', checkSession, async (req, res) => {
-  try {
-    const blockchainInfo = await blockchain.findOne({
-      where: {
-        contract: CONTRACT_ADDRESS
-      }
-    });
-
-    blockchainInfo.dataValues.campaignEnd = new Date(END_OF_CAMPAIGN);
-    blockchainInfo.dataValues.now = new Date();
-
-    return res.status(200).json(blockchainInfo);
-  } catch (err) {
-    if (dev) {
-      return res.status(401).send(err.message || err);;
-    }
-
-    return res.status(401).json({
-      code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
-    });
-  }
+router.get('/get/blockchain', checkSession, blockchainCache, async (req, res) => {
+  return res.status(200).json(req.blockchainInfo);
 });
 
 router.get('/get/notifications', checkSession, async (req, res) => {

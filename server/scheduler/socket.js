@@ -4,6 +4,7 @@ const models = require('../models');
 const eventUtils = require('../event-utils');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const END_OF_CAMPAIGN = process.env.END_OF_CAMPAIGN;
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
 
@@ -34,6 +35,9 @@ module.exports = async function (redisClient) {
         balance,
         rate: defualtRate
       });
+
+      currenInfo.dataValues.campaignEnd = new Date(END_OF_CAMPAIGN);
+      currenInfo.dataValues.now = new Date();
 
       const payload = JSON.stringify({
         model: blockchain.tableName,
