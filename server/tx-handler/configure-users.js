@@ -32,7 +32,6 @@ module.exports = async function (task, admin, redisClient) {
     return null;
   } else if (Number(user.lastAction) > Number(blockchainInfo.BlockNum)) {
     const msg = `Current blockNumber ${blockchainInfo.BlockNum} but user lastAction ${user.lastAction}`;
-    log.warn(msg);
     throw new Error(msg);
   }
 

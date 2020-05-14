@@ -16,6 +16,7 @@ const JOB_TYPES = require('../config/job-types');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
+const TASK_LIMIT = 200;
 
 if (!validation.isBech32(CONTRACT_ADDRESS)) {
   throw new Error('incorect contract address');
@@ -102,7 +103,8 @@ async function getTasks() {
     },
     attributes: [
       'id'
-    ]
+    ],
+    limit: TASK_LIMIT
   });
   const users = await User.findAndCountAll({
     where: {
@@ -118,7 +120,8 @@ async function getTasks() {
     },
     attributes: [
       'id'
-    ]
+    ],
+    limit: TASK_LIMIT
   });
   const tasks = tweets.rows.map((tweet) => {
     try {
