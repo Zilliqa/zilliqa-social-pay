@@ -153,7 +153,7 @@ async function queueFilling() {
     where: {
       status: new Admin().statuses.enabled,
       balance: {
-        [Op.gte]: '5000000000000' // 5ZILs
+        [Op.gte]: '50000000000000' // 50ZILs
       }
     },
     order: [
