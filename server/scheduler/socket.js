@@ -40,6 +40,7 @@ module.exports = async function (redisClient) {
         body: currenInfo
       });
       redisClient.publish(REDIS_CONFIG.channels.WEB, payload);
+      redisClient.set(blockchain.tableName, JSON.stringify(currenInfo));
 
       log.info('next block has been created, block:', newBlock.BlockNum);
     })

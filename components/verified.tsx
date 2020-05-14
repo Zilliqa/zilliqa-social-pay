@@ -99,16 +99,10 @@ export const Verified: React.FC = () => {
     return 'display: none;';
   }, [twitterState]);
   const sortedTweets = React.useMemo(() => {
-    const maxDateValue = Math.max.apply(Math, twitterState.tweets.map(
-      (tw) => new Date(tw.createdAt).valueOf())
-    );
-
     return deepCopy(twitterState.tweets)
       .sort((a: Twitte, b: Twitte) => {
-        if (a.claimed) {
-          return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf() + maxDateValue;
-        } else if (b.claimed) {
-          return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf() + maxDateValue;
+        if (b.claimed && a.claimed) {
+          return -1;
         }
 
         return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();

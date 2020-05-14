@@ -128,7 +128,16 @@ export const Controller: React.FC = () => {
   }, [value, userState]);
 
   React.useEffect(() => {
-    if (userState.synchronization) {
+    const tweetClaiming = twitterState.tweets.some(
+      (t) => Boolean(t.claimed && !t.approved && !t.rejected)
+    );
+
+    if (tweetClaiming) {
+      setValue('');
+      setPlaceholder('Claiming tweet in progress...');
+      setDisabled(true);
+      setIcon(InputIcons.refresh);
+    } else if (userState.synchronization) {
       setValue('');
       setPlaceholder('Waiting for address to sync...');
       setDisabled(true);
@@ -146,12 +155,12 @@ export const Controller: React.FC = () => {
   }, [
     setIcon,
     setDisabled,
-    disabled,
     setPlaceholder,
-    value,
-    userState,
     setValue,
-    blockchainState
+    twitterState.tweets,
+    userState.synchronization,
+    blockchainState.dayTimer,
+    blockchainState.dayTimer
   ]);
 
   /**
