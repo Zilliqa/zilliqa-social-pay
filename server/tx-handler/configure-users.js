@@ -1,21 +1,19 @@
 const bunyan = require('bunyan');
 const log = bunyan.createLogger({ name: 'tx-handler:verify-tweet' });
 const { toBech32Address } = require('@zilliqa-js/crypto');
+const { promisify } = require('util');
 const zilliqa = require('../zilliqa');
 const { Op } = require('sequelize');
 const models = require('../models');
 
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const {
   User,
   blockchain
 } = models.sequelize.models;
 
 module.exports = async function (task, admin) {
-  let currentBlock = 0;
-  const blockchainInfo = await blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
+  const getAsync = promisify(redisClient.get).bind(redisClient);
+  const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
   const user = await User.findOne({
     where: {
       id: task.payload.userId,
@@ -27,6 +25,7 @@ module.exports = async function (task, admin) {
       status: new User().statuses.enabled
     }
   });
+  let currentBlock = 0;
 
   if (!user) {
     log.warn('no found userID', task.payload.userId);

@@ -1,10 +1,10 @@
 const bunyan = require('bunyan');
 const log = bunyan.createLogger({ name: 'tx-handler:verify-tweet' });
+const { promisify } = require('util');
 const zilliqa = require('../zilliqa');
 const { Op } = require('sequelize');
 const models = require('../models');
 
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
 const {
@@ -35,9 +35,8 @@ function getPos(text, hashtag) {
 }
 
 module.exports = async function (task, admin, redisClient) {
-  const blockchainInfo = await blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
+  const getAsync = promisify(redisClient.get).bind(redisClient);
+  const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
   const lastActionTweet = await Twittes.findOne({
     order: [
       ['block', 'DESC']

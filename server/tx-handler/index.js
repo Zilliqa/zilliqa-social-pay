@@ -3,6 +3,7 @@ require('dotenv').config();
 const bunyan = require('bunyan');
 const log = bunyan.createLogger({ name: 'tx-handler' });
 const redis = require('redis');
+const { promisify } = require('util');
 const { Op } = require('sequelize');
 const { validation } = require('@zilliqa-js/util');
 const models = require('../models');
@@ -22,6 +23,7 @@ if (!validation.isBech32(CONTRACT_ADDRESS)) {
 
 const { User, Twittes, Admin, blockchain } = models.sequelize.models;
 const redisSender = redis.createClient(REDIS_CONFIG.url);
+const getAsync = promisify(redisSender.get).bind(redisSender);
 
 function redisSend(model, payload) {
   if (!model || !payload) {
@@ -70,9 +72,7 @@ async function taskHandler(task, jobQueue) {
 }
 
 async function queueFilling() {
-  const blockchainInfo = await blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
+  const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
 
   if (!blockchainInfo) {
     throw new Error('NEXT');

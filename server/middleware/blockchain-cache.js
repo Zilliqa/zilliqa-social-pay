@@ -8,11 +8,11 @@ const { blockchain } = models.sequelize.models;
 
 module.exports = async function (req, res, next) {
   const { redis } = req.app.settings;
-  const getBlock = promisify(redis.get).bind(redis);
+  const getAsync = promisify(redis.get).bind(redis);
   let blockchainInfo = null;
 
   try {
-    blockchainInfo = await getBlock(blockchain.tableName);
+    blockchainInfo = await getAsync(blockchain.tableName);
 
     if (!blockchainInfo) {
       throw new Error('not found from cahce.');
