@@ -16,7 +16,6 @@ const JOB_TYPES = require('../config/job-types');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
-const TASK_LIMIT = 200;
 
 if (!validation.isBech32(CONTRACT_ADDRESS)) {
   throw new Error('incorect contract address');
@@ -72,7 +71,7 @@ async function taskHandler(task, jobQueue) {
   }
 }
 
-async function getTasks() {
+async function getTasks(limit) {
   const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
 
   if (!blockchainInfo) {
@@ -80,6 +79,7 @@ async function getTasks() {
   }
 
   const tweets = await Twittes.findAndCountAll({
+    limit,	  
     where: {
       approved: false,
       rejected: false,
@@ -103,10 +103,10 @@ async function getTasks() {
     },
     attributes: [
       'id'
-    ],
-    limit: TASK_LIMIT
+    ]
   });
   const users = await User.findAndCountAll({
+    limit,	  
     where: {
       synchronization: true,
       zilAddress: {
@@ -120,8 +120,7 @@ async function getTasks() {
     },
     attributes: [
       'id'
-    ],
-    limit: TASK_LIMIT
+    ]
   });
   const tasks = tweets.rows.map((tweet) => {
     try {
@@ -174,7 +173,7 @@ async function queueFilling() {
     jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
   });
 
-  const tasks = await getTasks();
+  const tasks = await getTasks(admins.length);
   worker.distributeTasks(tasks);
 
   log.info(tasks.length, 'tasks added to queue');
