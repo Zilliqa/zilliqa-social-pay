@@ -8,79 +8,63 @@ const {
   Notification
 } = models.sequelize.models;
 
-module.exports = (socket, io) => {
-  /**
-   * When blockchain has been updated,
-   * then socket send blockchain data to all user.
-   */
-  blockchain.addHook('afterUpdate', (blockchain) => {
-    socket.emit(EVENTS.info, JSON.stringify(blockchain));
-  });
+module.exports = async (io, message) => {
+  const payload = JSON.parse(message);
 
-  /**
-   * When User model has been updated,
-   * then socket send msg with user data send
-   * to only one user by `user profile id`.
-   */
-  User.addHook('afterUpdate', (user) => {
-    delete user.dataValues.tokenSecret;
-    delete user.dataValues.token;
-
-    io.to(user.profileId).emit(EVENTS.userUpdated, JSON.stringify(user));
-  });
-
-  /**
-   * When Tweet model has been updated,
-   * then socket send to tweet owenr msg with tweet data.
-   */
-  Twittes.addHook('afterUpdate', async (tweet) => {
-    const foundUser = await User.findOne({
-      where: {
-        id: tweet.UserId
-      },
-      attributes: {
-        exclude: [
-          'tokenSecret',
-          'token'
+  switch (payload.model) {
+    case blockchain.tableName:
+      io.emit(EVENTS.info, JSON.stringify(payload.body));
+      break;
+    case Twittes.tableName:
+      const foundTweet = await Twittes.findOne({
+        where: payload.body.id,
+        include: {
+          model: User,
+          attributes: [
+            'profileId'
+          ]
+        },
+        attributes: {
+          exclude: [
+            'text',
+            'updatedAt'
+          ]
+        }
+      });
+      io
+        .to(foundTweet.User.profileId)
+        .emit(EVENTS.tweetsUpdate, JSON.stringify(foundTweet));
+      break;
+    case User.tableName:
+      const foundUser = await User.findOne({
+        where: {
+          id: payload.body.id
+        },
+        attributes: {
+          exclude: [
+            'tokenSecret',
+            'token'
+          ]
+        }
+      });
+      io
+        .to(foundUser.profileId)
+        .emit(EVENTS.userUpdated, JSON.stringify(foundUser));
+      break;
+    case Notification.tableName:
+      const userNotification = await User.findOne({
+        where: {
+          id: payload.body.UserId
+        },
+        attributes: [
+          'profileId'
         ]
-      }
-    });
-
-    if (!foundUser) {
-      return null;
-    }
-
-    delete tweet.dataValues.text;
-    delete tweet.dataValues.updatedAt;
-    delete tweet.dataValues.createdAt;
-
-    io.to(foundUser.profileId).emit(EVENTS.userUpdated, JSON.stringify(foundUser));
-    io.to(foundUser.profileId).emit(EVENTS.tweetsUpdate, JSON.stringify(tweet));
-  });
-
-  /**
-   * When Notification model has been created,
-   * then socket send notification to owner user.
-   */
-  Notification.addHook('afterCreate', async (notificationData) => {
-    const foundUser = await User.findOne({
-      where: {
-        id: notificationData.UserId
-      },
-      attributes: {
-        exclude: [
-          'tokenSecret',
-          'token'
-        ]
-      }
-    });
-
-    if (!foundUser) {
-      return null;
-    }
-
-    delete notificationData.dataValues.updatedAt;
-
-    io.to(foundUser.profileId).emit(EVENTS.notificationCreate, JSON.stringify(notificationData));
-  });
+      });
+      io
+        .to(userNotification.profileId)
+        .emit(EVENTS.notificationCreate, JSON.stringify(payload.body));
+      break;
+    default:
+      break;
+  }
 };

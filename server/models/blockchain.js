@@ -1,10 +1,18 @@
 'use strict';
+const { validation } = require('@zilliqa-js/util');
 module.exports = (sequelize, DataTypes) => {
   const blockchain = sequelize.define('blockchain', {
     contract: {
       type: DataTypes.STRING,
       unique: true,
-      allowNull: false
+      allowNull: false,
+      validate: {
+        isAddress(value) {
+          if (!validation.isBech32(value)) {
+            throw new Error('Invalid address format.')
+          }
+        }
+      }
     },
     hashtag: {
       type: DataTypes.STRING,

@@ -1,12 +1,28 @@
+const bunyan = require('bunyan');
+const log = bunyan.createLogger({ name: 'queueworker' });
+const redis = require('redis');
+
 const QueueEmitter = require('./emitter');
+const Job = require('./job');
+
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
 
 class QueueWorker {
   constructor(keys) {
     if (!Array.isArray(keys)) {
       throw new Error('keys should be Array');
+    } else if (keys.length === 0) {
+      throw new Error('keys is emnty.');
     }
 
     this.jobQueues = keys.map((key) => new QueueEmitter(key));
+    this.redisSubscribe = redis.createClient(REDIS_CONFIG.url);
+    this.redisSubscribe.subscribe(REDIS_CONFIG.channels.TX_HANDLER);
+
+    this.redisSubscribe.on('error', (err) => {
+      log.error('redis:', err);
+    });
   }
 
   _toMin() {
@@ -15,11 +31,18 @@ class QueueWorker {
     });
   }
 
+  _toRandom() {
+    this.jobQueues.sort(() => {
+      return 0.5 - Math.random();
+    });
+  }
+
   distributeTasks(tasks) {
     if (!Array.isArray(tasks)) {
       throw new Error('tasks should be Array');
     }
 
+    this._toRandom();
     this._toMin();
 
     for (let taskIndex = 0; taskIndex < tasks.length + this.jobQueues.length; taskIndex += this.jobQueues.length) {
@@ -31,17 +54,48 @@ class QueueWorker {
         }
       }
     }
+
+    this.jobQueues.forEach((job) => {
+      log.info('JOB', job.name, 'queue:', job.queueLength);
+    });
   }
 
   addTask(taskJob) {
+    for (let index = 0; index < this.jobQueues.length; index++) {
+      const job = this.jobQueues[index];
+
+      if (job.queue.hasTask(taskJob)) {
+        return null;
+      }
+    }
+
+    this._toRandom();
     this._toMin();
     this.jobQueues[0].addTask(taskJob);
+
+    log.info('JOB added', this.jobQueues[0].name, 'queue:', this.jobQueues[0].queueLength);
+  }
+
+  addJobQueues(key) {
+    if (!key) {
+      throw new Error('Key is required');
+    }
+
+    const job = new QueueEmitter(key);
+
+    this.jobQueues.push(job);
+
+    this.jobQueues.forEach((job) => {
+      log.info('JOB', job.name, 'queue:', job.queueLength);
+    });
+
+    return job;
   }
 }
 
 module.exports = {
   QueueWorker,
   QueueEmitter,
-  Job: require('./job'),
+  Job,
   Queue: require('./queue')
 };

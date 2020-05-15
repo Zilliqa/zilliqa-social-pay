@@ -13,7 +13,7 @@ const EVENTS_TYPE = () => ({
 module.exports = class QueueEmitter extends EventEmitter {
 
   get queueLength() {
-    return this._queue.length;
+    return this.queue.length;
   }
 
   constructor(name, settings = {}) {
@@ -26,34 +26,36 @@ module.exports = class QueueEmitter extends EventEmitter {
     this.name = name;
     this.settings = settings;
     this.events = EVENTS_TYPE();
-
-    this._queue = new Queue();
+    this.queue = new Queue();
+    this.timestamp = new Date().valueOf();
   }
 
   addTask(task) {
-    this._queue.addTask(task);
+    this.queue.addTask(task);
     this.emit(this.events.taskAdded, task);
 
-    if (this._queue.firstJob) {
-      this.emit(this.events.trigger, this._queue.firstTask);
+    if (this.queue.firstJob) {
+      this.emit(this.events.trigger, this.queue.firstTask);
     }
 
     return task;
   }
 
   taskDone(task) {
-    this._queue.removeTask(task);
+    this.queue.removeTask(task);
     this.emit(this.events.taskDone, task);
 
-    if (this._queue.hasJobs) {
-      this.emit(this.events.trigger, this._queue.firstTask);
+    if (this.queue.hasJobs) {
+      this.emit(this.events.trigger, this.queue.firstTask);
     }
+
+    this.timestamp = new Date().valueOf();
 
     return task;
   }
 
   next(task) {
-    this._queue.moveToLast(task);
-    this.emit(this.events.trigger, this._queue.firstTask);
+    this.queue.moveToLast(task);
+    this.emit(this.events.trigger, this.queue.firstTask);
   }
 }

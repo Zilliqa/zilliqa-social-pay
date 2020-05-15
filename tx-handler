@@ -1,0 +1,10 @@
+FROM node:10
+
+WORKDIR /app
+COPY . .
+
+RUN npm install
+
+ARG SCRIPT="tx:handler"
+ENV SCRIPT=${SCRIPT}
+ENTRYPOINT ["sh", "run.sh"]
