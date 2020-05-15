@@ -5,4 +5,6 @@ COPY . .
 
 RUN npm install
 
-CMD npm run tx:handler
+ARG SCRIPT="tx:handler"
+ENV SCRIPT=${SCRIPT}
+ENTRYPOINT ["sh", "run.sh"]
