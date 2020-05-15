@@ -15,6 +15,7 @@ application=socialpay-server
 registryURL=${accountID}.dkr.ecr.${regionID}.amazonaws.com/$application
 
 eval "$(aws ecr get-login --no-include-email --region $regionID)"
-docker build --build-arg DEPLOY_ENV="stg" -t "$registryURL:latest" -t "$registryURL:$commit" .
+docker build --build-arg SCRIPT="start" -t "$registryURL:latest" -t "$registryURL:$commit" .
+docker build --build-arg SCRIPT="scheduler" -t "$registryURL:latest" -t "$registryURL:$commit" .
+docker build --build-arg SCRIPT="tx:handler" -t "$registryURL:latest" -t "$registryURL:$commit" .
 docker push "$registryURL"
-

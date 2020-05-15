@@ -3,7 +3,9 @@ services:
   app:
     build:
       context: .
-      dockerfile: ./next
+      dockerfile: ./Dockerfile
+      args:
+        SCRIPT: "start"
     ports:
       - "3000:3000"
     env_file:
@@ -19,7 +21,9 @@ services:
   scheduler:
     build:
       context: .
-      dockerfile: ./scheduler
+      dockerfile: ./Dockerfile
+      args:
+        SCRIPT: "scheduler"
     env_file:
       - .env
     depends_on:
@@ -32,7 +36,9 @@ services:
   txhandler:
     build:
       context: .
-      dockerfile: ./tx-handler
+      dockerfile: ./Dockerfile
+      args:
+        SCRIPT: "tx:handler"
     env_file:
       - .env
     depends_on:
