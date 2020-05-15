@@ -1,5 +1,11 @@
-const debug = require('debug')('zilliqa-social-pay:tx-handler');
+require('dotenv').config();
+
+const bunyan = require('bunyan');
+const log = bunyan.createLogger({ name: 'tx-handler' });
+const redis = require('redis');
+const { promisify } = require('util');
 const { Op } = require('sequelize');
+const { validation } = require('@zilliqa-js/util');
 const models = require('../models');
 
 const { Job, QueueWorker } = require('../job');
@@ -8,31 +14,54 @@ const configureUsers = require('./configure-users');
 
 const JOB_TYPES = require('../config/job-types');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
+
+if (!validation.isBech32(CONTRACT_ADDRESS)) {
+  throw new Error('incorect contract address');
+}
 
 const { User, Twittes, Admin, blockchain } = models.sequelize.models;
+const redisSender = redis.createClient(REDIS_CONFIG.url);
+const getAsync = promisify(redisSender.get).bind(redisSender);
+
+function redisSend(model, payload) {
+  if (!model || !payload) {
+    return null;
+  }
+
+  redisSender.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+    body: {
+      id: payload.id
+    },
+    model: model.tableName
+  }));
+}
 
 async function taskHandler(task, jobQueue) {
   switch (task.type) {
 
     case JOB_TYPES.verifyTweet:
       try {
-        await verifyTweet(task, jobQueue.name);
+        const tweet = await verifyTweet(task, jobQueue.name, redisSender);
         jobQueue.taskDone(task);
-        debug('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
+        log.info('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
+        redisSend(Twittes, tweet);
       } catch (err) {
+        log.error('ERROR', err, 'task:', task.type);
         jobQueue.next(task);
-        debug('ERROR', err.message, 'task:', task.type);
       }
       break;
 
     case JOB_TYPES.configureUsers:
       try {
-        await configureUsers(task, jobQueue.name);
+        const user = await configureUsers(task, jobQueue.name, redisSender);
         jobQueue.taskDone(task);
-        debug('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
+        log.info('task:', task.type, 'admin:', jobQueue.name);
+        redisSend(User, user);
       } catch (err) {
+        log.error(err, 'task:', task.type, 'admin:', jobQueue.name, JSON.stringify(task, null, 4));
         jobQueue.next(task);
-        debug('ERROR', err.message, 'task:', task.type, 'admin:', jobQueue.name, JSON.stringify(task, null, 4));
       }
       break;
 
@@ -42,28 +71,23 @@ async function taskHandler(task, jobQueue) {
   }
 }
 
-async function queueFilling() {
-  const blockchainInfo = await blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
-  const admins = await Admin.findAll({
-    where: {
-      status: new Admin().statuses.enabled,
-      balance: {
-        [Op.gte]: '5000000000000' // 5ZILs
-      }
-    },
-    attributes: [
-      'bech32Address'
-    ]
-  }).map((el) => el.bech32Address);
-  const worker = new QueueWorker(admins);
+async function getTasks(limit) {
+  const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
+
+  if (!blockchainInfo) {
+    throw new Error('NEXT');
+  }
+
   const tweets = await Twittes.findAndCountAll({
+    limit,	  
     where: {
       approved: false,
       rejected: false,
       txId: null,
-      claimed: true
+      claimed: true,
+      block: {
+        [Op.lt]: Number(blockchainInfo.BlockNum)
+      }
     },
     include: {
       model: User,
@@ -82,6 +106,7 @@ async function queueFilling() {
     ]
   });
   const users = await User.findAndCountAll({
+    limit,	  
     where: {
       synchronization: true,
       zilAddress: {
@@ -97,13 +122,6 @@ async function queueFilling() {
       'id'
     ]
   });
-
-  worker.jobQueues.forEach((jobQueue) => {
-    jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
-  });
-
-  debug('INFO', 'tasks', tweets.count + users.count, 'will add to queue.');
-
   const tasks = tweets.rows.map((tweet) => {
     try {
       const payload = {
@@ -112,7 +130,7 @@ async function queueFilling() {
       };
       return new Job(JOB_TYPES.verifyTweet, payload);
     } catch (err) {
-      debug('ERROR', 'task', JOB_TYPES.verifyTweet, err);
+      log.error('task', JOB_TYPES.verifyTweet, err);
 
       return null;
     }
@@ -129,41 +147,83 @@ async function queueFilling() {
     }
   }));
 
+  return tasks;
+}
+
+async function queueFilling() {
+  const admins = await Admin.findAll({
+    where: {
+      status: new Admin().statuses.enabled,
+      balance: {
+        [Op.gte]: '50000000000000' // 50ZILs
+      }
+    },
+    order: [
+      ['balance', 'DESC'],
+      ['nonce', 'ASC']
+    ],
+    attributes: [
+      'bech32Address'
+    ]
+  });
+  const keys = admins.map((el) => el.bech32Address);
+  const worker = new QueueWorker(keys);
+
+  worker.jobQueues.forEach((jobQueue) => {
+    jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
+  });
+
+  const tasks = await getTasks(admins.length);
   worker.distributeTasks(tasks);
 
-  debug(tweets.count + users.count, 'tasks added to queue');
+  log.info(tasks.length, 'tasks added to queue');
 
-  User.addHook('afterUpdate', (user) => {
-    if (!user.synchronization) {
-      return null;
+  worker.redisSubscribe.on('message', async (channel, message) => {
+    try {
+      let payload = {};
+      let type = null;
+      const body = JSON.parse(message);
+
+      switch (body.type) {
+        case JOB_TYPES.configureUsers:
+          payload.userId = body.userId;
+          type = body.type;
+          break;
+        case JOB_TYPES.verifyTweet:
+          payload.userId = body.userId;
+          payload.tweetId = body.tweetId;
+          type = body.type;
+          break;
+        case Admin.tableName:
+          const newJob = worker.addJobQueues(body.address);
+          newJob.addListener(newJob.events.trigger, (task) => taskHandler(task, newJob));
+          log.info('Added new job admin:', body.address);
+          return null;
+        case blockchain.tableName:
+          const tasks = await getTasks();
+          worker.distributeTasks(tasks);
+          log.info(tasks.length, 'tasks added to queue');
+          return null;
+        default:
+          return null;
+      }
+
+      const job = new Job(type, payload);
+
+      worker.addTask(job);
+    } catch (err) {
+      log.error('channel:', channel, 'message', message, 'error', err);
     }
-
-    const payload = {
-      userId: user.id
-    };
-    const job = new Job(JOB_TYPES.configureUsers, payload);
-
-    worker.addTask(job);
-
-    debug('User added to queue', user.id);
-  });
-  Twittes.addHook('afterUpdate', (tweet) => {
-    if (tweet.approved || tweet.rejected || tweet.claimed || tweet.txId) {
-      return null;
-    }
-
-    const payload = {
-      tweetId: tweet.id,
-      userId: tweet.UserId
-    };
-    const job = new Job(JOB_TYPES.verifyTweet, payload);
-
-    worker.addTask(job);
-
-    debug('Tweet added to job', tweet.id, );
   });
 }
 
-module.exports = {
-  queueFilling
-};
+queueFilling()
+  .catch((err) => {
+    log.error('queueFilling', err);
+
+    const interval = setInterval(() => {
+      queueFilling()
+        .then(() => clearInterval(interval))
+        .catch((e) => log.error('queueFilling', e));
+    }, 5000);
+  });

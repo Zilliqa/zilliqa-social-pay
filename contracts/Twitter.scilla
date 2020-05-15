@@ -14,6 +14,12 @@ let one_msg =
     let nil_msg = Nil {Message} in
     Cons {Message} msg nil_msg
 
+let two_msgs =
+fun (msg1 : Message) =>
+fun (msg2 : Message) =>
+  let msgs_tmp = one_msg msg2 in
+  Cons {Message} msg1 msgs_tmp
+
 let is_valid_substring =
   fun (tweet_text : String) =>
   fun (start_pos : Uint32) =>
@@ -33,7 +39,7 @@ type Error =
   | CodeTweetNotValid
   | CodeTweetWithinDay
 
-let make_error_event =
+let make_error =
   fun (result : Error) =>
     let result_code = 
       match result with
@@ -45,7 +51,7 @@ let make_error_event =
       | CodeTweetWithinDay       => Int32 -6
       end
     in
-    { _eventname : "Error"; code : result_code }
+    { _exception : "Error"; code : result_code }
 
 let tt = True
 
@@ -59,7 +65,8 @@ contract SocialPay
     hashtag: String,
     zils_per_tweet : Uint128,
     blocks_per_day : Uint32,
-    blocks_per_week : Uint32
+    blocks_per_week : Uint32,
+    donation_address : ByStr20
 )
 
 field verified_tweets: Map String ByStr20 = Emp String ByStr20
@@ -68,9 +75,29 @@ field admins: Map ByStr20 Bool = Emp ByStr20 Bool
 field registered_users: Map String ByStr20 = Emp String ByStr20
 
 (* Emit Errors *)
-procedure IssueErrorEvent(err: Error)
-  e = make_error_event err;
-  event e
+procedure ThrowError(err: Error)
+  e = make_error err;
+  throw e
+end
+
+procedure IsOwner(address: ByStr20)
+  is_owner = builtin eq address owner;
+  match is_owner with
+  | True =>
+  | False =>
+    err = CodeNotAuthorized;
+    ThrowError err
+  end
+end
+
+procedure IsAdmin()
+  is_admin <- exists admins[_sender];
+  match is_admin with
+  | True =>
+  | False =>
+    err = CodeNotAuthorized;
+    ThrowError err
+  end
 end
 
 procedure ConfigureAdmin(admin_address: ByStr20)
@@ -89,64 +116,46 @@ end
 
 (* Only owner can deposit ZIL *)
 transition Deposit()
-    is_owner = builtin eq owner _sender;
-    match is_owner with
-    | False =>
-        err = CodeNotAuthorized;
-        IssueErrorEvent err
-    | True =>
-        accept;
-        e = {_eventname : "DepositSuccessful"; sender: _sender; deposit_amount: _amount};
-        event e
-    end
+  IsOwner _sender;
+  accept;
+  e = {_eventname : "DepositSuccessful"; sender: _sender; deposit_amount: _amount};
+  event e
 end
 
 transition ConfigureAdmins(admin_addresses: List ByStr20)
-    is_owner = builtin eq owner _sender;
-    match is_owner with
-    | False =>
-        err = CodeNotAuthorized;
-        IssueErrorEvent err
-    | True =>
-        forall admin_addresses ConfigureAdmin
-    end
+  IsOwner _sender;
+  forall admin_addresses ConfigureAdmin
 end
 
 transition ConfigureUsers(twitter_id: String, recipient_address: ByStr20)
-    is_admin <- exists admins[_sender];
-    match is_admin with
-    | False =>
-        err = CodeNotAuthorized;
-        IssueErrorEvent err
-    | True =>
-        is_registered <- exists registered_users[twitter_id];
-        match is_registered with
-        | True =>
-            current_block <- & BLOCKNUMBER;
-            withdrawal <- last_withdrawal[twitter_id];
-            not_next_week_yet =
-                match withdrawal with
-                | Some last_withdraw_block =>
-                    let next_week_block = builtin badd last_withdraw_block blocks_per_week in
-                    builtin blt current_block next_week_block
-                | None =>
-                    False
-                end;
-            match not_next_week_yet with
-            | True =>
-                err = CodeRegisteredWithinWeek;
-                IssueErrorEvent err
-            | False =>
-                registered_users[twitter_id] := recipient_address;
-                e = {_eventname : "ConfiguredUserAddress"; twitter_id: twitter_id; recipient_address: recipient_address};
-                event e
-            end
-        | False =>
-            registered_users[twitter_id] := recipient_address;
-            e = {_eventname : "ConfiguredUserAddress"; twitter_id: twitter_id; recipient_address: recipient_address};
-            event e
-        end
-    end
+  IsAdmin;
+  is_registered <- exists registered_users[twitter_id];
+  match is_registered with
+  | True =>
+      current_block <- & BLOCKNUMBER;
+      withdrawal <- last_withdrawal[twitter_id];
+      not_next_week_yet =
+          match withdrawal with
+          | Some last_withdraw_block =>
+              let next_week_block = builtin badd last_withdraw_block blocks_per_week in
+              builtin blt current_block next_week_block
+          | None =>
+              False
+          end;
+      match not_next_week_yet with
+      | True =>
+          err = CodeRegisteredWithinWeek;
+          ThrowError err
+      | False =>
+          registered_users[twitter_id] := recipient_address;
+          e = {_eventname : "ConfiguredUserAddress"; twitter_id: twitter_id; recipient_address: recipient_address};
+          event e
+      end
+  | False =>
+      registered_users[twitter_id] := recipient_address;
+      e = {_eventname : "ConfiguredUserAddress"; twitter_id: twitter_id; recipient_address: recipient_address};
+      event e
+  end
 end
 
 (* Only admins can call this transition                                         *)
@@ -157,107 +166,95 @@ end
 (*   4. Substring specs (start_pos) is valid.                                   *)
 (*   5. The substring matches the preset hashtag.                               *)
 (*   6. Sufficient time (blocks) have passed since the user was awarded before. *)
-transition VerifyTweet (
-    twitter_id: String,
-    tweet_id: String, 
-    tweet_text: String,
-    start_pos: Uint32)
-
-    is_admin <- exists admins[_sender];
-
-    match is_admin with
-    | False =>
-        err = CodeNotAuthorized;
-        IssueErrorEvent err
-    | True =>
-        get_recipient_address <- registered_users[twitter_id];
-        match get_recipient_address with
-        | None =>
-            err = CodeUserNotRegistered;
-            IssueErrorEvent err
-        | Some recipient_address =>
-            already_verified <- exists verified_tweets[tweet_id];
-            not_already_verified = negb already_verified;
-            hashtag_len = builtin strlen hashtag;
-            valid_substring = is_valid_substring tweet_text start_pos hashtag_len;
-            is_valid = andb valid_substring not_already_verified;
-            match is_valid with
-            | False =>
-                match already_verified with
-                | True =>
-                    err = CodeTweetAlreadyExists;
-                    IssueErrorEvent err
-                | False =>
-                    err = CodeTweetNotValid;
-                    IssueErrorEvent err
-                end
-            | True =>
-                match_hashtag = builtin substr tweet_text start_pos hashtag_len;
-                is_hashtag = builtin eq match_hashtag hashtag;
-                match is_hashtag with
-                | False =>
-                    err = CodeTweetNotValid;
-                    IssueErrorEvent err
-                | True =>
-                    withdrawal <- last_withdrawal[twitter_id];
-                    current_block <- & BLOCKNUMBER;
-                    not_next_day_yet =
-                        match withdrawal with
-                        | Some last_withdraw_block =>
-                            let next_day_block = builtin badd last_withdraw_block blocks_per_day in
-                            builtin blt current_block next_day_block
-                        | None =>
-                            False
-                        end;
-                    match not_next_day_yet with
-                    | True =>
-                        err = CodeTweetWithinDay;
-                        IssueErrorEvent err
-                    | False =>
-                        verified_tweets[tweet_id] := recipient_address;
-                        last_withdrawal[twitter_id] := current_block;
-                        e = {
-                                _eventname : "VerifyTweetSuccessful";
-                                sender: _sender;
-                                recipient: recipient_address;
-                                reward_amount: zils_per_tweet;
-                                tweet_id: tweet_id
-                            };
-                        event e;
-                        msg = { 
-                                _tag: "";
-                                _recipient: recipient_address;
-                                _amount: zils_per_tweet 
-                            };
-                        msgs = one_msg msg;
-                        send msgs
-                    end
-                end
-            end
-        end
-    end
+transition VerifyTweet (twitter_id: String, tweet_id: String, tweet_text: String, start_pos: Uint32)
+  IsAdmin;
+  get_recipient_address <- registered_users[twitter_id];
+  match get_recipient_address with
+  | None =>
+      err = CodeUserNotRegistered;
+      ThrowError err
+  | Some recipient_address =>
+      already_verified <- exists verified_tweets[tweet_id];
+      not_already_verified = negb already_verified;
+      hashtag_len = builtin strlen hashtag;
+      valid_substring = is_valid_substring tweet_text start_pos hashtag_len;
+      is_valid = andb valid_substring not_already_verified;
+      match is_valid with
+      | False =>
+          match already_verified with
+          | True =>
+              err = CodeTweetAlreadyExists;
+              ThrowError err
+          | False =>
+              err = CodeTweetNotValid;
+              ThrowError err
+          end
+      | True =>
+          match_hashtag = builtin substr tweet_text start_pos hashtag_len;
+          is_hashtag = builtin eq match_hashtag hashtag;
+          match is_hashtag with
+          | False =>
+              err = CodeTweetNotValid;
+              ThrowError err
+          | True =>
+              withdrawal <- last_withdrawal[twitter_id];
+              current_block <- & BLOCKNUMBER;
+              not_next_day_yet =
+                  match withdrawal with
+                  | Some last_withdraw_block =>
+                      let next_day_block = builtin badd last_withdraw_block blocks_per_day in
+                      builtin blt current_block next_day_block
+                  | None =>
+                      False
+                  end;
+              match not_next_day_yet with
+              | True =>
+                  err = CodeTweetWithinDay;
+                  ThrowError err
+              | False =>
+                  verified_tweets[tweet_id] := recipient_address;
+                  last_withdrawal[twitter_id] := current_block;
+                  e = {
+                          _eventname : "VerifyTweetSuccessful";
+                          sender: _sender;
+                          recipient: recipient_address;
+                          twitter_id: twitter_id;
+                          tweet_id: tweet_id;
+                          reward_amount: zils_per_tweet;
+                          matched_donation: zils_per_tweet
+                      };
+                  event e;
+                  msg_to_recipient = { 
+                    _tag: "";
+                    _recipient: recipient_address;
+                    _amount: zils_per_tweet 
+                  };
+                  msg_to_donation = {
+                    _tag: "";
+                    _recipient: donation_address;
+                    _amount: zils_per_tweet
+                  };
+                  msgs = two_msgs msg_to_recipient msg_to_donation;
+                  send msgs
+              end
+          end
+      end
+  end
 end
 
 transition ReturnFund ()
-    bal <- _balance;
-    is_owner = builtin eq owner _sender;
-    
-    match is_owner with
-    | True =>
-      e = {
-        _eventname : "ReturnFundSuccessful";
-        returned_amount: bal
-      };
-      event e;
-      msg = {
-          _tag       : "";
-          _recipient : owner;
-          _amount    : bal
-      };
-      msgs = one_msg msg;
-      send msgs
-    | False =>
-      err = CodeNotAuthorized;
-      IssueErrorEvent err
-    end
+  IsOwner _sender;
+  current_bal <- _balance;
+  e = {
+    _eventname : "ReturnFundSuccessful";
+    returned_amount: current_bal
+  };
+  event e;
+  msg = {
+      _tag       : "";
+      _recipient : owner;
+      _amount    : current_bal
+  };
+  msgs = one_msg msg;
+  send msgs
 end

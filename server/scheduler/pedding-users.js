@@ -1,4 +1,4 @@
-const debug = require('debug')('zilliqa-social-pay:scheduler:peddign-users');
+const bunyan = require('bunyan');
 const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
@@ -8,10 +8,12 @@ const {
   User,
   Notification
 } = models.sequelize.models;
-
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
 const notificationTypes = new Notification().types;
+const log = bunyan.createLogger({ name: 'scheduler:peddign-users' });
 
-module.exports = async function () {
+module.exports = async function (redisClient) {
   const users = await User.findAndCountAll({
     where: {
       synchronization: true,
@@ -26,9 +28,9 @@ module.exports = async function () {
     limit: 100
   });
 
-  debug('Need check', users.count, 'users.');
+  log.info('Need check', users.count, 'users.');
 
-  if (users.count < 1) {
+  if (users.count < 0) {
     return null;
   }
 
@@ -37,29 +39,35 @@ module.exports = async function () {
     const usersFromContract = await zilliqa.getonfigureUsers([profileId]);
 
     if (!usersFromContract || !usersFromContract[profileId]) {
-      debug('FAIL to configureUser with profileID:', profileId);
+      log.warn('FAIL to configureUser with profileID:', profileId);
 
       await user.update({
         synchronization: true,
-        lastAction: 0
+        lastAction: 0,
+        hash: null
       });
 
       return null;
     }
 
-    debug('User with profileID:', profileId, 'has been synchronized from blockchain.');
+    log.info('User with profileID:', profileId, 'has been synchronized from blockchain.');
 
     await user.update({
       synchronization: false,
       zilAddress: toBech32Address(usersFromContract[profileId]),
       lastAction: 0
     });
-    await Notification.create({
+    const notification = await Notification.create({
       UserId: user.id,
       type: notificationTypes.addressConfigured,
       title: 'Account',
       description: 'Address configured!'
     });
+
+    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
+    }));
   });
 
   await Promise.all(onlyProfiles);

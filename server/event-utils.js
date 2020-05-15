@@ -4,6 +4,8 @@ const { BN } = require('@zilliqa-js/util');
 const { toChecksumAddress, toBech32Address } = require('@zilliqa-js/crypto');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('./config/redis')[ENV];
 
 const {
   User,
@@ -52,7 +54,7 @@ module.exports = {
 
     return toBech32Address(address);
   },
-  async addedAdmin(params) {
+  async addedAdmin(params, redisClient) {
     const { value } = params.find(
       ({ vname }) => vname === this.keys.adminAddress
     );
@@ -67,7 +69,7 @@ module.exports = {
 
     try {
       const res = await zilliqa.getCurrentAccount(address);
-    
+
       balance = res.balance;
       nonce = res.nonce;
     } catch (err) {
@@ -82,9 +84,14 @@ module.exports = {
       where: { address }
     });
 
+    redisClient.publish(REDIS_CONFIG.channels.TX_HANDLER, JSON.stringify({
+      type: Admin.tableName,
+      address: toBech32Address(address)
+    }));
+
     return toBech32Address(address);
   },
-  async configuredUserAddress(params) {
+  async configuredUserAddress(params, redisClient) {
     const twitterId = params.find(
       ({ vname }) => vname === this.keys.twitterId
     ).value;
@@ -117,16 +124,27 @@ module.exports = {
       lastAction: Number(blockchainInfo.BlockNum)
     });
 
-    await Notification.create({
+    const notification = await Notification.create({
       UserId: user.id,
       type: notificationTypes.addressConfigured,
       title: 'Account',
       description: 'Address configured!'
     });
 
+    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: User.tableName,
+      body: {
+        id: user.id
+      }
+    }));
+    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
+    }));
+
     return twitterId;
   },
-  async verifyTweetSuccessful(params) {
+  async verifyTweetSuccessful(params, redisClient) {
     const idStr = params.find(
       ({ vname }) => vname === this.keys.tweetId
     ).value;
@@ -150,16 +168,26 @@ module.exports = {
       rejected: false,
       block: Number(blockchainInfo.BlockNum)
     });
+
     await foundTweet.User.update({
-      actionName: actions.verifyTweet,
-      lastAction: Number(blockchainInfo.BlockNum)
+      actionName: actions.verifyTweet
     });
-    await Notification.create({
+
+    const notification = await Notification.create({
       UserId: foundTweet.User.id,
       type: notificationTypes.tweetClaimed,
       title: 'Tweet',
       description: 'Rewards claimed!'
     });
+
+    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Twittes.tableName,
+      body: foundTweet
+    }));
+    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
+    }));
 
     return idStr;
   },

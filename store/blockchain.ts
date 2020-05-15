@@ -19,7 +19,7 @@ const getTime = (blockchain: Blockchain) => {
   const twitterState = twitterStore.store.getState();
   const week = timerCalc(
     blockchain,
-    twitterState.lastBlockNumber,
+    0,
     Number(blockchain.blocksPerWeek),
     userState.lastAction
   );

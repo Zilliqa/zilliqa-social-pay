@@ -1,4 +1,4 @@
-const debug = require('debug')('zilliqa-social-pay:scheduler:user-configure');
+const bunyan = require('bunyan');
 const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
@@ -15,6 +15,7 @@ const {
 
 const { actions } = new User();
 const notificationTypes = new Notification().types;
+const log = bunyan.createLogger({ name: 'scheduler:user-configure' });
 
 module.exports = async function () {
   const statuses = new Admin().statuses;
@@ -27,7 +28,7 @@ module.exports = async function () {
     }
   });
 
-  debug('Free admin addresses:', freeAdmins);
+  log.info('Free admin addresses:', freeAdmins);
 
   if (freeAdmins === 0) {
     return null;
@@ -53,7 +54,7 @@ module.exports = async function () {
     }
   });
 
-  debug('Need synchronization users:', users.count);
+  log.info('Need synchronization users:', users.count);
 
   if (users.count < 1) {
     return null;
@@ -63,7 +64,7 @@ module.exports = async function () {
     const user = users.rows[index];
     // Need to optimize.
     try {
-      debug('try to configureUser with profileID:', user.profileId);
+      log.info('try to configureUser with profileID:', user.profileId);
 
       const tx = await zilliqa.configureUsers(user.profileId, user.zilAddress);
       const userExist = await zilliqa.getonfigureUsers([user.profileId]);
@@ -79,9 +80,9 @@ module.exports = async function () {
         actionName: actions.configureUsers
       });
 
-      debug('User with profileID:', user.profileId, 'tx sent to shard.');
+      log.info('User with profileID:', user.profileId, 'tx sent to shard.');
     } catch (err) {
-      debug('FAIL to configureUser with profileID:', user.profileId, 'error', err);
+      log.error('FAIL to configureUser with profileID:', user.profileId, 'error', err);
 
       const lastAddres = await zilliqa.getonfigureUsers([user.profileId]);
 

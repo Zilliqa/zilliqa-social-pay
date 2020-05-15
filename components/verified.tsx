@@ -99,23 +99,17 @@ export const Verified: React.FC = () => {
     return 'display: none;';
   }, [twitterState]);
   const sortedTweets = React.useMemo(() => {
-    const maxDateValue = Math.max.apply(Math, twitterState.tweets.map(
-      (tw) => new Date(tw.createdAt).valueOf())
-    );
-
     return deepCopy(twitterState.tweets)
       .sort((a: Twitte, b: Twitte) => {
-        if (a.claimed) {
-          return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf() + maxDateValue;
-        } else if (b.claimed) {
-          return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf() + maxDateValue;
+        if (b.claimed && a.claimed) {
+          return -1;
         }
 
         return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
       })
       .splice(paginateOffset, PAGE_LIMIT);
   }, [
-    twitterState,
+    twitterState.tweets,
     paginateOffset,
     PAGE_LIMIT
   ]);
@@ -179,8 +173,20 @@ export const Verified: React.FC = () => {
       });
       EventStore.setEvent(Events.Error);
     } else {
-      TwitterStore.setLastBlock(result.block);
-      BlockchainStore.updateTimer();
+      const mapetTweets = twitterState.tweets.map((t) => {
+        if (t.id === result.id) {
+          return result;
+        }
+
+        return t;
+      });
+
+      if (Number(result.block) > Number(twitterState.lastBlockNumber)) {
+        TwitterStore.setLastBlock(result.block);
+        BlockchainStore.updateTimer();
+      }
+
+      TwitterStore.update(mapetTweets);
       EventStore.reset();
     }
   }, [userState, blockchainState, twitterState, router]);

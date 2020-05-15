@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const debug = require('debug')('zilliqa-social-pay:server');
+const bunyan = require('bunyan');
 const express = require('express');
 const socket = require('socket.io');
 const cookieSession = require('cookie-session');
@@ -11,19 +11,20 @@ const uuidv4 = require('uuid').v4;
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const server = express();
+const redis = require('redis');
 const socketRoute = require('./routes/socket');
 const socketMiddleware = require('./middleware/socket-auth');
 const zilliqa = require('./zilliqa');
-const txHandler = require('./tx-handler');
+const PACKAGE = require('../package.json');
 
-const ENV = process.env.NODE_ENV;
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('./config/redis')[ENV];
 const port = process.env.PORT || 3000;
 const dev = ENV !== 'production';
-
-const app = next({
-  dev,
-  dir: './'
-});
+const redisClientSubscriber = redis.createClient(REDIS_CONFIG.url);
+const redisClientSender = redis.createClient(REDIS_CONFIG.url);
+const log = bunyan.createLogger({ name: 'next-server' });
+const app = next({ dev, dir: './' });
 const indexRouter = require('./routes/index');
 const handle = app.getRequestHandler();
 const session = cookieSession({
@@ -53,7 +54,16 @@ server.use(bodyParser.urlencoded({ extended: true }))
 // parse application/json
 server.use(bodyParser.json());
 
+server.set('redis', redisClientSender);
+server.set('log', log);
+
 server.use('/', indexRouter);
+
+redisClientSubscriber.on('error', (err) => {
+  log.error('redis:', err);
+});
+redisClientSubscriber.subscribe(REDIS_CONFIG.channels.WEB);
+redisClientSubscriber.setMaxListeners(redisClientSubscriber.getMaxListeners() + 1);
 
 app
   .prepare()
@@ -62,7 +72,8 @@ app
     accounts.forEach((account, index) => {
       const address = account.bech32Address;
       const balance = zilliqa.fromZil(account.balance);
-      debug(`admin ${index}: ${address}, balance: ${balance}, status: ${account.status}`);
+
+      log.warn(`admin ${index}: ${address}, balance: ${balance}, status: ${account.status}`);
     });
 
     // handling everything else with Next.js
@@ -88,15 +99,17 @@ app
 
     io.use(socketMiddleware);
 
-    io.on('connection', (socket) => {
-      socketRoute(socket, io);
+    redisClientSubscriber.on('message', (channel, message) => {
+      try {
+        socketRoute(io, message);
+      } catch (err) {
+        log.error('SOCKET', err);
+      }
     });
 
     http.listen(port, () => {
-      console.log(`listening on port ${port}`);
+      log.info('SocialPay version', PACKAGE.version);
+      log.info('redis version', redisClientSubscriber.server_info.redis_version);
+      log.info('listening on port', port);
     });
-
-    // txHandler.queueFilling();
   });
-
-require('./scheduler');

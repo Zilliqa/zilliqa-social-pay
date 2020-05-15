@@ -1,20 +1,19 @@
+const bunyan = require('bunyan');
+const log = bunyan.createLogger({ name: 'tx-handler:verify-tweet' });
 const { toBech32Address } = require('@zilliqa-js/crypto');
+const { promisify } = require('util');
 const zilliqa = require('../zilliqa');
 const { Op } = require('sequelize');
 const models = require('../models');
 
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const {
   User,
-  blockchain,
-  Notification
+  blockchain
 } = models.sequelize.models;
 
-module.exports = async function (task, admin) {
-  let currentBlock = 0;
-  const blockchainInfo = await blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
+module.exports = async function (task, admin, redisClient) {
+  const getAsync = promisify(redisClient.get).bind(redisClient);
+  const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
   const user = await User.findOne({
     where: {
       id: task.payload.userId,
@@ -26,11 +25,14 @@ module.exports = async function (task, admin) {
       status: new User().statuses.enabled
     }
   });
+  let currentBlock = 0;
 
   if (!user) {
+    log.warn('no found userID', task.payload.userId);
     return null;
-  } else if (Number(user.lastAction) >= Number(blockchainInfo.BlockNum)) {
-    throw new Error(`Current blockNumber ${blockchainInfo.BlockNum} but user lastAction ${lastActionTweet.block}`);
+  } else if (Number(user.lastAction) > Number(blockchainInfo.BlockNum)) {
+    const msg = `Current blockNumber ${blockchainInfo.BlockNum} but user lastAction ${user.lastAction}`;
+    throw new Error(msg);
   }
 
   const userExist = await zilliqa.getonfigureUsers([user.profileId]);
@@ -46,11 +48,15 @@ module.exports = async function (task, admin) {
       admin
     );
 
+    log.info('userID:', task.payload.userId, 'send to shard txID:', tx.TranID);
+
     await user.update({
       hash: tx.TranID,
       lastAction: currentBlock,
       actionName: new User().actions.configureUsers
     });
+
+    return user;
   } catch (err) {
     const lastAddres = await zilliqa.getonfigureUsers([user.profileId]);
 
@@ -60,7 +66,13 @@ module.exports = async function (task, admin) {
         lastAction: Number(blockchainInfo.BlockNum),
         zilAddress: toBech32Address(lastAddres[user.profileId])
       });
+
+      log.warn('UserID', user.id, 'to initial state', err);
+
+      return user;
     }
+
+    log.error('userID:', task.payload.userId, 'error', err);
 
     throw new Error(err);
   }

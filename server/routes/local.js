@@ -5,13 +5,17 @@ const checkSession = require('../middleware/check-session');
 const models = require('../models');
 const verifyJwt = require('../middleware/verify-jwt');
 const verifyCampaign = require('../middleware/campaign-check');
+const blockchainCache = require('../middleware/blockchain-cache');
+
 const router = express.Router();
 
 const ERROR_CODES = require('../../config/error-codes');
-const ENV = process.env.NODE_ENV;
+const ENV = process.env.NODE_ENV || 'development';
 const END_OF_CAMPAIGN = process.env.END_OF_CAMPAIGN;
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 3;
+const REDIS_CONFIG = require('../config/redis')[ENV];
+const JOB_TYPES = require('../config/job-types');
 
 const dev = ENV !== 'production';
 const {
@@ -32,6 +36,7 @@ if (!END_OF_CAMPAIGN) {
 router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const bech32Address = req.params.address;
   const { user } = req.verification;
+  const { redis } = req.app.settings;
 
   try {
     if (!validation.isBech32(bech32Address)) {
@@ -54,29 +59,29 @@ router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, 
       });
     }
 
-    const blockchainInfo = await blockchain.findOne({
-      where: { contract: CONTRACT_ADDRESS }
-    });
-    let block = Number(blockchainInfo.BlockNum);
-
-    if (!user.actionName) {
-      block = 0;
-    }
-
     await user.update({
       zilAddress: bech32Address,
       hash: null,
       synchronization: true,
-      actionName: actions.configureUsers,
-      lastAction: block
+      actionName: actions.configureUsers
     });
 
-    await Notification.create({
+    redis.publish(REDIS_CONFIG.channels.TX_HANDLER, JSON.stringify({
+      type: JOB_TYPES.configureUsers,
+      userId: user.id
+    }));
+
+    const notification = await Notification.create({
       UserId: user.id,
       type: notificationTypes.addressConfiguring,
       title: 'Account',
       description: 'Syncing Address...'
     });
+
+    redis.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
+    }));
 
     delete user.dataValues.tokenSecret;
     delete user.dataValues.token;
@@ -170,28 +175,8 @@ router.get('/get/tweets', checkSession, async (req, res) => {
   }
 });
 
-router.get('/get/blockchain', checkSession, async (req, res) => {
-  try {
-    const blockchainInfo = await blockchain.findOne({
-      where: {
-        contract: CONTRACT_ADDRESS
-      }
-    });
-
-    blockchainInfo.dataValues.campaignEnd = new Date(END_OF_CAMPAIGN);
-    blockchainInfo.dataValues.now = new Date();
-
-    return res.status(200).json(blockchainInfo);
-  } catch (err) {
-    if (dev) {
-      return res.status(401).send(err.message || err);;
-    }
-
-    return res.status(401).json({
-      code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
-    });
-  }
+router.get('/get/blockchain', checkSession, blockchainCache, async (req, res) => {
+  return res.status(200).json(req.blockchainInfo);
 });
 
 router.get('/get/notifications', checkSession, async (req, res) => {

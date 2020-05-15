@@ -4,14 +4,50 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+      args:
+        SCRIPT: "start"
     ports:
       - "3000:3000"
     env_file:
       - .env
     depends_on:
       - postgres
+      - redis
+      - scheduler
     links:
       - postgres
+      - redis
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        SCRIPT: "scheduler"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - postgres
+      - redis
+
+  txhandler:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        SCRIPT: "tx:handler"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+      - scheduler
+    links:
+      - postgres
+      - redis
 
   postgres:
     image: postgres
@@ -23,5 +59,11 @@ services:
     volumes:
       - postgres:/var/lib/postgresql/data
 
+  redis:
+    image: redis
+    volumes:
+      - /data/redis:/data
+
 volumes:
+  redis-data:
   postgres:

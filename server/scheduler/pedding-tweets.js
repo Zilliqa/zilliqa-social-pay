@@ -1,9 +1,11 @@
-const debug = require('debug')('zilliqa-social-pay:scheduler:Pedding-VerifyTweet');
+const bunyan = require('bunyan');
 const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
 
 const {
   User,
@@ -11,10 +13,11 @@ const {
   blockchain,
   Notification
 } = models.sequelize.models;
+const log = bunyan.createLogger({ name: 'scheduler:pedding-verifytweet' });
 
 const notificationTypes = new Notification().types;
 
-module.exports = async function () {
+module.exports = async function (redisClient) {
   const twittes = await Twittes.findAndCountAll({
     where: {
       approved: false,
@@ -45,7 +48,7 @@ module.exports = async function () {
     const hasInContract = await zilliqa.getVerifiedTweets([tweetId]);
 
     if (!hasInContract || !hasInContract[tweetId]) {
-      debug('FAIL to VerifyTweet with ID:', tweetId, 'hash', tweet.txId);
+      log.warn('FAIL to VerifyTweet with ID:', tweetId, 'hash', tweet.txId);
 
       await tweet.update({
         approved: false,
@@ -54,29 +57,39 @@ module.exports = async function () {
         block: 0,
         txId: null
       });
-      await Notification.create({
+      const notification = await Notification.create({
         UserId: tweet.User.id,
         type: notificationTypes.tweetReject,
         title: 'Tweet',
         description: 'Rewards error!'
       });
 
+      redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+        model: Notification.tableName,
+        body: notification
+      }));
+
       return null;
     }
 
-    debug(`Tweet with ID:${tweetId} has been synchronized from blockchain.`);
+    log.info(`Tweet with ID:${tweetId} has been synchronized from blockchain.`);
 
     await tweet.update({
       approved: true,
       rejected: false,
       block: Number(blockchainInfo.BlockNum)
     });
-    await Notification.create({
+    const notification = await Notification.create({
       UserId: tweet.User.id,
       type: notificationTypes.tweetClaimed,
       title: 'Tweet',
       description: 'Rewards claimed!'
     });
+
+    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
+    }));
   });
 
   await Promise.all(needTestForVerified);

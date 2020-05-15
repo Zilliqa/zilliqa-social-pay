@@ -11,7 +11,9 @@ const ERROR_CODES = require('../../config/error-codes');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const LIKES_FOR_CLAIM = Number(process.env.LIKES_FOR_CLAIM) || 5;
-const ENV = process.env.NODE_ENV;
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
+const JOB_TYPES = require('../config/job-types');
 const BLOCK_FOR_CONFIRM = 2;
 
 const dev = ENV !== 'production';
@@ -211,6 +213,7 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, as
 router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
   const { id_str } = req.body;
+  const { redis } = req.app.settings;
 
   if (!id_str) {
     return res.status(401).json({
@@ -278,12 +281,24 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
       profileImageUrl: tweet.user.profile_image_url_https
     });
 
-    await Notification.create({
+    const payload = JSON.stringify({
+      type: JOB_TYPES.verifyTweet,
+      tweetId: createdTweet.id,
+      userId: user.id
+    });
+    redis.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
+
+    const notification = await Notification.create({
       UserId: user.id,
       type: notificationTypes.tweetClaiming,
       title: 'Tweet',
       description: 'Claiming rewards…'
     });
+
+    redis.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
+    }));
 
     delete createdTweet.dataValues.text;
     delete createdTweet.dataValues.updatedAt;
@@ -306,6 +321,7 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
 
 router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
+  const { redis } = req.app.settings;
   const tweet = req.body;
   let foundTweet = null;
 
@@ -390,12 +406,24 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, 
       claimed: true
     });
 
-    await Notification.create({
+    const payload = JSON.stringify({
+      type: JOB_TYPES.verifyTweet,
+      tweetId: foundTweet.id,
+      userId: user.id
+    });
+    redis.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
+
+    const notification = await Notification.create({
       UserId: user.id,
       type: notificationTypes.tweetClaiming,
       title: 'Tweet',
       description: 'Claiming rewards…'
     });
+
+    redis.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
+    }));
 
     return res.status(201).json(foundTweet);
   } catch (err) {

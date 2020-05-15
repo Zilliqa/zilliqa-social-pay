@@ -1,4 +1,4 @@
-const debug = require('debug')('zilliqa-social-pay:scheduler:VerifyTweet');
+const bunyan = require('bunyan');
 const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
@@ -14,6 +14,7 @@ const {
 } = models.sequelize.models;
 
 const notificationTypes = new Notification().types;
+const log = bunyan.createLogger({ name: 'scheduler:verifytweet' });
 
 function getPos(text, hashtag) {
   text = encodeURI(text.toLowerCase());
@@ -42,7 +43,7 @@ module.exports = async function () {
       }
     }
   });
-  debug('Free admin addresses:', freeAdmins);
+  log.info('Free admin addresses:', freeAdmins);
 
   if (freeAdmins === 0) {
     return null;
@@ -70,11 +71,11 @@ module.exports = async function () {
     limit: 40
   });
 
-  debug('Need verify', tweets.count, 'tweet');
+  log.info('Need verify', tweets.count, 'tweet');
 
   tweets.rows.forEach(async (tweet) => {
     if (!tweet.User) {
-      debug('Tweet with id', tweet.idStr, 'skiped');
+      log.warn('Tweet with id', tweet.idStr, 'skiped');
 
       return null;
     }
@@ -111,13 +112,13 @@ module.exports = async function () {
         block: Number(blockchainInfo.BlockNum)
       });
 
-      debug('Tweet with ID', tweet.idStr, 'sent to shard.');
+      log.info('Tweet with ID', tweet.idStr, 'sent to shard.');
     } catch (err) {
       if (err.message === 'Danger tweet.') {
         await tweet.destroy();
       }
 
-      debug('tweet:', tweet.idStr, 'has not verifed error:', err);
+      log.error('tweet:', tweet.idStr, 'has not verifed error:', err);
 
       await Notification.create({
         UserId: tweet.User.id,
