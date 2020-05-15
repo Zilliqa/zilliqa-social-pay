@@ -35,10 +35,9 @@ function getPos(text, hashtag) {
 }
 
 module.exports = async function () {
-  const statuses = new Admin().statuses;
   const freeAdmins = await Admin.count({
     where: {
-      status: statuses.enabled,
+      status: new Admin().statuses.enabled,
       balance: {
         [Op.gte]: '5000000000000' // 5ZILs
       }
@@ -50,13 +49,10 @@ module.exports = async function () {
     return null;
   }
 
-  let limit = Math.round(freeAdmins / 2) - 1;
-
   const blockchainInfo = await blockchain.findOne({
     where: { contract: CONTRACT_ADDRESS }
   });
   const tweets = await Twittes.findAndCountAll({
-    limit,
     where: {
       approved: false,
       rejected: false,
@@ -71,7 +67,8 @@ module.exports = async function () {
           [Op.not]: null
         }
       }
-    }
+    },
+    limit: 40
   });
 
   log.info('Need verify', tweets.count, 'tweet');

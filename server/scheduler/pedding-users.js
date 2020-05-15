@@ -22,10 +22,10 @@ module.exports = async function (redisClient) {
       },
       updatedAt: {
         // Ten minuts.
-        [Op.lt]: new Date(new Date() - 24 * 60 * 250)
+        [Op.lt]: new Date(new Date() - 24 * 60 * 150)
       }
     },
-    limit: 500
+    limit: 100
   });
 
   log.info('Need check', users.count, 'users.');

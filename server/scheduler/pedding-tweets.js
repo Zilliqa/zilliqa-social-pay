@@ -24,7 +24,7 @@ module.exports = async function (redisClient) {
       rejected: false,
       claimed: true,
       updatedAt: {
-        [Op.lt]: new Date(new Date() - 24 * 60 * 250)
+        [Op.lt]: new Date(new Date() - 24 * 60 * 150)
       },
       txId: {
         [Op.not]: null
@@ -33,7 +33,7 @@ module.exports = async function (redisClient) {
     include: {
       model: User
     },
-    limit: 500
+    limit: 100
   });
 
   if (twittes.count === 0) {

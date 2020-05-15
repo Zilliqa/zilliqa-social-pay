@@ -105,7 +105,6 @@ module.exports = {
     const statuses = new Admin().statuses;
     const account = await Admin.findOne({
       where: {
-        bech32Address: adminAccount,
         status: statuses.enabled,
         balance: {
           [Op.gte]: '5000000000000' // 5ZILs
