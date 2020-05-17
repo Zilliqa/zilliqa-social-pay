@@ -7,9 +7,9 @@ const checkSession = require('../middleware/check-session');
 const Twitter = require('../twitter');
 const verifyJwt = require('../middleware/verify-jwt');
 const verifyCampaign = require('../middleware/campaign-check');
+const blockchainCache = require('../middleware/blockchain-cache');
 const ERROR_CODES = require('../../config/error-codes');
 
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const LIKES_FOR_CLAIM = Number(process.env.LIKES_FOR_CLAIM) || 5;
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
@@ -20,7 +20,6 @@ const dev = ENV !== 'production';
 const {
   User,
   Twittes,
-  blockchain,
   Notification
 } = models.sequelize.models;
 
@@ -94,11 +93,7 @@ router.get('/auth/twitter/callback', (req, res) => {
 
 router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
-  const blockchainInfo = await blockchain.findOne({
-    where: {
-      contract: CONTRACT_ADDRESS
-    }
-  });
+  const { blockchainInfo } = req;
 
   try {
     const twitter = new Twitter(user.token, user.tokenSecret, blockchainInfo);
@@ -141,11 +136,7 @@ router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, async (req
 router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { query } = req.params;
   const { user } = req.verification;
-  const blockchainInfo = await blockchain.findOne({
-    where: {
-      contract: CONTRACT_ADDRESS
-    }
-  });
+  const { blockchainInfo } = req;
 
   if (!query || isNaN(query)) {
     return res.status(400).json({
@@ -210,10 +201,11 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, as
   }
 });
 
-router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
+router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCache, async (req, res) => {
   const { user } = req.verification;
   const { id_str } = req.body;
   const { redis } = req.app.settings;
+  const { blockchainInfo } = req;
 
   if (!id_str) {
     return res.status(401).json({
@@ -221,10 +213,6 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
       message: 'Invalid tweet data.'
     });
   }
-
-  const blockchainInfo = await blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
 
   try {
     const twitter = new Twitter(user.token, user.tokenSecret, blockchainInfo);
@@ -319,9 +307,10 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
   }
 });
 
-router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
+router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCache, async (req, res) => {
   const { user } = req.verification;
   const { redis } = req.app.settings;
+  const { blockchainInfo } = req;
   const tweet = req.body;
   let foundTweet = null;
 
@@ -336,10 +325,6 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, 
       message: 'User zilAddress is not synchronized.'
     });
   }
-
-  const blockchainInfo = await blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
 
   try {
     foundTweet = await Twittes.findOne({
@@ -431,6 +416,29 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, 
       return res.status(401).send(err.message || err);;
     }
 
+    return res.status(401).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.'
+    });
+  }
+});
+
+router.delete('/delete/tweete/:id', checkSession, verifyJwt, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    if (isNaN(id)) {
+      throw new Error('ID must be number.');
+    }
+
+    await Twittes.destroy({
+      where: {
+        id
+      }
+    });
+
+    return res.status(200).send(id);
+  } catch (err) {
     return res.status(401).json({
       code: ERROR_CODES.badRequest,
       message: 'Bad request.'

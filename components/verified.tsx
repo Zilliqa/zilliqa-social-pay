@@ -211,6 +211,14 @@ export const Verified: React.FC = () => {
     twitterState,
     SLEEP
   ]);
+  const handTweetLoad = React.useCallback((loaded, tweete: Twitte) => {
+    if (!loaded) {
+      TwitterStore.deleteTweet({
+        tweete,
+        jwt: userState.jwtToken
+      });
+    }
+  }, [userState.jwtToken]);
 
   /**
    * Effect for loading tweets rewards.
@@ -302,6 +310,7 @@ export const Verified: React.FC = () => {
             options={{
               width: isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT
             }}
+            onLoad={(content: any) => handTweetLoad(Boolean(content), tweet)}
           />
           {(!tweet.claimed && !tweet.approved && !tweet.rejected && isTabletOrMobile) ? (
             <Img
