@@ -50,11 +50,6 @@ $ npx sequelize db:migrate
 ```
 More info on [sequelize/cli](https://github.com/sequelize/cli).
 
-Runing for dev mode.
-```bash
-$ npm run dev
-```
-
 Runing for production mode.
 ```bash
 $ npm run build
