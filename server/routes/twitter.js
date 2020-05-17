@@ -91,7 +91,7 @@ router.get('/auth/twitter/callback', (req, res) => {
   return res.status(200).send('');
 });
 
-router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
+router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, blockchainCache, async (req, res) => {
   const { user } = req.verification;
   const { blockchainInfo } = req;
 
@@ -133,7 +133,7 @@ router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, async (req
   }
 });
 
-router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
+router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, blockchainCache, async (req, res) => {
   const { query } = req.params;
   const { user } = req.verification;
   const { blockchainInfo } = req;

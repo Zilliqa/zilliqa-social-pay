@@ -213,6 +213,28 @@ export const FixedWrapper: React.FC = () => {
         </form>
       </Modal>
       <Modal
+        show={eventState.current === Events.Claimed}
+        onBlur={() => EventStore.reset()}
+      >
+        <Container css="display: grid;justify-items: center;grid-gap: 15px;min-width: 300px;">
+          <Text
+            size={FontSize.sm}
+            fontVariant={Fonts.AvenirNextLTProDemi}
+            fontColors={FontColors.white}
+          >
+            Your tweet has claiming rewards.
+          </Text>
+          <Img src="icons/ok.svg" />
+          <Button
+            sizeVariant={SizeComponent.lg}
+            variant={ButtonVariants.primary}
+            onClick={() => EventStore.reset()}
+          >
+            OK
+          </Button>
+        </Container>
+      </Modal>
+      <Modal
         show={eventState.current === Events.Twitter}
         onBlur={() => EventStore.reset()}
       >

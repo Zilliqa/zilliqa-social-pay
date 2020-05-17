@@ -187,7 +187,7 @@ export const Verified: React.FC = () => {
       }
 
       TwitterStore.update(mapetTweets);
-      EventStore.reset();
+      EventStore.setEvent(Events.Claimed);
     }
   }, [userState, blockchainState, twitterState, router]);
   const handleNextPageClick = React.useCallback(async (data) => {
