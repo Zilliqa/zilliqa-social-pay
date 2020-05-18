@@ -222,7 +222,7 @@ export const FixedWrapper: React.FC = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
           >
-            Your tweet has claiming rewards.
+            You have claimed you reward.
           </Text>
           <Img src="icons/ok.svg" />
           <Button

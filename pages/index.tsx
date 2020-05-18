@@ -3,12 +3,11 @@ import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
-import { useRouter, NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { useMediaQuery } from 'react-responsive';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
-import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
 import BrowserStore from 'store/browser';
 import NotificationStore from 'store/notification';
