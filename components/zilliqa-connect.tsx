@@ -23,6 +23,7 @@ import {
   SizeComponent,
   Events
 } from 'config';
+import ERROR_CODES from 'config/error-codes';
 
 type Prop = {
   show?: boolean;
@@ -77,6 +78,14 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
       address,
       jwt: userState.jwtToken
     });
+
+    if (result.code === ERROR_CODES.unauthorized) {
+      EventStore.reset();
+      EventStore.signOut(null);
+      UserStore.clear();
+
+      return null;
+    }
 
     if (result.message !== 'ConfiguredUserAddress') {
       setAddressErr(result.message);
