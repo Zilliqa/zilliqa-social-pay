@@ -3,6 +3,7 @@ import App from 'next/app';
 
 import UserStore from 'store/user';
 import BrowserStore from 'store/browser';
+import BlockchainStore from 'store/blockchain';
 
 import { Container } from 'components/container';
 import { FixedWrapper } from 'components/fixed-wrapper';
@@ -16,6 +17,18 @@ import { BaseStyles, AnimateStyles } from 'styles';
 class SocialPay extends App {
 
   public componentDidMount() {
+    BlockchainStore
+      .updateBlockchain(null)
+      .then((blockchain) => {
+        const campaignEnd = new Date((blockchain.campaignEnd as any)).valueOf();
+        const now = new Date((blockchain.now as any)).valueOf();
+        const diff = campaignEnd - now;
+
+        if (diff <= 0) {
+          this.props.router.push('/end');
+        }
+      });
+
     supportsWebp()
       .then((isWebp) => isWebp ? null : BrowserStore.setformat(ImgFormats.png));
 
