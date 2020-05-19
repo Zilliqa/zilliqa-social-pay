@@ -156,12 +156,12 @@ transition ConfigureUsers(twitter_id: String, recipient_address: ByStr20)
           ThrowError err
       | False =>
           registered_users[hashed_twitter_id] := recipient_address;
-          e = {_eventname : "ConfiguredUserAddress"; twitter_id: twitter_id; recipient_address: recipient_address};
+          e = {_eventname : "ConfiguredUserAddress"; hashed_twitter_id: hashed_twitter_id; recipient_address: recipient_address};
           event e
       end
   | False =>
       registered_users[hashed_twitter_id] := recipient_address;
-      e = {_eventname : "ConfiguredUserAddress"; twitter_id: twitter_id; recipient_address: recipient_address};
+      e = {_eventname : "ConfiguredUserAddress"; hashed_twitter_id: hashed_twitter_id; recipient_address: recipient_address};
       event e
   end
 end
@@ -226,10 +226,10 @@ transition VerifyTweet (twitter_id: String, tweet_id: String, tweet_text: String
                   last_withdrawal[hashed_twitter_id] := current_block;
                   e = {
                           _eventname : "VerifyTweetSuccessful";
-                          sender: _sender;
+                          admin: _sender;
+                          hashed_twitter_id: hashed_twitter_id;
+                          hashed_tweet_id: hashed_tweet_id;
                           recipient: recipient_address;
-                          twitter_id: twitter_id;
-                          tweet_id: tweet_id;
                           reward_amount: zils_per_tweet;
                           matched_donation: zils_per_tweet
                       };
