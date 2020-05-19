@@ -3,12 +3,11 @@ import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
-import { useRouter, NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { useMediaQuery } from 'react-responsive';
 
 import UserStore from 'store/user';
 import TwitterStore from 'store/twitter';
-import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
 import BrowserStore from 'store/browser';
 import NotificationStore from 'store/notification';
@@ -60,25 +59,13 @@ const Illustration = styled(Img)`
   z-index: 0;
 `;
 
-const updater = async (router: NextRouter) => {
+const updater = async () => {
   const tweetsResult = await TwitterStore.getTweets({});
   const user = await UserStore.updateUserState(null);
-  const blockchain = await BlockchainStore.updateBlockchain(null);
-  const campaignEnd = new Date((blockchain.campaignEnd as any)).valueOf();
-  const now = new Date((blockchain.now as any)).valueOf();
-  const diff = campaignEnd - now;
-
-  if (diff <= 0) {
-    router.push('/end');
-
-    return null;
-  }
 
   if (tweetsResult && tweetsResult.code === ERROR_CODES.unauthorized) {
     throw new Error(tweetsResult.message);
   } else if (user && user.code === ERROR_CODES.unauthorized) {
-    throw new Error(tweetsResult.message);
-  } else if (blockchain && blockchain.code === ERROR_CODES.unauthorized) {
     throw new Error(tweetsResult.message);
   } else if (!tweetsResult.tweets || tweetsResult.tweets.length < 1) {
     const userState = UserStore.store.getState();
@@ -118,7 +105,7 @@ export const MainPage: NextPage<PageProp> = () => {
       setMounted(true);
       EventStore.setEvent(Events.Load);
 
-      updater(router)
+      updater()
         .then(() => {
           socket();
           EventStore.reset();

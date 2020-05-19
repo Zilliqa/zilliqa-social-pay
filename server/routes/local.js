@@ -175,7 +175,7 @@ router.get('/get/tweets', checkSession, async (req, res) => {
   }
 });
 
-router.get('/get/blockchain', checkSession, blockchainCache, async (req, res) => {
+router.get('/get/blockchain', blockchainCache, async (req, res) => {
   return res.status(200).json(req.blockchainInfo);
 });
 

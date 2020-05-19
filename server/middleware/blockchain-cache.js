@@ -26,10 +26,10 @@ module.exports = async function (req, res, next) {
       },
       raw: true
     });
-
-    blockchainInfo.campaignEnd = new Date(END_OF_CAMPAIGN);
-    blockchainInfo.now = new Date();
   }
+
+  blockchainInfo.campaignEnd = new Date(END_OF_CAMPAIGN);
+  blockchainInfo.now = new Date();
 
   req.blockchainInfo = blockchainInfo;
 

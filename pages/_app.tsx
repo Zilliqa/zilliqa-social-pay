@@ -3,6 +3,7 @@ import App from 'next/app';
 
 import UserStore from 'store/user';
 import BrowserStore from 'store/browser';
+import BlockchainStore from 'store/blockchain';
 
 import { Container } from 'components/container';
 import { FixedWrapper } from 'components/fixed-wrapper';
@@ -15,9 +16,25 @@ import { BaseStyles, AnimateStyles } from 'styles';
 
 class SocialPay extends App {
 
-  public componentDidMount() {
-    supportsWebp()
-      .then((isWebp) => isWebp ? null : BrowserStore.setformat(ImgFormats.png));
+  state = {
+    loaded: false
+  };
+
+  public async  componentDidMount() {
+    const isWebp = await supportsWebp();
+
+    if (!isWebp) {
+      BrowserStore.setformat(ImgFormats.png)
+    }
+
+    const blockchain = await BlockchainStore.updateBlockchain(null);
+    const campaignEnd = new Date((blockchain.campaignEnd as any)).valueOf();
+    const now = new Date((blockchain.now as any)).valueOf();
+    const diff = campaignEnd - now;
+
+    if (diff <= 0) {
+      this.props.router.push('/end');
+    }
 
     if (typeof window !== 'undefined') {
       UserStore.getJWT();
@@ -26,6 +43,8 @@ class SocialPay extends App {
         UserStore.setUser(this.props.pageProps.user);
       }
     }
+
+    this.setState({ loaded: true });
   }
 
   public render() {
@@ -57,7 +76,7 @@ class SocialPay extends App {
         <BaseStyles />
         <AnimateStyles />
         <FixedWrapper />
-        <Component {...pageProps} />
+        {this.state.loaded ? <Component {...pageProps} /> : null }
       </Container>
     );
   }

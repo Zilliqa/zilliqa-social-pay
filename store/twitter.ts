@@ -1,7 +1,7 @@
 import { createDomain } from 'effector';
 
 import { fetchTweetsUpdate } from 'utils/update-tweets';
-import { fetchTweets } from 'utils/get-tweets';
+import { fetchTweets, removeTweete } from 'utils/get-tweets';
 import { toUnique } from 'utils/to-unique';
 import { Twitte, FetchTweets } from 'interfaces';
 
@@ -12,11 +12,13 @@ export const add = TwitterDomain.event<Twitte>();
 export const clear = TwitterDomain.event();
 export const setShowTwitterTweetEmbed = TwitterDomain.event<boolean>();
 export const getTweets = TwitterDomain.effect<{ limit?: number, offset?: number }, any[] | any, Error>();
+export const deleteTweet = TwitterDomain.effect<{ tweete: Twitte; jwt: string; }, number, Error>();
 
 export const updateTweets = TwitterDomain.effect<string, FetchTweets, Error>();
 
 updateTweets.use(fetchTweetsUpdate);
 getTweets.use(fetchTweets);
+deleteTweet.use(removeTweete);
 
 type InitState = {
   error?: boolean;
@@ -89,6 +91,10 @@ export const store = TwitterDomain.store(initalState)
   .on(setLastBlock, (state, blockNumber) => ({
     ...state,
     lastBlockNumber: blockNumber
+  }))
+  .on(deleteTweet.done, (state, { result }) => ({
+    ...state,
+    tweets: state.tweets.filter((tweet) => Number(tweet.id) !== Number(result))
   }));
 
 export default {
@@ -99,5 +105,6 @@ export default {
   clear,
   setLastBlock,
   setShowTwitterTweetEmbed,
+  deleteTweet,
   add
 };

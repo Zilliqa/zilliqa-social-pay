@@ -33,7 +33,7 @@ module.exports = async function (redisClient) {
     include: {
       model: User
     },
-    limit: 100
+    limit: 500
   });
 
   if (twittes.count === 0) {

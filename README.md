@@ -33,6 +33,7 @@ Also need to deposit few ZILs, call `Deposit` transition and send few ZIls.
  * `POSTGRES_HOST` # DataBase host for example (127.0.0.1) for production build use 'postgres'.
  * `REDIS_URL` # Redis connection url, for cache.
  * `NODE_ENV` # development, test, production
+ * `SALT` # salt for protect user profileID and twitterID, `sha256(profileID + SALT)`.
 
 ## Run:
 Create database for only test or `test`, `production` mode.
@@ -49,11 +50,6 @@ $ npm run db:migrate
 $ npx sequelize db:migrate
 ```
 More info on [sequelize/cli](https://github.com/sequelize/cli).
-
-Runing for dev mode.
-```bash
-$ npm run dev
-```
 
 Runing for production mode.
 ```bash
