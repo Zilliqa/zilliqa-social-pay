@@ -182,7 +182,6 @@ export const Verified: React.FC = () => {
         BlockchainStore.updateTimer();
       }
 
-      setPaginateOffset(0);
       TwitterStore.setShowTwitterTweetEmbed(false);
       setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
 
@@ -211,12 +210,15 @@ export const Verified: React.FC = () => {
     twitterState,
     SLEEP
   ]);
-  const handTweetLoad = React.useCallback((loaded, tweete: Twitte) => {
+  const handTweetLoad = React.useCallback(async (loaded, tweete: Twitte) => {
     if (!loaded) {
-      TwitterStore.deleteTweet({
+      await TwitterStore.deleteTweet({
         tweete,
         jwt: userState.jwtToken
       });
+      setPaginateOffset(0);
+      TwitterStore.setShowTwitterTweetEmbed(false);
+      setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
     }
   }, [userState.jwtToken]);
 
