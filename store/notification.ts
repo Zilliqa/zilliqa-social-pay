@@ -78,7 +78,7 @@ export const store = EventDomain.store<NotificationState>(initalState)
     )
   }))
   .on(getNotifications.done, (state, { result }) => {
-    if (!Array.isArray(result.notification)) {
+    if (!result || !Array.isArray(result.notification)) {
       return state;
     }
 

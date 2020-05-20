@@ -222,7 +222,7 @@ export const FixedWrapper: React.FC = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
           >
-            You have claimed you reward.
+            Claim successful! Your $ZIL reward will be distributed in a while…
           </Text>
           <Img src="icons/ok.svg" />
           <Button
