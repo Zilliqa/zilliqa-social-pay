@@ -216,7 +216,6 @@ export const Verified: React.FC = () => {
         tweete,
         jwt: userState.jwtToken
       });
-      setPaginateOffset(0);
       TwitterStore.setShowTwitterTweetEmbed(false);
       setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
     }
