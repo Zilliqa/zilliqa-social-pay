@@ -11,6 +11,7 @@ import TwitterStore from 'store/twitter';
 import EventStore from 'store/event';
 import BrowserStore from 'store/browser';
 import NotificationStore from 'store/notification';
+import BlockchainStore from 'store/blockchain';
 
 import { Container } from 'components/container';
 import { Img } from 'components/img';
