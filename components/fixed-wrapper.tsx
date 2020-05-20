@@ -33,6 +33,7 @@ import {
 } from 'config';
 import ERROR_CODES from 'config/error-codes';
 import { addTweet } from 'utils/update-tweets';
+import { Twitte } from 'interfaces';
 
 const SPINER_SIZE = 150;
 const WIDTH_MOBILE = 250;
@@ -131,7 +132,10 @@ export const FixedWrapper: React.FC = () => {
    */
   const handlePay = React.useCallback(async () => {
     EventStore.setEvent(Events.Load);
-    const result = await addTweet(userState.jwtToken, eventState.content);
+    const result = await TwitterStore.payTweet({
+      jwt: userState.jwtToken,
+      tweete: (eventState.content as Twitte)
+    });
 
     if (result.code === ERROR_CODES.lowFavoriteCount) {
       EventStore.reset();

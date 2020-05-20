@@ -1,6 +1,6 @@
 import { createDomain } from 'effector';
 
-import { fetchTweetsUpdate } from 'utils/update-tweets';
+import { fetchTweetsUpdate, addTweet } from 'utils/update-tweets';
 import { fetchTweets, removeTweete } from 'utils/get-tweets';
 import { toUnique } from 'utils/to-unique';
 import { Twitte, FetchTweets } from 'interfaces';
@@ -13,12 +13,14 @@ export const clear = TwitterDomain.event();
 export const setShowTwitterTweetEmbed = TwitterDomain.event<boolean>();
 export const getTweets = TwitterDomain.effect<{ limit?: number, offset?: number }, any[] | any, Error>();
 export const deleteTweet = TwitterDomain.effect<{ tweete: Twitte; jwt: string; }, number, Error>();
+export const payTweet = TwitterDomain.effect<{ tweete: Twitte; jwt: string; }, any, Error>();
 
 export const updateTweets = TwitterDomain.effect<string, FetchTweets, Error>();
 
 updateTweets.use(fetchTweetsUpdate);
 getTweets.use(fetchTweets);
 deleteTweet.use(removeTweete);
+payTweet.use(addTweet);
 
 type InitState = {
   error?: boolean;
@@ -95,7 +97,19 @@ export const store = TwitterDomain.store(initalState)
   .on(deleteTweet.done, (state, { result }) => ({
     ...state,
     tweets: state.tweets.filter((tweet) => Number(tweet.id) !== Number(result))
-  }));
+  }))
+  .on(payTweet.done, (state, { result }) => {
+    if (!result || !result.message.includes('Added') || !result.tweet) {
+      return state;
+    } else if (state.tweets.some((t) => t.idStr === result.tweet.idStr)) {
+      return state;
+    }
+
+    return {
+      ...state,
+      tweets: state.tweets.concat([result.tweet])
+    };
+  });
 
 export default {
   store,
@@ -104,6 +118,7 @@ export default {
   getTweets,
   clear,
   setLastBlock,
+  payTweet,
   setShowTwitterTweetEmbed,
   deleteTweet,
   add
