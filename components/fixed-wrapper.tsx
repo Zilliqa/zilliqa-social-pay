@@ -156,9 +156,9 @@ export const FixedWrapper: React.FC = () => {
     if (result.message.includes('Added')) {
       TwitterStore.add(result.tweet);
       EventStore.setEvent(Events.Claimed);
+    } else {
+      EventStore.reset();
     }
-
-    EventStore.reset();
   }, [addTweet, EventStore, userState, eventState, TwitterStore]);
 
   React.useEffect(() => {
