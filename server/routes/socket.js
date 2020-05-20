@@ -31,6 +31,7 @@ module.exports = async (io, message) => {
           ]
         }
       });
+      if (!foundTweet) break;
       io
         .to(foundTweet.User.profileId)
         .emit(EVENTS.tweetsUpdate, JSON.stringify(foundTweet));
@@ -47,6 +48,7 @@ module.exports = async (io, message) => {
           ]
         }
       });
+      if (!foundUser) break;
       io
         .to(foundUser.profileId)
         .emit(EVENTS.userUpdated, JSON.stringify(foundUser));
