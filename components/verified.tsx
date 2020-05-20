@@ -186,10 +186,11 @@ export const Verified: React.FC = () => {
         BlockchainStore.updateTimer();
       }
 
+      setPaginateOffset(0);
       TwitterStore.update(mapetTweets);
       EventStore.setEvent(Events.Claimed);
     }
-  }, [userState, blockchainState, twitterState, router]);
+  }, [userState, blockchainState, twitterState, router, setPaginateOffset]);
   const handleNextPageClick = React.useCallback(async (data) => {
     const selected = Number(data.selected);
     const offset = Math.ceil(selected * PAGE_LIMIT);
