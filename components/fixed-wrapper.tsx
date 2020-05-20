@@ -223,6 +223,7 @@ export const FixedWrapper: React.FC = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
             align={Sides.center}
+            css="max-width: 300px;"
           >
             Claim successful! Your $ZIL reward will be distributed in a while…
           </Text>
