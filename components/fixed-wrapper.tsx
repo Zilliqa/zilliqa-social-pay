@@ -38,7 +38,7 @@ import { Twitte } from 'interfaces';
 const SPINER_SIZE = 150;
 const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
-const SLEEP = 10;
+const SLEEP = 100;
 
 /**
  * Container for modals and any componets with fixed postion.
@@ -150,9 +150,6 @@ export const FixedWrapper: React.FC = () => {
 
       return null;
     }
-
-    BlockchainStore.updateBlockchain(null);
-
     TwitterStore.setShowTwitterTweetEmbed(false);
 
     setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);

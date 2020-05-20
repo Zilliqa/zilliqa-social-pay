@@ -59,7 +59,7 @@ const TweetEmbedContainer = styled.div`
 const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
 const PAGE_LIMIT = 3;
-const SLEEP = 10;
+const SLEEP = 100;
 /**
  * Show user tweets.
  */
