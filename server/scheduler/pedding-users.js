@@ -26,7 +26,7 @@ module.exports = async function (redisClient) {
         [Op.not]: null
       },
       lastAction: {
-        [Op.lte]: Number(blockchainInfo.BlockNum) - 5
+        [Op.lte]: Number(blockchainInfo.BlockNum) - 6
       }
     },
     limit: 100
@@ -58,20 +58,14 @@ module.exports = async function (redisClient) {
 
     await user.update({
       synchronization: false,
-      zilAddress: toBech32Address(usersFromContract[profileId]),
-      lastAction: 0
+      zilAddress: toBech32Address(usersFromContract[profileId])
     });
-    const notification = await Notification.create({
+    await Notification.create({
       UserId: user.id,
       type: notificationTypes.addressConfigured,
       title: 'Account',
       description: 'Address configured!'
     });
-
-    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
-      model: Notification.tableName,
-      body: notification
-    }));
   });
 
   await Promise.all(onlyProfiles);
