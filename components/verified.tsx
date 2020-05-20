@@ -27,6 +27,7 @@ import { claimTweet } from 'utils/claim-tweet';
 import { Twitte } from 'interfaces';
 import { timerCalc } from 'utils/timer';
 import { deepCopy } from 'utils/deep-copy';
+import { toUnique } from 'utils/to-unique';
 
 type TweetEmbedContainerProp = {
   mobileMode?: boolean;
@@ -99,11 +100,13 @@ export const Verified: React.FC = () => {
     return 'display: none;';
   }, [twitterState]);
   const sortedTweets = React.useMemo(() => {
-    return deepCopy(twitterState.tweets)
+    const array = deepCopy(twitterState.tweets)
       .sort((a: Twitte, b: Twitte) => {
         return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
       })
       .splice(paginateOffset, PAGE_LIMIT);
+
+    return toUnique(array, 'idStr');
   }, [
     twitterState.tweets,
     paginateOffset,
