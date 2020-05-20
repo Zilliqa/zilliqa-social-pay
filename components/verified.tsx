@@ -101,10 +101,6 @@ export const Verified: React.FC = () => {
   const sortedTweets = React.useMemo(() => {
     return deepCopy(twitterState.tweets)
       .sort((a: Twitte, b: Twitte) => {
-        if (b.claimed && a.claimed) {
-          return -1;
-        }
-
         return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
       })
       .splice(paginateOffset, PAGE_LIMIT);
