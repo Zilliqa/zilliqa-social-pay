@@ -66,7 +66,7 @@ export const store = TwitterDomain.store(initalState)
         tweets: state.tweets.concat(result.tweets),
         count: result.count,
         verifiedCount: result.verifiedCount,
-        lastBlockNumber: result.lastBlockNumber
+        lastBlockNumber: Number(result.lastBlockNumber)
       };
     }
 
@@ -85,12 +85,12 @@ export const store = TwitterDomain.store(initalState)
       ...state,
       tweets,
       count: state.count + 1,
-      lastBlockNumber: tweet.block
+      lastBlockNumber: Number(tweet.block)
     };
   })
   .on(setLastBlock, (state, blockNumber) => ({
     ...state,
-    lastBlockNumber: blockNumber
+    lastBlockNumber: Number(blockNumber)
   }))
   .on(deleteTweet.done, (state, { result }) => ({
     ...state,

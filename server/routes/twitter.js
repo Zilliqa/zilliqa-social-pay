@@ -367,7 +367,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCa
     return res.status(200).json({
       code: ERROR_CODES.countdown,
       message: `Last tweet have block ${lastTweet.block} but current ${blockchainInfo.BlockNum}.`,
-      lastTweet: lastTweet.block,
+      lastTweet: Number(lastTweet.block),
       currentBlock: BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay)
     });
   }
