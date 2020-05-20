@@ -69,17 +69,17 @@ contract SocialPay
     donation_address : ByStr20
 )
 
-(* Map of hashed_tweet_id to recipient address *)
-field verified_tweets: Map ByStr32 ByStr20 = Emp ByStr32 ByStr20
+(* Map of tweet_id to recipient address *)
+field verified_tweets: Map String ByStr20 = Emp String ByStr20
 
-(* Map of hashed_twitter_id to last withdraw block number *)
-field last_withdrawal: Map ByStr32 BNum = Emp ByStr32 BNum
+(* Map of twitter_id to last withdraw block number *)
+field last_withdrawal: Map String BNum = Emp String BNum
 
 (* Map of address to bool status of admin *)
 field admins: Map ByStr20 Bool = Emp ByStr20 Bool
 
-(* Map of hashed_twitter_id to recipient address *)
-field registered_users: Map ByStr32 ByStr20 = Emp ByStr32 ByStr20
+(* Map of twitter_id to recipient address *)
+field registered_users: Map String ByStr20 = Emp String ByStr20
 
 (* Emit Errors *)
 procedure ThrowError(err: Error)
@@ -136,12 +136,11 @@ end
 
 transition ConfigureUsers(twitter_id: String, recipient_address: ByStr20)
   IsAdmin;
-  hashed_twitter_id = builtin sha256hash twitter_id;
-  is_registered <- exists registered_users[hashed_twitter_id];
+  is_registered <- exists registered_users[twitter_id];
   match is_registered with
   | True =>
       current_block <- & BLOCKNUMBER;
-      withdrawal <- last_withdrawal[hashed_twitter_id];
+      withdrawal <- last_withdrawal[twitter_id];
       not_next_week_yet =
           match withdrawal with
           | Some last_withdraw_block =>
@@ -155,13 +154,13 @@ transition ConfigureUsers(twitter_id: String, recipient_address: ByStr20)
           err = CodeRegisteredWithinWeek;
           ThrowError err
       | False =>
-          registered_users[hashed_twitter_id] := recipient_address;
-          e = {_eventname : "ConfiguredUserAddress"; hashed_twitter_id: hashed_twitter_id; recipient_address: recipient_address};
+          registered_users[twitter_id] := recipient_address;
+          e = {_eventname : "ConfiguredUserAddress"; twitter_id: twitter_id; recipient_address: recipient_address};
           event e
       end
   | False =>
-      registered_users[hashed_twitter_id] := recipient_address;
-      e = {_eventname : "ConfiguredUserAddress"; hashed_twitter_id: hashed_twitter_id; recipient_address: recipient_address};
+      registered_users[twitter_id] := recipient_address;
+      e = {_eventname : "ConfiguredUserAddress"; twitter_id: twitter_id; recipient_address: recipient_address};
       event e
   end
 end
@@ -176,15 +175,13 @@ end
 (*   6. Sufficient time (blocks) have passed since the user was awarded before. *)
 transition VerifyTweet (twitter_id: String, tweet_id: String, tweet_text: String, start_pos: Uint32)
   IsAdmin;
-  hashed_twitter_id = builtin sha256hash twitter_id;
-  hashed_tweet_id = builtin sha256hash tweet_id;
-  get_recipient_address <- registered_users[hashed_twitter_id];
+  get_recipient_address <- registered_users[twitter_id];
   match get_recipient_address with
   | None =>
       err = CodeUserNotRegistered;
       ThrowError err
   | Some recipient_address =>
-      already_verified <- exists verified_tweets[hashed_tweet_id];
+      already_verified <- exists verified_tweets[tweet_id];
       not_already_verified = negb already_verified;
       hashtag_len = builtin strlen hashtag;
       valid_substring = is_valid_substring tweet_text start_pos hashtag_len;
@@ -207,7 +204,7 @@ transition VerifyTweet (twitter_id: String, tweet_id: String, tweet_text: String
               err = CodeTweetNotValid;
               ThrowError err
           | True =>
-              withdrawal <- last_withdrawal[hashed_twitter_id];
+              withdrawal <- last_withdrawal[twitter_id];
               current_block <- & BLOCKNUMBER;
               not_next_day_yet =
                   match withdrawal with
@@ -222,14 +219,14 @@ transition VerifyTweet (twitter_id: String, tweet_id: String, tweet_text: String
                   err = CodeTweetWithinDay;
                   ThrowError err
               | False =>
-                  verified_tweets[hashed_tweet_id] := recipient_address;
-                  last_withdrawal[hashed_twitter_id] := current_block;
+                  verified_tweets[tweet_id] := recipient_address;
+                  last_withdrawal[twitter_id] := current_block;
                   e = {
                           _eventname : "VerifyTweetSuccessful";
-                          admin: _sender;
-                          hashed_twitter_id: hashed_twitter_id;
-                          hashed_tweet_id: hashed_tweet_id;
+                          sender: _sender;
                           recipient: recipient_address;
+                          twitter_id: twitter_id;
+                          tweet_id: tweet_id;
                           reward_amount: zils_per_tweet;
                           matched_donation: zils_per_tweet
                       };
