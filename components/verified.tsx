@@ -183,6 +183,9 @@ export const Verified: React.FC = () => {
       }
 
       setPaginateOffset(0);
+      TwitterStore.setShowTwitterTweetEmbed(false);
+      setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
+
       TwitterStore.update(mapetTweets);
       EventStore.setEvent(Events.Claimed);
     }
