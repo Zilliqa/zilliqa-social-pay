@@ -31,8 +31,9 @@ const ControlContainer = styled(AroundedContainer)`
   margin-top: 7px;
   align-items: flex-start;
 
-  @media (max-width: 440px) {
+  @media (max-width: 1023px) {
     margin-bottom: 30px;
+    margin: 0;
   }
 `;
 const DashboardContainer = styled(Container)`
