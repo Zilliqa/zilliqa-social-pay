@@ -39,6 +39,10 @@ export const BaseStyles = createGlobalStyle`
     transition: all 0.4s ease-out;
   }
 
+  circle {
+    transition: none;
+  }
+
   button {
     cursor: pointer;
     border-radius: 20px;
