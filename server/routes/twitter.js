@@ -190,13 +190,17 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, bl
       id_str: tweet.id_str
     });
   } catch (err) {
-    if (dev) {
-      return res.status(401).send(err.message || err);;
+    if (Array.isArray(err)) {
+      return res.status(401).json({
+        ...err[0],
+        debug: dev ? (err.message || err) : undefined
+      });
     }
 
     return res.status(401).json({
       code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
@@ -296,13 +300,10 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCac
       tweet: createdTweet
     });
   } catch (err) {
-    if (dev) {
-      return res.status(401).send(err.message || err);;
-    }
-
     return res.status(401).json({
       code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
@@ -412,13 +413,10 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCa
 
     return res.status(201).json(foundTweet);
   } catch (err) {
-    if (dev) {
-      return res.status(401).send(err.message || err);;
-    }
-
     return res.status(401).json({
       code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
@@ -439,9 +437,11 @@ router.delete('/delete/tweete/:id', checkSession, verifyJwt, async (req, res) =>
 
     return res.status(200).send(id);
   } catch (err) {
+
     return res.status(401).json({
       code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
@@ -466,13 +466,10 @@ router.get('/get/account', checkSession, async (req, res) => {
 
     return res.status(200).json(user);
   } catch (err) {
-    if (dev) {
-      return res.status(401).send(err.message || err);;
-    }
-
     return res.status(401).json({
       code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
