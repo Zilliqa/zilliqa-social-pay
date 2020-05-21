@@ -48,6 +48,7 @@ export function socket() {
     }
 
     UserStore.setUser(user);
+    BlockchainStore.updateTimer();
   });
 
   /**

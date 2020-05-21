@@ -64,7 +64,7 @@ const updater = async () => {
   const tweetsResult = await TwitterStore.getTweets({});
   const user = await UserStore.updateUserState(null);
 
-  await BlockchainStore.updateBlockchain(null);
+  BlockchainStore.updateTimer();
 
   if (tweetsResult && tweetsResult.code === ERROR_CODES.unauthorized) {
     throw new Error(tweetsResult.message);
