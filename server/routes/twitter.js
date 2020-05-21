@@ -125,7 +125,7 @@ router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, blockchain
     return res.status(400).json({
       code: ERROR_CODES.badRequest,
       message: 'Bad request.',
-      debug: dev ? (err.message || err) : undefined;
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
