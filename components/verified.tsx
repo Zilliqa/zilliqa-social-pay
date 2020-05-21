@@ -58,7 +58,7 @@ const IconsContainer = styled.div`
   }
 `;
 const TweetEmbedContainer = styled.div`
-  display: flex;
+  display: ${(props: { show?: boolean; }) => props.show ? 'flex' : 'none'};
   align-items: center;
 
   max-width: 560px;
@@ -69,7 +69,7 @@ const TweetEmbedContainer = styled.div`
   @media (max-width: 562px) {
     margin-top: 50px;
     flex-direction: column;
-        margin-bottom: 10%;
+    margin-bottom: 10%;
   }
 `;
 
@@ -86,6 +86,10 @@ export const Verified: React.FC = () => {
   const notificationState = Effector.useStore(NotificationStore.store);
 
   const [paginateOffset, setPaginateOffset] = React.useState(0);
+  const [loadedList, addIndex] = React.useReducer((state: number[], index: number) => {
+    state.push(index);
+    return state;
+  }, []);
 
   /**
    * Hash tag from smart contract.
@@ -225,7 +229,7 @@ export const Verified: React.FC = () => {
     twitterState,
     SLEEP
   ]);
-  const handTweetLoad = React.useCallback(async (loaded, tweete: Twitte) => {
+  const handTweetLoad = React.useCallback(async (loaded, tweete: Twitte, index) => {
     if (!loaded) {
       await TwitterStore.deleteTweet({
         tweete,
@@ -233,8 +237,12 @@ export const Verified: React.FC = () => {
       });
       TwitterStore.setShowTwitterTweetEmbed(false);
       setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
+
+      return null;
     }
-  }, [userState.jwtToken]);
+
+    addIndex(index);
+  }, [userState.jwtToken, addIndex]);
 
   /**
    * Effect for loading tweets rewards.
@@ -281,7 +289,10 @@ export const Verified: React.FC = () => {
         </HaventVerified>
       </Container>
       {twitterState.showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
-        <TweetEmbedContainer key={index}>
+        <TweetEmbedContainer
+          key={index}
+          show={loadedList.includes(index)}
+        >
           <IconsContainer>
             {(!tweet.claimed && !tweet.approved && !tweet.rejected && !isTabletOrMobile) ? (
               <Img
@@ -324,7 +335,7 @@ export const Verified: React.FC = () => {
             options={{
               width: isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT
             }}
-            onLoad={(content: any) => handTweetLoad(Boolean(content), tweet)}
+            onLoad={(content: any) => handTweetLoad(Boolean(content), tweet, index)}
           />
           <IconsContainer>
             {(!tweet.claimed && !tweet.approved && !tweet.rejected && isTabletOrMobile) ? (
