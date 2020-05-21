@@ -57,6 +57,7 @@ const TweetEmbedContainer = styled.div`
     grid-template-columns: 1fr;
     justify-items: center;
     grid-gap: 0;
+    margin-bottom: 20%;
   }
 `;
 
