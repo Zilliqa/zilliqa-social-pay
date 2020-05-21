@@ -69,6 +69,7 @@ const TweetEmbedContainer = styled.div`
   @media (max-width: 562px) {
     margin-top: 50px;
     flex-direction: column;
+        margin-bottom: 10%;
   }
 `;
 
