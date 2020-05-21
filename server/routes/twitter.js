@@ -122,13 +122,10 @@ router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, blockchain
       tweets: tweetsUpdated.filter(Boolean)
     });
   } catch (err) {
-    if (dev) {
-      return res.status(401).send(err.message || err);
-    }
-
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined;
     });
   }
 });
@@ -165,7 +162,7 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, bl
     });
 
     if (!tweet) {
-      return res.status(401).json({
+      return res.status(400).json({
         code: ERROR_CODES.limitReached,
         message: 'Daily limit reached.'
       });
@@ -191,13 +188,13 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, bl
     });
   } catch (err) {
     if (Array.isArray(err)) {
-      return res.status(401).json({
+      return res.status(400).json({
         ...err[0],
         debug: dev ? (err.message || err) : undefined
       });
     }
 
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.badRequest,
       message: 'Bad request.',
       debug: dev ? (err.message || err) : undefined
@@ -212,7 +209,7 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCac
   const { blockchainInfo } = req;
 
   if (!id_str) {
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.badData,
       message: 'Invalid tweet data.'
     });
@@ -241,12 +238,12 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCac
         message: `This tweet does not have the #${capitalizeFirstLetter(blockchainInfo.hashtag)} hashtag in it.`
       });
     } else if (!user || user.profileId !== tweet.user.id_str) {
-      return res.status(401).json({
+      return res.status(400).json({
         code: ERROR_CODES.badData,
         message: 'Invalid user data.'
       });
     } else if (!tweet.user || tweet.user.id_str !== user.profileId) {
-      return res.status(401).json({
+      return res.status(400).json({
         code: ERROR_CODES.badData,
         message: 'Invalid user data.'
       });
@@ -300,7 +297,7 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCac
       tweet: createdTweet
     });
   } catch (err) {
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.badRequest,
       message: 'Bad request.',
       debug: dev ? (err.message || err) : undefined
@@ -316,12 +313,12 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCa
   let foundTweet = null;
 
   if (!user.zilAddress) {
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.noAddress,
       message: 'need to sync zilAddress.'
     });
   } else if (user.synchronization) {
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.noAddressSynchronized,
       message: 'User zilAddress is not synchronized.'
     });
@@ -345,13 +342,10 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCa
       }
     });
   } catch (err) {
-    if (dev) {
-      return res.status(401).send(err.message || err);;
-    }
-
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 
@@ -413,7 +407,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCa
 
     return res.status(201).json(foundTweet);
   } catch (err) {
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.badRequest,
       message: 'Bad request.',
       debug: dev ? (err.message || err) : undefined
@@ -438,7 +432,7 @@ router.delete('/delete/tweete/:id', checkSession, verifyJwt, async (req, res) =>
     return res.status(200).send(id);
   } catch (err) {
 
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.badRequest,
       message: 'Bad request.',
       debug: dev ? (err.message || err) : undefined
@@ -466,7 +460,7 @@ router.get('/get/account', checkSession, async (req, res) => {
 
     return res.status(200).json(user);
   } catch (err) {
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.badRequest,
       message: 'Bad request.',
       debug: dev ? (err.message || err) : undefined
