@@ -37,6 +37,16 @@ class QueueWorker {
     });
   }
 
+  _testForUnique(taskJob) {
+    for (let index = 0; index < this.jobQueues.length; index++) {
+      const job = this.jobQueues[index];
+
+      if (job.queue.hasTask(taskJob)) {
+        throw new Error('This job has in queue');
+      }
+    }
+  }
+
   distributeTasks(tasks) {
     if (!Array.isArray(tasks)) {
       throw new Error('tasks should be Array');
@@ -50,7 +60,12 @@ class QueueWorker {
         const task = tasks[taskIndex + queueIndex];
 
         if (task) {
-          this.jobQueues[queueIndex].addTask(task);
+          try {
+            this._testForUnique(task);
+            this.jobQueues[queueIndex].addTask(task);
+          } catch (err) {
+            //
+          }
         }
       }
     }
@@ -61,19 +76,16 @@ class QueueWorker {
   }
 
   addTask(taskJob) {
-    for (let index = 0; index < this.jobQueues.length; index++) {
-      const job = this.jobQueues[index];
+    try {
+      this._testForUnique(taskJob);
+      this._toRandom();
+      this._toMin();
 
-      if (job.queue.hasTask(taskJob)) {
-        return null;
-      }
+      this.jobQueues[0].addTask(taskJob);
+      log.info('JOB added', this.jobQueues[0].name, 'queue:', this.jobQueues[0].queueLength);
+    } catch (err) {
+      log.warn('JOB has in queue.', err);
     }
-
-    this._toRandom();
-    this._toMin();
-    this.jobQueues[0].addTask(taskJob);
-
-    log.info('JOB added', this.jobQueues[0].name, 'queue:', this.jobQueues[0].queueLength);
   }
 
   addJobQueues(key) {

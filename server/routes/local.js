@@ -2,6 +2,7 @@ const express = require('express');
 const { Op } = require('sequelize');
 const { validation } = require('@zilliqa-js/util');
 const checkSession = require('../middleware/check-session');
+const zilliqa = require('../zilliqa');
 const models = require('../models');
 const verifyJwt = require('../middleware/verify-jwt');
 const verifyCampaign = require('../middleware/campaign-check');
@@ -129,17 +130,9 @@ router.get('/get/tweets', checkSession, async (req, res) => {
         approved: true
       }
     });
-    const lastActionTweet = await Twittes.findOne({
-      order: [
-        ['block', 'DESC']
-      ],
-      where: {
-        UserId
-      },
-      attributes: [
-        'block'
-      ]
-    });
+    const lastActionTweet = await zilliqa.getLastWithdrawal([
+      req.session.passport.user.profileId
+    ]);
     const tweets = await Twittes.findAll({
       limit,
       offset,
@@ -161,7 +154,7 @@ router.get('/get/tweets', checkSession, async (req, res) => {
       tweets,
       count,
       verifiedCount,
-      lastBlockNumber: !lastActionTweet ? 0 : lastActionTweet.block
+      lastBlockNumber: !lastActionTweet ? 0 : Number(lastActionTweet) + 1
     });
   } catch (err) {
     if (dev) {

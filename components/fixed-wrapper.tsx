@@ -33,11 +33,12 @@ import {
 } from 'config';
 import ERROR_CODES from 'config/error-codes';
 import { addTweet } from 'utils/update-tweets';
+import { Twitte } from 'interfaces';
 
 const SPINER_SIZE = 150;
 const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
-const SLEEP = 10;
+const SLEEP = 100;
 
 /**
  * Container for modals and any componets with fixed postion.
@@ -131,7 +132,10 @@ export const FixedWrapper: React.FC = () => {
    */
   const handlePay = React.useCallback(async () => {
     EventStore.setEvent(Events.Load);
-    const result = await addTweet(userState.jwtToken, eventState.content);
+    const result = await TwitterStore.payTweet({
+      jwt: userState.jwtToken,
+      tweete: (eventState.content as Twitte)
+    });
 
     if (result.code === ERROR_CODES.lowFavoriteCount) {
       EventStore.reset();
@@ -146,18 +150,16 @@ export const FixedWrapper: React.FC = () => {
 
       return null;
     }
-
-    BlockchainStore.updateBlockchain(null);
-
     TwitterStore.setShowTwitterTweetEmbed(false);
 
     setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
 
     if (result.message.includes('Added')) {
       TwitterStore.add(result.tweet);
+      EventStore.setEvent(Events.Claimed);
+    } else {
+      EventStore.reset();
     }
-
-    EventStore.reset();
   }, [addTweet, EventStore, userState, eventState, TwitterStore]);
 
   React.useEffect(() => {
@@ -221,8 +223,10 @@ export const FixedWrapper: React.FC = () => {
             size={FontSize.sm}
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
+            align={Sides.center}
+            css="max-width: 300px;"
           >
-            You have claimed you reward.
+            Claim successful! Your $ZIL reward will be distributed in a while…
           </Text>
           <Img src="icons/ok.svg" />
           <Button

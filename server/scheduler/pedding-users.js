@@ -2,11 +2,13 @@ const bunyan = require('bunyan');
 const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
+const { promisify } = require('util');
 const { toBech32Address } = require('@zilliqa-js/crypto');
 
 const {
   User,
-  Notification
+  Notification,
+  blockchain
 } = models.sequelize.models;
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
@@ -14,15 +16,17 @@ const notificationTypes = new Notification().types;
 const log = bunyan.createLogger({ name: 'scheduler:peddign-users' });
 
 module.exports = async function (redisClient) {
+  const getAsync = promisify(redisClient.get).bind(redisClient);
+  const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
+
   const users = await User.findAndCountAll({
     where: {
       synchronization: true,
       zilAddress: {
         [Op.not]: null
       },
-      updatedAt: {
-        // Ten minuts.
-        [Op.lt]: new Date(new Date() - 24 * 60 * 150)
+      lastAction: {
+        [Op.lte]: Number(blockchainInfo.BlockNum) - 6
       }
     },
     limit: 100
@@ -54,20 +58,14 @@ module.exports = async function (redisClient) {
 
     await user.update({
       synchronization: false,
-      zilAddress: toBech32Address(usersFromContract[profileId]),
-      lastAction: 0
+      zilAddress: toBech32Address(usersFromContract[profileId])
     });
-    const notification = await Notification.create({
+    await Notification.create({
       UserId: user.id,
       type: notificationTypes.addressConfigured,
       title: 'Account',
       description: 'Address configured!'
     });
-
-    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
-      model: Notification.tableName,
-      body: notification
-    }));
   });
 
   await Promise.all(onlyProfiles);

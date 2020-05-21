@@ -27,6 +27,7 @@ import { claimTweet } from 'utils/claim-tweet';
 import { Twitte } from 'interfaces';
 import { timerCalc } from 'utils/timer';
 import { deepCopy } from 'utils/deep-copy';
+import { toUnique } from 'utils/to-unique';
 
 type TweetEmbedContainerProp = {
   mobileMode?: boolean;
@@ -59,7 +60,7 @@ const TweetEmbedContainer = styled.div`
 const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
 const PAGE_LIMIT = 3;
-const SLEEP = 10;
+const SLEEP = 100;
 /**
  * Show user tweets.
  */
@@ -99,15 +100,13 @@ export const Verified: React.FC = () => {
     return 'display: none;';
   }, [twitterState]);
   const sortedTweets = React.useMemo(() => {
-    return deepCopy(twitterState.tweets)
+    const array = deepCopy(twitterState.tweets)
       .sort((a: Twitte, b: Twitte) => {
-        if (b.claimed && a.claimed) {
-          return -1;
-        }
-
         return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
       })
       .splice(paginateOffset, PAGE_LIMIT);
+
+    return toUnique(array, 'idStr');
   }, [
     twitterState.tweets,
     paginateOffset,
@@ -186,10 +185,13 @@ export const Verified: React.FC = () => {
         BlockchainStore.updateTimer();
       }
 
+      TwitterStore.setShowTwitterTweetEmbed(false);
+      setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
+
       TwitterStore.update(mapetTweets);
       EventStore.setEvent(Events.Claimed);
     }
-  }, [userState, blockchainState, twitterState, router]);
+  }, [userState, blockchainState, twitterState, router, setPaginateOffset]);
   const handleNextPageClick = React.useCallback(async (data) => {
     const selected = Number(data.selected);
     const offset = Math.ceil(selected * PAGE_LIMIT);
@@ -211,12 +213,14 @@ export const Verified: React.FC = () => {
     twitterState,
     SLEEP
   ]);
-  const handTweetLoad = React.useCallback((loaded, tweete: Twitte) => {
+  const handTweetLoad = React.useCallback(async (loaded, tweete: Twitte) => {
     if (!loaded) {
-      TwitterStore.deleteTweet({
+      await TwitterStore.deleteTweet({
         tweete,
         jwt: userState.jwtToken
       });
+      TwitterStore.setShowTwitterTweetEmbed(false);
+      setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
     }
   }, [userState.jwtToken]);
 

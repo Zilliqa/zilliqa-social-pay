@@ -48,6 +48,7 @@ export function socket() {
     }
 
     UserStore.setUser(user);
+    BlockchainStore.updateTimer();
   });
 
   /**
@@ -68,7 +69,7 @@ export function socket() {
     });
 
     if (Number(tweetsState.lastBlockNumber) < Number(tweet.block)) {
-      TwitterStore.setLastBlock(tweet.block);
+      TwitterStore.setLastBlock(Number(tweet.block));
       BlockchainStore.updateTimer();
     }
 

@@ -2,8 +2,8 @@ const bunyan = require('bunyan');
 const { Op } = require('sequelize');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
+const { promisify } = require('util');
 
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
 
@@ -18,13 +18,16 @@ const log = bunyan.createLogger({ name: 'scheduler:pedding-verifytweet' });
 const notificationTypes = new Notification().types;
 
 module.exports = async function (redisClient) {
+  const getAsync = promisify(redisClient.get).bind(redisClient);
+  const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
+
   const twittes = await Twittes.findAndCountAll({
     where: {
       approved: false,
       rejected: false,
       claimed: true,
-      updatedAt: {
-        [Op.lt]: new Date(new Date() - 24 * 60 * 150)
+      block: {
+        [Op.lte]: Number(blockchainInfo.BlockNum) - 6
       },
       txId: {
         [Op.not]: null
@@ -40,9 +43,6 @@ module.exports = async function (redisClient) {
     return null;
   }
 
-  const blockchainInfo = await blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
   const needTestForVerified = twittes.rows.map(async (tweet) => {
     const tweetId = tweet.idStr;
     const hasInContract = await zilliqa.getVerifiedTweets([tweetId]);

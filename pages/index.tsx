@@ -11,6 +11,7 @@ import TwitterStore from 'store/twitter';
 import EventStore from 'store/event';
 import BrowserStore from 'store/browser';
 import NotificationStore from 'store/notification';
+import BlockchainStore from 'store/blockchain';
 
 import { Container } from 'components/container';
 import { Img } from 'components/img';
@@ -62,6 +63,8 @@ const Illustration = styled(Img)`
 const updater = async () => {
   const tweetsResult = await TwitterStore.getTweets({});
   const user = await UserStore.updateUserState(null);
+
+  BlockchainStore.updateTimer();
 
   if (tweetsResult && tweetsResult.code === ERROR_CODES.unauthorized) {
     throw new Error(tweetsResult.message);
