@@ -50,7 +50,8 @@ const initalState: Blockchain = {
   balance: 0,
   initBalance: 0,
   campaignEnd: null,
-  now: null
+  now: null,
+  hashtagText: 'I am supporting this fundraising page https://redcross.give.asia/campaign/essentials-delivered-to-migrant-workers/378720/shhby and I thought you might be interested in checking it out as well. Please consider donating or sharing this meaningful campaign. Thanks!'
 };
 
 export const store = blockchainDomain.store<Blockchain>(initalState)

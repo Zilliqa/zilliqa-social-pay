@@ -283,7 +283,8 @@ export const Verified: React.FC = () => {
             tag={hashTag}
             options={{
               size: 'large',
-              screenName: userState.screenName
+              screenName: userState.screenName,
+              text: blockchainState.hashtagText
             }}
           /> : null}
         </HaventVerified>

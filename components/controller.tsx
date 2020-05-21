@@ -14,6 +14,7 @@ import { Img } from 'components/img';
 import { Input, InputIcons } from 'components/Input';
 import { Button } from 'components/button';
 import { Container } from 'components/container';
+import { TwitterHashtagButton } from 'react-twitter-embed';
 
 import {
   FontSize,
@@ -227,20 +228,32 @@ export const Controller: React.FC = () => {
           {fromZil(blockchainState.zilsPerTweet)} $ZIL
         </Text>
       </Text>
-      <Text
-        size={FontSize.xs}
-        fontVariant={Fonts.AvenirNextLTProRegular}
-        fontColors={FontColors.gray}
-      >
-        HASHTAG
+      <Container css="display: flex;align-items: center;justify-content: space-between;width: 100%;">
         <Text
-          fontVariant={Fonts.AvenirNextLTProBold}
-          fontColors={FontColors.white}
-          css="text-transform: capitalize;font-size: 15px;"
+          size={FontSize.xs}
+          fontVariant={Fonts.AvenirNextLTProRegular}
+          fontColors={FontColors.gray}
         >
-          {blockchainState.hashtag}
+          HASHTAG
+        <Text
+            fontVariant={Fonts.AvenirNextLTProBold}
+            fontColors={FontColors.white}
+            css="text-transform: capitalize;font-size: 15px;"
+          >
+            {blockchainState.hashtag}
+          </Text>
         </Text>
-      </Text>
+        {blockchainState.hashtag ? (
+          <TwitterHashtagButton
+            tag={blockchainState.hashtag}
+            options={{
+              size: 'large',
+              screenName: userState.screenName,
+              text: blockchainState.hashtagText
+            }}
+          />
+        ) : null}
+      </Container>
       <Input
         sizeVariant={SizeComponent.md}
         value={value}
