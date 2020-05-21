@@ -8,6 +8,7 @@ import * as Effector from 'effector-react';
 
 import UserStore from 'store/user';
 import BrowserStore from 'store/browser';
+import NotificationStore from 'store/notification';
 
 import { Container } from 'components/container';
 import { Img } from 'components/img';
@@ -73,6 +74,8 @@ export const AuthPage: NextPage = () => {
         router.push('/');
       }
     }
+
+    NotificationStore.clearNotification();
   }, [userState, router]);
 
   return (

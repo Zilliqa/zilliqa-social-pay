@@ -48,6 +48,9 @@ const TweetEmbedContainer = styled.div`
   justify-items: end;
   width: intrinsic;
 
+  animation-duration: .3s;
+  animation-name: fadeInDown;
+
   @media (max-width: 546px) {
     ${(props: TweetEmbedContainerProp) => props.mobileMode && !props.first ? 'margin-top: 70px;' : ''}
     grid-template-rows: auto 1fr;
