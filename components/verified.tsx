@@ -53,7 +53,7 @@ const IconsContainer = styled.div`
   justify-content: flex-end;
   margin-right: 10px;
 
-  @media (max-width: 546px) {
+  @media (max-width: 562px) {
     min-width: unset;
   }
 `;
@@ -66,7 +66,7 @@ const TweetEmbedContainer = styled.div`
   animation-duration: 1.3s;
   animation-name: fadeInDown;
 
-  @media (max-width: 546px) {
+  @media (max-width: 562px) {
     margin-top: 50px;
     flex-direction: column;
   }
@@ -77,7 +77,7 @@ const TweetEmbedContainer = styled.div`
  */
 export const Verified: React.FC = () => {
   const router = useRouter();
-  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 562px)' });
 
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
