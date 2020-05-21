@@ -154,7 +154,7 @@ router.get('/get/tweets', checkSession, async (req, res) => {
       tweets,
       count,
       verifiedCount,
-      lastBlockNumber: !lastActionTweet ? 0 : Number(lastActionTweet)
+      lastBlockNumber: !lastActionTweet ? 0 : Number(lastActionTweet) + 1
     });
   } catch (err) {
     if (dev) {
