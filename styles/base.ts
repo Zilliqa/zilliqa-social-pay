@@ -36,6 +36,7 @@ export const BaseStyles = createGlobalStyle`
 
   * {
     box-sizing: border-box;
+    transition: all 0.4s ease-out;
   }
 
   button {
@@ -60,6 +61,11 @@ export const BaseStyles = createGlobalStyle`
     }
   }
 
+  .twitter-tweet  {
+    animation-duration: .5s;
+    animation-name: fade;
+  }
+
   .rc-steps-label-vertical .rc-steps-item-description {
     text-align: center;
   }
@@ -71,7 +77,6 @@ export const BaseStyles = createGlobalStyle`
 
   .ReactModal__Overlay--after-open {
     opacity: 1;
-    transition: opacity 150ms ease-out;
   }
 
   .ReactModal__Content {
@@ -80,7 +85,6 @@ export const BaseStyles = createGlobalStyle`
 
   .ReactModal__Content--after-open {
     transform: scale(1) rotateX(0deg);
-    transition: all 150ms ease-in;
   }
 
   .ReactModal__Overlay--before-close {

@@ -48,7 +48,7 @@ const TweetEmbedContainer = styled.div`
   justify-items: end;
   width: intrinsic;
 
-  animation-duration: .3s;
+  animation-duration: 1.3s;
   animation-name: fadeInDown;
 
   @media (max-width: 546px) {

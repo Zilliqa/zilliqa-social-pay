@@ -67,6 +67,9 @@ const Closer = styled.a`
   right: 0;
   left: 0;
   z-index: 4;
+
+  animation-duration: .5s;
+  animation-name: fade;
 `;
 const ProfileContainer = styled.div`
   :before {
