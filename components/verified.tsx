@@ -34,11 +34,6 @@ const WIDTH_DEFAULT = 450;
 const PAGE_LIMIT = 3;
 const SLEEP = 100;
 
-type TweetEmbedContainerProp = {
-  mobileMode?: boolean;
-  first?: boolean;
-};
-
 const HaventVerified = styled.div`
   display: flex;
   justify-content: space-around;
@@ -50,7 +45,6 @@ const VerifiedContainer = styled(Container)`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  max-width: ${WIDTH_DEFAULT}px;
   min-width: ${WIDTH_MOBILE}px;
 `;
 const IconsContainer = styled.div`
@@ -67,12 +61,13 @@ const TweetEmbedContainer = styled.div`
   display: flex;
   align-items: center;
 
+  max-width: 560px;
+
   animation-duration: 1.3s;
   animation-name: fadeInDown;
 
   @media (max-width: 546px) {
-    ${(props: TweetEmbedContainerProp) => props.mobileMode && !props.first ? 'margin-top: 70px;' : ''}
-    margin-bottom: 20%;
+    margin-top: 50px;
     flex-direction: column;
   }
 `;
@@ -285,11 +280,7 @@ export const Verified: React.FC = () => {
         </HaventVerified>
       </Container>
       {twitterState.showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
-        <TweetEmbedContainer
-          mobileMode={isTabletOrMobile}
-          first={index === 0}
-          key={index}
-        >
+        <TweetEmbedContainer key={index}>
           <IconsContainer>
             {(!tweet.claimed && !tweet.approved && !tweet.rejected && !isTabletOrMobile) ? (
               <Img
