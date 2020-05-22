@@ -7,6 +7,7 @@ const { promisify } = require('util');
 const { Op } = require('sequelize');
 const { validation } = require('@zilliqa-js/util');
 const models = require('../models');
+const zilliqa = require('../zilliqa');
 
 const { Job, QueueWorker } = require('../job');
 const verifyTweet = require('./verify-tweet');
@@ -217,13 +218,36 @@ async function queueFilling() {
   });
 }
 
-queueFilling()
+zilliqa
+  .generateAddresses(process.env.NUMBER_OF_ADMINS)
+  .then((accounts) => {
+    accounts.forEach((account, index) => {
+      const address = account.bech32Address;
+      const balance = zilliqa.fromZil(account.balance);
+
+      log.warn(`admin ${index}: ${address}, balance: ${balance}, status: ${account.status}`);
+    });
+
+    return queueFilling();
+  })
   .catch((err) => {
     log.error('queueFilling', err);
 
     const interval = setInterval(() => {
       queueFilling()
         .then(() => clearInterval(interval))
-        .catch((e) => log.error('queueFilling', e));
+        .catch((e) => {
+          log.error('queueFilling', e);
+
+          return zilliqa.generateAddresses(process.env.NUMBER_OF_ADMINS)
+        })
+        .then((accounts) => {
+          accounts.forEach((account, index) => {
+            const address = account.bech32Address;
+            const balance = zilliqa.fromZil(account.balance);
+
+            log.warn(`admin ${index}: ${address}, balance: ${balance}, status: ${account.status}`);
+          });
+        })
     }, 5000);
   });
