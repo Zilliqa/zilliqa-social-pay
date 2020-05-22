@@ -17,6 +17,7 @@ const JOB_TYPES = require('../config/job-types');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
+const MIN_AMOUNT = '50000000000000';
 
 if (!validation.isBech32(CONTRACT_ADDRESS)) {
   throw new Error('incorect contract address');
@@ -156,7 +157,7 @@ async function queueFilling() {
     where: {
       status: new Admin().statuses.enabled,
       balance: {
-        [Op.gte]: '50000000000000' // 50ZILs
+        [Op.gte]: MIN_AMOUNT
       }
     },
     order: [
@@ -224,8 +225,9 @@ zilliqa
     accounts.forEach((account, index) => {
       const address = account.bech32Address;
       const balance = zilliqa.fromZil(account.balance);
+      const minBalance = zilliqa.fromZil(MIN_AMOUNT);
 
-      log.warn(`admin ${index}: ${address}, balance: ${balance}, status: ${account.status}`);
+      log.warn(`admin ${index}: ${address}, balance: ${balance}, min balance for use: ${minBalance} status: ${account.status}`);
     });
 
     return queueFilling();
