@@ -202,7 +202,7 @@ async function queueFilling() {
           log.info('Added new job admin:', body.address);
           return null;
         case blockchain.tableName:
-          const tasks = await getTasks();
+          const tasks = await getTasks(5);
           worker.distributeTasks(tasks);
           log.info(tasks.length, 'tasks added to queue');
           return null;
