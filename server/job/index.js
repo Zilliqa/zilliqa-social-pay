@@ -63,7 +63,7 @@ class QueueWorker {
   distributeTasks(tasks) {
     if (!Array.isArray(tasks)) {
       throw new Error('tasks should be Array');
-    } else if (this.jobsLength > 200) {
+    } else if (this.jobsLength > 500) {
       return null;
     }
 

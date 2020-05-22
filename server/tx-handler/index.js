@@ -80,6 +80,7 @@ async function getTasks(limit = 5) {
     throw new Error('NEXT');
   }
 
+  const blocksForClaim = Number(blockchainInfo.BlockNum) - Number(blockchainInfo.blocksPerDay);
   const tweets = await Twittes.findAndCountAll({
     limit,	  
     where: {
@@ -88,7 +89,7 @@ async function getTasks(limit = 5) {
       txId: null,
       claimed: true,
       block: {
-        [Op.lt]: Number(blockchainInfo.BlockNum)
+        [Op.lte]: blocksForClaim
       }
     },
     include: {
@@ -168,6 +169,7 @@ async function queueFilling() {
       'bech32Address'
     ]
   });
+  log.info(`${admins.length} admins will added to queue.`);
   const keys = admins.map((el) => el.bech32Address);
   const worker = new QueueWorker(keys);
 
