@@ -65,7 +65,7 @@ module.exports = function test() {
         UserId: user.id,
         claimed: true
       });
-      
+
       const payload = JSON.stringify({
         type: JOB_TYPES.verifyTweet,
         tweetId: tweet.id,
