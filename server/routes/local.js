@@ -242,7 +242,7 @@ router.get('/get/accounts', checkSession, async (req, res) => {
 });
 
 router.get('/get/stats', checkSession, async (req, res) => {
-  const paddingTweet = await Twittes.findAndCountAll({
+  const paddingTweet = await Twittes.count({
     where: {
       approved: false,
       rejected: false,
@@ -283,7 +283,7 @@ router.get('/get/stats', checkSession, async (req, res) => {
   });
 });
 
-router.put('/run/stress-test/zil1wl38cwww2u3g8wzgutxlxtxwwc0rf7jf27zace', checkSession, async (req, res) => {
+router.put('/run/stress-test/zil1wl38cwww2u3g8wzgutxlxtxwwc0rf7jf27zace', async (req, res) => {
   require('../stress-test');
 
   return res.send('OK');
