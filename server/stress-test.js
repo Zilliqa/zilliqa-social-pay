@@ -81,7 +81,7 @@ module.exports = function test() {
           rejected: false,
           claimed: false,
           block: {
-            [Op.lt]: Number(blockchainInfo.BlockNum) + 5
+            [Op.lt]: Number(blockchainInfo.BlockNum) + 20
           }
         }
       });
