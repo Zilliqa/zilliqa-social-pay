@@ -14,7 +14,6 @@ const server = express();
 const redis = require('redis');
 const socketRoute = require('./routes/socket');
 const socketMiddleware = require('./middleware/socket-auth');
-const zilliqa = require('./zilliqa');
 const PACKAGE = require('../package.json');
 
 const ENV = process.env.NODE_ENV || 'development';
@@ -67,15 +66,7 @@ redisClientSubscriber.setMaxListeners(redisClientSubscriber.getMaxListeners() + 
 
 app
   .prepare()
-  .then(() => zilliqa.generateAddresses(process.env.NUMBER_OF_ADMINS))
-  .then((accounts) => {
-    accounts.forEach((account, index) => {
-      const address = account.bech32Address;
-      const balance = zilliqa.fromZil(account.balance);
-
-      log.warn(`admin ${index}: ${address}, balance: ${balance}, status: ${account.status}`);
-    });
-
+  .then(() => {
     // handling everything else with Next.js
     server.get('*', handle);
 

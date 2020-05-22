@@ -41,7 +41,7 @@ router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, 
 
   try {
     if (!validation.isBech32(bech32Address)) {
-      return res.status(401).json({
+      return res.status(400).json({
         code: ERROR_CODES.invalidAddressFormat,
         message: 'Invalid address format.'
       });
@@ -54,7 +54,7 @@ router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, 
     });
 
     if (userExist > 0) {
-      return res.status(401).json({
+      return res.status(400).json({
         code: ERROR_CODES.alreadyExists,
         message: 'This address is already registered.'
       });
@@ -92,13 +92,10 @@ router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, 
       message: 'ConfiguredUserAddress',
     });
   } catch (err) {
-    if (dev) {
-      return res.status(401).send(err.message || err);;
-    }
-
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
@@ -157,13 +154,10 @@ router.get('/get/tweets', checkSession, async (req, res) => {
       lastBlockNumber: !lastActionTweet ? 0 : Number(lastActionTweet) + 1
     });
   } catch (err) {
-    if (dev) {
-      return res.status(401).send(err.message || err);;
-    }
-
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
@@ -205,13 +199,10 @@ router.get('/get/notifications', checkSession, async (req, res) => {
       count: Number(notificationCount)
     });
   } catch (err) {
-    if (dev) {
-      return res.status(401).send(err.message || err);;
-    }
-
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
@@ -228,13 +219,10 @@ router.delete('/delete/notifications', checkSession, verifyJwt, async (req, res)
 
     return res.status(204);
   } catch (err) {
-    if (dev) {
-      return res.status(401).send(err.message || err);;
-    }
-
-    return res.status(401).json({
+    return res.status(400).json({
       code: ERROR_CODES.badRequest,
-      message: 'Bad request.'
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });

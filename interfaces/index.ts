@@ -59,6 +59,7 @@ export interface Blockchain {
   code?: number;
   dayTimer?: string | null;
   weekTimer?: string | null;
+  hashtagText?: string;
 }
 
 export interface PageProp {

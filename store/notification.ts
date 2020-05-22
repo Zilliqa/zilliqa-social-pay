@@ -13,6 +13,7 @@ import { toUnique } from 'utils/to-unique';
 
 export const EventDomain = createDomain();
 export const addNotifly = EventDomain.event<JSX.Element>();
+export const clearNotification = EventDomain.event();
 export const addServerNotification = EventDomain.event<NotificationModel>();
 export const addLoadingNotifly = EventDomain.event<JSX.Element>();
 export const rmNotifly = EventDomain.event<string>();
@@ -33,6 +34,11 @@ const initalState = {
 };
 
 export const store = EventDomain.store<NotificationState>(initalState)
+  .on(clearNotification, (state) => ({
+    ...state,
+    notifications: [],
+    serverNotifications: []
+  }))
   .on(addNotifly, (state, component) => {
     const { notifications } = state;
     const notification = {
@@ -112,5 +118,6 @@ export default {
   rmNotifly,
   getNotifications,
   removeNotifications,
+  clearNotification,
   addServerNotification
 };

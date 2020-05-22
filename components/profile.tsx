@@ -67,6 +67,9 @@ const Closer = styled.a`
   right: 0;
   left: 0;
   z-index: 4;
+
+  animation-duration: .5s;
+  animation-name: fade;
 `;
 const ProfileContainer = styled.div`
   :before {
@@ -78,12 +81,12 @@ const ProfileContainer = styled.div`
 
     background: #00ffff;
 
-    border-radius: 50%;
+    border-radius: 100%;
     transform: translate(-20%, 300%);
   }
 `;
 const ImgContainer = styled(Img)`
-  border-radius: 50%;
+  border-radius: 100%;
 
   ${(props: ShwoType) => props.show ? 'cursor: pointer;' : ''};
   ${(props: ShwoType) => props.show ? 'border: 0.1rem #00ffff solid;' : ''};
