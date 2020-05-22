@@ -75,12 +75,8 @@ class QueueWorker {
         const task = tasks[taskIndex + queueIndex];
 
         if (task) {
-          try {
-            this._testForUnique(task);
-            this.jobQueues[queueIndex].addTask(task);
-          } catch (err) {
-            //
-          }
+          this._testForUnique(task);
+          this.jobQueues[queueIndex].addTask(task);
         }
       }
     }
