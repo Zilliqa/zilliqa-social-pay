@@ -13,7 +13,7 @@ const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 
 const USERS_CREATER = 1500;
 const USER_TO_CONFIGURE = 1500;
-const TWEET_CREATER = 1500;
+const TWEET_CREATER = 5000;
 
 function test() {
   setInterval(async() => {
