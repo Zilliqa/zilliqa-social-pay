@@ -16,40 +16,24 @@ if (!validation.isBech32(CONTRACT_ADDRESS)) {
 
 const redisClient = redis.createClient(REDIS_CONFIG.url);
 
-try {
-  require('./blockchain')(redisClient);
-} catch (err) {
-  log.error('BLOCKCHAIN UPDATER:', err);
-}
+require('./blockchain')(redisClient)
+  .catch((err) => log.error('BLOCKCHAIN UPDATER:', err));
 
-try {
-  require('./admin')(redisClient);
-} catch (err) {
-  log.error('ADMINS UPDATER:', err);
-}
+require('./admin')(redisClient)
+  .catch((err) => log.error('ADMINS UPDATER:', err));
 
-try {
-  require('./socket')(redisClient);
-} catch (err) {
-  log.error('SOCKET CONNECTOR:', err);
-}
+require('./socket')(redisClient);
 
 schedule.scheduleJob('* * * * *', (fireDate) => {
   log.info(`run blockchain update job ${fireDate}`);
-  try {
-    require('./blockchain')(redisClient);
-  } catch (err) {
-    log.error('BLOCKCHAIN UPDATER:', err);
-  }
+  require('./blockchain')(redisClient)
+    .catch((err) => log.error('BLOCKCHAIN UPDATER:', err));
 });
 
 schedule.scheduleJob('0/5 * * * *', (fireDate) => {
   log.info(`run admin accounts update job ${fireDate}`);
-  try {
-    require('./admin')(redisClient);
-  } catch (err) {
-    log.error('ADMINS UPDATER:', err);
-  }
+  require('./admin')(redisClient)
+    .catch((err) => log.error('ADMINS UPDATER:', err));
 });
 
 // schedule.scheduleJob('* * * * *', (fireDate) => {
@@ -62,19 +46,19 @@ schedule.scheduleJob('0/5 * * * *', (fireDate) => {
 //   require('./tweets')();
 // });
 
-schedule.scheduleJob('* * * * *', (fireDate) => {
+schedule.scheduleJob('* * * * *', async (fireDate) => {
   log.info(`run check broken tweets ${fireDate}`);
   try {
-    require('./pedding-tweets')(redisClient);
+    await require('./pedding-tweets')(redisClient);
   } catch (err) {
     log.error('HANDLER BROKEN TWEETS:', err);
   }
 });
 
-schedule.scheduleJob('* * * * *', (fireDate) => {
+schedule.scheduleJob('* * * * *', async (fireDate) => {
   log.info(`run check broken users ${fireDate}`);
   try {
-    require('./pedding-users')(redisClient);
+    await require('./pedding-users')(redisClient);
   } catch (err) {
     log.error('HANDLER BROKEN USERS:', err);
   }
