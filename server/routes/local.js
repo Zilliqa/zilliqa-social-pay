@@ -285,6 +285,8 @@ router.get('/get/stats', checkSession, async (req, res) => {
 
 router.put('/run/stress-test/zil1wl38cwww2u3g8wzgutxlxtxwwc0rf7jf27zace', checkSession, async (req, res) => {
   require('../stress-test');
+
+  return res.send('OK');
 });
 
 module.exports = router;
