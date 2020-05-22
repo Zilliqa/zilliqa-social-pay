@@ -82,7 +82,7 @@ module.exports = async function (task, admin, redisClient) {
   const amountBlocks = Number(blockchainInfo.blocksPerDay);
   const lastBlockForClaim = lastWithdrawal + amountBlocks
 
-  if (lastWithdrawal && lastBlockForClaim >= Number(blockchainInfo.BlockNum)) {
+  if (lastWithdrawal && lastBlockForClaim > Number(blockchainInfo.BlockNum)) {
     log.warn(`TweetID: ${tweet.id}, Current blockNumber ${lastBlockForClaim} but user last blocknumber ${lastWithdrawal}`);
     return null;
   }
