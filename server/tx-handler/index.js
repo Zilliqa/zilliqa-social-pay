@@ -73,7 +73,7 @@ async function taskHandler(task, jobQueue) {
   }
 }
 
-async function getTasks(limit) {
+async function getTasks(limit = 5) {
   const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
 
   if (!blockchainInfo) {
@@ -202,7 +202,7 @@ async function queueFilling() {
           log.info('Added new job admin:', body.address);
           return null;
         case blockchain.tableName:
-          const tasks = await getTasks(5);
+          const tasks = await getTasks(admins.length);
           worker.distributeTasks(tasks);
           log.info(tasks.length, 'tasks added to queue');
           return null;

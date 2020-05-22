@@ -11,51 +11,28 @@ const REDIS_CONFIG = require('./config/redis')[ENV];
 const JOB_TYPES = require('./config/job-types');
 const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 
-const USERS_CREATER = 5000;
-const USER_TO_CONFIGURE = 5000;
+const USERS_CREATER = 1000;
 const TWEET_CREATER = 5000;
 
 module.exports = function test() {
-  setInterval(async() => {
-    await User.create({
+  setInterval(async () => {
+    const privateKey = schnorr.generatePrivateKey();
+    const address = getAddressFromPrivateKey(privateKey);
+    const bech32Address = toBech32Address(address);
+    const user = await User.create({
       username: `test${uuids.v4()}`,
       profileId: uuids.v4(),
       screenName: `test${uuids.v4()}`,
-      profileImageUrl: uuids.v4()
-    }).catch(console.log);
+      profileImageUrl: uuids.v4(),
+      synchronization: true,
+      zilAddress: bech32Address
+    });
+
+    redisClientSender.publish(REDIS_CONFIG.channels.TX_HANDLER, JSON.stringify({
+      type: JOB_TYPES.configureUsers,
+      userId: user.id
+    }));
   }, USERS_CREATER);
-
-  setInterval(async () => {
-    const blockchainInfo = await blockchain.findOne({
-      where: { contract: CONTRACT_ADDRESS }
-    });
-    const users = await User.findAll({
-      where: {
-        synchronization: false,
-        zilAddress: null,
-        lastAction: {
-          [Op.lte]: Number(blockchainInfo.BlockNum)
-        },
-        hash: null,
-        status: new User().statuses.enabled
-      }
-    });
-
-    users.forEach(async (user) => {
-      const privateKey = schnorr.generatePrivateKey();
-      const address = getAddressFromPrivateKey(privateKey);
-      const bech32Address = toBech32Address(address);
-
-      await user.update({
-        synchronization: true,
-        zilAddress: bech32Address
-      });
-      redisClientSender.publish(REDIS_CONFIG.channels.TX_HANDLER, JSON.stringify({
-        type: JOB_TYPES.configureUsers,
-        userId: user.id
-      }));
-    });
-  }, USER_TO_CONFIGURE);
 
   setInterval(async () => {
     const blockchainInfo = await blockchain.findOne({
@@ -76,13 +53,7 @@ module.exports = function test() {
     users.forEach(async (user) => {
       const tweetCount = await Twittes.count({
         where: {
-          UserId: user.id,
-          approved: false,
-          rejected: false,
-          claimed: false,
-          block: {
-            [Op.lt]: Number(blockchainInfo.BlockNum) + 20
-          }
+          UserId: user.id
         }
       });
 
