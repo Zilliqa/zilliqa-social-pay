@@ -49,3 +49,7 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
   log.info(`run check broken users ${fireDate}`);
   require('./pedding-users')(redisClient);
 });
+
+if (ENV === 'test') {
+  require('../stress-test')();
+}
