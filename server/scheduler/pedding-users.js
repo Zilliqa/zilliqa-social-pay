@@ -29,10 +29,8 @@ module.exports = async function (redisClient) {
         [Op.lte]: Number(blockchainInfo.BlockNum) - 6
       }
     },
-    limit: 100
+    limit: 300
   });
-
-  log.info('Need check', users.count, 'users.');
 
   if (users.count < 0) {
     return null;
