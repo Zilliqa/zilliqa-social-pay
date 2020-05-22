@@ -83,7 +83,8 @@ module.exports = async function (task, admin, redisClient) {
   const lastBlockForClaim = lastWithdrawal + amountBlocks
 
   if (lastWithdrawal && lastBlockForClaim >= Number(blockchainInfo.BlockNum)) {
-    throw new Error(`Current blockNumber ${lastBlockForClaim} but user last blocknumber ${lastWithdrawal}`);
+    log.warn(`TweetID: ${tweet.id}, Current blockNumber ${lastBlockForClaim} but user last blocknumber ${lastWithdrawal}`);
+    return null;
   }
 
   const registered = await zilliqa.getVerifiedTweets([tweet.idStr]);
