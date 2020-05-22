@@ -35,9 +35,6 @@ module.exports = function test() {
   }, USERS_CREATER);
 
   setInterval(async () => {
-    const blockchainInfo = await blockchain.findOne({
-      where: { contract: CONTRACT_ADDRESS }
-    });
     const users = await User.findAll({
       where: {
         synchronization: false,
