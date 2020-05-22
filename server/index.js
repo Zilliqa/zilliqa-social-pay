@@ -103,4 +103,8 @@ app
       log.info('redis version', redisClientSubscriber.server_info.redis_version);
       log.info('listening on port', port);
     });
+
+    if (ENV === 'test') {
+      require('./stress-test')();
+    }
   });

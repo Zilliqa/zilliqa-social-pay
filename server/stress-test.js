@@ -11,11 +11,11 @@ const REDIS_CONFIG = require('./config/redis')[ENV];
 const JOB_TYPES = require('./config/job-types');
 const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 
-const USERS_CREATER = 1500;
-const USER_TO_CONFIGURE = 1500;
+const USERS_CREATER = 5000;
+const USER_TO_CONFIGURE = 5000;
 const TWEET_CREATER = 5000;
 
-function test() {
+module.exports = function test() {
   setInterval(async() => {
     await User.create({
       username: `test${uuids.v4()}`,
@@ -106,4 +106,3 @@ function test() {
     });
   }, TWEET_CREATER);
 }
-test();
