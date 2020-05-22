@@ -287,7 +287,7 @@ module.exports = {
       pubKey: zilliqa.wallet.defaultAccount.publicKey,
       amount: new BN(0),
       gasPrice: new BN('1000000000'),
-      gasLimit: Long.fromNumber(9000)
+      gasLimit: Long.fromNumber(9500)
     });
     const { txParams } = await zilliqa.wallet.sign(zilTxData);
     const tx = await zilliqa.provider.send(
