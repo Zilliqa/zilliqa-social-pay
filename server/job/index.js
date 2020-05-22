@@ -63,12 +63,7 @@ class QueueWorker {
   distributeTasks(tasks) {
     if (!Array.isArray(tasks)) {
       throw new Error('tasks should be Array');
-    } else if (this.jobsLength > 500) {
-      return null;
     }
-
-    this._toRandom();
-    this._toMin();
 
     for (let taskIndex = 0; taskIndex < tasks.length + this.jobQueues.length; taskIndex += this.jobQueues.length) {
       for (let queueIndex = 0; queueIndex < this.jobQueues.length; queueIndex++) {
@@ -80,6 +75,9 @@ class QueueWorker {
         }
       }
     }
+
+    this._toRandom();
+    this._toMin();
 
     this.jobQueues.forEach((job) => {
       log.info('JOB', job.name, 'queue:', job.queueLength);

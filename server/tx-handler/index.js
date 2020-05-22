@@ -82,7 +82,7 @@ async function getTasks(limit = 5) {
 
   const blocksForClaim = Number(blockchainInfo.BlockNum) - Number(blockchainInfo.blocksPerDay);
   const tweets = await Twittes.findAndCountAll({
-    limit,	  
+    limit,
     where: {
       approved: false,
       rejected: false,
@@ -98,7 +98,8 @@ async function getTasks(limit = 5) {
         synchronization: false,
         zilAddress: {
           [Op.not]: null
-        }
+        },
+        status: new User().statuses.enabled
       },
       attributes: [
         'id'
@@ -109,7 +110,7 @@ async function getTasks(limit = 5) {
     ]
   });
   const users = await User.findAndCountAll({
-    limit,	  
+    limit,
     where: {
       synchronization: true,
       zilAddress: {
@@ -137,7 +138,7 @@ async function getTasks(limit = 5) {
 
       return null;
     }
-  }).filter(Boolean).concat(users.rows.map((user) => {
+  }).concat(users.rows.map((user) => {
     try {
       const payload = {
         userId: user.id
@@ -148,7 +149,7 @@ async function getTasks(limit = 5) {
 
       return null;
     }
-  }));
+  })).filter(Boolean);
 
   return tasks;
 }
@@ -170,6 +171,7 @@ async function queueFilling() {
     ]
   });
   log.info(`${admins.length} admins will added to queue.`);
+  const limit = admins.length * 3;
   const keys = admins.map((el) => el.bech32Address);
   const worker = new QueueWorker(keys);
 
@@ -177,7 +179,7 @@ async function queueFilling() {
     jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
   });
 
-  const tasks = await getTasks(admins.length);
+  const tasks = await getTasks(limit);
   worker.distributeTasks(tasks);
 
   log.info(tasks.length, 'tasks added to queue');
