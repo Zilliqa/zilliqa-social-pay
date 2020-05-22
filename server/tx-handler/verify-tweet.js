@@ -80,9 +80,10 @@ module.exports = async function (task, admin, redisClient) {
 
   const lastWithdrawal = await zilliqa.getLastWithdrawal([tweet.User.profileId]);
   const amountBlocks = Number(blockchainInfo.blocksPerDay);
+  const lastBlockForClaim = lastWithdrawal + amountBlocks
 
-  if (lastWithdrawal && (lastWithdrawal + amountBlocks) >= Number(blockchainInfo.BlockNum)) {
-    throw new Error(`Current blockNumber ${blockchainInfo.BlockNum} but user last blocknumber ${lastWithdrawal}`);
+  if (lastWithdrawal && lastBlockForClaim >= Number(blockchainInfo.BlockNum)) {
+    throw new Error(`Current blockNumber ${lastBlockForClaim} but user last blocknumber ${lastWithdrawal}`);
   }
 
   const registered = await zilliqa.getVerifiedTweets([tweet.idStr]);
