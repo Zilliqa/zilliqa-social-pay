@@ -227,7 +227,7 @@ router.delete('/delete/notifications', checkSession, verifyJwt, async (req, res)
   }
 });
 
-router.get('/get/accounts', checkSession, async (req, res) => {
+router.get('/get/accounts', async (req, res) => {
   const accounts = await Admin.findAll({
     attributes: [
       'bech32Address',
