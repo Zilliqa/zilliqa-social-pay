@@ -171,7 +171,7 @@ async function queueFilling() {
     ]
   });
   log.info(`${admins.length} admins will added to queue.`);
-  const limit = admins.length * 3;
+  const limit = 100;
   const keys = admins.map((el) => el.bech32Address);
   const worker = new QueueWorker(keys);
 
@@ -180,10 +180,9 @@ async function queueFilling() {
   });
 
   const tasks = await getTasks(limit);
+
   worker.distributeTasks(tasks);
-
   log.info(tasks.length, 'tasks added to queue');
-
   worker.redisSubscribe.on('message', async (channel, message) => {
     try {
       let payload = {};
@@ -206,7 +205,7 @@ async function queueFilling() {
           log.info('Added new job admin:', body.address);
           return null;
         case blockchain.tableName:
-          const tasks = await getTasks(admins.length);
+          const tasks = await getTasks(limit);
           worker.distributeTasks(tasks);
           log.info(tasks.length, 'tasks added to queue');
           return null;
@@ -255,5 +254,6 @@ zilliqa
             log.warn(`admin ${index}: ${address}, balance: ${balance}, status: ${account.status}`);
           });
         })
+      .catch((err) => null)
     }, 5000);
   });

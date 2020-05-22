@@ -10,7 +10,7 @@ const REDIS_CONFIG = require('../config/redis')[ENV];
 
 class QueueWorker {
 
-  get jobsLength() {
+  get _jobsLength() {
     let length = 0;
 
     for (let index = 0; index < this.jobQueues.length; index++) {
@@ -20,6 +20,14 @@ class QueueWorker {
     }
 
     return length;
+  }
+
+  get _minimalQueue() {
+    const listOfLength = this.jobQueues.map((q) => q.queueLength);
+    const minLenght = Math.min.apply(Math, listOfLength);
+    const foundIndex = listOfLength.findIndex((n) => n === minLenght);
+
+    return this.jobQueues[foundIndex];
   }
 
   constructor(keys) {
@@ -63,21 +71,20 @@ class QueueWorker {
   distributeTasks(tasks) {
     if (!Array.isArray(tasks)) {
       throw new Error('tasks should be Array');
+    } else if (tasks.length === 0) {
+      return null;
     }
 
-    for (let taskIndex = 0; taskIndex < tasks.length + this.jobQueues.length; taskIndex += this.jobQueues.length) {
-      for (let queueIndex = 0; queueIndex < this.jobQueues.length; queueIndex++) {
-        const task = tasks[taskIndex + queueIndex];
+    for (let taskIndex = 0; taskIndex < tasks.length; taskIndex++) {
+      try {
+        const task = tasks[taskIndex];
 
-        if (task) {
-          this._testForUnique(task);
-          this.jobQueues[queueIndex].addTask(task);
-        }
+        this._testForUnique(task);
+        this._minimalQueue.addTask(task);
+      } catch (err) {
+        continue;
       }
     }
-
-    this._toRandom();
-    this._toMin();
 
     this.jobQueues.forEach((job) => {
       log.info('JOB', job.name, 'queue:', job.queueLength);

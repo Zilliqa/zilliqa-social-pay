@@ -12,7 +12,7 @@ const JOB_TYPES = require('./config/job-types');
 const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 
 const USERS_CREATER = 1000;
-const TWEET_CREATER = 5000;
+const TWEET_CREATER = 1000;
 
 module.exports = function test() {
   setInterval(async () => {

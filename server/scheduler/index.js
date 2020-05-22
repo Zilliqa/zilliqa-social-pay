@@ -51,5 +51,6 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
 });
 
 if (ENV === 'test') {
-  // require('../stress-test')();
+  log.warn('STRESS_TEST has runed!!!');
+  require('../stress-test')();
 }
