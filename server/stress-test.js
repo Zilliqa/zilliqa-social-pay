@@ -44,7 +44,8 @@ module.exports = function test() {
       },
       attributes: [
         'id'
-      ]
+      ],
+      limit: 100
     });
 
     users.forEach(async (user) => {
