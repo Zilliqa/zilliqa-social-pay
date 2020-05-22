@@ -47,9 +47,23 @@ class QueueWorker {
     }
   }
 
+  jobsLength() {
+    let length = 0;
+
+    for (let index = 0; index < this.jobQueues.length; index++) {
+      const element = this.jobQueues[index];
+
+      length += element.queueLength;
+    }
+
+    return length;
+  }
+
   distributeTasks(tasks) {
     if (!Array.isArray(tasks)) {
       throw new Error('tasks should be Array');
+    } else if (this._testForUnique() > 100) {
+      return null;
     }
 
     this._toRandom();
