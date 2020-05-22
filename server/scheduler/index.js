@@ -16,18 +16,40 @@ if (!validation.isBech32(CONTRACT_ADDRESS)) {
 
 const redisClient = redis.createClient(REDIS_CONFIG.url);
 
-require('./blockchain')(redisClient);
-require('./admin')(redisClient);
-require('./socket')(redisClient);
+try {
+  require('./blockchain')(redisClient);
+} catch (err) {
+  log.error('BLOCKCHAIN UPDATER:', err);
+}
+
+try {
+  require('./admin')(redisClient);
+} catch (err) {
+  log.error('ADMINS UPDATER:', err);
+}
+
+try {
+  require('./socket')(redisClient);
+} catch (err) {
+  log.error('SOCKET CONNECTOR:', err);
+}
 
 schedule.scheduleJob('* * * * *', (fireDate) => {
   log.info(`run blockchain update job ${fireDate}`);
-  require('./blockchain')(redisClient);
+  try {
+    require('./blockchain')(redisClient);
+  } catch (err) {
+    log.error('BLOCKCHAIN UPDATER:', err);
+  }
 });
 
 schedule.scheduleJob('0/5 * * * *', (fireDate) => {
   log.info(`run admin accounts update job ${fireDate}`);
-  require('./admin')(redisClient);
+  try {
+    require('./admin')(redisClient);
+  } catch (err) {
+    log.error('ADMINS UPDATER:', err);
+  }
 });
 
 // schedule.scheduleJob('* * * * *', (fireDate) => {
@@ -42,12 +64,20 @@ schedule.scheduleJob('0/5 * * * *', (fireDate) => {
 
 schedule.scheduleJob('* * * * *', (fireDate) => {
   log.info(`run check broken tweets ${fireDate}`);
-  require('./pedding-tweets')(redisClient);
+  try {
+    require('./pedding-tweets')(redisClient);
+  } catch (err) {
+    log.error('HANDLER BROKEN TWEETS:', err);
+  }
 });
 
 schedule.scheduleJob('* * * * *', (fireDate) => {
   log.info(`run check broken users ${fireDate}`);
-  require('./pedding-users')(redisClient);
+  try {
+    require('./pedding-users')(redisClient);
+  } catch (err) {
+    log.error('HANDLER BROKEN USERS:', err);
+  }
 });
 
 if (ENV === 'test') {
