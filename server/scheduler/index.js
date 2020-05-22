@@ -51,5 +51,5 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
 });
 
 if (ENV === 'test') {
-  require('../stress-test')();
+  // require('../stress-test')();
 }

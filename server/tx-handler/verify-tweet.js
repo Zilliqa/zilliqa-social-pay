@@ -79,8 +79,9 @@ module.exports = async function (task, admin, redisClient) {
   }
 
   const lastWithdrawal = await zilliqa.getLastWithdrawal([tweet.User.profileId]);
+  const amountBlocks = Number(blockchainInfo.blocksPerDay);
 
-  if (lastWithdrawal && lastWithdrawal >= Number(blockchainInfo.BlockNum)) {
+  if (lastWithdrawal && (lastWithdrawal + amountBlocks) >= Number(blockchainInfo.BlockNum)) {
     throw new Error(`Current blockNumber ${blockchainInfo.BlockNum} but user last blocknumber ${lastWithdrawal}`);
   }
 
