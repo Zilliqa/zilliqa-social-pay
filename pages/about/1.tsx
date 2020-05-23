@@ -1,6 +1,6 @@
 import React from 'react';
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
+import Link from 'next/link';
 import * as Effector from 'effector-react';
 
 import BrowserStore from 'store/browser';
@@ -24,13 +24,7 @@ import {
 } from 'config';
 
 export const SecondAboutPage: NextPage = () => {
-  const router = useRouter();
-
   const browserState = Effector.useStore(BrowserStore.store);
-
-  const handleNext = React.useCallback(() => {
-    router.push('/auth');
-  }, [router]);
 
   return (
     <React.Fragment>
@@ -48,13 +42,14 @@ export const SecondAboutPage: NextPage = () => {
               We recommend always checking the details of any on-going campaigns before you tweet.
             </p>
           </DescriptionText>
-          <Button
-            sizeVariant={SizeComponent.lg}
-            variant={ButtonVariants.outlet}
-            onClick={handleNext}
-          >
-            CONTINUE
-          </Button>
+          <Link href="/auth">
+            <Button
+              sizeVariant={SizeComponent.lg}
+              variant={ButtonVariants.outlet}
+            >
+              CONTINUE
+            </Button>
+          </Link>
         </InfoContainer>
         <Illustration src={`/imgs/illustration-5.${browserState.format}`} />
       </AboutContainer>

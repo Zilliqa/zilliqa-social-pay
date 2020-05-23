@@ -1,6 +1,7 @@
 import React from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import * as Effector from 'effector-react';
 
 import BrowserStore from 'store/browser';
@@ -29,10 +30,6 @@ export const FirstAboutPage: NextPage = () => {
 
   const browserState = Effector.useStore(BrowserStore.store);
 
-  const handleNext = React.useCallback(() => {
-    router.push(`${router.pathname}/1`);
-  }, [router]);
-
   return (
     <React.Fragment>
       <AboutContainer>
@@ -56,13 +53,14 @@ export const FirstAboutPage: NextPage = () => {
               To use SocialPay, you need to login with your Twitter account and include the campaign hashtag in your tweet.
             </p>
           </DescriptionText>
-          <Button
-            sizeVariant={SizeComponent.lg}
-            variant={ButtonVariants.outlet}
-            onClick={handleNext}
-          >
-            CONTINUE
-          </Button>
+          <Link href={`${router.pathname}/1`}>
+            <Button
+              sizeVariant={SizeComponent.lg}
+              variant={ButtonVariants.outlet}
+            >
+              CONTINUE
+            </Button>
+          </Link>
         </InfoContainer>
       </AboutContainer>
       <ZilliqaLogo />
