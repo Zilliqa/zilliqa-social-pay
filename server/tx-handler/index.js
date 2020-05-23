@@ -168,7 +168,8 @@ async function queueFilling() {
     ],
     attributes: [
       'bech32Address'
-    ]
+    ],
+    limit: 3
   });
   log.info(`${admins.length} admins will added to queue.`);
   const limit = 100;
