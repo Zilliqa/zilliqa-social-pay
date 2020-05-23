@@ -30,6 +30,13 @@ export const AboutContainer = styled(Container)`
     text-align: center;
     font-size: 30px;
     align-items: unset;
+    padding-top: 20vh;
+    padding-bottom: 10vh;
+  }
+
+  @media (max-width: 321px) {
+    padding-top: 5vh;
+    padding-bottom: 5vh;
   }
 `;
 /**

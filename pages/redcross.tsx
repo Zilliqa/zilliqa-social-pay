@@ -30,7 +30,7 @@ const RedCrossContainer = styled.main`
 
   @media (max-width: 400px) {
     align-items: flex-start;
-    padding-top: 50px;
+    padding-top: 20vh;
   }
 `;
 const RedCrossLogo = styled(Img)`
