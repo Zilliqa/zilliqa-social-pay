@@ -28,7 +28,6 @@ const AuthContainer = styled(Container)`
 
   @media (max-width: 600px) {
     justify-content: center;
-    align-items: flex-end;
     padding-bottom: 20%;
     background: linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
     background-repeat: round;
