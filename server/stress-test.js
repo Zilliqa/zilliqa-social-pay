@@ -11,67 +11,75 @@ const REDIS_CONFIG = require('./config/redis')[ENV];
 const JOB_TYPES = require('./config/job-types');
 const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 
-const USERS_CREATER = 5000;
+const USERS_CREATER = 1000;
 const TWEET_CREATER = 1000;
 
 module.exports = function test() {
   setInterval(async () => {
-    const privateKey = schnorr.generatePrivateKey();
-    const address = getAddressFromPrivateKey(privateKey);
-    const bech32Address = toBech32Address(address);
-    const user = await User.create({
-      username: `test${uuids.v4()}`,
-      profileId: uuids.v4(),
-      screenName: `test${uuids.v4()}`,
-      profileImageUrl: uuids.v4(),
-      synchronization: true,
-      zilAddress: bech32Address
-    });
+    try {
+      const privateKey = schnorr.generatePrivateKey();
+      const address = getAddressFromPrivateKey(privateKey);
+      const bech32Address = toBech32Address(address);
+      const user = await User.create({
+        username: `test${uuids.v4()}`,
+        profileId: uuids.v4(),
+        screenName: `test${uuids.v4()}`,
+        profileImageUrl: uuids.v4(),
+        synchronization: true,
+        zilAddress: bech32Address
+      });
 
-    redisClientSender.publish(REDIS_CONFIG.channels.TX_HANDLER, JSON.stringify({
-      type: JOB_TYPES.configureUsers,
-      userId: user.id
-    }));
+      redisClientSender.publish(REDIS_CONFIG.channels.TX_HANDLER, JSON.stringify({
+        type: JOB_TYPES.configureUsers,
+        userId: user.id
+      }));
+    } catch (err) {
+      console.error('CREATE User', 'ERROR', err);
+    }
   }, USERS_CREATER);
 
   setInterval(async () => {
-    const users = await User.findAll({
-      where: {
-        synchronization: false,
-        zilAddress: {
-          [Op.not]: null
-        }
-      },
-      attributes: [
-        'id'
-      ],
-      limit: 100
-    });
-
-    users.forEach(async (user) => {
-      const tweetCount = await Twittes.count({
+    try {
+      const users = await User.findAll({
         where: {
-          UserId: user.id
+          synchronization: false,
+          zilAddress: {
+            [Op.not]: null
+          }
+        },
+        attributes: [
+          'id'
+        ],
+        limit: 100
+      })
+
+      users.forEach(async (user) => {
+        const tweetCount = await Twittes.count({
+          where: {
+            UserId: user.id
+          }
+        });
+
+        if (tweetCount > 0) {
+          return null;
         }
-      });
 
-      if (tweetCount > 0) {
-        return null;
-      }
+        const tweet = await Twittes.create({
+          idStr: uuids.v4(),
+          text: `#Zilliqa ${uuids.v4()}`,
+          UserId: user.id,
+          claimed: true
+        });
 
-      const tweet = await Twittes.create({
-        idStr: uuids.v4(),
-        text: `#Zilliqa ${uuids.v4()}`,
-        UserId: user.id,
-        claimed: true
+        const payload = JSON.stringify({
+          type: JOB_TYPES.verifyTweet,
+          tweetId: tweet.id,
+          userId: user.id
+        });
+        redisClientSender.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
       });
-
-      const payload = JSON.stringify({
-        type: JOB_TYPES.verifyTweet,
-        tweetId: tweet.id,
-        userId: user.id
-      });
-      redisClientSender.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
-    });
+    } catch (err) {
+      console.error('CREATE TWEET', 'ERROR', err);
+    }
   }, TWEET_CREATER);
 }

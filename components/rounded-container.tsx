@@ -19,8 +19,6 @@ export const AroundedContainer = styled.form`
   padding-top: 70px;
   padding-bottom: 70px;
 
-  transition: all 1s ease-out;
-
   @media (max-width: 400px) {
     margin: 0;
     width: 310px;

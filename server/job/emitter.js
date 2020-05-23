@@ -10,6 +10,8 @@ const EVENTS_TYPE = () => ({
   trigger: uuids.v4()
 });
 
+EventEmitter.prototype._maxListeners = 100;
+
 module.exports = class QueueEmitter extends EventEmitter {
 
   get queueLength() {
@@ -35,7 +37,7 @@ module.exports = class QueueEmitter extends EventEmitter {
     this.emit(this.events.taskAdded, task);
 
     if (this.queue.firstJob) {
-      this.emit(this.events.trigger, this.queue.firstTask);
+      Promise.resolve(this.emit(this.events.trigger, this.queue.firstTask));
     }
 
     return task;
@@ -56,6 +58,6 @@ module.exports = class QueueEmitter extends EventEmitter {
 
   next(task) {
     this.queue.moveToLast(task);
-    this.emit(this.events.trigger, this.queue.firstTask);
+    Promise.resolve(this.emit(this.events.trigger, this.queue.firstTask));
   }
 }
