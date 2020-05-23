@@ -13,7 +13,8 @@ import { PageProp } from 'interfaces';
 import {
   FontColors,
   FontSize,
-  Fonts
+  Fonts,
+  Sides
 } from 'config';
 
 type CovidPageContainerProp = {
@@ -44,6 +45,7 @@ const Linkbutton = styled(KeentodoMore)`
   flex-direction: column;
   margin: 0;
   background-color: #526EFF;
+  box-shadow: 5px 7px 12px 2px rgba(0,0,0,0.4);
 `;
 const LinkContainer = styled.a`
   text-decoration: unset;
@@ -66,7 +68,10 @@ export const CovidPage: NextPage<PageProp> = () => {
     <CovidPageContainer format={browserState.format}>
       <LinkContainer href="https://nextid.com/covidheroes/">
         <Linkbutton>
-          <Illustration src="/icons/medal.svg"/>
+          <Illustration
+            src="/icons/medal.svg"
+            css="width: 70px;"
+          />
           <Text
             size={FontSize.md}
             fontVariant={Fonts.AvenirNextLTProDemi}
@@ -75,11 +80,13 @@ export const CovidPage: NextPage<PageProp> = () => {
             Recognice COVIDHeroes
           </Text>
           <Text
-            size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProDemi}
+            fontVariant={Fonts.AvenirNextLTProRegular}
             fontColors={FontColors.white}
+            align={Sides.center}
+            css="font-size: 14px;"
           >
-            You can choose to generate a meaningful blockchain certificate of appreciation, which you can share.
+            Many out there are stepping up to serve their community in this fight against Covid-19.
+            Give these heroes and heroines a shout-out via by generating and sharing with them a personalised, blockchain-powered certificate of recognition for their efforts.
           </Text>
         </Linkbutton>
       </LinkContainer>
@@ -94,11 +101,24 @@ export const CovidPage: NextPage<PageProp> = () => {
             COVID Relief fund
           </Text>
           <Text
-            size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProDemi}
+            fontVariant={Fonts.AvenirNextLTProRegular}
             fontColors={FontColors.white}
+            align={Sides.center}
+            css="font-size: 14px;"
           >
-            Support The Red Cross Singapore in it's COVID relief efforts by `giving` to those who really need it.
+            Support Red Cross Singapore in their fight against Covid-19.&nbsp;
+            The aim of this campaign is to raise funds to help offset&nbsp;
+            the operation costs of islandwide delivery of essentials&nbsp;
+            to our migrant worker community, so that they can stay&nbsp;
+            <Text
+              fontVariant={Fonts.AvenirNextLTProDemi}
+              fontColors={FontColors.white}
+              align={Sides.center}
+              css="font-size: 14px;margin: 0;"
+            >
+              safe and protect themselves
+            </Text>&nbsp;
+            as best as possible.
           </Text>
         </Linkbutton>
       </LinkContainer>
