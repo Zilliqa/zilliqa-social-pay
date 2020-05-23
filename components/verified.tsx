@@ -12,14 +12,13 @@ import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
 import NotificationStore from 'store/notification';
 
-import { Text } from 'components/text';
 import { MinLoader } from 'components/min-loader';
 import { Img } from 'components/img';
 import { Container } from 'components/container';
 import { NotificationWarning } from 'components/notification-control';
-import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
+import { TwitterTweetEmbed } from 'react-twitter-embed';
 
-import { FontSize, Fonts, FontColors, Events } from 'config';
+import { Events } from 'config';
 import ERROR_CODES from 'config/error-codes';
 import NOTIFICATIONS_TYPES from 'config/notifications-types';
 import { viewTx } from 'utils/viewblock';
@@ -34,12 +33,6 @@ const WIDTH_DEFAULT = 450;
 const PAGE_LIMIT = 3;
 const SLEEP = 100;
 
-const HaventVerified = styled.div`
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  width: 100%;
-`;
 const VerifiedContainer = styled(Container)`
   display: flex;
   flex-direction: column;
@@ -90,31 +83,6 @@ export const Verified: React.FC = () => {
     state.push(index);
     return state;
   }, []);
-
-  /**
-   * Hash tag from smart contract.
-   */
-  const hashTag = React.useMemo(() => {
-    if (!blockchainState.hashtag) {
-      return null;
-    }
-
-    const splited = blockchainState.hashtag.split('');
-
-    splited[1] = splited[1].toUpperCase();
-
-    return splited.join('');
-  }, [blockchainState]);
-  /**
-   * If user have not any tweets.
-   */
-  const nonTweets = React.useMemo(() => {
-    if (!twitterState.tweets || twitterState.tweets.length === 0) {
-      return 'display: block;';
-    }
-
-    return 'display: none;';
-  }, [twitterState]);
   const sortedTweets = React.useMemo(() => {
     const array = deepCopy(twitterState.tweets)
       .sort((a: Twitte, b: Twitte) => {
@@ -270,25 +238,6 @@ export const Verified: React.FC = () => {
 
   return (
     <VerifiedContainer>
-      <Container css={nonTweets}>
-        <HaventVerified>
-          <Text
-            size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProDemi}
-            fontColors={FontColors.white}
-          >
-            No tweets found.
-          </Text>
-          {hashTag ? <TwitterHashtagButton
-            tag={hashTag}
-            options={{
-              size: 'large',
-              screenName: userState.screenName,
-              text: blockchainState.hashtagText
-            }}
-          /> : null}
-        </HaventVerified>
-      </Container>
       {twitterState.showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
         <TweetEmbedContainer
           key={index}

@@ -281,26 +281,25 @@ export const Controller: React.FC = () => {
           </Button>
         ) : null}
       </ControlContainer>
-      <KeentodoMore>
-        <Text
-          size={FontSize.md}
-          fontVariant={Fonts.AvenirNextLTProRegular}
-          fontColors={FontColors.white}
-        >
-          Keen to do more for CovidHeroes?
-          <br/>
-          <Link
-            href="/covid"
-            target="_blanck"
+      <Link
+        href="/covid"
+        target="_blanck"
+      >
+        <KeentodoMore css="justify-content: space-around;">
+          <Text
+            size={FontSize.md}
+            fontVariant={Fonts.AvenirNextLTProRegular}
+            fontColors={FontColors.white}
+            css="width: 150px;"
           >
-            Click here!
-          </Link>
+            Want to&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Help more?
         </Text>
-        <Img
-          src="/icons/group.svg"
-          css="width: 70px;height: auto;"
-        />
-      </KeentodoMore>
+          <Img
+            src="/icons/group.svg"
+            css="width: 70px;height: auto;"
+          />
+        </KeentodoMore>
+      </Link>
     </Container>
   );
 };

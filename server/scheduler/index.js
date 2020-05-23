@@ -30,11 +30,11 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
     .catch((err) => log.error('BLOCKCHAIN UPDATER:', err));
 });
 
-schedule.scheduleJob('0/5 * * * *', (fireDate) => {
-  log.info(`run admin accounts update job ${fireDate}`);
-  require('./admin')(redisClient)
-    .catch((err) => log.error('ADMINS UPDATER:', err));
-});
+// schedule.scheduleJob('0/5 * * * *', (fireDate) => {
+//   log.info(`run admin accounts update job ${fireDate}`);
+//   require('./admin')(redisClient)
+//     .catch((err) => log.error('ADMINS UPDATER:', err));
+// });
 
 // schedule.scheduleJob('* * * * *', (fireDate) => {
 //   log.info(`run user address configure ${fireDate}`);
