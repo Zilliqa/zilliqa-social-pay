@@ -50,7 +50,7 @@ const DashboardContainer = styled(Container)`
 const Link = styled.a`
   text-decoration: unset;
   color: ${FontColors.white};
-  font-family: ${Fonts.AvenirNextLTProMedium};
+  font-family: ${Fonts.AvenirNextLTProDemi};
   border-bottom: 1px solid ${FontColors.white};
 `;
 
@@ -290,7 +290,7 @@ export const Controller: React.FC = () => {
           Keen to do more for CovidHeroes?
           <br/>
           <Link
-            href="/about"
+            href="/covid"
             target="_blanck"
           >
             Click here!

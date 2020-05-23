@@ -9,7 +9,7 @@ type Prop = {
 export const KeentodoMore = styled.div`
   display: flex;
 
-  background-color: rgba(92, 99, 239, 0.7019607843137254);
+  background-color: #5471FF;
   border-radius: 20px;
   padding: 1rem;
   width: 300px;
