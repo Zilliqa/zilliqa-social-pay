@@ -14,6 +14,7 @@ import { Img } from 'components/img';
 import { Input, InputIcons } from 'components/Input';
 import { Button } from 'components/button';
 import { Container } from 'components/container';
+import { KeentodoMore } from 'components/keentodo-more';
 import { TwitterHashtagButton } from 'react-twitter-embed';
 
 import {
@@ -45,6 +46,12 @@ const DashboardContainer = styled(Container)`
     position: relative;
     transform: none;
   }
+`;
+const Link = styled.a`
+  text-decoration: unset;
+  color: ${FontColors.white};
+  font-family: ${Fonts.AvenirNextLTProMedium};
+  border-bottom: 1px solid ${FontColors.white};
 `;
 
 /**
@@ -176,103 +183,125 @@ export const Controller: React.FC = () => {
   }, [UserStore]);
 
   return (
-    <ControlContainer onSubmit={handleSearch}>
-      <DashboardContainer>
-        <ProgressCircle
-          pct={twitterState.verifiedCount}
-          count={twitterState.count}
-        />
-        <Text
-          size={FontSize.sm}
-          fontColors={FontColors.white}
-        >
-          Verified Tweets
-        </Text>
-      </DashboardContainer>
-      <Text
-        size={FontSize.md}
-        fontVariant={Fonts.AvenirNextLTProRegular}
-        fontColors={FontColors.white}
-      >
-        Dashboard
-      </Text>
-      <Text
-        size={FontSize.xs}
-        fontVariant={Fonts.AvenirNextLTProRegular}
-        fontColors={FontColors.gray}
-      >
-        BALANCE
-        <Text
-          fontVariant={Fonts.AvenirNextLTProBold}
-          fontColors={FontColors.white}
-          css="font-size: 15px;"
-        >
-          {fromZil(userState.balance)} ZIL <Img
-            src="/icons/refresh.svg"
-            css="cursor: pointer;font-size: 15px;"
-            onClick={handleUpdateUser}
+    <Container>
+      <ControlContainer onSubmit={handleSearch}>
+        <DashboardContainer>
+          <ProgressCircle
+            pct={twitterState.verifiedCount}
+            count={twitterState.count}
           />
+          <Text
+            size={FontSize.sm}
+            fontColors={FontColors.white}
+          >
+            Verified Tweets
         </Text>
-      </Text>
-      <Text
-        size={FontSize.xs}
-        fontVariant={Fonts.AvenirNextLTProRegular}
-        fontColors={FontColors.gray}
-      >
-        $ZIL PER TWEET
+        </DashboardContainer>
         <Text
-          fontVariant={Fonts.AvenirNextLTProBold}
+          size={FontSize.md}
+          fontVariant={Fonts.AvenirNextLTProRegular}
           fontColors={FontColors.white}
-          css="font-size: 15px;"
         >
-          {fromZil(blockchainState.zilsPerTweet)} $ZIL
-        </Text>
+          Dashboard
       </Text>
-      <Container css="display: flex;align-items: center;justify-content: space-between;width: 100%;">
         <Text
           size={FontSize.xs}
           fontVariant={Fonts.AvenirNextLTProRegular}
           fontColors={FontColors.gray}
         >
-          HASHTAG
+          BALANCE
         <Text
             fontVariant={Fonts.AvenirNextLTProBold}
             fontColors={FontColors.white}
-            css="text-transform: capitalize;font-size: 15px;"
+            css="font-size: 15px;"
           >
-            {blockchainState.hashtag}
+            {fromZil(userState.balance)} ZIL <Img
+              src="/icons/refresh.svg"
+              css="cursor: pointer;font-size: 15px;"
+              onClick={handleUpdateUser}
+            />
           </Text>
         </Text>
-        {blockchainState.hashtag ? (
-          <TwitterHashtagButton
-            tag={blockchainState.hashtag}
-            options={{
-              size: 'large',
-              screenName: userState.screenName,
-              text: blockchainState.hashtagText
-            }}
-          />
-        ) : null}
-      </Container>
-      <Input
-        sizeVariant={SizeComponent.md}
-        value={value}
-        icon={icon}
-        disabled={disabled}
-        onChange={handleInput}
-        placeholder={placeholder}
-        css="font-size: 12px;height: 40px;"
-      />
-      {!disabled ? (
-        <Button
-          sizeVariant={SizeComponent.md}
-          variant={ButtonVariants.outlet}
-          css="margin-top: 10px;"
+        <Text
+          size={FontSize.xs}
+          fontVariant={Fonts.AvenirNextLTProRegular}
+          fontColors={FontColors.gray}
         >
-          Search
-        </Button>
-      ) : null}
-    </ControlContainer>
+          $ZIL PER TWEET
+        <Text
+            fontVariant={Fonts.AvenirNextLTProBold}
+            fontColors={FontColors.white}
+            css="font-size: 15px;"
+          >
+            {fromZil(blockchainState.zilsPerTweet)} $ZIL
+        </Text>
+        </Text>
+        <Container css="display: flex;align-items: center;justify-content: space-between;width: 100%;">
+          <Text
+            size={FontSize.xs}
+            fontVariant={Fonts.AvenirNextLTProRegular}
+            fontColors={FontColors.gray}
+          >
+            HASHTAG
+        <Text
+              fontVariant={Fonts.AvenirNextLTProBold}
+              fontColors={FontColors.white}
+              css="text-transform: capitalize;font-size: 15px;"
+            >
+              {blockchainState.hashtag}
+            </Text>
+          </Text>
+          {blockchainState.hashtag ? (
+            <TwitterHashtagButton
+              tag={blockchainState.hashtag}
+              options={{
+                size: 'large',
+                screenName: userState.screenName,
+                text: blockchainState.hashtagText
+              }}
+            />
+          ) : null}
+        </Container>
+        <Input
+          sizeVariant={SizeComponent.md}
+          value={value}
+          icon={icon}
+          disabled={disabled}
+          onChange={handleInput}
+          placeholder={placeholder}
+          css="font-size: 12px;height: 40px;"
+        />
+        {!disabled ? (
+          <Button
+            sizeVariant={SizeComponent.md}
+            variant={ButtonVariants.outlet}
+            css="margin-top: 10px;"
+          >
+            Search
+          </Button>
+        ) : null}
+      </ControlContainer>
+      <KeentodoMore>
+        <Text
+          size={FontSize.md}
+          fontVariant={Fonts.AvenirNextLTProRegular}
+          fontColors={FontColors.white}
+        >
+          Keen to do more for CovidHeroes?
+          <br/>
+          <Link
+            href="/about"
+            target="_blanck"
+          >
+            Click here!
+          </Link>
+        </Text>
+        <Img
+          src="/icons/group.svg"
+          css="width: 70px;height: auto;"
+        />
+      </KeentodoMore>
+    </Container>
   );
 };
 
