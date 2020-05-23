@@ -17,6 +17,10 @@ export function authGuard({ res, req }: any) {
   }
 
   if (!req.session || !req.session.passport) {
+    if (req.url === '/') {
+      res.redirect('/redcross');
+    }
+
     return {
       firstStart,
       user,

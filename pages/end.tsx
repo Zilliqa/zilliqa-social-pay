@@ -24,7 +24,8 @@ const Background = styled(Img)`
   position: absolute;
 
   height: auto;
-  width: 100%;max-width: 900px;
+  width: 100%;
+  max-width: 900px;
 `;
 const Asset = styled(Img)`
   position: absolute;
