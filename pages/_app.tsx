@@ -16,7 +16,7 @@ import { BaseStyles, AnimateStyles } from 'styles';
 
 class SocialPay extends App {
 
-  state = {
+  public state = {
     loaded: false
   };
 
@@ -24,7 +24,7 @@ class SocialPay extends App {
     const isWebp = await supportsWebp();
 
     if (!isWebp) {
-      BrowserStore.setformat(ImgFormats.png)
+      BrowserStore.setformat(ImgFormats.png);
     }
 
     const blockchain = await BlockchainStore.updateBlockchain(null);

@@ -18,7 +18,8 @@ export function authGuard({ res, req }: any) {
 
   if (!req.session || !req.session.passport) {
     if (req.url === '/') {
-      res.redirect('/redcross');
+      // tslint:disable-next-line: no-magic-numbers
+      res.status(200).redirect('/redcross');
     }
 
     return {
