@@ -1,12 +1,13 @@
 import Head from 'next/head';
 import App from 'next/app';
+import dynamic from 'next/dynamic';
 
 import UserStore from 'store/user';
 import BrowserStore from 'store/browser';
 import BlockchainStore from 'store/blockchain';
 
-import { Container } from 'components/container';
-import { FixedWrapper } from 'components/fixed-wrapper';
+const Container = dynamic(() => import('components/container'));
+const FixedWrapper = dynamic(() => import('components/fixed-wrapper'));
 
 import { ImgFormats } from 'config';
 import { authGuard } from 'utils/guard';

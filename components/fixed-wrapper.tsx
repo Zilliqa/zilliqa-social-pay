@@ -310,3 +310,5 @@ export const FixedWrapper: React.FC = () => {
     </React.Fragment>
   );
 };
+
+export default FixedWrapper;
