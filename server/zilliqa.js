@@ -108,12 +108,9 @@ module.exports = {
         status: statuses.enabled,
         balance: {
           [Op.gte]: '5000000000000' // 5ZILs
-        }
-      },
-      order: [
-        ['balance', 'DESC'],
-        ['nonce', 'ASC']
-      ]
+        },
+        bech32Address: adminAccount
+      }
     });
 
     if (!account) {
