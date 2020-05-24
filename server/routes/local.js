@@ -20,7 +20,6 @@ const dev = ENV !== 'production';
 const {
   User,
   Twittes,
-  blockchain,
   Notification,
   Admin
 } = models.sequelize.models;

@@ -329,7 +329,7 @@ module.exports = {
   async generateAddresses(amount) {
     const count = await Admin.count();
 
-    for (let index = count; index < amount; index++) {
+    for (let index = count; index < Number(amount); index++) {
       const privateKey = schnorr.generatePrivateKey();
       const account = new Account(privateKey);
       let balance = '0';
