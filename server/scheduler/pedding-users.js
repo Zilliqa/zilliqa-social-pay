@@ -26,7 +26,7 @@ module.exports = async function (redisClient) {
         [Op.not]: null
       },
       lastAction: {
-        [Op.lte]: Number(blockchainInfo.BlockNum) - 6
+        [Op.lte]: Number(blockchainInfo.BlockNum) - 101
       }
     },
     limit: 300

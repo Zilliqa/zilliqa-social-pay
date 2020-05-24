@@ -6,7 +6,6 @@ import { useMediaQuery } from 'react-responsive';
 import Link from 'next/link';
 
 import BrowserStore from 'store/browser';
-import BlockchainStore from 'store/blockchain';
 
 import { Img } from 'components/img';
 import { Text } from 'components/text';
@@ -107,7 +106,6 @@ export const RedCross: NextPage<PageProp> = () => {
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 446px)' });
 
   const browserState = Effector.useStore(BrowserStore.store);
-  const BlockchainState = Effector.useStore(BlockchainStore.store);
 
   const dirName = React.useMemo(() => {
     if (isTabletOrMobile) {
@@ -142,7 +140,7 @@ export const RedCross: NextPage<PageProp> = () => {
           fontVariant={Fonts.AvenirNextLTProDemi}
           fontColors={FontColors.white}
         >
-          {BlockchainState.hashtag}
+          #ZILCovidHeroes
         </HashTag>
       </RedCrossContainer>
     </React.Fragment>

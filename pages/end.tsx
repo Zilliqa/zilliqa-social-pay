@@ -5,7 +5,6 @@ import * as Effector from 'effector-react';
 import { useMediaQuery } from 'react-responsive';
 
 import BrowserStore from 'store/browser';
-import BlockchainStore from 'store/blockchain';
 
 import { Img } from 'components/img';
 import { Text } from 'components/text';
@@ -57,7 +56,6 @@ export const EndPage: NextPage<PageProp> = () => {
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 446px)' });
 
   const browserState = Effector.useStore(BrowserStore.store);
-  const BlockchainState = Effector.useStore(BlockchainStore.store);
 
   const backgroundImg = React.useMemo(() => {
     return `imgs/end/3x/asset.${browserState.format}`;
@@ -70,7 +68,7 @@ export const EndPage: NextPage<PageProp> = () => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         fontColors={FontColors.white}
       >
-        {BlockchainState.hashtag}
+        #ZILCovidHeroes
       </HashTag>
       <Asset2 src="/imgs/end/svgs/asset_button.svg" />
     </EndPageContainer>
