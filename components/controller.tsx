@@ -248,7 +248,7 @@ export const Controller: React.FC = () => {
               fontColors={FontColors.white}
               css="text-transform: capitalize;font-size: 15px;"
             >
-              {blockchainState.hashtag}
+              {'ZILCovidHeroes'}
             </Text>
           </Text>
           {blockchainState.hashtag ? (
