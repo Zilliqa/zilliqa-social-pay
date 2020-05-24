@@ -77,7 +77,7 @@ export const CovidPage: NextPage<PageProp> = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
           >
-            Recognice COVIDHeroes
+            Recognise COVIDHeroes
           </Text>
           <Text
             fontVariant={Fonts.AvenirNextLTProRegular}
@@ -85,8 +85,8 @@ export const CovidPage: NextPage<PageProp> = () => {
             align={Sides.center}
             css="font-size: 14px;"
           >
-            Many out there are stepping up to serve their community in this fight against Covid-19.
-            Give these heroes and heroines a shout-out via by generating and sharing with them a personalised, blockchain-powered certificate of recognition for their efforts.
+            Give these heroes and heroines a shout-out by generating a personalised,&nbsp;
+            blockchain-powered certificate to express your gratitude.
           </Text>
         </Linkbutton>
       </LinkContainer>
@@ -98,7 +98,7 @@ export const CovidPage: NextPage<PageProp> = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
           >
-            COVID Relief fund
+            COVID Relief Fund
           </Text>
           <Text
             fontVariant={Fonts.AvenirNextLTProRegular}
@@ -106,10 +106,8 @@ export const CovidPage: NextPage<PageProp> = () => {
             align={Sides.center}
             css="font-size: 14px;"
           >
-            Support Red Cross Singapore in their fight against Covid-19.&nbsp;
-            The aim of this campaign is to raise funds to help offset&nbsp;
-            the operation costs of islandwide delivery of essentials&nbsp;
-            to our migrant worker community, so that they can stay&nbsp;
+            Support The Red Cross Singapore in its COVID-19 relief efforts.&nbsp;
+            by giving to those who really need it.&nbsp;
             <Text
               fontVariant={Fonts.AvenirNextLTProDemi}
               fontColors={FontColors.white}
