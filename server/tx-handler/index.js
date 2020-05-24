@@ -178,7 +178,6 @@ async function queueFilling() {
   worker.jobQueues.forEach((jobQueue) => {
     jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
   });
-
   const tasks = await getTasks(limit);
 
   worker.distributeTasks(tasks);

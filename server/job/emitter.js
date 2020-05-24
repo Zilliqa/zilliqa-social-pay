@@ -2,16 +2,6 @@ const uuids = require('uuid');
 const { EventEmitter } = require('events');
 const Queue = require('./queue');
 
-const EVENTS_TYPE = () => ({
-  taskAdded: uuids.v4(),
-  taskError: uuids.v4(),
-  taskDone: uuids.v4(),
-  taskRestart: uuids.v4(),
-  trigger: uuids.v4()
-});
-
-EventEmitter.prototype._maxListeners = 100;
-
 module.exports = class QueueEmitter extends EventEmitter {
 
   get queueLength() {
@@ -27,7 +17,13 @@ module.exports = class QueueEmitter extends EventEmitter {
 
     this.name = name;
     this.settings = settings;
-    this.events = EVENTS_TYPE();
+    this.events = {
+      taskAdded: uuids.v4(),
+      taskError: uuids.v4(),
+      taskDone: uuids.v4(),
+      taskRestart: uuids.v4(),
+      trigger: uuids.v4()
+    };
     this.queue = new Queue();
     this.timestamp = new Date().valueOf();
   }
@@ -37,7 +33,7 @@ module.exports = class QueueEmitter extends EventEmitter {
     this.emit(this.events.taskAdded, task);
 
     if (this.queue.firstJob) {
-      Promise.resolve(this.emit(this.events.trigger, this.queue.firstTask));
+      setTimeout(() => this.emit(this.events.trigger, this.queue.firstTask), 0);
     }
 
     return task;
@@ -48,7 +44,7 @@ module.exports = class QueueEmitter extends EventEmitter {
     this.emit(this.events.taskDone, task);
 
     if (this.queue.hasJobs) {
-      this.emit(this.events.trigger, this.queue.firstTask);
+      setTimeout(() => this.emit(this.events.trigger, this.queue.firstTask), 0);
     }
 
     this.timestamp = new Date().valueOf();
@@ -58,6 +54,7 @@ module.exports = class QueueEmitter extends EventEmitter {
 
   next(task) {
     this.queue.moveToLast(task);
-    Promise.resolve(this.emit(this.events.trigger, this.queue.firstTask));
+    this.timestamp = new Date().valueOf();
+    setTimeout(() => this.emit(this.events.trigger, this.queue.firstTask), 0);
   }
 }
