@@ -57,17 +57,6 @@ module.exports = async function (redisClient) {
         block: 0,
         txId: null
       });
-      const notification = await Notification.create({
-        UserId: tweet.User.id,
-        type: notificationTypes.tweetReject,
-        title: 'Tweet',
-        description: 'Rewards error!'
-      });
-
-      redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
-        model: Notification.tableName,
-        body: notification
-      }));
 
       return null;
     }

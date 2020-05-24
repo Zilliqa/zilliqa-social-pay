@@ -164,6 +164,9 @@ async function queueFilling() {
       status: new Admin().statuses.enabled,
       balance: {
         [Op.gte]: MIN_AMOUNT
+      },
+      nonce: {
+        [Op.lte]: 1000
       }
     },
     order: [
