@@ -256,7 +256,6 @@ export const Controller: React.FC = () => {
               tag={'ZILCovidHeroes'}
               options={{
                 size: 'large',
-                screenName: userState.screenName,
                 text: blockchainState.hashtagText
               }}
             />
