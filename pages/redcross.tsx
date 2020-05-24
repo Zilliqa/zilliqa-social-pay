@@ -96,6 +96,7 @@ const NextPageLink = styled(Text)`
   margin: 0;
   cursor: pointer;
   border-bottom: 2px solid ${FontColors.white};
+  z-index: 99;
 `;
 
 function getImg(dir: string, format: string, name = 'asset') {
@@ -117,6 +118,15 @@ export const RedCross: NextPage<PageProp> = () => {
 
   return (
     <React.Fragment>
+      <RedCrossContainer>
+        <Illustration src={getImg(dirName, browserState.format, 'asset')} />
+        <HashTag
+          fontVariant={Fonts.AvenirNextLTProDemi}
+          fontColors={FontColors.white}
+        >
+          #ZILCovidHeroes
+        </HashTag>
+      </RedCrossContainer>
       <RedCrossLogo src={getImg('SVG', 'svg', 'asset_2')} />
       <NextLogo src={getImg('SVG', 'svg', 'asset_3')} />
       <Link href="/about">
@@ -134,15 +144,6 @@ export const RedCross: NextPage<PageProp> = () => {
           />
         </LinkContainer>
       </Link>
-      <RedCrossContainer>
-        <Illustration src={getImg(dirName, browserState.format, 'asset')} />
-        <HashTag
-          fontVariant={Fonts.AvenirNextLTProDemi}
-          fontColors={FontColors.white}
-        >
-          #ZILCovidHeroes
-        </HashTag>
-      </RedCrossContainer>
     </React.Fragment>
   );
 };
