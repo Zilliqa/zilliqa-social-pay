@@ -58,7 +58,7 @@ export const CountdownBar: React.FC = () => {
         fontVariant={Fonts.AvenirNextLTProDemi}
         fontColors={FontColors.white}
       >
-        This campaign ends in: {countDown}
+        Campaign ends in: {countDown}
       </Text>
     </CountdownBarContainer>
   );

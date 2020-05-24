@@ -6,14 +6,12 @@ const zilliqa = require('../zilliqa');
 const models = require('../models');
 const verifyJwt = require('../middleware/verify-jwt');
 const verifyCampaign = require('../middleware/campaign-check');
-const blockchainCache = require('../middleware/blockchain-cache');
 
 const router = express.Router();
 
 const ERROR_CODES = require('../../config/error-codes');
 const ENV = process.env.NODE_ENV || 'development';
 const END_OF_CAMPAIGN = process.env.END_OF_CAMPAIGN;
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 3;
 const REDIS_CONFIG = require('../config/redis')[ENV];
 const JOB_TYPES = require('../config/job-types');
@@ -162,7 +160,7 @@ router.get('/get/tweets', checkSession, async (req, res) => {
   }
 });
 
-router.get('/get/blockchain', blockchainCache, async (req, res) => {
+router.get('/get/blockchain', async (req, res) => {
   return res.status(200).json(req.blockchainInfo);
 });
 

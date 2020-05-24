@@ -65,6 +65,8 @@ export interface Blockchain {
 export interface PageProp {
   user?: User | null;
   firstStart: boolean;
+  isServer: boolean;
+  blockchainInfo: Blockchain;
 }
 
 export interface EventState {
