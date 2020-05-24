@@ -166,7 +166,7 @@ async function queueFilling() {
         [Op.gte]: MIN_AMOUNT
       },
       nonce: {
-        [Op.lte]: 1000
+        [Op.lte]: 9000
       }
     },
     order: [
