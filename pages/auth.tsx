@@ -16,6 +16,8 @@ import { Img } from 'components/img';
 const ZilliqaConnect = dynamic(() => import('components/zilliqa-connect'));
 const TwitterConnect = dynamic(() => import('components/twitter-conecter'));
 
+import { PageProp } from 'interfaces';
+
 const AuthContainer = styled(Container)`
   display: flex;
   align-items: center;
@@ -44,7 +46,7 @@ const Background = styled(Img)`
   height: auto;
 `;
 
-export const AuthPage: NextPage = () => {
+export const AuthPage: NextPage<PageProp> = () => {
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
   const router = useRouter();
 
@@ -81,11 +83,11 @@ export const AuthPage: NextPage = () => {
     <React.Fragment>
       <AuthContainer>
         <TwitterConnect
-          show={Boolean(!userState.jwtToken)}
+          show={Boolean(!userState.jwtToken || !userState.username)}
           connected={handleConnected}
         />
         <ZilliqaConnect
-          show={Boolean(!userState.zilAddress && userState.jwtToken)}
+          show={Boolean(userState.username && !userState.zilAddress && userState.jwtToken)}
           connected={handleConnected}
         />
       </AuthContainer>

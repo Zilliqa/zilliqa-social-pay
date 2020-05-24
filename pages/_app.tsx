@@ -7,7 +7,7 @@ import BrowserStore from 'store/browser';
 import BlockchainStore from 'store/blockchain';
 
 const Container = dynamic(() => import('components/container'));
-const FixedWrapper = dynamic(() => import('components/fixed-wrapper'));
+import { FixedWrapper } from 'components/fixed-wrapper';
 
 import { ImgFormats } from 'config';
 import { authGuard } from 'utils/guard';
