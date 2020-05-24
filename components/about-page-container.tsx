@@ -30,8 +30,8 @@ export const AboutContainer = styled(Container)`
     text-align: center;
     font-size: 30px;
     align-items: unset;
-    padding-top: 20vh;
-    padding-bottom: 10vh;
+    padding-top: 15vh;
+    padding-bottom: 20vh;
   }
 
   @media (max-width: 321px) {
