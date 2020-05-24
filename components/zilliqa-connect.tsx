@@ -131,7 +131,7 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
       >
         Don’t have a $ZIL address?&nbsp;
         <Link
-          href="https://www.zilliqa.com/about-zil/#rec152896547"
+          href="https://blog.zilliqa.com/tipping-zil-on-telegram-94c10c776f0a"
           target="blanck"
         >
           Click here!
