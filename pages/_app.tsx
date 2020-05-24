@@ -1,12 +1,13 @@
 import Head from 'next/head';
 import App from 'next/app';
+import dynamic from 'next/dynamic';
 
 import UserStore from 'store/user';
 import BrowserStore from 'store/browser';
 import BlockchainStore from 'store/blockchain';
 
-import { Container } from 'components/container';
-import { FixedWrapper } from 'components/fixed-wrapper';
+const Container = dynamic(() => import('components/container'));
+const FixedWrapper = dynamic(() => import('components/fixed-wrapper'));
 
 import { ImgFormats } from 'config';
 import { authGuard } from 'utils/guard';
@@ -16,7 +17,7 @@ import { BaseStyles, AnimateStyles } from 'styles';
 
 class SocialPay extends App {
 
-  state = {
+  public state = {
     loaded: false
   };
 
@@ -24,7 +25,7 @@ class SocialPay extends App {
     const isWebp = await supportsWebp();
 
     if (!isWebp) {
-      BrowserStore.setformat(ImgFormats.png)
+      BrowserStore.setformat(ImgFormats.png);
     }
 
     const blockchain = await BlockchainStore.updateBlockchain(null);
