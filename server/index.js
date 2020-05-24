@@ -19,12 +19,13 @@ const PACKAGE = require('../package.json');
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('./config/redis')[ENV];
 const port = process.env.PORT || 3000;
-const dev = ENV === 'development';
+const dev = ENV !== 'development';
 const redisClientSubscriber = redis.createClient(REDIS_CONFIG.url);
 const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 const log = bunyan.createLogger({ name: 'next-server' });
 const app = next({ dev, dir: './' });
 const indexRouter = require('./routes/index');
+const blockchainCache = require('./middleware/blockchain-cache');
 const handle = app.getRequestHandler();
 const session = cookieSession({
   name: process.env.SESSION,
@@ -56,13 +57,13 @@ server.use(bodyParser.json());
 server.set('redis', redisClientSender);
 server.set('log', log);
 
-server.use('/', indexRouter);
+server.use('/', blockchainCache, indexRouter);
 
 redisClientSubscriber.on('error', (err) => {
   log.error('redis:', err);
 });
+
 redisClientSubscriber.subscribe(REDIS_CONFIG.channels.WEB);
-redisClientSubscriber.setMaxListeners(redisClientSubscriber.getMaxListeners() + 1);
 
 app
   .prepare()

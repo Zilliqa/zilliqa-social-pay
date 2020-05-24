@@ -51,7 +51,7 @@ module.exports = function test() {
           'id'
         ],
         limit: 100
-      })
+      });
 
       users.forEach(async (user) => {
         const tweetCount = await Twittes.count({

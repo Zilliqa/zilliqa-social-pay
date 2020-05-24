@@ -21,21 +21,19 @@ class SocialPay extends App {
     loaded: false
   };
 
-  public async  componentDidMount() {
+  public async componentDidMount() {
     const isWebp = await supportsWebp();
+    let { blockchainInfo } = this.props.pageProps;
 
     if (!isWebp) {
       BrowserStore.setformat(ImgFormats.png);
     }
 
-    const blockchain = await BlockchainStore.updateBlockchain(null);
-    const campaignEnd = new Date((blockchain.campaignEnd as any)).valueOf();
-    const now = new Date((blockchain.now as any)).valueOf();
-    const diff = campaignEnd - now;
-
-    if (diff <= 0) {
-      this.props.router.push('/end');
+    if (!blockchainInfo) {
+      blockchainInfo = await BlockchainStore.updateBlockchain(null);
     }
+
+    BlockchainStore.updateStore(blockchainInfo);
 
     if (typeof window !== 'undefined') {
       UserStore.getJWT();

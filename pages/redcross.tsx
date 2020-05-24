@@ -6,6 +6,7 @@ import { useMediaQuery } from 'react-responsive';
 import Link from 'next/link';
 
 import BrowserStore from 'store/browser';
+import BlockchainStore from 'store/blockchain';
 
 import { Img } from 'components/img';
 import { Text } from 'components/text';
@@ -66,16 +67,18 @@ const Illustration = styled(Img)`
     width: 90%;
   }
 `;
-const HashTag = styled(Img)`
-  position: absolute;
-  z-index: 5;
-  width: 100%;
+const HashTag = styled(Text)`
+  z-index: 1;
+  text-shadow: 0 0 0.1em ${FontColors.white};
+  font-size: 5vw;
 
-  max-width: 900px;
-  height: 300px;
+  :first-letter {
+    text-transform: uppercase;
+  }
 
-  @media (max-width: 400px) {
-    width: 90%;
+  @media (max-width: 1000px) {
+    margin-top: 20%;
+    font-size: 10vw;
   }
 `;
 const LinkContainer = styled(Container)`
@@ -93,7 +96,7 @@ const LinkContainer = styled(Container)`
 const NextPageLink = styled(Text)`
   margin: 0;
   cursor: pointer;
-  border-bottom: 2px solid #fff;
+  border-bottom: 2px solid ${FontColors.white};
 `;
 
 function getImg(dir: string, format: string, name = 'asset') {
@@ -104,6 +107,7 @@ export const RedCross: NextPage<PageProp> = () => {
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 446px)' });
 
   const browserState = Effector.useStore(BrowserStore.store);
+  const BlockchainState = Effector.useStore(BlockchainStore.store);
 
   const dirName = React.useMemo(() => {
     if (isTabletOrMobile) {
@@ -134,7 +138,12 @@ export const RedCross: NextPage<PageProp> = () => {
       </Link>
       <RedCrossContainer>
         <Illustration src={getImg(dirName, browserState.format, 'asset')} />
-        <HashTag src={getImg('SVG', 'svg', 'asset_1')} />
+        <HashTag
+          fontVariant={Fonts.AvenirNextLTProDemi}
+          fontColors={FontColors.white}
+        >
+          {BlockchainState.hashtag}
+        </HashTag>
       </RedCrossContainer>
     </React.Fragment>
   );

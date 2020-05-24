@@ -7,7 +7,6 @@ const checkSession = require('../middleware/check-session');
 const Twitter = require('../twitter');
 const verifyJwt = require('../middleware/verify-jwt');
 const verifyCampaign = require('../middleware/campaign-check');
-const blockchainCache = require('../middleware/blockchain-cache');
 const ERROR_CODES = require('../../config/error-codes');
 
 const LIKES_FOR_CLAIM = Number(process.env.LIKES_FOR_CLAIM) || 5;
@@ -91,7 +90,7 @@ router.get('/auth/twitter/callback', (req, res) => {
   return res.status(200).send('');
 });
 
-router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, blockchainCache, async (req, res) => {
+router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
   const { blockchainInfo } = req;
 
@@ -130,7 +129,7 @@ router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, blockchain
   }
 });
 
-router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, blockchainCache, async (req, res) => {
+router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { query } = req.params;
   const { user } = req.verification;
   const { blockchainInfo } = req;
@@ -202,7 +201,7 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, bl
   }
 });
 
-router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCache, async (req, res) => {
+router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
   const { id_str } = req.body;
   const { redis } = req.app.settings;
@@ -305,7 +304,7 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCac
   }
 });
 
-router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, blockchainCache, async (req, res) => {
+router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
   const { redis } = req.app.settings;
   const { blockchainInfo } = req;

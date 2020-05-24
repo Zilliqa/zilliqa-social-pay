@@ -1,3 +1,5 @@
+const STATUS = 200;
+
 export function authGuard({ res, req }: any) {
   if (!req || !res) {
     return null;
@@ -11,6 +13,23 @@ export function authGuard({ res, req }: any) {
   // we can initialize our store
   //
   const isServer = typeof window === 'undefined';
+  const campaignEnd = new Date(req.blockchainInfo.campaignEnd).valueOf();
+  const now = new Date(req.blockchainInfo.now).valueOf();
+  const diff = campaignEnd - now;
+
+  if (diff <= 0 && req.url !== '/end') {
+    res.status(STATUS).redirect('/end');
+    res.end();
+
+    return {
+      firstStart,
+      user,
+      isServer,
+      blockchainInfo: req.blockchainInfo
+    };
+  } else if (req.url === '/end' && diff > 0) {
+    res.status(STATUS).redirect('/redcross');
+  }
 
   if (req.cookies && (req.cookies['session.sig'] || req.cookies.session)) {
     firstStart = false;
@@ -18,14 +37,14 @@ export function authGuard({ res, req }: any) {
 
   if (!req.session || !req.session.passport) {
     if (req.url === '/') {
-      // tslint:disable-next-line: no-magic-numbers
-      res.status(200).redirect('/redcross');
+      res.status(STATUS).redirect('/redcross');
     }
 
     return {
       firstStart,
       user,
-      isServer
+      isServer,
+      blockchainInfo: req.blockchainInfo
     };
   }
 
@@ -34,6 +53,7 @@ export function authGuard({ res, req }: any) {
   return {
     firstStart,
     user,
-    isServer
+    isServer,
+    blockchainInfo: req.blockchainInfo
   };
 }
