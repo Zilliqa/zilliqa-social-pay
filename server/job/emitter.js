@@ -18,22 +18,18 @@ module.exports = class QueueEmitter extends EventEmitter {
     this.name = name;
     this.settings = settings;
     this.events = {
-      taskAdded: uuids.v4(),
-      taskError: uuids.v4(),
-      taskDone: uuids.v4(),
-      taskRestart: uuids.v4(),
       trigger: uuids.v4()
     };
     this.queue = new Queue();
-    this.timestamp = new Date().valueOf();
+    this.timestamp = new Date().valueOf() - 1;
   }
 
   addTask(task) {
     this.queue.addTask(task);
-    this.emit(this.events.taskAdded, task);
 
     if (this.queue.firstJob) {
-      setTimeout(() => this.emit(this.events.trigger, this.queue.firstTask), 0);
+      this.timestamp = new Date().valueOf();
+      process.nextTick(() => this.emit(this.events.trigger, this.queue.firstTask));
     }
 
     return task;
@@ -41,20 +37,21 @@ module.exports = class QueueEmitter extends EventEmitter {
 
   taskDone(task) {
     this.queue.removeTask(task);
-    this.emit(this.events.taskDone, task);
 
     if (this.queue.hasJobs) {
-      setTimeout(() => this.emit(this.events.trigger, this.queue.firstTask), 0);
+      this.timestamp = new Date().valueOf();
+      process.nextTick(() => this.emit(this.events.trigger, this.queue.firstTask));
     }
-
-    this.timestamp = new Date().valueOf();
 
     return task;
   }
 
   next(task) {
     this.queue.moveToLast(task);
-    this.timestamp = new Date().valueOf();
-    setTimeout(() => this.emit(this.events.trigger, this.queue.firstTask), 0);
+
+    if (this.queue.hasJobs) {
+      this.timestamp = new Date().valueOf();
+      process.nextTick(() => this.emit(this.events.trigger, this.queue.firstTask));
+    }
   }
 }

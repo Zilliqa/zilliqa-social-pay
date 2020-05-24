@@ -132,7 +132,9 @@ async function getTasks(limit = 5) {
         tweetId: tweet.id,
         userId: tweet.User.id
       };
-      return new Job(JOB_TYPES.verifyTweet, payload);
+      const uuid = JOB_TYPES.verifyTweet + tweet.id;
+
+      return new Job(JOB_TYPES.verifyTweet, payload, uuid);
     } catch (err) {
       log.error('task', JOB_TYPES.verifyTweet, err);
 
@@ -143,7 +145,9 @@ async function getTasks(limit = 5) {
       const payload = {
         userId: user.id
       };
-      return new Job(JOB_TYPES.configureUsers, payload);
+      const uuid = JOB_TYPES.configureUsers + user.id;
+
+      return new Job(JOB_TYPES.configureUsers, payload, uuid);
     } catch (err) {
       debug('ERROR', 'task', JOB_TYPES.verifyTweet, err);
 
@@ -163,24 +167,26 @@ async function queueFilling() {
       }
     },
     order: [
-      ['balance', 'DESC'],
-      ['nonce', 'ASC']
+      ['nonce', 'ASC'],
+      ['balance', 'DESC']
     ],
     attributes: [
       'bech32Address'
     ]
   });
+
   log.info(`${admins.length} admins will added to queue.`);
   const limit = 100;
   const keys = admins.map((el) => el.bech32Address);
   const worker = new QueueWorker(keys);
 
   worker.jobQueues.forEach((jobQueue) => {
-    jobQueue.addListener(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
+    jobQueue.on(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
   });
   const tasks = await getTasks(limit);
 
   worker.distributeTasks(tasks);
+
   log.info(tasks.length, 'tasks added to queue');
   worker.redisSubscribe.on('message', async (channel, message) => {
     try {
