@@ -236,7 +236,7 @@ export const Controller: React.FC = () => {
             {fromZil(blockchainState.zilsPerTweet)} $ZIL
         </Text>
         </Text>
-        <Container css="display: flex;align-items: center;justify-content: space-between;width: 100%;">
+        <Container css="height: 60px;margin: 0;">
           {blockchainState.hashtag ? (
             <TwitterHashtagButton
               tag={'ZILCovidHeroes'}
