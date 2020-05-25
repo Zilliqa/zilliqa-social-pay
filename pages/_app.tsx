@@ -53,6 +53,7 @@ class SocialPay extends App {
       <Container>
         <Head>
           <title>SocialPay</title>
+          <meta name="description" content="SocialPay is an innovative new solution that allows you to earn $ZIL by sharing social media updates on Twitter."></meta>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="apple-touch-icon" sizes="57x57" href="/favicons/apple-icon-57x57.png" />
           <link rel="apple-touch-icon" sizes="60x60" href="/favicons/apple-icon-60x60.png" />

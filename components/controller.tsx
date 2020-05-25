@@ -236,24 +236,10 @@ export const Controller: React.FC = () => {
             {fromZil(blockchainState.zilsPerTweet)} $ZIL
         </Text>
         </Text>
-        <Container css="display: flex;align-items: center;justify-content: space-between;width: 100%;">
-          <Text
-            size={FontSize.xs}
-            fontVariant={Fonts.AvenirNextLTProRegular}
-            fontColors={FontColors.gray}
-          >
-            HASHTAG
-        <Text
-              fontVariant={Fonts.AvenirNextLTProBold}
-              fontColors={FontColors.white}
-              css="text-transform: capitalize;font-size: 15px;"
-            >
-              {'ZILCovidHeroes'}
-            </Text>
-          </Text>
+        <Container css="height: 40px;margin: 0;">
           {blockchainState.hashtag ? (
             <TwitterHashtagButton
-              tag={'ZILCovidHeroes'}
+              tag={'#ZILCovidHeroes'}
               options={{
                 size: 'large',
                 text: blockchainState.hashtagText

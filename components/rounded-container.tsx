@@ -21,7 +21,6 @@ export const AroundedContainer = styled.form`
 
   @media (max-width: 600px) {
     margin: 0;
-    width: 310px;
   }
 
   ${(props: { css?: string; }) => props.css}

@@ -46,6 +46,7 @@ const Linkbutton = styled(KeentodoMore)`
   margin: 0;
   background-color: #526EFF;
   box-shadow: 5px 7px 12px 2px rgba(0,0,0,0.4);
+  padding: 2rem;
 `;
 const LinkContainer = styled.a`
   text-decoration: unset;
@@ -106,17 +107,8 @@ export const CovidPage: NextPage<PageProp> = () => {
             align={Sides.center}
             css="font-size: 14px;"
           >
-            Support The Red Cross Singapore in its COVID-19 relief efforts.&nbsp;
+            Support The Red Cross Singapore in its COVID-19 relief efforts,&nbsp;
             by giving to those who really need it.&nbsp;
-            <Text
-              fontVariant={Fonts.AvenirNextLTProDemi}
-              fontColors={FontColors.white}
-              align={Sides.center}
-              css="font-size: 14px;margin: 0;"
-            >
-              safe and protect themselves
-            </Text>&nbsp;
-            as best as possible.
           </Text>
         </Linkbutton>
       </LinkContainer>
