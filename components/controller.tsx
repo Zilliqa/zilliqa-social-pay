@@ -239,7 +239,7 @@ export const Controller: React.FC = () => {
         <Container css="height: 60px;margin: 0;">
           {blockchainState.hashtag ? (
             <TwitterHashtagButton
-              tag={'ZILCovidHeroes'}
+              tag={'#ZILCovidHeroes'}
               options={{
                 size: 'large',
                 text: blockchainState.hashtagText
