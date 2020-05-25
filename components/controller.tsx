@@ -273,7 +273,7 @@ export const Controller: React.FC = () => {
         <KeentodoMore css="justify-content: space-around;">
           <Text
             size={FontSize.md}
-            fontVariant={Fonts.AvenirNextLTProRegular}
+            fontVariant={Fonts.AvenirNextLTProMedium}
             fontColors={FontColors.white}
             css="width: 150px;"
           >
