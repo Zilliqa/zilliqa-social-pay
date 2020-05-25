@@ -17,8 +17,9 @@ import { Img } from 'components/img';
 import { Container } from 'components/container';
 import { NotificationWarning } from 'components/notification-control';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
+import ClipLoader from 'react-spinners/ClipLoader';
 
-import { Events } from 'config';
+import { Events, FontColors } from 'config';
 import ERROR_CODES from 'config/error-codes';
 import NOTIFICATIONS_TYPES from 'config/notifications-types';
 import { viewTx } from 'utils/viewblock';
@@ -32,6 +33,7 @@ const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
 const PAGE_LIMIT = 3;
 const SLEEP = 100;
+const SPINER_SIZE = 100;
 
 const VerifiedContainer = styled(Container)`
   display: flex;
@@ -239,91 +241,98 @@ export const Verified: React.FC = () => {
   return (
     <VerifiedContainer>
       {twitterState.showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
-        <TweetEmbedContainer
-          key={index}
-          show={loadedList.includes(index)}
-        >
-          <IconsContainer>
-            {(!tweet.claimed && !tweet.approved && !tweet.rejected && !isTabletOrMobile) ? (
-              <Img
-                src="/icons/refund.svg"
-                css="cursor: pointer;width: 100px;height: 40px;"
-                onClick={() => handleClickClaim(tweet)}
-              />
-            ) : null}
-            {tweet.approved && !isTabletOrMobile ? (
-              <a
-                href={tweet.txId ? viewTx(tweet.txId) : undefined}
-                target="_blank"
-              >
-                <Img src="/icons/ok.svg" />
-              </a>
-            ) : null}
-            {Boolean(tweet.rejected && !isTabletOrMobile) ? (
-              <a
-                href={tweet.txId ? viewTx(tweet.txId) : undefined}
-                target="_blank"
-              >
+        <React.Fragment>
+          <TweetEmbedContainer
+            key={index}
+            show={loadedList.includes(index)}
+          >
+            <IconsContainer>
+              {(!tweet.claimed && !tweet.approved && !tweet.rejected && !isTabletOrMobile) ? (
                 <Img
-                  src="/icons/close.svg"
-                  css="width: 40px;height: 40px;"
+                  src="/icons/refund.svg"
+                  css="cursor: pointer;width: 100px;height: 40px;"
+                  onClick={() => handleClickClaim(tweet)}
                 />
-              </a>
-            ) : null}
-            {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed && !isTabletOrMobile) ? (
-              <a
-                href={tweet.txId ? viewTx(tweet.txId) : undefined}
-                target="_blank"
-              >
-                <MinLoader width="40" height="40" />
-              </a>
-            ) : null}
-          </IconsContainer>
-          <TwitterTweetEmbed
-            screenName={userState.screenName}
-            tweetId={tweet.idStr}
-            options={{
-              width: isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT
-            }}
-            onLoad={(content: any) => handTweetLoad(Boolean(content), tweet, index)}
+              ) : null}
+              {tweet.approved && !isTabletOrMobile ? (
+                <a
+                  href={tweet.txId ? viewTx(tweet.txId) : undefined}
+                  target="_blank"
+                >
+                  <Img src="/icons/ok.svg" />
+                </a>
+              ) : null}
+              {Boolean(tweet.rejected && !isTabletOrMobile) ? (
+                <a
+                  href={tweet.txId ? viewTx(tweet.txId) : undefined}
+                  target="_blank"
+                >
+                  <Img
+                    src="/icons/close.svg"
+                    css="width: 40px;height: 40px;"
+                  />
+                </a>
+              ) : null}
+              {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed && !isTabletOrMobile) ? (
+                <a
+                  href={tweet.txId ? viewTx(tweet.txId) : undefined}
+                  target="_blank"
+                >
+                  <MinLoader width="40" height="40" />
+                </a>
+              ) : null}
+            </IconsContainer>
+            <TwitterTweetEmbed
+              screenName={userState.screenName}
+              tweetId={tweet.idStr}
+              options={{
+                width: isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT
+              }}
+              onLoad={(content: any) => handTweetLoad(Boolean(content), tweet, index)}
+            />
+            <IconsContainer>
+              {(!tweet.claimed && !tweet.approved && !tweet.rejected && isTabletOrMobile) ? (
+                <Img
+                  src="/icons/refund.svg"
+                  css="cursor: pointer;width: 100px;height: 40px;"
+                  onClick={() => handleClickClaim(tweet)}
+                />
+              ) : null}
+              {tweet.approved && isTabletOrMobile ? (
+                <a
+                  href={tweet.txId ? viewTx(tweet.txId) : undefined}
+                  target="_blank"
+                >
+                  <Img src="/icons/ok.svg" />
+                </a>
+              ) : null}
+              {Boolean(tweet.rejected && isTabletOrMobile) ? (
+                <a
+                  href={tweet.txId ? viewTx(tweet.txId) : undefined}
+                  target="_blank"
+                >
+                  <Img
+                    src="/icons/close.svg"
+                    css="width: 40px;height: 40px;"
+                  />
+                </a>
+              ) : null}
+              {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed && isTabletOrMobile) ? (
+                <a
+                  href={tweet.txId ? viewTx(tweet.txId) : undefined}
+                  target="_blank"
+                >
+                  <MinLoader width="40" height="40" />
+                </a>
+              ) : null}
+            </IconsContainer>
+          </TweetEmbedContainer>
+          <ClipLoader
+            size={SPINER_SIZE}
+            color={FontColors.info}
+            loading={!loadedList.includes(index)}
           />
-          <IconsContainer>
-            {(!tweet.claimed && !tweet.approved && !tweet.rejected && isTabletOrMobile) ? (
-              <Img
-                src="/icons/refund.svg"
-                css="cursor: pointer;width: 100px;height: 40px;"
-                onClick={() => handleClickClaim(tweet)}
-              />
-            ) : null}
-            {tweet.approved && isTabletOrMobile ? (
-              <a
-                href={tweet.txId ? viewTx(tweet.txId) : undefined}
-                target="_blank"
-              >
-                <Img src="/icons/ok.svg" />
-              </a>
-            ) : null}
-            {Boolean(tweet.rejected && isTabletOrMobile) ? (
-              <a
-                href={tweet.txId ? viewTx(tweet.txId) : undefined}
-                target="_blank"
-              >
-                <Img
-                  src="/icons/close.svg"
-                  css="width: 40px;height: 40px;"
-                />
-              </a>
-            ) : null}
-            {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed && isTabletOrMobile) ? (
-              <a
-                href={tweet.txId ? viewTx(tweet.txId) : undefined}
-                target="_blank"
-              >
-                <MinLoader width="40" height="40" />
-              </a>
-            ) : null}
-          </IconsContainer>
-        </TweetEmbedContainer>
+        </React.Fragment>
       )) : null}
       {twitterState.count > PAGE_LIMIT ? (
         <ReactPaginate
