@@ -13,12 +13,14 @@ export const KeentodoMore = styled.div`
   border-radius: 20px;
   padding: 1rem;
   width: 300px;
-  margin-left: 10%;
-  margin-top: 10px;
   border: 1px solid ${FontColors.white};
 
-  @media (max-width: 400px) {
-    margin-left: 0;
+  margin-left: 10%;
+  margin-top: 10px;
+
+  @media (max-width: 1023px) {
+    margin: 0;
+    margin-top: 10px;
   }
 
   ${(props: Prop) => props.css}

@@ -237,20 +237,6 @@ export const Controller: React.FC = () => {
         </Text>
         </Text>
         <Container css="display: flex;align-items: center;justify-content: space-between;width: 100%;">
-          <Text
-            size={FontSize.xs}
-            fontVariant={Fonts.AvenirNextLTProRegular}
-            fontColors={FontColors.gray}
-          >
-            HASHTAG
-        <Text
-              fontVariant={Fonts.AvenirNextLTProBold}
-              fontColors={FontColors.white}
-              css="text-transform: capitalize;font-size: 15px;"
-            >
-              {'ZILCovidHeroes'}
-            </Text>
-          </Text>
           {blockchainState.hashtag ? (
             <TwitterHashtagButton
               tag={'ZILCovidHeroes'}
