@@ -40,7 +40,7 @@ const Asset2 = styled(Asset)`
 `;
 const HashTag = styled(Text)`
   z-index: 1;
-  text-shadow: 0 0 0.1em ${FontColors.white};
+  text-shadow: 0 0 0.2em #00000070;
   font-size: 5vw;
 
   :first-letter {

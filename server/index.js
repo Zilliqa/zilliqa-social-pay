@@ -19,7 +19,7 @@ const PACKAGE = require('../package.json');
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('./config/redis')[ENV];
 const port = process.env.PORT || 3000;
-const dev = ENV === 'development';
+const dev = true; // ENV === 'development';
 const redisClientSubscriber = redis.createClient(REDIS_CONFIG.url);
 const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 const log = bunyan.createLogger({ name: 'next-server' });
