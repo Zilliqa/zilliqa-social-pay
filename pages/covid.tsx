@@ -46,6 +46,7 @@ const Linkbutton = styled(KeentodoMore)`
   margin: 0;
   background-color: #526EFF;
   box-shadow: 5px 7px 12px 2px rgba(0,0,0,0.4);
+  padding: 2rem;
 `;
 const LinkContainer = styled.a`
   text-decoration: unset;
