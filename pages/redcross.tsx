@@ -2,7 +2,6 @@ import React from 'react';
 import { NextPage } from 'next';
 import styled from 'styled-components';
 import * as Effector from 'effector-react';
-import { useMediaQuery } from 'react-responsive';
 import Link from 'next/link';
 
 import BrowserStore from 'store/browser';
@@ -27,8 +26,9 @@ const RedCrossContainer = styled.main`
   width: 100%;
   height: 100%;
   min-height: 100vh;
+  padding-bottom: 1%;
 
-  @media (max-width: 400px) {
+  @media (max-width: 600px) {
     align-items: flex-start;
     padding-top: 20vh;
   }
@@ -60,24 +60,20 @@ const Illustration = styled(Img)`
 
   height: auto;
   width: 100%;
-  max-width: 900px;
+  max-width: calc(100vw - 20vw);
 
   @media (max-width: 400px) {
     width: 90%;
+    max-width: calc(100vw - 5vw);
   }
 `;
-const HashTag = styled(Text)`
-  z-index: 1;
-  text-shadow: 0 0 0.1em ${FontColors.white};
-  font-size: 5vw;
+const HashTag = styled(Img)`
+  position: absolute;
+  max-width: calc(100vw - 25vw);
+  height: auto;
 
-  :first-letter {
-    text-transform: uppercase;
-  }
-
-  @media (max-width: 1000px) {
+  @media (max-width: 656px) {
     margin-top: 20%;
-    font-size: 10vw;
   }
 `;
 const LinkContainer = styled(Container)`
@@ -104,28 +100,13 @@ function getImg(dir: string, format: string, name = 'asset') {
 }
 
 export const RedCross: NextPage<PageProp> = () => {
-  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 446px)' });
-
   const browserState = Effector.useStore(BrowserStore.store);
-
-  const dirName = React.useMemo(() => {
-    if (isTabletOrMobile) {
-      return '1x';
-    }
-
-    return '3x';
-  }, [isTabletOrMobile]);
 
   return (
     <React.Fragment>
       <RedCrossContainer>
-        <Illustration src={getImg(dirName, browserState.format, 'asset')} />
-        <HashTag
-          fontVariant={Fonts.AvenirNextLTProDemi}
-          fontColors={FontColors.white}
-        >
-          #ZILCovidHeroes
-        </HashTag>
+        <Illustration src={getImg('3x', browserState.format, 'asset')} />
+        <HashTag src={getImg('3x', browserState.format, 'asset_2')} />
       </RedCrossContainer>
       <RedCrossLogo src={getImg('SVG', 'svg', 'asset_2')} />
       <NextLogo src={getImg('SVG', 'svg', 'asset_3')} />
