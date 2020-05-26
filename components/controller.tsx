@@ -237,15 +237,13 @@ export const Controller: React.FC = () => {
         </Text>
         </Text>
         <Container css="height: 40px;margin: 0;">
-          {blockchainState.hashtag ? (
-            <TwitterHashtagButton
-              tag={'#ZILCovidHeroes'}
-              options={{
-                size: 'large',
-                text: blockchainState.hashtagText
-              }}
-            />
-          ) : null}
+          <TwitterHashtagButton
+            tag={'#ZILCovidHeroes'}
+            options={{
+              size: 'large',
+              text: blockchainState.hashtagText
+            }}
+          />
         </Container>
         <Input
           sizeVariant={SizeComponent.md}
@@ -275,9 +273,10 @@ export const Controller: React.FC = () => {
             size={FontSize.md}
             fontVariant={Fonts.AvenirNextLTProRegular}
             fontColors={FontColors.white}
-            css="width: 150px;"
+            css="width: 100%;"
           >
-            Keen to do more? Click here!
+            Keen to do more?
+            Click here!
         </Text>
           <Img
             src="/icons/group.svg"
