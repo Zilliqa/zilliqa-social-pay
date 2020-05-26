@@ -57,11 +57,11 @@ class SocialPay extends App {
           <title>SocialPay</title>
           <meta name="description" content={description} />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <meta data-n-head="1" name="twitter:card" content="summary_large_image" />
-          <meta data-n-head="1" name="twitter:site" content="https://twitter.com/zilliqa" />
-          <meta data-n-head="1" name="twitter:creator" content="@zilliqa" />
-          <meta data-n-head="1" name="twitter:title" content="zilliqa" />
-          <meta data-n-head="1" name="twitter:description" content={description} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:site" content="https://twitter.com/zilliqa" />
+          <meta name="twitter:creator" content="@zilliqa" />
+          <meta name="twitter:title" content="zilliqa" />
+          <meta name="twitter:description" content="The high-performance, high-security blockchain." />
           <link rel="apple-touch-icon" sizes="57x57" href="/favicons/apple-icon-57x57.png" />
           <link rel="apple-touch-icon" sizes="60x60" href="/favicons/apple-icon-60x60.png" />
           <link rel="apple-touch-icon" sizes="72x72" href="/favicons/apple-icon-72x72.png" />
