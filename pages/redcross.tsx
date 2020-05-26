@@ -86,6 +86,7 @@ const LinkContainer = styled(Container)`
 
   @media (max-width: 656px) {
     bottom: 200px;
+    right: 10px;
   }
 `;
 const NextPageLink = styled(Text)`
@@ -93,6 +94,10 @@ const NextPageLink = styled(Text)`
   cursor: pointer;
   border-bottom: 2px solid ${FontColors.white};
   z-index: 99;
+
+  @media (max-width: 350px) {
+    font-size: 20px;
+  }
 `;
 
 function getImg(dir: string, format: string, name = 'asset') {
