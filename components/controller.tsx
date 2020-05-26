@@ -277,12 +277,8 @@ export const Controller: React.FC = () => {
             fontColors={FontColors.white}
             css="width: 100%;"
           >
-<<<<<<< HEAD
             Keen to do more?
             Click here!
-=======
-            Keen to do more? Click here!
->>>>>>> cc40133db233039afa415f948e8a915bea824a4d
         </Text>
           <Img
             src="/icons/group.svg"
