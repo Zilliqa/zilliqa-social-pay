@@ -62,6 +62,9 @@ module.exports = async (io, message) => {
           'profileId'
         ]
       });
+      if (!userNotification || !userNotification.profileId) {
+        return null;
+      }
       io
         .to(userNotification.profileId)
         .emit(EVENTS.notificationCreate, JSON.stringify(payload.body));
