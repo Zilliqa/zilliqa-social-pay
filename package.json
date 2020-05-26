@@ -1,6 +1,7 @@
 {
   "name": "zilliqa-social-pay",
   "version": "0.0.1",
+  "description": "SocialPay is an innovative new solution that allows you to earn $ZIL by sharing social media updates on Twitter.",
   "scripts": {
     "db:migrate": "npx sequelize db:migrate",
     "db:seed": "npx sequelize db:seed:all",

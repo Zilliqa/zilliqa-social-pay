@@ -237,15 +237,23 @@ export const Verified: React.FC = () => {
       );
     }
   }, [notificationState.serverNotifications]);
+  React.useEffect(() => {
+    const sleepBeforeLoadned = 3000;
+
+    const timer = setTimeout(() => {
+      sortedTweets.forEach((_, index) => {
+        addIndex(index);
+      });
+    }, sleepBeforeLoadned);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <VerifiedContainer>
       {twitterState.showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
-        <React.Fragment>
-          <TweetEmbedContainer
-            key={index}
-            show={loadedList.includes(index)}
-          >
+        <Container key={index}>
+          <TweetEmbedContainer show={loadedList.includes(index)}>
             <IconsContainer>
               {(!tweet.claimed && !tweet.approved && !tweet.rejected && !isTabletOrMobile) ? (
                 <Img
@@ -332,7 +340,7 @@ export const Verified: React.FC = () => {
             color={FontColors.info}
             loading={!loadedList.includes(index)}
           />
-        </React.Fragment>
+        </Container>
       )) : null}
       {twitterState.count > PAGE_LIMIT ? (
         <ReactPaginate
