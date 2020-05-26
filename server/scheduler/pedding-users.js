@@ -58,11 +58,17 @@ module.exports = async function (redisClient) {
       synchronization: false,
       zilAddress: toBech32Address(usersFromContract[profileId])
     });
-    await Notification.create({
-      UserId: user.id,
-      type: notificationTypes.addressConfigured,
-      title: 'Account',
-      description: 'Address configured!'
+    await Notification.findOrCreate({
+      where: {
+        UserId: user.id,
+        type: notificationTypes.addressConfigured,
+      },
+      defaults: {
+        UserId: user.id,
+        type: notificationTypes.addressConfigured,
+        title: 'Account',
+        description: 'Address configured!'
+      }
     });
   });
 
