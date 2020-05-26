@@ -124,11 +124,22 @@ module.exports = {
       lastAction: Number(blockchainInfo.BlockNum)
     });
 
+    const notification = await Notification.create({
+      UserId: user.id,
+      type: notificationTypes.addressConfigured,
+      title: 'Account',
+      description: 'Address configured!'
+    });
+
     redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
       model: User.tableName,
       body: {
         id: user.id
       }
+    }));
+    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+      model: Notification.tableName,
+      body: notification
     }));
 
     return twitterId;
