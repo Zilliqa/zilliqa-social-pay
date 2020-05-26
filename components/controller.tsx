@@ -275,9 +275,10 @@ export const Controller: React.FC = () => {
             size={FontSize.md}
             fontVariant={Fonts.AvenirNextLTProRegular}
             fontColors={FontColors.white}
-            css="width: 150px;"
+            css="width: 100%;"
           >
             Keen to do more?
+            Click here!
         </Text>
           <Img
             src="/icons/group.svg"

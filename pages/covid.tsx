@@ -53,7 +53,7 @@ const LinkContainer = styled.a`
   color: unset;
 `;
 const Illustration = styled(Img)`
-  width: 100px;
+  width: 150px;
   height: 200px;
 
   @media (max-width: 401px) {
@@ -69,10 +69,7 @@ export const CovidPage: NextPage<PageProp> = () => {
     <CovidPageContainer format={browserState.format}>
       <LinkContainer href="https://nextid.com/covidheroes/">
         <Linkbutton>
-          <Illustration
-            src="/icons/medal.svg"
-            css="width: 70px;"
-          />
+          <Illustration src="/imgs/redcross_assets/SVG/asset_3.svg" />
           <Text
             size={FontSize.md}
             fontVariant={Fonts.AvenirNextLTProDemi}
@@ -93,7 +90,7 @@ export const CovidPage: NextPage<PageProp> = () => {
       </LinkContainer>
       <LinkContainer href="https://redcross.give.asia/campaign/essentials-delivered-to-migrant-workers/donate?#/amount">
         <Linkbutton>
-          <Illustration src="/icons/hand.svg" />
+          <Illustration src="/imgs/redcross_assets/SVG/asset_2.svg" />
           <Text
             size={FontSize.md}
             fontVariant={Fonts.AvenirNextLTProDemi}

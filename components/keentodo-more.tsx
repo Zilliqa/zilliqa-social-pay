@@ -10,7 +10,7 @@ export const KeentodoMore = styled.div`
   display: flex;
   align-items: center;
 
-  background-color: rgba(56, 89, 255, 0.86);
+  background-color: #3859ff;
   border-radius: 20px;
   padding: 10px;
   width: 300px;
