@@ -46,7 +46,7 @@ const Linkbutton = styled(KeentodoMore)`
   margin: 0;
   background-color: #526EFF;
   box-shadow: 5px 7px 12px 2px rgba(0,0,0,0.4);
-  padding: 2rem;
+  padding: 1.5rem;
 `;
 const LinkContainer = styled.a`
   text-decoration: unset;
@@ -56,9 +56,9 @@ const Illustration = styled(Img)`
   width: 150px;
   height: 200px;
 
-  @media (max-width: 401px) {
-    width: 50px;
-    height: 100px;
+  @media (max-width: 600px) {
+    height: auto;
+    width: 100px;
   }
 `;
 
