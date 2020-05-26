@@ -247,7 +247,7 @@ export const Verified: React.FC = () => {
     }, sleepBeforeLoadned);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [addIndex]);
 
   return (
     <VerifiedContainer>
