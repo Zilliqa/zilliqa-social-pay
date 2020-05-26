@@ -237,15 +237,13 @@ export const Controller: React.FC = () => {
         </Text>
         </Text>
         <Container css="height: 40px;margin: 0;">
-          {blockchainState.hashtag ? (
-            <TwitterHashtagButton
-              tag={'#ZILCovidHeroes'}
-              options={{
-                size: 'large',
-                text: blockchainState.hashtagText
-              }}
-            />
-          ) : null}
+          <TwitterHashtagButton
+            tag={'#ZILCovidHeroes'}
+            options={{
+              size: 'large',
+              text: blockchainState.hashtagText
+            }}
+          />
         </Container>
         <Input
           sizeVariant={SizeComponent.md}
