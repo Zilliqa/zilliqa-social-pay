@@ -337,8 +337,8 @@ export const Verified: React.FC = () => {
           </TweetEmbedContainer>
           <ClipLoader
             size={SPINER_SIZE}
-            color={FontColors.info}
             loading={!loadedList.includes(index)}
+            color={FontColors.white}
           />
         </Container>
       )) : null}
