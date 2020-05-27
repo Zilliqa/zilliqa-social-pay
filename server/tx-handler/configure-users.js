@@ -58,6 +58,19 @@ module.exports = async function (task, admin, redisClient) {
 
     return user;
   } catch (err) {
+    if (err.message === 'Invalid bech32 address') {
+      await user.update({
+        hash: null,
+        zilAddress: null,
+        lastAction: 0,
+        synchronization: false
+      });
+
+      log.error('userID:', task.payload.userId, 'error', err);
+
+      return null;
+    }
+
     const lastAddres = await zilliqa.getonfigureUsers([user.profileId]);
 
     if (lastAddres && lastAddres[user.profileId]) {
