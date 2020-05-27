@@ -71,6 +71,10 @@ module.exports = async function (task, admin, redisClient) {
       return null;
     }
 
+    log.error('userID:', task.payload.userId, 'error', err);
+  }
+
+  try {
     const lastAddres = await zilliqa.getonfigureUsers([user.profileId]);
 
     if (lastAddres && lastAddres[user.profileId]) {
@@ -84,9 +88,9 @@ module.exports = async function (task, admin, redisClient) {
 
       return user;
     }
+  } catch (err) {
+    log.error('return to lastAddres userID:', task.payload.userId, 'error', err);
 
-    log.error('userID:', task.payload.userId, 'error', err);
-
-    throw new Error(err);
+    return null;
   }
 }
