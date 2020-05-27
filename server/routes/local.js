@@ -1,5 +1,6 @@
 const express = require('express');
 const { Op } = require('sequelize');
+const { fromBech32Address } = require('@zilliqa-js/crypto');
 const { validation } = require('@zilliqa-js/util');
 const checkSession = require('../middleware/check-session');
 const zilliqa = require('../zilliqa');
@@ -37,7 +38,21 @@ router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, 
   const { redis } = req.app.settings;
 
   try {
-    if (!validation.isBech32(bech32Address)) {
+    if (!fromBech32Address(bech32Address)) {
+      return res.status(400).json({
+        code: ERROR_CODES.invalidAddressFormat,
+        message: 'Invalid address format.'
+      });
+    }
+  } catch (err) {
+    return res.status(400).json({
+      code: ERROR_CODES.invalidAddressFormat,
+      message: 'Invalid address format.'
+    });
+  }
+
+  try {
+    if (!fromBech32Address(bech32Address)) {
       return res.status(400).json({
         code: ERROR_CODES.invalidAddressFormat,
         message: 'Invalid address format.'
