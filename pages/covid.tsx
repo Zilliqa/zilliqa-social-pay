@@ -90,7 +90,10 @@ export const CovidPage: NextPage<PageProp> = () => {
       </LinkContainer>
       <LinkContainer href="https://redcross.give.asia/campaign/essentials-delivered-to-migrant-workers/donate?#/amount">
         <Linkbutton>
-          <Illustration src="/imgs/redcross_assets/SVG/asset_2.svg" />
+          <Illustration
+            src="/imgs/redcross_assets/SVG/asset_2.svg"
+            css="width: 90px;"
+          />
           <Text
             size={FontSize.md}
             fontVariant={Fonts.AvenirNextLTProDemi}
