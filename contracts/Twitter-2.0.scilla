@@ -5,7 +5,6 @@ import BoolUtils IntUtils
 (***************************************************)
 (*               Associated library                *)
 (***************************************************)
-
 library SocialPay
 
 let one_msg =
@@ -13,19 +12,9 @@ let one_msg =
     let nil_msg = Nil {Message} in
       Cons {Message} msg nil_msg
 
-let valid_substring =
-  fun (tweet_text : String) =>
-  fun (start_pos : Uint32) =>
-  fun (hashtag_len : Uint32) =>
-    let string_length = builtin strlen tweet_text in
-      let valid_start_pos = builtin lt start_pos string_length in
-        let end_pos = builtin add start_pos hashtag_len in
-          let valid_end_pos = uint32_le end_pos string_length in
-            andb valid_start_pos valid_end_pos
-
-(* Custom ADT storing twitter_id, recipient_address, tweet_id, tweet_text, start_pos *)
+(* Custom ADT storing twitter_id, recipient_address, tweet_id, hashtags *)
 type VerifyInfo =
-| VerifyInfo of String ByStr20 String String Uint32
+| VerifyInfo of String ByStr20 String (List String)
 
 (* Error events *)
 type Error =
@@ -49,6 +38,7 @@ let make_error_event =
     { _eventname : "Error"; code : result_code }
 
 let tt = True
+let ff = False
 
 (***************************************************)
 (*             The contract definition             *)
@@ -70,6 +60,8 @@ field last_claims: Map String BNum = Emp String BNum
 
 (* Map of address to bool status of admin *)
 field admins: Map ByStr20 Bool = Emp ByStr20 Bool
+
+field verdad: Bool = False
 
 procedure EmitError(err: Error)
   e = make_error_event err;
@@ -110,9 +102,18 @@ procedure ConfigureAdmin(admin_address: ByStr20)
   end
 end
 
+procedure ValidateTweet(input_hashtag: String)
+  is_hashtag = builtin eq input_hashtag hashtag;
+  match is_hashtag with
+  | True =>
+    verdad := tt
+  | False =>
+  end
+end
+
 procedure VerifyTweet(verify_info: VerifyInfo)
   match verify_info with
-  | VerifyInfo twitter_id recipient_address tweet_id tweet_text start_pos =>
+  | VerifyInfo twitter_id recipient_address tweet_id hashtags =>
     already_verified <- exists verified_tweets[tweet_id];
     match already_verified with
     | False =>
@@ -127,12 +128,11 @@ procedure VerifyTweet(verify_info: VerifyInfo)
         end;
       match not_next_day_yet with
       | False =>
-        hashtag_len = builtin strlen hashtag;
-        is_valid_substring = valid_substring tweet_text start_pos hashtag_len;
-        extract_hashtag = builtin substr tweet_text start_pos hashtag_len;
-        is_hashtag = builtin eq extract_hashtag hashtag;
-        is_claimable = andb is_valid_substring is_hashtag;
-        match is_claimable with
+        (* Reset verdad *)
+        verdad := ff;
+        forall hashtags ValidateTweet;
+        output_verdad <- verdad;
+        match output_verdad with
         | True =>
           verified_tweets[tweet_id] := twitter_id;
           last_claims[twitter_id] := current_block;
