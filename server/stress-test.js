@@ -11,8 +11,8 @@ const REDIS_CONFIG = require('./config/redis')[ENV];
 const JOB_TYPES = require('./config/job-types');
 const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 
-const USERS_CREATER = 500;
-const TWEET_CREATER = 500;
+const USERS_CREATER = 1000;
+const TWEET_CREATER = 1000;
 
 module.exports = function test() {
   setInterval(async () => {
@@ -25,7 +25,7 @@ module.exports = function test() {
         profileId: uuids.v4(),
         screenName: `test${uuids.v4()}`,
         profileImageUrl: uuids.v4(),
-        synchronization: true,
+        synchronization: false,
         zilAddress: bech32Address
       });
 
