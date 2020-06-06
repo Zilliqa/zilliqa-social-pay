@@ -109,23 +109,6 @@ async function getTasks(limit = 5) {
       'id'
     ]
   });
-  const users = await User.findAndCountAll({
-    limit,
-    where: {
-      synchronization: true,
-      zilAddress: {
-        [Op.not]: null
-      },
-      lastAction: {
-        [Op.lte]: Number(blockchainInfo.BlockNum)
-      },
-      hash: null,
-      status: new User().statuses.enabled
-    },
-    attributes: [
-      'id'
-    ]
-  });
   const tasks = tweets.rows.map((tweet) => {
     try {
       const payload = {
@@ -140,20 +123,7 @@ async function getTasks(limit = 5) {
 
       return null;
     }
-  }).concat(users.rows.map((user) => {
-    try {
-      const payload = {
-        userId: user.id
-      };
-      const uuid = JOB_TYPES.configureUsers + user.id;
-
-      return new Job(JOB_TYPES.configureUsers, payload, uuid);
-    } catch (err) {
-      debug('ERROR', 'task', JOB_TYPES.verifyTweet, err);
-
-      return null;
-    }
-  })).filter(Boolean);
+  }).filter(Boolean);
 
   return tasks;
 }
