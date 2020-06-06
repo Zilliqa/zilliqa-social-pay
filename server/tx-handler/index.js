@@ -11,7 +11,6 @@ const zilliqa = require('../zilliqa');
 
 const { Job, QueueWorker } = require('../job');
 const verifyTweet = require('./verify-tweet');
-const configureUsers = require('./configure-users');
 
 const JOB_TYPES = require('../config/job-types');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
@@ -51,18 +50,6 @@ async function taskHandler(task, jobQueue) {
         redisSend(Twittes, tweet);
       } catch (err) {
         log.error('ERROR', err, 'task:', task.type);
-        jobQueue.next(task);
-      }
-      break;
-
-    case JOB_TYPES.configureUsers:
-      try {
-        const user = await configureUsers(task, jobQueue.name, redisSender);
-        jobQueue.taskDone(task);
-        log.info('task:', task.type, 'admin:', jobQueue.name);
-        redisSend(User, user);
-      } catch (err) {
-        log.error(err, 'task:', task.type, 'admin:', jobQueue.name, JSON.stringify(task, null, 4));
         jobQueue.next(task);
       }
       break;
@@ -231,6 +218,7 @@ zilliqa
 
             log.warn(`admin ${index}: ${address}, balance: ${balance}, status: ${account.status}`);
           });
+          require('../scheduler/admin')();
         })
       .catch((err) => null)
     }, 5000);
