@@ -10,7 +10,6 @@ import TwitterStore from 'store/twitter';
 import { Text } from 'components/text';
 import { Dropdown } from 'components/dropdown';
 import { Profile } from 'components/profile';
-import ReactTooltip from 'react-tooltip';
 
 import { FontSize, Fonts, FontColors, Events } from 'config';
 
@@ -103,7 +102,6 @@ export const TopBar: React.FC = () => {
         size={FontSize.sm}
         fontVariant={Fonts.AvenirNextLTProBold}
         fontColors={FontColors.white}
-        data-tip={userState.synchronization ? 'Syncing address...' : 'Address configured.'}
         nowrap
       >
         {trimAddress}
@@ -116,11 +114,6 @@ export const TopBar: React.FC = () => {
           onClick={handleClick}
         />
       </ProfileContainer>
-      {userState.jwtToken ? <ReactTooltip
-        type={userState.synchronization ? TOOLTIP_TYPES.warning : TOOLTIP_TYPES.success}
-        place="bottom"
-        effect="solid"
-      /> : null}
     </TopBarContainer>
   );
 };

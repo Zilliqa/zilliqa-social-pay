@@ -75,26 +75,9 @@ router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, 
     await user.update({
       zilAddress: bech32Address,
       hash: null,
-      synchronization: true,
+      synchronization: false,
       actionName: actions.configureUsers
     });
-
-    redis.publish(REDIS_CONFIG.channels.TX_HANDLER, JSON.stringify({
-      type: JOB_TYPES.configureUsers,
-      userId: user.id
-    }));
-
-    const notification = await Notification.create({
-      UserId: user.id,
-      type: notificationTypes.addressConfiguring,
-      title: 'Account',
-      description: 'Syncing Address...'
-    });
-
-    redis.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
-      model: Notification.tableName,
-      body: notification
-    }));
 
     delete user.dataValues.tokenSecret;
     delete user.dataValues.token;
