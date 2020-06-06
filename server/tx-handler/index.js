@@ -17,6 +17,8 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
 const MIN_AMOUNT = '50000000000000';
+const TWEETS_IN_QUEUE = 2;
+const AMOUNT_OF_TASKS = 1;
 
 if (!validation.isBech32(CONTRACT_ADDRESS)) {
   throw new Error('incorect contract address');
@@ -25,6 +27,27 @@ if (!validation.isBech32(CONTRACT_ADDRESS)) {
 const { User, Twittes, Admin, blockchain } = models.sequelize.models;
 const redisSender = redis.createClient(REDIS_CONFIG.url);
 const getAsync = promisify(redisSender.get).bind(redisSender);
+
+function* chunks(arr, n) {
+  for (let i = 0; i < arr.length; i += n) {
+    yield (arr.slice(i, i + n));
+  }
+}
+
+function parseHashTags(text, hashTag) {
+  hashTag = hashTag.toLowerCase();
+  text = text.toLowerCase();
+
+  const re = new RegExp(`(${hashTag})`, 'g');
+  let m = null;
+
+  do {
+    m = re.exec(text);
+    if (m) return Array.from(new Set(m.filter(Boolean)));
+  } while (m);
+
+  return [];
+}
 
 function redisSend(model, payload) {
   if (!model || !payload) {
@@ -58,9 +81,11 @@ async function taskHandler(task, jobQueue) {
       jobQueue.taskDone(task);
       break;
   }
+
+  jobQueue.taskDone(task);
 }
 
-async function getTasks(limit = 5) {
+async function getTasks() {
   const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
 
   if (!blockchainInfo) {
@@ -69,7 +94,7 @@ async function getTasks(limit = 5) {
 
   const blocksForClaim = Number(blockchainInfo.BlockNum) - Number(blockchainInfo.blocksPerDay);
   const tweets = await Twittes.findAndCountAll({
-    limit,
+    limit: TWEETS_IN_QUEUE * AMOUNT_OF_TASKS,
     where: {
       approved: false,
       rejected: false,
@@ -89,22 +114,26 @@ async function getTasks(limit = 5) {
         status: new User().statuses.enabled
       },
       attributes: [
-        'id'
+        'zilAddress',
+        'profileId'
       ]
     },
     attributes: [
-      'id'
+      'idStr',
+      'text'
     ]
   });
-  const tasks = tweets.rows.map((tweet) => {
+  const arrayChunk = chunks(tweets.rows, TWEETS_IN_QUEUE);
+  const tasks = Array.from(arrayChunk).map((chunk) => {
     try {
-      const payload = {
-        tweetId: tweet.id,
-        userId: tweet.User.id
-      };
-      const uuid = JOB_TYPES.verifyTweet + tweet.id;
+      const payload = chunk.map((tweet) => ({
+        tweetId: tweet.idStr,
+        userId: tweet.User.profileId,
+        zilAddress: tweet.User.zilAddress,
+        tags: parseHashTags(tweet.text, blockchainInfo.hashtag)
+      }));
 
-      return new Job(JOB_TYPES.verifyTweet, payload, uuid);
+      return new Job(JOB_TYPES.verifyTweet, payload);
     } catch (err) {
       log.error('task', JOB_TYPES.verifyTweet, err);
 
@@ -136,14 +165,13 @@ async function queueFilling() {
   });
 
   log.info(`${admins.length} admins will added to queue.`);
-  const limit = 100;
   const keys = admins.map((el) => el.bech32Address);
   const worker = new QueueWorker(keys);
 
   worker.jobQueues.forEach((jobQueue) => {
     jobQueue.on(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
   });
-  const tasks = await getTasks(limit);
+  const tasks = await getTasks();
 
   worker.distributeTasks(tasks);
 
@@ -170,7 +198,7 @@ async function queueFilling() {
           log.info('Added new job admin:', body.address);
           return null;
         case blockchain.tableName:
-          const tasks = await getTasks(limit);
+          const tasks = await getTasks();
           worker.distributeTasks(tasks);
           log.info(tasks.length, 'tasks added to queue');
           return null;
