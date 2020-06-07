@@ -238,7 +238,7 @@ export const Verified: React.FC = () => {
     }
   }, [notificationState.serverNotifications]);
   React.useEffect(() => {
-    const sleepBeforeLoadned = 3000;
+    const sleepBeforeLoadned = 1000;
 
     const timer = setTimeout(() => {
       sortedTweets.forEach((_, index) => {

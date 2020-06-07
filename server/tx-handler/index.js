@@ -18,7 +18,7 @@ const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
 const MIN_AMOUNT = '50000000000000';
 const TWEETS_IN_QUEUE = 10;
-const AMOUNT_OF_TASKS = 500;
+const AMOUNT_OF_TASKS = 80;
 
 if (!validation.isBech32(CONTRACT_ADDRESS)) {
   throw new Error('incorect contract address');
@@ -49,28 +49,14 @@ function parseHashTags(text, hashTag) {
   return [];
 }
 
-function redisSend(model, payload) {
-  if (!model || !payload) {
-    return null;
-  }
-
-  redisSender.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
-    body: {
-      id: payload.id
-    },
-    model: model.tableName
-  }));
-}
-
 async function taskHandler(task, jobQueue) {
   switch (task.type) {
 
     case JOB_TYPES.verifyTweet:
       try {
-        const tweet = await verifyTweet(task, jobQueue.name, redisSender);
+        await verifyTweet(task, jobQueue.name, redisSender);
         jobQueue.taskDone(task);
         log.info('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
-        redisSend(Twittes, tweet);
       } catch (err) {
         log.error('ERROR', err, 'task:', task.type);
         jobQueue.next(task);
@@ -99,7 +85,7 @@ async function getTasks() {
       txId: null,
       claimed: true,
       block: {
-        [Op.lt]: blocksForClaim
+        [Op.lte]: blocksForClaim
       }
     },
     include: {
@@ -110,7 +96,7 @@ async function getTasks() {
           [Op.not]: null
         },
         lastAction: {
-          [Op.lt]: blocksForClaim
+          [Op.lte]: blocksForClaim
         },
         status: new User().statuses.enabled
       },
@@ -121,6 +107,7 @@ async function getTasks() {
       ]
     },
     attributes: [
+      'id',
       'idStr',
       'text'
     ]
@@ -133,10 +120,12 @@ async function getTasks() {
         userId: tweet.User.profileId,
         zilAddress: tweet.User.zilAddress,
         tags: parseHashTags(tweet.text, blockchainInfo.hashtag),
-        localUserId: tweet.User.id
+        localUserId: tweet.User.id,
+        localTweetId: tweet.id
       }));
+      const uuid = payload.map((t) => t.localTweetId).join('_');
 
-      return new Job(JOB_TYPES.verifyTweet, payload);
+      return new Job(JOB_TYPES.verifyTweet, payload, uuid);
     } catch (err) {
       log.error('task', JOB_TYPES.verifyTweet, err);
 
@@ -172,7 +161,15 @@ async function queueFilling() {
   const worker = new QueueWorker(keys);
 
   worker.jobQueues.forEach((jobQueue) => {
-    jobQueue.on(jobQueue.events.trigger, (task) => taskHandler(task, jobQueue));
+    jobQueue.on(jobQueue.events.trigger, async(task) => {
+      await taskHandler(task, jobQueue);
+
+      if (worker.jobsLength === 0) {
+        const tasks = await getTasks();
+        worker.distributeTasks(tasks);
+        log.info(tasks.length, 'tasks added to queue');
+      }
+    });
   });
   const tasks = await getTasks();
 
@@ -184,15 +181,19 @@ async function queueFilling() {
       const body = JSON.parse(message);
 
       switch (body.type) {
-        case Admin.tableName:
-          const newJob = worker.addJobQueues(body.address);
-          newJob.addListener(newJob.events.trigger, (task) => taskHandler(task, newJob));
-          log.info('Added new job admin:', body.address);
+        case JOB_TYPES.verifyTweet:
+          if (worker.jobsLength === 0) {
+            const tasks = await getTasks();
+            worker.distributeTasks(tasks);
+            log.info(tasks.length, 'tasks added to queue');
+          }
           return null;
         case blockchain.tableName:
-          const tasks = await getTasks();
-          worker.distributeTasks(tasks);
-          log.info(tasks.length, 'tasks added to queue');
+          if (worker.jobsLength === 0) {
+            const tasks = await getTasks();
+            worker.distributeTasks(tasks);
+            log.info(tasks.length, 'tasks added to queue');
+          }
           return null;
         default:
           return null;

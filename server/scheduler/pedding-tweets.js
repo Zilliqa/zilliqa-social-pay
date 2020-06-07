@@ -43,6 +43,8 @@ module.exports = async function (redisClient) {
     return null;
   }
 
+  log.info('pedding-tweets:need check:', twittes.count, 'tweets.');
+
   const needTestForVerified = twittes.rows.map(async (tweet) => {
     const tweetId = tweet.idStr;
     const hasInContract = await zilliqa.getVerifiedTweets([tweetId]);

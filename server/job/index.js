@@ -10,7 +10,7 @@ const REDIS_CONFIG = require('../config/redis')[ENV];
 
 class QueueWorker {
 
-  get _jobsLength() {
+  get jobsLength() {
     let length = 0;
 
     for (let index = 0; index < this.jobQueues.length; index++) {
@@ -61,10 +61,13 @@ class QueueWorker {
   _testForUnique(taskJob) {
     for (let index = 0; index < this.jobQueues.length; index++) {
       const job = this.jobQueues[index];
+      const jobAsString = JSON.stringify(job.queue);
 
-      if (job.queue.hasTask(taskJob)) {
-        throw new Error('This job has in queue');
-      }
+      taskJob.payload.forEach((tweet) => {
+        if (jobAsString.includes(tweet.tweetId)) {
+          throw new Error('This job has in queue');
+        }
+      });
     }
   }
 

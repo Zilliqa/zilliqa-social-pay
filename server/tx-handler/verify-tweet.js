@@ -19,39 +19,24 @@ const dangerTweet = 'Danger tweet.';
 module.exports = async function (task, admin, redisClient) {
   const getAsync = promisify(redisClient.get).bind(redisClient);
   const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
-  const filtredTask = await Promise.all(task.payload.filter(async (arg) => {
-    const blocksForClaim = Number(blockchainInfo.BlockNum) - (Number(blockchainInfo.blocksPerDay));
-    const tweet = await Twittes.findOne({
-      where: {
-        idStr: arg.tweetId
-      },
-      txId: null,
-      block: {
-        [Op.lt]: blocksForClaim
-      }
-    });
+  const filtredTask = [];
 
-    if (!tweet) {
-      return false;
-    }
-    
-    const lastWithdrawal = await zilliqa.getLastWithdrawal([arg.userId]);
-    const lastBlockForClaim = Number(lastWithdrawal) + Number(blockchainInfo.blocksPerDay);
+  for (let index = 0; index < task.payload.length; index++) {
+    const argElement = task.payload[index];
+    const registered = await zilliqa.getVerifiedTweets([argElement.tweetId]);
 
-    if (lastBlockForClaim >= Number(blockchainInfo.BlockNum)) {
-      return false;
-    }
-
-    const registered = await zilliqa.getVerifiedTweets([arg.tweetId]);
-
-    if (registered && registered[arg.tweetId]) {
-      await tweet.update({
+    if (registered && registered[argElement.tweetId]) {
+      await Twittes.update({
         approved: true,
         claimed: true,
         rejected: false
+      }, {
+        where: {
+          id: argElement.localTweetId
+        }
       });
       const notification = await Notification.create({
-        UserId: arg.localUserId,
+        UserId: argElement.localUserId,
         type: notificationTypes.tweetClaimed,
         title: 'Tweet',
         description: 'Rewards claimed!'
@@ -60,12 +45,16 @@ module.exports = async function (task, admin, redisClient) {
         model: Notification.tableName,
         body: notification
       }));
-
-      return false;
+      continue;
+    } else {
+      filtredTask.push(argElement);
     }
+  }
 
-    return true;
-  }));
+  if (filtredTask.length === 0) {
+    log.info('verify-tweet not found tasks');
+    return null;
+  }
 
   try {
     const tx = await zilliqa.verifyTweet(filtredTask, admin);
@@ -82,7 +71,7 @@ module.exports = async function (task, admin, redisClient) {
     }, {
       where: {
         [Op.and]: filtredTask.map((arg) => ({
-          idStr: arg.tweetId
+          id: arg.localTweetId
         }))
       }
     });
@@ -94,6 +83,15 @@ module.exports = async function (task, admin, redisClient) {
           id: arg.localUserId
         }))
       }
+    });
+
+    filtredTask.forEach((arg) => {
+      redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+        body: {
+          id: arg.localTweetId
+        },
+        model: Twittes.tableName
+      }));
     });
   } catch (err) {
     log.error('error', err);
