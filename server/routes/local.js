@@ -237,7 +237,7 @@ router.get('/get/accounts', async (req, res) => {
 });
 
 router.get('/get/stats', async (req, res) => {
-  const paddingTweet = await Twittes.count({
+  const pendingTweet = await Twittes.count({
     where: {
       approved: false,
       rejected: false,
@@ -262,7 +262,7 @@ router.get('/get/stats', async (req, res) => {
   });
 
   return res.json({
-    paddingTweet,
+    pendingTweet,
     registeredUsers,
     approvedTweet,
     tweets
