@@ -19,9 +19,12 @@ module.exports = {
     "dialect": "postgres",
     "logging": false,
     "pool": {
-      "max": 9,
-      "min": 0,
-      "idle": 10000
+      max: 10,
+      min: 0,
+      idle: 10000,
+      acquire: 60000,
+      evict: 60000,
+      handleDisconnects: true
     }
   },
   "production": {
@@ -32,9 +35,12 @@ module.exports = {
     "dialect": "postgres",
     "logging": false,
     "pool": {
-      "max": 9,
-      "min": 0,
-      "idle": 10000
+      max: 10,
+      min: 0,
+      idle: 10000,
+      acquire: 60000,
+      evict: 60000,
+      handleDisconnects: true
     }
   }
 }

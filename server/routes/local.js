@@ -236,7 +236,7 @@ router.get('/get/accounts', async (req, res) => {
   return res.json(accounts);
 });
 
-router.get('/get/stats', checkSession, async (req, res) => {
+router.get('/get/stats', async (req, res) => {
   const paddingTweet = await Twittes.count({
     where: {
       approved: false,
@@ -252,14 +252,6 @@ router.get('/get/stats', checkSession, async (req, res) => {
     }
   });
   const tweets = await Twittes.count();
-  const paddingUsers = await User.count({
-    where: {
-      synchronization: true,
-      zilAddress: {
-        [Op.not]: null
-      }
-    }
-  });
   const registeredUsers = await User.count({
     where: {
       synchronization: false,
@@ -271,7 +263,6 @@ router.get('/get/stats', checkSession, async (req, res) => {
 
   return res.json({
     paddingTweet,
-    paddingUsers,
     registeredUsers,
     approvedTweet,
     tweets

@@ -68,6 +68,9 @@ module.exports = async function (redisClient) {
       rejected: false,
       block: Number(blockchainInfo.BlockNum)
     });
+    await tweet.User.update({
+      lastAction: Number(blockchainInfo.BlockNum)
+    });
     const notification = await Notification.create({
       UserId: tweet.User.id,
       type: notificationTypes.tweetClaimed,

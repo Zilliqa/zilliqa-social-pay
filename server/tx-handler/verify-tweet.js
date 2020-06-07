@@ -19,39 +19,84 @@ const dangerTweet = 'Danger tweet.';
 module.exports = async function (task, admin, redisClient) {
   const getAsync = promisify(redisClient.get).bind(redisClient);
   const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
+  const filtredTask = await Promise.all(task.payload.filter(async (arg) => {
+    const blocksForClaim = Number(blockchainInfo.BlockNum) - (Number(blockchainInfo.blocksPerDay));
+    const tweet = await Twittes.findOne({
+      where: {
+        idStr: arg.tweetId
+      },
+      txId: null,
+      block: {
+        [Op.lt]: blocksForClaim
+      }
+    });
+
+    if (!tweet) {
+      return false;
+    }
+    
+    const lastWithdrawal = await zilliqa.getLastWithdrawal([arg.userId]);
+    const lastBlockForClaim = Number(lastWithdrawal) + Number(blockchainInfo.blocksPerDay);
+
+    if (lastBlockForClaim >= Number(blockchainInfo.BlockNum)) {
+      return false;
+    }
+
+    const registered = await zilliqa.getVerifiedTweets([arg.tweetId]);
+
+    if (registered && registered[arg.tweetId]) {
+      await tweet.update({
+        approved: true,
+        claimed: true,
+        rejected: false
+      });
+      const notification = await Notification.create({
+        UserId: arg.localUserId,
+        type: notificationTypes.tweetClaimed,
+        title: 'Tweet',
+        description: 'Rewards claimed!'
+      });
+      redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
+        model: Notification.tableName,
+        body: notification
+      }));
+
+      return false;
+    }
+
+    return true;
+  }));
 
   try {
-    const tx = await zilliqa.verifyTweet(task.payload, admin);
+    const tx = await zilliqa.verifyTweet(filtredTask, admin);
 
     log.info(
-      'Tweet: ',
-      task.payload.map((t) => t.tweetId),
+      'tx:handler:verify-tweet',
       'sent to shard txID:',
       tx.TranID
     );
 
+    await Twittes.update({
+      txId: tx.TranID,
+      block: Number(blockchainInfo.BlockNum)
+    }, {
+      where: {
+        [Op.and]: filtredTask.map((arg) => ({
+          idStr: arg.tweetId
+        }))
+      }
+    });
+    await User.update({
+      lastAction: Number(blockchainInfo.BlockNum)
+    }, {
+      where: {
+        [Op.and]: filtredTask.map((arg) => ({
+          id: arg.localUserId
+        }))
+      }
+    });
   } catch (err) {
-    log.error('TweetID:', task.payload.map((t) => t.tweetId), 'error', err);
-
-    // if (err.message === dangerTweet) {
-    //   await tweet.destroy();
-    //   const notification = await Notification.create({
-    //     UserId: tweet.User.id,
-    //     type: notificationTypes.tweetReject,
-    //     title: 'Tweet',
-    //     description: 'Danger tweet.'
-    //   });
-    //   redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
-    //     model: Notification.tableName,
-    //     body: notification
-    //   }));
-
-    //   throw new Error(err);
-    // }
-
-    // await tweet.update({
-    //   block: lastWithdrawal
-    // });
+    log.error('error', err);
 
     throw new Error(err);
   }

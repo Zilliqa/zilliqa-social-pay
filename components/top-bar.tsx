@@ -44,11 +44,6 @@ const ITEMS = [
   'Settings',
   'Sign out'
 ];
-const TOOLTIP_TYPES = {
-  success: 'success',
-  warning: 'warning'
-};
-
 /**
  * Top bar, show user information as twitter account and Zilliqa address.
  */

@@ -91,59 +91,6 @@ module.exports = {
 
     return toBech32Address(address);
   },
-  async configuredUserAddress(params, redisClient) {
-    const twitterId = params.find(
-      ({ vname }) => vname === this.keys.twitterId
-    ).value;
-    const recipientAddress = params.find(
-      ({ vname }) => vname === this.keys.recipientAddress
-    ).value;
-
-    if (!twitterId) {
-      throw new Error(`Not found ${this.keys.twitterId} vname in:`, params);
-    }
-
-    if (!recipientAddress) {
-      throw new Error(`Not found ${this.keys.recipientAddress} vname in:`, params);
-    }
-
-    const zilAddress = toBech32Address(recipientAddress);
-    const user = await User.findOne({
-      where: {
-        profileId: twitterId
-      }
-    });
-    const blockchainInfo = await blockchain.findOne({
-      where: { contract: CONTRACT_ADDRESS }
-    });
-
-    await user.update({
-      zilAddress,
-      synchronization: false,
-      actionName: actions.configureUsers,
-      lastAction: Number(blockchainInfo.BlockNum)
-    });
-
-    const notification = await Notification.create({
-      UserId: user.id,
-      type: notificationTypes.addressConfigured,
-      title: 'Account',
-      description: 'Address configured!'
-    });
-
-    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
-      model: User.tableName,
-      body: {
-        id: user.id
-      }
-    }));
-    redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
-      model: Notification.tableName,
-      body: notification
-    }));
-
-    return twitterId;
-  },
   async verifyTweetSuccessful(params, redisClient) {
     const idStr = params.find(
       ({ vname }) => vname === this.keys.tweetId
@@ -170,7 +117,8 @@ module.exports = {
     });
 
     await foundTweet.User.update({
-      actionName: actions.verifyTweet
+      actionName: actions.verifyTweet,
+      lastAction: Number(blockchainInfo.BlockNum)
     });
 
     const notification = await Notification.create({

@@ -11,8 +11,8 @@ const REDIS_CONFIG = require('./config/redis')[ENV];
 const JOB_TYPES = require('./config/job-types');
 const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 
-const USERS_CREATER = 1000;
-const TWEET_CREATER = 1000;
+const USERS_CREATER = 5000;
+const TWEET_CREATER = 5000;
 
 module.exports = function test() {
   setInterval(async () => {
@@ -50,7 +50,7 @@ module.exports = function test() {
         attributes: [
           'id'
         ],
-        limit: 100
+        limit: 1000
       });
 
       users.forEach(async (user) => {
@@ -59,10 +59,6 @@ module.exports = function test() {
             UserId: user.id
           }
         });
-
-        if (tweetCount > 0) {
-          return null;
-        }
 
         const tweet = await Twittes.create({
           idStr: uuids.v4(),
@@ -76,6 +72,7 @@ module.exports = function test() {
           tweetId: tweet.id,
           userId: user.id
         });
+
         redisClientSender.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
       });
     } catch (err) {

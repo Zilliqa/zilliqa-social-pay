@@ -35,9 +35,13 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
 //   require('./admin')(redisClient)
 //     .catch((err) => log.error('ADMINS UPDATER:', err));
 // });
+schedule.scheduleJob('* * * * *', (fireDate) => {
+  log.info(`run job for pedding tweets ${fireDate}`);
+  require('./pedding-tweets')(redisClient)
+    .catch((err) => log.error('pedding-tweets ERROR:', err));
+})
 
-
-if (ENV === 'test') {
-  log.warn('STRESS_TEST has runed!!!');
-  require('../stress-test')();
-}
+// if (ENV === 'test') {
+//   log.warn('STRESS_TEST has runed!!!');
+//   require('../stress-test')();
+// }

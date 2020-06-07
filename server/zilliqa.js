@@ -84,13 +84,13 @@ module.exports = {
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
     const result = await contract.getSubState(
-      'last_withdrawal',
+      'last_claims',
       profileIds
     );
     const [profileId] = profileIds;
 
-    if (result && result.last_withdrawal && result.last_withdrawal[profileId]) {
-      return Number(result.last_withdrawal[profileId]);
+    if (result && result.last_claims && result.last_claims[profileId]) {
+      return Number(result.last_claims[profileId]);
     }
 
     return null;
@@ -200,28 +200,21 @@ module.exports = {
         {
           vname: 'verify_infos',
           type: 'List (VerifyInfo)',
-          value: params.map((arg) => ([
-            {
-              vname: 'twitter_id',
-              type: 'String',
-              value: arg.userId
-            },
-            {
-              vname: 'recipient_address',
-              type: 'ByStr20',
-              value: fromBech32Address(arg.zilAddress)
-            },
-            {
-              vname: 'tweet_id',
-              type: 'String',
-              value: arg.tweetId
-            },
-            {
-              vname: 'hashtags',
-              type: 'List (String)',
-              value: arg.tags
-            }
-          ]))
+          value: params.map((arg) => ({
+            constructor: 'VerifyInfo',
+            argtypes: [
+              'String',
+              'ByStr20',
+              'String',
+              'List String'
+            ],
+            arguments: [
+              arg.userId,
+              fromBech32Address(arg.zilAddress),
+              arg.tweetId,
+              arg.tags
+            ]
+          }))
         }
       ]
     });
@@ -233,7 +226,7 @@ module.exports = {
       pubKey: zilliqa.wallet.defaultAccount.publicKey,
       amount: new BN(0),
       gasPrice: new BN('1000000000'),
-      gasLimit: Long.fromNumber(9000)
+      gasLimit: Long.fromNumber(4000 * params.length)
     });
     const { txParams } = await zilliqa.wallet.sign(zilTxData);
     const tx = await zilliqa.provider.send(

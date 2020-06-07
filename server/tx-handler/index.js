@@ -17,8 +17,8 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
 const MIN_AMOUNT = '50000000000000';
-const TWEETS_IN_QUEUE = 2;
-const AMOUNT_OF_TASKS = 1;
+const TWEETS_IN_QUEUE = 10;
+const AMOUNT_OF_TASKS = 500;
 
 if (!validation.isBech32(CONTRACT_ADDRESS)) {
   throw new Error('incorect contract address');
@@ -81,8 +81,6 @@ async function taskHandler(task, jobQueue) {
       jobQueue.taskDone(task);
       break;
   }
-
-  jobQueue.taskDone(task);
 }
 
 async function getTasks() {
@@ -92,7 +90,7 @@ async function getTasks() {
     throw new Error('NEXT');
   }
 
-  const blocksForClaim = Number(blockchainInfo.BlockNum) - Number(blockchainInfo.blocksPerDay);
+  const blocksForClaim = Number(blockchainInfo.BlockNum) - (Number(blockchainInfo.blocksPerDay));
   const tweets = await Twittes.findAndCountAll({
     limit: TWEETS_IN_QUEUE * AMOUNT_OF_TASKS,
     where: {
@@ -101,7 +99,7 @@ async function getTasks() {
       txId: null,
       claimed: true,
       block: {
-        [Op.lte]: blocksForClaim
+        [Op.lt]: blocksForClaim
       }
     },
     include: {
@@ -111,11 +109,15 @@ async function getTasks() {
         zilAddress: {
           [Op.not]: null
         },
+        lastAction: {
+          [Op.lt]: blocksForClaim
+        },
         status: new User().statuses.enabled
       },
       attributes: [
         'zilAddress',
-        'profileId'
+        'profileId',
+        'id'
       ]
     },
     attributes: [
@@ -130,7 +132,8 @@ async function getTasks() {
         tweetId: tweet.idStr,
         userId: tweet.User.profileId,
         zilAddress: tweet.User.zilAddress,
-        tags: parseHashTags(tweet.text, blockchainInfo.hashtag)
+        tags: parseHashTags(tweet.text, blockchainInfo.hashtag),
+        localUserId: tweet.User.id
       }));
 
       return new Job(JOB_TYPES.verifyTweet, payload);
@@ -178,20 +181,9 @@ async function queueFilling() {
   log.info(tasks.length, 'tasks added to queue');
   worker.redisSubscribe.on('message', async (channel, message) => {
     try {
-      let payload = {};
-      let type = null;
       const body = JSON.parse(message);
 
       switch (body.type) {
-        case JOB_TYPES.configureUsers:
-          payload.userId = body.userId;
-          type = body.type;
-          break;
-        case JOB_TYPES.verifyTweet:
-          payload.userId = body.userId;
-          payload.tweetId = body.tweetId;
-          type = body.type;
-          break;
         case Admin.tableName:
           const newJob = worker.addJobQueues(body.address);
           newJob.addListener(newJob.events.trigger, (task) => taskHandler(task, newJob));
@@ -205,10 +197,6 @@ async function queueFilling() {
         default:
           return null;
       }
-
-      const job = new Job(type, payload);
-
-      worker.addTask(job);
     } catch (err) {
       log.error('channel:', channel, 'message', message, 'error', err);
     }
