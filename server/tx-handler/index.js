@@ -19,7 +19,7 @@ const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
 const MIN_AMOUNT = '50000000000000';
 const TWEETS_IN_QUEUE = 10;
-const AMOUNT_OF_TASKS = 80;
+const AMOUNT_OF_TASKS = 10;
 
 if (!validation.isBech32(CONTRACT_ADDRESS)) {
   throw new Error('incorect contract address');
@@ -68,7 +68,7 @@ async function taskHandler(task, jobQueue) {
   }
 }
 
-async function getTasks() {
+async function getTasks(admins = AMOUNT_OF_TASKS) {
   const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
 
   if (!blockchainInfo) {
@@ -76,19 +76,24 @@ async function getTasks() {
   }
 
   const blocksForClaim = Number(blockchainInfo.BlockNum) - (Number(blockchainInfo.blocksPerDay));
-  const tweets = await Twittes.findAndCountAll({
-    limit: TWEETS_IN_QUEUE * AMOUNT_OF_TASKS,
+  let tweets = await Twittes.findAll({
+    limit: TWEETS_IN_QUEUE * admins,
+    order: [['updatedAt', 'DESC']],
     where: {
       approved: false,
       rejected: false,
       txId: null,
       claimed: true,
       block: {
-        [Op.lte]: blocksForClaim
+        [Op.lte]: blockchainInfo.BlockNum
+      },
+      UserId: {
+        [Op.not]: null
       }
     },
     include: {
       model: User,
+      required: false,
       where: {
         synchronization: false,
         zilAddress: {
@@ -108,10 +113,20 @@ async function getTasks() {
     attributes: [
       'id',
       'idStr',
-      'text'
+      'text',
+      'UserId'
     ]
   });
-  const arrayChunk = _.chunk(tweets.rows, TWEETS_IN_QUEUE);
+
+  if (!tweets || tweets.length === 0) {
+    log.info('tx:handler no found tasks.');
+  }
+
+  tweets = _.filter(tweets, (tweet) => Boolean(tweet.User && tweet.idStr));
+  tweets = _.uniqBy(tweets, 'idStr');
+  tweets = _.uniqBy(tweets, 'UserId');
+
+  const arrayChunk = _.chunk(tweets, TWEETS_IN_QUEUE);
   const tasks = arrayChunk.map((chunk) => {
     try {
       const payload = chunk.map((tweet) => ({
@@ -165,15 +180,14 @@ async function queueFilling() {
       await taskHandler(task, jobQueue);
 
       if (worker.jobsLength === 0) {
-        const tasks = await getTasks();
+        const tasks = await getTasks(keys.length * 2);
         worker.distributeTasks(tasks);
-        log.info(tasks.length, 'tasks added to queue');
+        log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
       }
     });
   });
 
-  const tasks = await getTasks();
-
+  const tasks = await getTasks(keys.length * 2);
   worker.distributeTasks(tasks);
 
   log.info(tasks.length, 'tasks added to queue');
@@ -185,17 +199,13 @@ async function queueFilling() {
       switch (body.type) {
         case JOB_TYPES.verifyTweet:
           if (worker.jobsLength === 0) {
-            const tasks = await getTasks();
+            const tasks = await getTasks(keys.length * 2);
             worker.distributeTasks(tasks);
-            log.info(tasks.length, 'tasks added to queue');
+            log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
           }
           return null;
         case blockchain.tableName:
-          if (worker.jobsLength === 0) {
-            const tasks = await getTasks();
-            worker.distributeTasks(tasks);
-            log.info(tasks.length, 'tasks added to queue');
-          }
+          // When blockchain has been updated.
           return null;
         default:
           return null;

@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const bunyan = require('bunyan');
 const log = bunyan.createLogger({ name: 'tx-handler:verify-tweet' });
 const { promisify } = require('util');
@@ -20,9 +21,10 @@ module.exports = async function (task, admin, redisClient) {
   const getAsync = promisify(redisClient.get).bind(redisClient);
   const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
   const filtredTask = [];
+  const onlyunique = _.uniqBy(task.payload, 'tweetId');
 
-  for (let index = 0; index < task.payload.length; index++) {
-    const argElement = task.payload[index];
+  for (let index = 0; index < onlyunique.length; index++) {
+    const argElement = onlyunique[index];
     const registered = await zilliqa.getVerifiedTweets([argElement.tweetId]);
 
     if (registered && registered[argElement.tweetId]) {
@@ -47,6 +49,22 @@ module.exports = async function (task, admin, redisClient) {
       }));
       continue;
     } else {
+      await Twittes.update({
+        block: Number(blockchainInfo.BlockNum),
+        txId: 'pending'
+      }, {
+        where: {
+          id: argElement.localTweetId
+        }
+      });
+      await User.update({
+        lastAction: Number(blockchainInfo.BlockNum)
+      }, {
+        where: {
+          id: argElement.localUserId
+        }
+      });
+
       filtredTask.push(argElement);
     }
   }
@@ -65,27 +83,14 @@ module.exports = async function (task, admin, redisClient) {
       tx.TranID
     );
 
-    await Twittes.update({
-      txId: tx.TranID,
-      block: Number(blockchainInfo.BlockNum)
-    }, {
-      where: {
-        [Op.and]: filtredTask.map((arg) => ({
+    filtredTask.forEach(async (arg) => {
+      await Twittes.update({
+        txId: tx.TranID
+      }, {
+        where: {
           id: arg.localTweetId
-        }))
-      }
-    });
-    await User.update({
-      lastAction: Number(blockchainInfo.BlockNum)
-    }, {
-      where: {
-        [Op.and]: filtredTask.map((arg) => ({
-          id: arg.localUserId
-        }))
-      }
-    });
-
-    filtredTask.forEach((arg) => {
+        }
+      });
       redisClient.publish(REDIS_CONFIG.channels.WEB, JSON.stringify({
         body: {
           id: arg.localTweetId
@@ -94,7 +99,7 @@ module.exports = async function (task, admin, redisClient) {
       }));
     });
   } catch (err) {
-    log.error('error', err);
+    log.error('verify-tweet: error', err);
 
     throw new Error(err);
   }

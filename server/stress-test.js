@@ -1,4 +1,5 @@
 const uuids = require('uuid');
+const { promisify } = require('util');
 const { Op } = require('sequelize');
 const redis = require('redis');
 const models = require('./models');
@@ -10,6 +11,7 @@ const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('./config/redis')[ENV];
 const JOB_TYPES = require('./config/job-types');
 const redisClientSender = redis.createClient(REDIS_CONFIG.url);
+const getAsync = promisify(redisClientSender.get).bind(redisClientSender);
 
 const USERS_CREATER = 500;
 const TWEET_CREATER = 1000;
@@ -39,12 +41,18 @@ module.exports = function test() {
   }, USERS_CREATER);
 
   setInterval(async () => {
+    const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
+    const blocksForClaim = Number(blockchainInfo.BlockNum) - (Number(blockchainInfo.blocksPerDay));
+
     try {
       const users = await User.findAll({
         where: {
           synchronization: false,
           zilAddress: {
             [Op.not]: null
+          },
+          lastAction: {
+            [Op.lte]: blocksForClaim
           }
         },
         attributes: [
@@ -54,12 +62,6 @@ module.exports = function test() {
       });
 
       users.forEach(async (user) => {
-        const tweetCount = await Twittes.count({
-          where: {
-            UserId: user.id
-          }
-        });
-
         const tweet = await Twittes.create({
           idStr: uuids.v4(),
           text: `#Zilliqa ${uuids.v4()}`,

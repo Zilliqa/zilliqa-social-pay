@@ -194,6 +194,7 @@ module.exports = {
   async verifyTweet(params, adminAccount) {
     const { contract, nonce, account, zilliqa } = await this.getAccount(adminAccount);
     const version = await this.version();
+    const calcGasLimit = params.length < 6 ? 9000 : 1500 * params.length;
     const data = JSON.stringify({
       _tag: 'VerifyTweets',
       params: [
@@ -226,7 +227,7 @@ module.exports = {
       pubKey: zilliqa.wallet.defaultAccount.publicKey,
       amount: new BN(0),
       gasPrice: new BN('1000000000'),
-      gasLimit: Long.fromNumber(1500 * params.length)
+      gasLimit: Long.fromNumber(calcGasLimit)
     });
     const { txParams } = await zilliqa.wallet.sign(zilTxData);
     const tx = await zilliqa.provider.send(

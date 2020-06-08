@@ -90,7 +90,7 @@ app
     }
 
     io.use(socketMiddleware);
-
+ 
     redisClientSubscriber.on('message', (channel, message) => {
       try {
         socketRoute(io, message);
