@@ -21,15 +21,13 @@ module.exports = class QueueEmitter extends EventEmitter {
       trigger: uuids.v4()
     };
     this.queue = new Queue();
-    this.timestamp = new Date().valueOf() - 1;
   }
 
   addTask(task) {
     this.queue.addTask(task);
 
     if (this.queue.firstJob) {
-      this.timestamp = new Date().valueOf();
-      process.nextTick(() => this.emit(this.events.trigger, this.queue.firstTask));
+      setTimeout(() => this.emit(this.events.trigger, this.queue.firstTask), 0);
     }
 
     return task;
@@ -39,8 +37,7 @@ module.exports = class QueueEmitter extends EventEmitter {
     this.queue.removeTask(task);
 
     if (this.queue.hasJobs) {
-      this.timestamp = new Date().valueOf();
-      process.nextTick(() => this.emit(this.events.trigger, this.queue.firstTask));
+      setTimeout(() => this.emit(this.events.trigger, this.queue.firstTask), 0);
     }
 
     return task;
@@ -50,8 +47,7 @@ module.exports = class QueueEmitter extends EventEmitter {
     this.queue.moveToLast(task);
 
     if (this.queue.hasJobs) {
-      this.timestamp = new Date().valueOf();
-      process.nextTick(() => this.emit(this.events.trigger, this.queue.firstTask));
+      setTimeout(() => this.emit(this.events.trigger, this.queue.firstTask), 0);
     }
   }
 }

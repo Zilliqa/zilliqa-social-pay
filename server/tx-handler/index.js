@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const _ = require('lodash');
 const bunyan = require('bunyan');
 const log = bunyan.createLogger({ name: 'tx-handler' });
 const redis = require('redis');
@@ -28,12 +29,6 @@ const { User, Twittes, Admin, blockchain } = models.sequelize.models;
 const redisSender = redis.createClient(REDIS_CONFIG.url);
 const getAsync = promisify(redisSender.get).bind(redisSender);
 
-function* chunks(arr, n) {
-  for (let i = 0; i < arr.length; i += n) {
-    yield (arr.slice(i, i + n));
-  }
-}
-
 function parseHashTags(text, hashTag) {
   hashTag = hashTag.toLowerCase();
   text = text.toLowerCase();
@@ -50,22 +45,26 @@ function parseHashTags(text, hashTag) {
 }
 
 async function taskHandler(task, jobQueue) {
-  switch (task.type) {
+  try {
+    switch (task.type) {
 
-    case JOB_TYPES.verifyTweet:
-      try {
+      case JOB_TYPES.verifyTweet:
         await verifyTweet(task, jobQueue.name, redisSender);
         jobQueue.taskDone(task);
         log.info('SUCCESS', 'task:', task.type, 'admin:', jobQueue.name);
-      } catch (err) {
-        log.error('ERROR', err, 'task:', task.type);
-        jobQueue.next(task);
-      }
-      break;
+        break;
 
-    default:
-      jobQueue.taskDone(task);
-      break;
+      default:
+        jobQueue.taskDone(task);
+        break;
+    }
+  } catch (err) {
+    log.error('ERROR', err, 'task:', task.type);
+    jobQueue.next(task);
+
+    if (err.message.includes('You do not have enough funds')) {
+      // process.kill(process.pid, 'SIGHUP');
+    }
   }
 }
 
@@ -112,8 +111,8 @@ async function getTasks() {
       'text'
     ]
   });
-  const arrayChunk = chunks(tweets.rows, TWEETS_IN_QUEUE);
-  const tasks = Array.from(arrayChunk).map((chunk) => {
+  const arrayChunk = _.chunk(tweets.rows, TWEETS_IN_QUEUE);
+  const tasks = arrayChunk.map((chunk) => {
     try {
       const payload = chunk.map((tweet) => ({
         tweetId: tweet.idStr,
@@ -123,9 +122,9 @@ async function getTasks() {
         localUserId: tweet.User.id,
         localTweetId: tweet.id
       }));
-      const uuid = payload.map((t) => t.localTweetId).join('_');
+      const ids = payload.map((t) => t.tweetId);
 
-      return new Job(JOB_TYPES.verifyTweet, payload, uuid);
+      return new Job(JOB_TYPES.verifyTweet, payload, ids);
     } catch (err) {
       log.error('task', JOB_TYPES.verifyTweet, err);
 
@@ -157,6 +156,7 @@ async function queueFilling() {
   });
 
   log.info(`${admins.length} admins will added to queue.`);
+
   const keys = admins.map((el) => el.bech32Address);
   const worker = new QueueWorker(keys);
 
@@ -171,11 +171,13 @@ async function queueFilling() {
       }
     });
   });
+
   const tasks = await getTasks();
 
   worker.distributeTasks(tasks);
 
   log.info(tasks.length, 'tasks added to queue');
+
   worker.redisSubscribe.on('message', async (channel, message) => {
     try {
       const body = JSON.parse(message);
