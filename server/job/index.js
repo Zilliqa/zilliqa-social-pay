@@ -41,6 +41,7 @@ class QueueWorker {
     this.jobQueues = keys.map((key) => new QueueEmitter(key));
     this.redisSubscribe = redis.createClient(REDIS_CONFIG.url);
     this.redisSubscribe.subscribe(REDIS_CONFIG.channels.TX_HANDLER);
+    this.padding = false;
 
     this.redisSubscribe.on('error', (err) => {
       log.error('redis:', err);
@@ -84,6 +85,8 @@ class QueueWorker {
       return null;
     }
 
+    this.padding = true;
+
     for (let taskIndex = 0; taskIndex < tasks.length; taskIndex++) {
       try {
         const task = tasks[taskIndex];
@@ -98,6 +101,8 @@ class QueueWorker {
     this.jobQueues.forEach((job) => {
       log.info('JOB', job.name, 'queue:', job.queueLength);
     });
+
+    this.padding = false;
   }
 
   addTask(taskJob) {

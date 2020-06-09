@@ -179,7 +179,7 @@ async function queueFilling() {
     jobQueue.on(jobQueue.events.trigger, async(task) => {
       await taskHandler(task, jobQueue);
 
-      if (worker.jobsLength === 0) {
+      if (worker.jobsLength === 0 && !worker.padding) {
         const tasks = await getTasks(keys.length * 2);
         worker.distributeTasks(tasks);
         log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
@@ -198,7 +198,7 @@ async function queueFilling() {
 
       switch (body.type) {
         case JOB_TYPES.verifyTweet:
-          if (worker.jobsLength === 0) {
+          if (worker.jobsLength === 0 && !worker.padding) {
             const tasks = await getTasks(keys.length * 2);
             worker.distributeTasks(tasks);
             log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
