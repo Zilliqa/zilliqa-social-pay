@@ -24,6 +24,140 @@ const {
 
 const notificationTypes = new Notification().types;
 
+/**
+ * @swagger
+ *
+ * definitions:
+ *   User:
+ *     type: object
+ *     required:
+ *       - id
+ *       - profileId
+ *       - profileImageUrl
+ *       - screenName
+ *       - status
+ *       - synchronization
+ *       - username
+ *       - zilAddress
+ *       - jwtToken
+ *     properties:
+ *       id:
+ *         type: integer
+ *         format: int64
+ *       profileId:
+ *         type: string
+ *       jwtToken:
+ *         type: string
+ *       profileImageUrl:
+ *         type: string
+ *       screenName:
+ *         type: string
+ *       status:
+ *         type: boolean
+ *       synchronization:
+ *         type: boolean
+ *         default: false
+ *       username:
+ *         type: string
+ *       zilAddress:
+ *         type: string
+ *         format: bech32
+ *   Tweet:
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: integer
+ *         format: int64
+ *       idStr:
+ *         type: string
+ *       UserId:
+ *         type: integer
+ *         format: int64
+ *       approved:
+ *         type: boolean
+ *         default: false
+ *       block:
+ *         type: string
+ *       claimed:
+ *         type: boolean
+ *         default: false
+ *       rejected:
+ *         type: boolean
+ *         default: false
+ *       createdAt:
+ *         type: string
+ *       txId:
+ *         type: string
+ *   Blockchain:
+ *     description: "Blockchain information."
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: int64
+ *       contract:
+ *         type: integer
+ *         format: bech32
+ *       hashtag:
+ *         type: string
+ *       zilsPerTweet:
+ *         type: string
+ *       blocksPerDay:
+ *         type: string
+ *       blocksPerWeek:
+ *         type: string
+ *       BlockNum:
+ *         type: string
+ *       DSBlockNum:
+ *         type: string
+ *       rate:
+ *         type: string
+ *         default: 60000
+ *       balance:
+ *         type: string
+ *       initBalance:
+ *         type: string
+ *       createdAt:
+ *         type: string
+ *       updatedAt:
+ *         type: string
+ *       campaignEnd:
+ *         type: string
+ *       now:
+ *         type: string
+ *   GeneralError:
+ *     description: "Bad request."
+ *     type: object
+ *     properties:
+ *       code:
+ *         type: integer
+ *         format: int8
+ *       message:
+ *         type: string
+ *   Admin:
+ *     description: "Admin account"
+ *     type: object
+ *     properties:
+ *       bech32Address:
+ *         type: string
+ *         format: bech32
+ *       address:
+ *         type: string
+ *         format: base16
+ *       balance:
+ *         type: string
+ *       status:
+ *         type: boolean
+ *       nonce:
+ *         type: integer
+ *         format: int64
+ *   JWT:
+ *     authorization:
+ *       description: The JWT token.
+ *       schema:
+ *         type: string
+ */
+
 const userSign = (req, res) => {
   if (!req.user) {
     return res.status(401).send('User Not Authenticated');
@@ -48,6 +182,30 @@ function capitalizeFirstLetter(string) {
   return string.charAt(1).toUpperCase() + string.slice(2);
 }
 
+/**
+ * @swagger
+ * /auth/twitter:
+ *   post:
+ *     description: Authentication through Twitter oauth.
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *       - name: oauth_token
+ *         required: true
+ *         type: string
+ *       - name: oauth_verifier
+ *         required: true
+ *         type: string
+ *     responses:
+ *       400:
+ *         description: Invalid query params.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       200:
+ *         description: blockchain info.
+ *         schema:
+ *           $ref: '#/definitions/User'
+ */
 router.post('/auth/twitter', async (req, res, next) => {
   const oauthToken = req.query.oauth_token;
   const oauthVerifier = req.query.oauth_verifier;
@@ -55,7 +213,9 @@ router.post('/auth/twitter', async (req, res, next) => {
   if (!oauthToken || !oauthVerifier) {
     return res
       .status(400)
-      .json({ message: 'Bad query params.' });
+      .json({
+        message: 'Bad query params.'
+      });
   }
 
   try {
@@ -74,6 +234,28 @@ router.post('/auth/twitter', async (req, res, next) => {
   }
 }, passport.authenticate('twitter-token'), userSign);
 
+/**
+ * @swagger
+ * /auth/twitter/reverse:
+ *   post:
+ *     description: Parse twitter oauth token for will get `oauth_token` and `oauth_verifier`.
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       400:
+ *         description: Invalid query params.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       200:
+ *         description: Twitter account tokens.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             oauth_token:
+ *               type: string
+ *             oauth_verifier:
+ *               type: string
+ */
 router.post('/auth/twitter/reverse', async (req, res) => {
   try {
     const body = await Twitter.requestToken();
@@ -86,10 +268,54 @@ router.post('/auth/twitter/reverse', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /auth/twitter/callback:
+ *   get:
+ *     description: Parse twitter oauth token for will get `oauth_token` and `oauth_verifier`.
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       200:
+ *         description: Twitter account tokens.
+ *         schema:
+ *           type: string
+ */
 router.get('/auth/twitter/callback', (req, res) => {
   return res.status(200).send('');
 });
 
+/**
+ * @swagger
+ * /update/tweets:
+ *   put:
+ *     description: Get and update user timeline tweets.
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       400:
+ *         description: Incorrect seesion params.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       401:
+ *         description: Unauthorized or bun.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       200:
+ *         description: User tweets.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             code:
+ *               type: integer
+ *               format: int8
+ *             message:
+ *               type: string
+ *             tweets:
+ *               type: array
+ *               items:
+ *                 $ref: '#/definitions/Tweet'
+ */
 router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
   const { blockchainInfo } = req;
@@ -129,6 +355,42 @@ router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, async (req
   }
 });
 
+/**
+ * @swagger
+ * /search/tweets/:
+ *   post:
+ *     description: Get and update user timeline tweets.
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *       - name: query
+ *         description: Tweet ID.
+ *         required: true
+ *         in: query
+ *         type: integer
+ *         format: int32
+ *     responses:
+ *       400:
+ *         description: Incorrect query params.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       404:
+ *         description: Not found tweet.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       401:
+ *         description: Unauthorized or bun.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       302:
+ *         description: Found tweet.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             id_str:
+ *               type: integer
+ *               format: int64
+ */
 router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { query } = req.params;
   const { user } = req.verification;
@@ -201,6 +463,47 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, as
   }
 });
 
+/**
+ * @swagger
+ * /add/tweet:
+ *   post:
+ *     description: Add tweet to database and claim it.
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *       - name: id_str
+ *         description: Tweet ID.
+ *         required: true
+ *         type: integer
+ *         format: int32
+ *     responses:
+ *       400:
+ *         description: Incorrect query params.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       404:
+ *         description: Not found tweet.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       401:
+ *         description: Unauthorized or bun.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       200:
+ *         description: Found tweet.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             code:
+ *               type: integer
+ *               format: int8
+ *             message:
+ *               type: string
+ *             tweet:
+ *               $ref: '#/definitions/Tweet'
+ *               claimed:
+ *                 default: true
+ */
 router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
   const { id_str } = req.body;
@@ -304,6 +607,34 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
   }
 });
 
+/**
+ * @swagger
+ * /claim/tweet:
+ *   put:
+ *     description: Claim tweet.
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *       - name: tweet
+ *         description: Tweet model.
+ *         required: true
+ *         type: object
+ *         schema:
+ *           $ref: '#/definitions/Tweet'
+ *     responses:
+ *       400:
+ *         description: Incorrect query params.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       401:
+ *         description: Unauthorized or bun.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       201:
+ *         description: Tweet.
+ *         schema:
+ *           $ref: '#/definitions/Tweet'
+ */
 router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
   const { redis } = req.app.settings;
@@ -414,6 +745,33 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, 
   }
 });
 
+/**
+ * @swagger
+ * /claim/tweet:
+ *   delete:
+ *     description: Delete the deleted tweet.
+ *     produces:
+ *      - application/json
+ *     parameters:
+ *       - name: id
+ *         description: Tweet id.
+ *         required: true
+ *         in: query
+ *         type: integer
+ *     responses:
+ *       400:
+ *         description: Incorrect query params.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       401:
+ *         description: Unauthorized or bun.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       200:
+ *         description: Tweet ID.
+ *         schema:
+ *           type: integer
+ */
 router.delete('/delete/tweete/:id', checkSession, verifyJwt, async (req, res) => {
   const { id } = req.params;
 
@@ -439,6 +797,27 @@ router.delete('/delete/tweete/:id', checkSession, verifyJwt, async (req, res) =>
   }
 });
 
+/**
+ * @swagger
+ * /get/account:
+ *   get:
+ *     description: Show account info by session.
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       400:
+ *         description: Incorrect request.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       401:
+ *         description: Unauthorized or bun.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       200:
+ *         description: User model.
+ *         schema:
+ *           $ref: '#/definitions/User'
+ */
 router.get('/get/account', checkSession, async (req, res) => {
   const userId = req.session.passport.user.id;
 
