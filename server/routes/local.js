@@ -397,7 +397,7 @@ router.get('/get/tweets', checkSession, async (req, res) => {
  *      - application/json
  *     responses:
  *       200:
- *         description: cleared.
+ *         description: blockchain info.
  *         schema:
  *           $ref: '#/definitions/Blockchain'
  */
@@ -475,7 +475,7 @@ router.delete('/delete/notifications', checkSession, verifyJwt, async (req, res)
  *      - application/json
  *     responses:
  *       200:
- *         description: cleared.
+ *         description: Admin accounts info.
  *         schema:
  *           $ref: '#/definitions/Admin'
  */
@@ -493,6 +493,32 @@ router.get('/get/accounts', async (req, res) => {
   return res.json(accounts);
 });
 
+/**
+ * @swagger
+ * /get/stats:
+ *   get:
+ *     description: Show some stats about users and tweets.
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       200:
+ *         description: SocialPay stats.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             pendingTweet:
+ *               type: integer
+ *               format: int64
+ *             registeredUsers:
+ *               type: integer
+ *               format: int64
+ *             approvedTweet:
+ *               type: integer
+ *               format: int64
+ *             tweets:
+ *               type: integer
+ *               format: int64
+ */
 router.get('/get/stats', async (req, res) => {
   const pendingTweet = await Twittes.count({
     where: {
