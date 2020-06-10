@@ -14,8 +14,6 @@ const ERROR_CODES = require('../../config/error-codes');
 const ENV = process.env.NODE_ENV || 'development';
 const END_OF_CAMPAIGN = process.env.END_OF_CAMPAIGN;
 const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 3;
-const REDIS_CONFIG = require('../config/redis')[ENV];
-const JOB_TYPES = require('../config/job-types');
 
 const dev = ENV !== 'production';
 const {
@@ -26,16 +24,181 @@ const {
 } = models.sequelize.models;
 
 const actions = new User().actions;
-const notificationTypes = new Notification().types;
 
 if (!END_OF_CAMPAIGN) {
   throw new Error('ENV: END_OF_CAMPAIGN is required!!!');
 }
 
+/**
+ * @swagger
+ *
+ * definitions:
+ *   User:
+ *     type: object
+ *     required:
+ *       - id
+ *       - profileId
+ *       - profileImageUrl
+ *       - screenName
+ *       - status
+ *       - synchronization
+ *       - username
+ *       - zilAddress
+ *     properties:
+ *       id:
+ *         type: integer
+ *         format: int64
+ *       profileId:
+ *         type: string
+ *       profileImageUrl:
+ *         type: string
+ *       screenName:
+ *         type: string
+ *       status:
+ *         type: boolean
+ *       synchronization:
+ *         type: boolean
+ *         default: false
+ *       username:
+ *         type: string
+ *       zilAddress:
+ *         type: string
+ *         format: bech32
+ *   Tweet:
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: integer
+ *         format: int64
+ *       idStr:
+ *         type: string
+ *       UserId:
+ *         type: integer
+ *         format: int64
+ *       approved:
+ *         type: boolean
+ *         default: false
+ *       block:
+ *         type: string
+ *       claimed:
+ *         type: boolean
+ *         default: false
+ *       rejected:
+ *         type: boolean
+ *         default: false
+ *       createdAt:
+ *         type: string
+ *       txId:
+ *         type: string
+ *   Blockchain:
+ *     description: "Blockchain information."
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: int64
+ *       contract:
+ *         type: integer
+ *         format: bech32
+ *       hashtag:
+ *         type: string
+ *       zilsPerTweet:
+ *         type: string
+ *       blocksPerDay:
+ *         type: string
+ *       blocksPerWeek:
+ *         type: string
+ *       BlockNum:
+ *         type: string
+ *       DSBlockNum:
+ *         type: string
+ *       rate:
+ *         type: string
+ *         default: 60000
+ *       balance:
+ *         type: string
+ *       initBalance:
+ *         type: string
+ *       createdAt:
+ *         type: string
+ *       updatedAt:
+ *         type: string
+ *       campaignEnd:
+ *         type: string
+ *       now:
+ *         type: string
+ *   GeneralError:
+ *     description: "Bad request."
+ *     type: object
+ *     properties:
+ *       code:
+ *         type: integer
+ *         format: int8
+ *       message:
+ *         type: string
+ *   Admin:
+ *     description: "Admin account"
+ *     type: object
+ *     properties:
+ *       bech32Address:
+ *         type: string
+ *         format: bech32
+ *       address:
+ *         type: string
+ *         format: base16
+ *       balance:
+ *         type: string
+ *       status:
+ *         type: boolean
+ *       nonce:
+ *         type: integer
+ *         format: int64
+ *   JWT:
+ *     authorization:
+ *       description: The JWT token.
+ *       schema:
+ *         type: string
+ */
+
+/**
+ * @swagger
+ *
+ * /update/address/:
+ *   put:
+ *     description: Create or update ZIL address(zil1).
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: address
+ *         description: User Zilliqa bech32 address.
+ *         required: true
+ *         type: string
+ *         format: bech32
+ *     headers:
+ *       $ref: '#/definitions/JWT'
+ *     responses:
+ *       200:
+ *         description: Address has changed.
+ *         type: object
+ *         schema:
+ *           type: object
+ *           properties:
+ *             user:
+ *               $ref: '#/definitions/User'
+ *             message:
+ *               type: string
+ *       400:
+ *         description: Invalid address format. or address is already registered.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       401:
+ *         description: Unauthorized or bun.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ */
 router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const bech32Address = req.params.address;
   const { user } = req.verification;
-  const { redis } = req.app.settings;
 
   try {
     if (!fromBech32Address(bech32Address)) {
@@ -95,6 +258,26 @@ router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, 
   }
 });
 
+/**
+ * @swagger
+ * /sing/out:
+ *   put:
+ *     description: Sign out, clear all sessions.
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       200:
+ *         description: cleared.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             message:
+ *               type: string
+ *       401:
+ *         description: Unauthorized or bun.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ */
 router.put('/sing/out', checkSession, (req, res) => {
   res.clearCookie(process.env.SESSION);
   res.clearCookie(`${process.env.SESSION}.sig`);
@@ -105,6 +288,54 @@ router.put('/sing/out', checkSession, (req, res) => {
   });
 });
 
+/**
+ * @swagger
+ * /get/tweets:
+ *   get:
+ *     description: Get tweets by user seesion.
+ *     parameters:
+ *       - name: limit
+ *         description: Max records to return.
+ *         required: false
+ *         in: query
+ *         type: integer
+ *         format: int32
+ *       - name: offset
+ *         description: Number of items to skip.
+ *         required: false
+ *         in: query
+ *         type: integer
+ *         format: int32
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       400:
+ *         description: Incorrect seesion params.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       401:
+ *         description: Unauthorized or bun.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       200:
+ *         description: User tweets.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             count:
+ *               type: integer
+ *               format: int64
+ *             verifiedCount:
+ *               type: integer
+ *               format: int64
+ *             lastBlockNumber:
+ *               type: integer
+ *               format: int64
+ *             tweets:
+ *               type: array
+ *               items:
+ *                 $ref: '#/definitions/Tweet'
+ */
 router.get('/get/tweets', checkSession, async (req, res) => {
   const UserId = req.session.passport.user.id;
   const limit = req.query.limit || 3;
@@ -157,6 +388,19 @@ router.get('/get/tweets', checkSession, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /get/blockchain:
+ *   get:
+ *     description: Get the current blockchain info and contract init info.
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       200:
+ *         description: cleared.
+ *         schema:
+ *           $ref: '#/definitions/Blockchain'
+ */
 router.get('/get/blockchain', async (req, res) => {
   return res.status(200).json(req.blockchainInfo);
 });
@@ -222,6 +466,19 @@ router.delete('/delete/notifications', checkSession, verifyJwt, async (req, res)
   }
 });
 
+/**
+ * @swagger
+ * /get/accounts:
+ *   get:
+ *     description: Show some information about admin accounts.
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       200:
+ *         description: cleared.
+ *         schema:
+ *           $ref: '#/definitions/Admin'
+ */
 router.get('/get/accounts', async (req, res) => {
   const accounts = await Admin.findAll({
     attributes: [

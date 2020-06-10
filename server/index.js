@@ -12,6 +12,8 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const server = express();
 const redis = require('redis');
+const swaggerUi = require('swagger-ui-express');
+const swagger = require('./swagger');
 const socketRoute = require('./routes/socket');
 const socketMiddleware = require('./middleware/socket-auth');
 const PACKAGE = require('../package.json');
@@ -58,6 +60,10 @@ server.set('redis', redisClientSender);
 server.set('log', log);
 
 server.use('/', blockchainCache, indexRouter);
+server.use('/swagger.json', (req, res) => {
+  res.json(swagger);
+});
+server.use('/api-doc', swaggerUi.serve, swaggerUi.setup(swagger));
 
 redisClientSubscriber.on('error', (err) => {
   log.error('redis:', err);
