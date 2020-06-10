@@ -60,10 +60,13 @@ server.set('redis', redisClientSender);
 server.set('log', log);
 
 server.use('/', blockchainCache, indexRouter);
-server.use('/swagger.json', (req, res) => {
-  res.json(swagger);
-});
-server.use('/api-doc', swaggerUi.serve, swaggerUi.setup(swagger));
+
+if (dev) {
+  server.use('/swagger.json', (req, res) => {
+    res.json(swagger);
+  });
+  server.use('/api-doc', swaggerUi.serve, swaggerUi.setup(swagger));
+}
 
 redisClientSubscriber.on('error', (err) => {
   log.error('redis:', err);

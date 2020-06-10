@@ -35,6 +35,8 @@ Also need to deposit few ZILs, call `Deposit` transition and send few ZIls.
  * `NODE_ENV` # development, test, production
 
 ## Run:
+for start service need redis server.
+
 Create database for only test or `test`, `production` mode.
 ```bash
 $ npm run db:create
@@ -50,11 +52,35 @@ $ npx sequelize db:migrate
 ```
 More info on [sequelize/cli](https://github.com/sequelize/cli).
 
-Runing for production mode.
+Or can just run ./run.sh
 ```bash
-$ npm run build
-$ npm run start
+$./run.sh
 ```
+for start service need start 3 instances.
+
+ * `scheduler` Create socket connection with Zilliqa node.
+ * `next-server` (REST API, user socket connection) 
+ * `tx:handler` Queue for checking and sending tranasctions.
+
+Run `scheduler`:
+```bash
+$ npm run scheduler
+```
+
+Run `tx:handler`:
+```bash
+$ npm run tx:handler
+```
+
+Run `next-server`:
+```bash
+$ npm run build # for test and production ENV, should be has built.
+$ npm start
+```
+
+### API:
+
+Swagger can use by `/api-doc/`, this router available only `development` mode.
 
 when server has runing server create admin account by `NUMBER_OF_ADMINS` env.
 ```bash
