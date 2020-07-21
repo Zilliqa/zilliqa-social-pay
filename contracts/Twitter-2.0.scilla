@@ -150,7 +150,6 @@ procedure VerifyTweet(verify_info: VerifyInfo)
         | False =>
           err = CodeTweetNotValid;
           EmitError err
-<<<<<<< HEAD
         | True =>
           withdrawal <- last_withdrawal[twitter_id];
           current_block <- & BLOCKNUMBER;
@@ -186,8 +185,6 @@ procedure VerifyTweet(verify_info: VerifyInfo)
             msgs = one_msg msg;
             send msgs
           end
-=======
->>>>>>> origin/3.0
         end
       | True =>
         err = CodeTweetWithinDay;
@@ -220,7 +217,6 @@ end
 transition ReturnFund ()
   IsOwner;
   bal <- _balance;
-<<<<<<< HEAD
   is_owner = builtin eq owner _sender;
   match is_owner with
   | True =>
@@ -241,11 +237,3 @@ transition ReturnFund ()
     EmitError err
   end
 end
-=======
-  e = {_eventname : "ReturnFundSuccessful"; returned_amount: bal};
-  event e;
-  msg = {_tag       : ""; _recipient : owner; _amount    : bal};
-  msgs = one_msg msg;
-  send msgs
-end
->>>>>>> origin/3.0
