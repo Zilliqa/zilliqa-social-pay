@@ -84,13 +84,13 @@ module.exports = {
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
     const result = await contract.getSubState(
-      'last_withdrawal',
+      'last_claims',
       profileIds
     );
     const [profileId] = profileIds;
 
-    if (result && result.last_withdrawal && result.last_withdrawal[profileId]) {
-      return Number(result.last_withdrawal[profileId]);
+    if (result && result.last_claims && result.last_claims[profileId]) {
+      return Number(result.last_claims[profileId]);
     }
 
     return null;
@@ -191,88 +191,31 @@ module.exports = {
 
     return result;
   },
-  async configureUsers(profileId, address, adminAccount) {
-    if (validation.isBech32(address)) {
-      address = fromBech32Address(address);
-    }
-    const { contract, nonce, zilliqa, account } = await this.getAccount(adminAccount);
-    const version = await this.version();
-    const data = JSON.stringify({
-      _tag: 'ConfigureUsers',
-      params: [
-        {
-          vname: 'twitter_id',
-          type: 'String',
-          value: `${profileId}`
-        },
-        {
-          vname: 'recipient_address',
-          type: 'ByStr20',
-          value: `${address}`
-        }
-      ]
-    });
-
-    const zilTxData = zilliqa.transactions.new({
-      data,
-      nonce,
-      version,
-      toAddr: contract.address,
-      pubKey: zilliqa.wallet.defaultAccount.publicKey,
-      amount: new BN(0),
-      gasPrice: new BN('1000000000'),
-      gasLimit: Long.fromNumber(9000)
-    });
-    const { txParams } = await zilliqa.wallet.sign(zilTxData);
-    const tx = await zilliqa.provider.send(
-      RPCMethod.CreateTransaction,
-      txParams
-    );
-
-    if (tx.error && tx.error.message.includes(`Nonce (${nonce}) lower than current`)) {
-      const accResult = await this.getCurrentAccount(account.address);
-
-      account.update({
-        nonce: accResult.nonce,
-        balance: accResult.balance
-      });
-    }
-
-    if (tx.error && tx.error.message) {
-      throw new Error(tx.error.message);
-    }
-
-    await account.update({
-      nonce
-    });
-
-    return tx.result;
-  },
-  async verifyTweet({ profileId, tweetId, tweetText, startPos }, adminAccount) {
+  async verifyTweet(params, adminAccount) {
     const { contract, nonce, account, zilliqa } = await this.getAccount(adminAccount);
     const version = await this.version();
+    const calcGasLimit = params.length < 6 ? 9000 : 1500 * params.length;
     const data = JSON.stringify({
-      _tag: 'VerifyTweet',
+      _tag: 'VerifyTweets',
       params: [
         {
-          vname: 'twitter_id',
-          type: 'String',
-          value: `${profileId}`
-        },
-        {
-          vname: 'tweet_id',
-          type: 'String',
-          value: `${tweetId}`
-        },
-        {
-          vname: 'tweet_text',
-          type: 'String',
-          value: `${tweetText}`
-        },
-        {
-          vname: 'start_pos',
-          type: 'Uint32',
-          value: `${startPos}`
+          vname: 'verify_infos',
+          type: 'List (VerifyInfo)',
+          value: params.map((arg) => ({
+            constructor: 'VerifyInfo',
+            argtypes: [
+              'String',
+              'ByStr20',
+              'String',
+              'List String'
+            ],
+            arguments: [
+              arg.userId,
+              fromBech32Address(arg.zilAddress),
+              arg.tweetId,
+              arg.tags
+            ]
+          }))
         }
       ]
     });
@@ -284,7 +227,7 @@ module.exports = {
       pubKey: zilliqa.wallet.defaultAccount.publicKey,
       amount: new BN(0),
       gasPrice: new BN('1000000000'),
-      gasLimit: Long.fromNumber(9500)
+      gasLimit: Long.fromNumber(calcGasLimit)
     });
     const { txParams } = await zilliqa.wallet.sign(zilTxData);
     const tx = await zilliqa.provider.send(

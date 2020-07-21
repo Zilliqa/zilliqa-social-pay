@@ -31,7 +31,7 @@ module.exports = async (io, message) => {
           ]
         }
       });
-      if (!foundTweet) break;
+      if (!foundTweet || !foundTweet.User || !foundTweet.User.profileId) break;
       io
         .to(foundTweet.User.profileId)
         .emit(EVENTS.tweetsUpdate, JSON.stringify(foundTweet));

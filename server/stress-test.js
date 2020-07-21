@@ -1,4 +1,5 @@
 const uuids = require('uuid');
+const { promisify } = require('util');
 const { Op } = require('sequelize');
 const redis = require('redis');
 const models = require('./models');
@@ -10,9 +11,10 @@ const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('./config/redis')[ENV];
 const JOB_TYPES = require('./config/job-types');
 const redisClientSender = redis.createClient(REDIS_CONFIG.url);
+const getAsync = promisify(redisClientSender.get).bind(redisClientSender);
 
 const USERS_CREATER = 500;
-const TWEET_CREATER = 500;
+const TWEET_CREATER = 1000;
 
 module.exports = function test() {
   setInterval(async () => {
@@ -25,7 +27,7 @@ module.exports = function test() {
         profileId: uuids.v4(),
         screenName: `test${uuids.v4()}`,
         profileImageUrl: uuids.v4(),
-        synchronization: true,
+        synchronization: false,
         zilAddress: bech32Address
       });
 
@@ -39,31 +41,27 @@ module.exports = function test() {
   }, USERS_CREATER);
 
   setInterval(async () => {
+    const blockchainInfo = JSON.parse(await getAsync(blockchain.tableName));
+    const blocksForClaim = Number(blockchainInfo.BlockNum) - (Number(blockchainInfo.blocksPerDay));
+
     try {
       const users = await User.findAll({
         where: {
           synchronization: false,
           zilAddress: {
             [Op.not]: null
+          },
+          lastAction: {
+            [Op.lte]: blocksForClaim
           }
         },
         attributes: [
           'id'
         ],
-        limit: 100
+        limit: 1000
       });
 
       users.forEach(async (user) => {
-        const tweetCount = await Twittes.count({
-          where: {
-            UserId: user.id
-          }
-        });
-
-        if (tweetCount > 0) {
-          return null;
-        }
-
         const tweet = await Twittes.create({
           idStr: uuids.v4(),
           text: `#Zilliqa ${uuids.v4()}`,
@@ -76,6 +74,7 @@ module.exports = function test() {
           tweetId: tweet.id,
           userId: user.id
         });
+
         redisClientSender.publish(REDIS_CONFIG.channels.TX_HANDLER, payload);
       });
     } catch (err) {

@@ -28,7 +28,7 @@ module.exports = async function (redisClient) {
         balance,
         rate: 60000,
         contract: CONTRACT_ADDRESS,
-        BlockNum: blockchainInfo.NumTxBlocks,
+        BlockNum: blockchainInfo.CurrentMiniEpoch,
         DSBlockNum: blockchainInfo.CurrentDSEpoch,
         initBalance: balance
       });
@@ -48,7 +48,7 @@ module.exports = async function (redisClient) {
       ...contractInfo,
       balance,
       initBalance,
-      BlockNum: blockchainInfo.NumTxBlocks,
+      BlockNum: blockchainInfo.CurrentMiniEpoch,
       DSBlockNum: blockchainInfo.CurrentDSEpoch
     });
 

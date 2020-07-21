@@ -2,8 +2,6 @@ scilla_version 0
 
 import BoolUtils IntUtils
 
-(* Twitter contract *)
-
 (***************************************************)
 (*               Associated library                *)
 (***************************************************)
@@ -14,29 +12,14 @@ let one_msg =
     let nil_msg = Nil {Message} in
       Cons {Message} msg nil_msg
 
-let valid_substring =
-  fun (tweet_text : String) =>
-  fun (start_pos : Uint32) =>
-  fun (hashtag_len : Uint32) =>
-    let string_length = builtin strlen tweet_text in
-      let valid_start_pos = builtin lt start_pos string_length in
-        let end_pos = builtin add start_pos hashtag_len in
-          let valid_end_pos = uint32_le end_pos string_length in
-            andb valid_start_pos valid_end_pos
-
-(* Custom ADT storing user twitter_id and address *)
-type RegisterInfo =
-| RegisterInfo of String ByStr20 
-
-(* Custom ADT storing twitter_id, tweet_id, tweet_text, start_pos *)
+(* Custom ADT storing twitter_id, recipient_address, tweet_id, hashtags *)
 type VerifyInfo =
-| VerifyInfo of String String String Uint32
+| VerifyInfo of String ByStr20 String (List String)
 
 (* Error events *)
 type Error =
-  | CodeNotAuthorized
-  | CodeRegisteredWithinWeek
-  | CodeUserNotRegistered
+  | CodeNotOwner
+  | CodeNotAdmin
   | CodeTweetAlreadyExists
   | CodeTweetNotValid
   | CodeTweetWithinDay
@@ -45,17 +28,17 @@ let make_error_event =
   fun (result : Error) =>
     let result_code = 
       match result with
-      | CodeNotAuthorized        => Int32 -1
-      | CodeRegisteredWithinWeek => Int32 -2
-      | CodeUserNotRegistered    => Int32 -3
-      | CodeTweetAlreadyExists   => Int32 -4
-      | CodeTweetNotValid        => Int32 -5
-      | CodeTweetWithinDay       => Int32 -6
+      | CodeNotOwner           => Int32 -1
+      | CodeNotAdmin           => Int32 -2
+      | CodeTweetAlreadyExists => Int32 -3
+      | CodeTweetNotValid      => Int32 -4
+      | CodeTweetWithinDay     => Int32 -5
       end
     in
     { _eventname : "Error"; code : result_code }
 
 let tt = True
+let ff = False
 
 (***************************************************)
 (*             The contract definition             *)
@@ -66,27 +49,31 @@ contract SocialPay
   owner: ByStr20,
   hashtag: String,
   zils_per_tweet : Uint128,
-  blocks_per_day : Uint32,
-  blocks_per_week : Uint32
+  blocks_per_day : Uint32
 )
 
-field verified_tweets: Map String ByStr20 = Emp String ByStr20
-field last_withdrawal: Map String BNum = Emp String BNum
-field admins: Map ByStr20 Bool = Emp ByStr20 Bool
-field registered_users: Map String ByStr20 = Emp String ByStr20
+(* Map of tweet_id to twitter_id *)
+field verified_tweets: Map String String = Emp String String
 
-(* Emit Errors *)
+(* Map of twitter_id to last claim block number *)
+field last_claims: Map String BNum = Emp String BNum
+
+(* Map of address to bool status of admin *)
+field admins: Map ByStr20 Bool = Emp ByStr20 Bool
+
+field verdad: Bool = False
+
 procedure EmitError(err: Error)
   e = make_error_event err;
   event e
 end
 
-procedure IsOwner(address: ByStr20)
-  is_owner = builtin eq address owner;
+procedure IsOwner()
+  is_owner = builtin eq owner _sender;
   match is_owner with
   | True =>
   | False =>
-    err = CodeNotAuthorized;
+    err = CodeNotOwner;
     EmitError err
   end
 end
@@ -96,7 +83,7 @@ procedure IsAdmin()
   match is_admin with
   | True =>
   | False =>
-    err = CodeNotAuthorized;
+    err = CodeNotAdmin;
     EmitError err
   end
 end
@@ -115,63 +102,55 @@ procedure ConfigureAdmin(admin_address: ByStr20)
   end
 end
 
-procedure ConfigureUser(register_info: RegisterInfo)
-  match register_info with
-  | RegisterInfo twitter_id recipient_address =>
-    is_registered <- exists registered_users[twitter_id];
-    match is_registered with
-    | True =>
-      current_block <- & BLOCKNUMBER;
-      withdrawal <- last_withdrawal[twitter_id];
-      not_next_week_yet =
-        match withdrawal with
-        | Some last_withdraw_block =>
-          let next_week_block = builtin badd last_withdraw_block blocks_per_week in
-            builtin blt current_block next_week_block
-        | None => False
-        end;
-      match not_next_week_yet with
-      | False =>
-        registered_users[twitter_id] := recipient_address;
-        e = {_eventname : "ConfiguredUserAddress"; twitter_id: twitter_id; recipient_address: recipient_address};
-        event e
-      | True =>
-        err = CodeRegisteredWithinWeek;
-        EmitError err
-      end
-    | False =>
-      registered_users[twitter_id] := recipient_address;
-      e = {_eventname : "ConfiguredUserAddress"; twitter_id: twitter_id; recipient_address: recipient_address};
-      event e
-    end
+procedure ValidateTweet(input_hashtag: String)
+  is_hashtag = builtin eq input_hashtag hashtag;
+  match is_hashtag with
+  | True =>
+    verdad := tt
+  | False =>
   end
 end
 
 procedure VerifyTweet(verify_info: VerifyInfo)
   match verify_info with
-  | VerifyInfo twitter_id tweet_id tweet_text start_pos =>
-    (*twitter_id: String, tweet_id: String, tweet_text: String, start_pos: Uint32*)
-    get_recipient_address <- registered_users[twitter_id];
-    match get_recipient_address with
-    | None =>
-      err = CodeUserNotRegistered;
-      EmitError err
-    | Some recipient_address =>
-      already_verified <- exists verified_tweets[tweet_id];
-      match already_verified with
-      | True =>
-        err = CodeTweetAlreadyExists;
-        EmitError err
+  | VerifyInfo twitter_id recipient_address tweet_id hashtags =>
+    already_verified <- exists verified_tweets[tweet_id];
+    match already_verified with
+    | False =>
+      last_claim <- last_claims[twitter_id];
+      current_block <- & BLOCKNUMBER;
+      not_next_day_yet =
+        match last_claim with
+        | Some last_claim_block =>
+          let next_day_block = builtin badd last_claim_block blocks_per_day in
+            builtin blt current_block next_day_block
+        | None => False
+        end;
+      match not_next_day_yet with
       | False =>
-        hashtag_len = builtin strlen hashtag;
-        is_valid_substring = valid_substring tweet_text start_pos hashtag_len;
-        extract_hashtag = builtin substr tweet_text start_pos hashtag_len;
-        is_hashtag = builtin eq extract_hashtag hashtag;
-        is_claimable = andb is_valid_substring is_hashtag;
-        match is_claimable with
+        (* Reset verdad *)
+        verdad := ff;
+        forall hashtags ValidateTweet;
+        output_verdad <- verdad;
+        match output_verdad with
+        | True =>
+          verified_tweets[tweet_id] := twitter_id;
+          last_claims[twitter_id] := current_block;
+          e = {
+            _eventname : "VerifyTweetSuccessful";
+            twitter_id: twitter_id;
+            recipient: recipient_address;
+            tweet_id: tweet_id;
+            reward: zils_per_tweet
+          };
+          event e;
+          msg = {_tag: ""; _recipient: recipient_address; _amount: zils_per_tweet};
+          msgs = one_msg msg;
+          send msgs
         | False =>
           err = CodeTweetNotValid;
           EmitError err
+<<<<<<< HEAD
         | True =>
           withdrawal <- last_withdrawal[twitter_id];
           current_block <- & BLOCKNUMBER;
@@ -207,45 +186,41 @@ procedure VerifyTweet(verify_info: VerifyInfo)
             msgs = one_msg msg;
             send msgs
           end
+=======
+>>>>>>> origin/3.0
         end
+      | True =>
+        err = CodeTweetWithinDay;
+        EmitError err
       end
+    | True =>
+      err = CodeTweetAlreadyExists;
+      EmitError err
     end
   end
 end
 
-(* Only owner can deposit ZIL *)
 transition Deposit()
-  IsOwner _sender;
+  IsOwner;
   accept;
   e = {_eventname : "DepositSuccessful"; sender: _sender; deposit_amount: _amount};
   event e
 end
 
 transition ConfigureAdmins(admin_addresses: List ByStr20)
-  IsOwner _sender;
+  IsOwner;
   forall admin_addresses ConfigureAdmin
 end
 
-transition ConfigureUsers(register_infos: List RegisterInfo)
-  IsAdmin;
-  forall register_infos ConfigureUser
-end
-
-(* Only admins can call this transition                                         *)
-(* The following conditions are checked for (in that order):                    *)
-(*   1. Owner initiates the transition.                                         *)
-(*   2. The tweeter is already registered in the app his/her wallet             *)
-(*   3. The tweet hasn't been awarded before.                                   *)
-(*   4. Substring specs (start_pos) is valid.                                   *)
-(*   5. The substring matches the preset hashtag.                               *)
-(*   6. Sufficient time (blocks) have passed since the user was awarded before. *)
 transition VerifyTweets(verify_infos: List VerifyInfo)
   IsAdmin;
   forall verify_infos VerifyTweet
 end
 
 transition ReturnFund ()
+  IsOwner;
   bal <- _balance;
+<<<<<<< HEAD
   is_owner = builtin eq owner _sender;
   match is_owner with
   | True =>
@@ -266,3 +241,11 @@ transition ReturnFund ()
     EmitError err
   end
 end
+=======
+  e = {_eventname : "ReturnFundSuccessful"; returned_amount: bal};
+  event e;
+  msg = {_tag       : ""; _recipient : owner; _amount    : bal};
+  msgs = one_msg msg;
+  send msgs
+end
+>>>>>>> origin/3.0

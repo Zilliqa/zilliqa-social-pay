@@ -30,39 +30,16 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
     .catch((err) => log.error('BLOCKCHAIN UPDATER:', err));
 });
 
-schedule.scheduleJob('0/10 * * * *', (fireDate) => {
-  log.info(`run admin accounts update job ${fireDate}`);
-  require('./admin')(redisClient)
-    .catch((err) => log.error('ADMINS UPDATER:', err));
-});
-
-// schedule.scheduleJob('* * * * *', (fireDate) => {
-//   log.info(`run user address configure ${fireDate}`);
-//   require('./user-configure')();
+// schedule.scheduleJob('0/10 * * * *', (fireDate) => {
+//   log.info(`run admin accounts update job ${fireDate}`);
+//   require('./admin')(redisClient)
+//     .catch((err) => log.error('ADMINS UPDATER:', err));
 // });
-
-// schedule.scheduleJob('* * * * *', (fireDate) => {
-//   log.info(`run VerifyTweet job ${fireDate}`);
-//   require('./tweets')();
-// });
-
-schedule.scheduleJob('* * * * *', async (fireDate) => {
-  log.info(`run check broken tweets ${fireDate}`);
-  try {
-    await require('./pedding-tweets')(redisClient);
-  } catch (err) {
-    log.error('HANDLER BROKEN TWEETS:', err);
-  }
-});
-
-schedule.scheduleJob('* * * * *', async (fireDate) => {
-  log.info(`run check broken users ${fireDate}`);
-  try {
-    await require('./pedding-users')(redisClient);
-  } catch (err) {
-    log.error('HANDLER BROKEN USERS:', err);
-  }
-});
+schedule.scheduleJob('* * * * *', (fireDate) => {
+  log.info(`run job for pedding tweets ${fireDate}`);
+  require('./pedding-tweets')(redisClient)
+    .catch((err) => log.error('pedding-tweets ERROR:', err));
+})
 
 // if (ENV === 'test') {
 //   log.warn('STRESS_TEST has runed!!!');
