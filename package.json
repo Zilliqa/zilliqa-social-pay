@@ -57,6 +57,7 @@
     "react-dom": "^16.13.1",
     "react-modal": "^3.11.2",
     "react-paginate": "^6.3.2",
+    "react-recaptcha": "^2.3.10",
     "react-responsive": "^8.1.0",
     "react-spinners": "^0.9.0",
     "react-twitter-auth": "0.0.13",

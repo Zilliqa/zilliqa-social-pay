@@ -25,7 +25,8 @@ export function authGuard({ res, req }: any) {
       firstStart,
       user,
       isServer,
-      blockchainInfo: req.blockchainInfo
+      blockchainInfo: req.blockchainInfo,
+      recaptcha: req.recaptcha
     };
   } else if (req.url === '/end' && diff > 0) {
     res.status(STATUS).redirect('/redcross');
@@ -44,7 +45,8 @@ export function authGuard({ res, req }: any) {
       firstStart,
       user,
       isServer,
-      blockchainInfo: req.blockchainInfo
+      blockchainInfo: req.blockchainInfo,
+      recaptcha: req.recaptcha
     };
   }
 
@@ -54,6 +56,7 @@ export function authGuard({ res, req }: any) {
     firstStart,
     user,
     isServer,
-    blockchainInfo: req.blockchainInfo
+    blockchainInfo: req.blockchainInfo,
+    recaptcha: req.recaptcha
   };
 }
