@@ -1,6 +1,6 @@
 scilla_version 0
 
-import BoolUtils IntUtils
+import BoolUtils ListUtils
 
 (***************************************************)
 (*               Associated library                *)
@@ -11,6 +11,11 @@ let one_msg =
   fun (msg : Message) =>
     let nil_msg = Nil {Message} in
       Cons {Message} msg nil_msg
+      
+let f_eq_string =
+  fun (a : String) =>
+  fun (b : String) =>
+    builtin eq a b
 
 (* Custom ADT storing twitter_id, recipient_address, tweet_id, hashtags *)
 type VerifyInfo =
@@ -47,7 +52,9 @@ let ff = False
 contract SocialPay
 (
   owner: ByStr20,
-  hashtag: String,
+  hashtag_1: String,
+  hashtag_2: String,
+  hashtag_3: String,
   zils_per_tweet : Uint128,
   blocks_per_day : Uint32
 )
@@ -102,15 +109,6 @@ procedure ConfigureAdmin(admin_address: ByStr20)
   end
 end
 
-procedure ValidateTweet(input_hashtag: String)
-  is_hashtag = builtin eq input_hashtag hashtag;
-  match is_hashtag with
-  | True =>
-    verdad := tt
-  | False =>
-  end
-end
-
 procedure VerifyTweet(verify_info: VerifyInfo)
   match verify_info with
   | VerifyInfo twitter_id recipient_address tweet_id hashtags =>
@@ -128,11 +126,14 @@ procedure VerifyTweet(verify_info: VerifyInfo)
         end;
       match not_next_day_yet with
       | False =>
-        (* Reset verdad *)
-        verdad := ff;
-        forall hashtags ValidateTweet;
-        output_verdad <- verdad;
-        match output_verdad with
+        list_mem_string = @list_mem String;
+        match_1 = list_mem_string f_eq_string hashtag_1 hashtags;
+        match_2 = list_mem_string f_eq_string hashtag_2 hashtags;
+        match_3 = list_mem_string f_eq_string hashtag_3 hashtags;
+        match_all = 
+          let temp_match = andb match_1 match_2 in
+          andb temp_match match_3;
+        match match_all with
         | True =>
           verified_tweets[tweet_id] := twitter_id;
           last_claims[twitter_id] := current_block;
