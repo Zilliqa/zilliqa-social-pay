@@ -1,6 +1,6 @@
 scilla_version 0
 
-import BoolUtils IntUtils
+import BoolUtils IntUtils ListUtils
 
 (***************************************************)
 (*               Associated library                *)
@@ -37,6 +37,11 @@ let make_error_event =
     in
     { _eventname : "Error"; code : result_code }
 
+let check =
+  fun (a : String) =>
+  fun (b : String) =>
+    builtin eq a b
+
 let tt = True
 let ff = False
 
@@ -47,7 +52,7 @@ let ff = False
 contract SocialPay
 (
   owner: ByStr20,
-  hashtag: String,
+  hashtag_list: List String,
   zils_per_tweet : Uint128,
   blocks_per_day : Uint32
 )
@@ -103,7 +108,8 @@ procedure ConfigureAdmin(admin_address: ByStr20)
 end
 
 procedure ValidateTweet(input_hashtag: String)
-  is_hashtag = builtin eq input_hashtag hashtag;
+  list_mem_hash_tags = @list_mem String;
+  is_hashtag = list_mem_hash_tags check input_hashtag hashtag_list;
   match is_hashtag with
   | True =>
     verdad := tt
