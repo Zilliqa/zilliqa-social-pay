@@ -22,7 +22,7 @@ const RedCrossContainer = styled.main`
   align-items: center;
   justify-content: center;
 
-  background: linear-gradient(90deg, #7882F3 44.66%, #767FF3 65.62%, #6F77F2 78.6%, #6468F0 89.57%, #5554EE 98.56%, #5352EE 99.55%);
+  background: #6EEEEF;
   width: 100%;
   height: 100%;
   min-height: 100vh;
