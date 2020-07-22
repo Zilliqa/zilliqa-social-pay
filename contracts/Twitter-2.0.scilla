@@ -150,41 +150,6 @@ procedure VerifyTweet(verify_info: VerifyInfo)
         | False =>
           err = CodeTweetNotValid;
           EmitError err
-        | True =>
-          withdrawal <- last_withdrawal[twitter_id];
-          current_block <- & BLOCKNUMBER;
-          not_next_day_yet =
-            match withdrawal with
-            | Some last_withdraw_block =>
-              let next_day_block = builtin badd last_withdraw_block blocks_per_day in
-              builtin blt current_block next_day_block
-            | None =>
-              False
-            end;
-          match not_next_day_yet with
-          | True =>
-            err = CodeTweetWithinDay;
-            EmitError err
-          | False =>
-            verified_tweets[tweet_id] := recipient_address;
-            last_withdrawal[twitter_id] := current_block;
-            e = {
-              _eventname : "VerifyTweetSuccessful";
-              sender: _sender;
-              recipient: recipient_address;
-              twitter_id: twitter_id;
-              tweet_id: tweet_id;
-              reward_amount: zils_per_tweet
-            };
-            event e;
-            msg = { 
-              _tag: "";
-              _recipient: recipient_address;
-              _amount: zils_per_tweet 
-            };
-            msgs = one_msg msg;
-            send msgs
-          end
         end
       | True =>
         err = CodeTweetWithinDay;
@@ -217,23 +182,9 @@ end
 transition ReturnFund ()
   IsOwner;
   bal <- _balance;
-  is_owner = builtin eq owner _sender;
-  match is_owner with
-  | True =>
-    e = {
-      _eventname : "ReturnFundSuccessful";
-      returned_amount: bal
-    };
-    event e;
-    msg = {
-      _tag       : "";
-      _recipient : owner;
-      _amount    : bal
-    };
-    msgs = one_msg msg;
-    send msgs
-  | False =>
-    err = CodeNotAuthorized;
-    EmitError err
-  end
+  e = {_eventname : "ReturnFundSuccessful"; returned_amount: bal};
+  event e;
+  msg = {_tag       : ""; _recipient : owner; _amount    : bal};
+  msgs = one_msg msg;
+  send msgs
 end
