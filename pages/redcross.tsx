@@ -22,7 +22,7 @@ const RedCrossContainer = styled.main`
   align-items: center;
   justify-content: center;
 
-  background: linear-gradient(90deg, #7882F3 44.66%, #767FF3 65.62%, #6F77F2 78.6%, #6468F0 89.57%, #5554EE 98.56%, #5352EE 99.55%);
+  background: #6EEEEF;
   width: 100%;
   height: 100%;
   min-height: 100vh;
@@ -31,28 +31,6 @@ const RedCrossContainer = styled.main`
   @media (max-width: 600px) {
     align-items: flex-start;
     padding-top: 20vh;
-  }
-`;
-const RedCrossLogo = styled(Img)`
-  position: fixed;
-  left: 50px;
-  bottom: 50px;
-
-  height: 80px;
-  width: auto;
-
-  @media (max-width: 400px) {
-    left: 10px;
-  }
-`;
-const NextLogo = styled(RedCrossLogo)`
-  left: 213px;
-  width: 150px;
-  height: auto;
-
-  @media (max-width: 400px) {
-    left: auto;
-    right: 10px;
   }
 `;
 const Illustration = styled(Img)`
@@ -65,15 +43,6 @@ const Illustration = styled(Img)`
   @media (max-width: 400px) {
     width: 90%;
     max-width: calc(100vw - 5vw);
-  }
-`;
-const HashTag = styled(Img)`
-  position: absolute;
-  max-width: calc(100vw - 25vw);
-  height: auto;
-
-  @media (max-width: 656px) {
-    margin-top: 20%;
   }
 `;
 const LinkContainer = styled(Container)`
@@ -111,10 +80,7 @@ export const RedCross: NextPage<PageProp> = () => {
     <React.Fragment>
       <RedCrossContainer>
         <Illustration src={getImg('3x', browserState.format, 'asset')} />
-        <HashTag src={getImg('3x', browserState.format, 'asset_2')} />
       </RedCrossContainer>
-      <RedCrossLogo src={getImg('SVG', 'svg', 'asset_2')} />
-      <NextLogo src={getImg('SVG', 'svg', 'asset_3')} />
       <Link href="/about">
         <LinkContainer>
           <NextPageLink
