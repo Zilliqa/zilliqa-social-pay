@@ -27,6 +27,7 @@ export interface User {
 export interface FetchUpdateAddress {
   address: string;
   jwt: string;
+  recaptchaKey: string;
 }
 
 export interface Twitte {
