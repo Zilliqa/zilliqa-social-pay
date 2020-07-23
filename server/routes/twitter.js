@@ -178,8 +178,10 @@ const userSign = (req, res) => {
     .catch((err) => res.status(400).json({ message: err.message }));
 }
 
-function capitalizeFirstLetter(string) {
-  return string.charAt(1).toUpperCase() + string.slice(2);
+function capitalizeFirstLetter(arrayOfStr) {
+  return arrayOfStr.map((string) => {
+    return string.charAt(1).toUpperCase() + string.slice(2);
+  });
 }
 
 /**
@@ -320,6 +322,12 @@ router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, async (req
   const { user } = req.verification;
   const { blockchainInfo } = req;
 
+  return res.json({
+    code: ERROR_CODES.noFound,
+    message: 'not found',
+    tweets: []
+  });
+
   try {
     const twitter = new Twitter(user.token, user.tokenSecret, blockchainInfo);
     const tweets = await twitter.userTimeline(user.profileId);
@@ -430,7 +438,7 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, as
     } else if (!hasHashtag) {
       return res.status(404).json({
         code: ERROR_CODES.noHasHashtag,
-        message: `This tweet does not have the #${capitalizeFirstLetter(blockchainInfo.hashtag)} hashtag in it.`
+        message: `This tweet does not have the #${capitalizeFirstLetter(blockchainInfo.hashtags).join(', ')} hashtag in it.`
       });
     } else if (tweet.user.id_str !== user.profileId) {
       return res.status(400).json({
@@ -537,7 +545,7 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
     } else if (!hasHashtag) {
       return res.status(404).json({
         code: ERROR_CODES.noHasHashtag,
-        message: `This tweet does not have the #${capitalizeFirstLetter(blockchainInfo.hashtag)} hashtag in it.`
+        message: `This tweet does not have the #${capitalizeFirstLetter(blockchainInfo.hashtags).join(', ')} hashtag in it.`
       });
     } else if (!user || user.profileId !== tweet.user.id_str) {
       return res.status(400).json({

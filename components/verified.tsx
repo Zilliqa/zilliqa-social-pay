@@ -253,7 +253,7 @@ export const Verified: React.FC = () => {
     <VerifiedContainer>
       {twitterState.showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
         <Container key={index}>
-          <TweetEmbedContainer show={loadedList.includes(index)}>
+          <TweetEmbedContainer show={true}>
             <IconsContainer>
               {(!tweet.claimed && !tweet.approved && !tweet.rejected && !isTabletOrMobile) ? (
                 <Img
@@ -335,11 +335,6 @@ export const Verified: React.FC = () => {
               ) : null}
             </IconsContainer>
           </TweetEmbedContainer>
-          <ClipLoader
-            size={SPINER_SIZE}
-            loading={!loadedList.includes(index)}
-            color={FontColors.white}
-          />
         </Container>
       )) : null}
       {twitterState.count > PAGE_LIMIT ? (
