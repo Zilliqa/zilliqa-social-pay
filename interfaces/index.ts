@@ -51,6 +51,7 @@ export interface Blockchain {
   blocksPerWeek: string | number;
   BlockNum: string | number;
   DSBlockNum: string | number;
+  hashtags: string[];
   rate: string | number;
   balance: string | number;
   initBalance: string | number;

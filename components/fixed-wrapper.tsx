@@ -21,6 +21,7 @@ import { ContainerLoader } from 'components/container-loader';
 import { Container } from 'components/container';
 import { NotificationsControl } from 'components/notification-control';
 import { TextWarning } from 'components/warning-text';
+import Recaptcha from 'react-recaptcha';
 
 import {
   ButtonVariants,
@@ -62,6 +63,7 @@ export const FixedWrapper: React.FC = () => {
   // State for check is tablet or mobile width.
   const [twitterWidth] = React.useState(isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT);
   const [placeholder, setPlaceholder] = React.useState<string>();
+  const [recaptchaKey, setRecaptchaKey] = React.useState<string>('');
   const [disabledAddress, setDisabledAddress] = React.useState<boolean>();
 
   /**
@@ -92,7 +94,8 @@ export const FixedWrapper: React.FC = () => {
     // Send to server for validation and update address.
     const result = await UserStore.updateAddress({
       address,
-      jwt: userState.jwtToken
+      jwt: userState.jwtToken,
+      recaptchaKey
     });
 
     if (result.code === ERROR_CODES.unauthorized) {
@@ -204,14 +207,18 @@ export const FixedWrapper: React.FC = () => {
             css="font-size: 15px;width: 300px;"
             onChange={handleChangeAddress}
           />
-          <Button
-            sizeVariant={SizeComponent.lg}
-            variant={ButtonVariants.primary}
-            disabled={Boolean(disabledAddress)}
-            css="margin-top: 10px;"
-          >
-            Change address
-          </Button>
+          {Boolean(recaptchaKey) ? <Button
+              sizeVariant={SizeComponent.lg}
+              variant={ButtonVariants.primary}
+              disabled={Boolean(disabledAddress)}
+              css="margin-top: 10px;"
+            >
+              Change address
+            </Button> : <Recaptcha
+              sitekey={browserState.recaptchaKey}
+              verifyCallback={setRecaptchaKey}
+            />
+          }
         </form>
       </Modal>
       <Modal

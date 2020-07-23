@@ -14,7 +14,7 @@ import { Button } from 'components/button';
 import { AroundedContainer } from 'components/rounded-container';
 import { TextWarning } from 'components/warning-text';
 import { Link } from 'components/link';
-import Recaptcha from 'react-recaptcha'
+import Recaptcha from 'react-recaptcha';
 
 import {
   FontColors,

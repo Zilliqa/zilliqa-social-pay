@@ -43,6 +43,7 @@ const initalState: Blockchain = {
   hashtag: null,
   zilsPerTweet: '0',
   blocksPerDay: 0,
+  hashtags: [],
   blocksPerWeek: 0,
   BlockNum: 0,
   DSBlockNum: 0,
