@@ -322,12 +322,6 @@ router.put('/update/tweets', checkSession, verifyJwt, verifyCampaign, async (req
   const { user } = req.verification;
   const { blockchainInfo } = req;
 
-  return res.json({
-    code: ERROR_CODES.noFound,
-    message: 'not found',
-    tweets: []
-  });
-
   try {
     const twitter = new Twitter(user.token, user.tokenSecret, blockchainInfo);
     const tweets = await twitter.userTimeline(user.profileId);
