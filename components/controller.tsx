@@ -14,7 +14,6 @@ import { Img } from 'components/img';
 import { Input, InputIcons } from 'components/Input';
 import { Button } from 'components/button';
 import { Container } from 'components/container';
-import { KeentodoMore } from 'components/keentodo-more';
 import { TwitterHashtagButton } from 'react-twitter-embed';
 
 import {
@@ -46,12 +45,6 @@ const DashboardContainer = styled(Container)`
     position: relative;
     transform: none;
   }
-`;
-const Link = styled.a`
-  text-decoration: unset;
-  color: ${FontColors.white};
-  font-family: ${Fonts.AvenirNextLTProDemi};
-  border-bottom: 1px solid ${FontColors.white};
 `;
 
 /**
@@ -238,7 +231,7 @@ export const Controller: React.FC = () => {
         </Text>
         <Container css="height: 40px;margin: 0;">
           <TwitterHashtagButton
-            tag={'#ZILCovidHeroes'}
+            tag={'#Zilliqa'}
             options={{
               size: 'large',
               text: blockchainState.hashtagText
@@ -264,26 +257,6 @@ export const Controller: React.FC = () => {
           </Button>
         ) : null}
       </ControlContainer>
-      <Link
-        href="/covid"
-        target="_blanck"
-      >
-        <KeentodoMore css="justify-content: space-around;">
-          <Text
-            size={FontSize.md}
-            fontVariant={Fonts.AvenirNextLTProRegular}
-            fontColors={FontColors.white}
-            css="width: 100%;"
-          >
-            Keen to do more?
-            Click here!
-        </Text>
-          <Img
-            src="/icons/group.svg"
-            css="width: 70px;height: auto;"
-          />
-        </KeentodoMore>
-      </Link>
     </Container>
   );
 };

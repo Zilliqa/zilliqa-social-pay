@@ -18,6 +18,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       unique: true
     },
+    hashtags: {
+      type: DataTypes.RANGE(DataTypes.STRING)
+    },
     zilsPerTweet: DataTypes.STRING,
     blocksPerDay: DataTypes.STRING,
     blocksPerWeek: DataTypes.STRING,

@@ -13,5 +13,6 @@ module.exports = {
   noFound: 11,
   unauthorized: 12,
   ban: 13,
-  invalidAddressFormat: 14
+  invalidAddressFormat: 14,
+  invalidRecaptcha: 15
 };

@@ -2,6 +2,7 @@ const bunyan = require('bunyan');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
 const eventUtils = require('../event-utils');
+const { strict } = require('assert');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ENV = process.env.NODE_ENV || 'development';
@@ -34,6 +35,11 @@ module.exports = async function (redisClient) {
         balance,
         rate: defualtRate
       });
+
+      if (!Array.isArray(currenInfo.hashtags)) {
+        currenInfo.hashtags = String(currenInfo.hashtags)
+          .split(',')
+      }
 
       const payload = JSON.stringify({
         model: blockchain.tableName,

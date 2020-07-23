@@ -3,13 +3,14 @@ import fetch from 'isomorphic-unfetch';
 import { APIs, HttpMethods } from 'config';
 import { FetchUpdateAddress } from 'interfaces';
 
-export const fetchUpdateAddress = async ({ address, jwt }: FetchUpdateAddress) => {
+export const fetchUpdateAddress = async ({ address, jwt, recaptchaKey }: FetchUpdateAddress) => {
   const url = `${APIs.updateAddress}/${address}`;
   const res = await fetch(url, {
     method: HttpMethods.PUT,
     credentials: 'include',
     headers: {
-      Authorization: jwt
+      Authorization: jwt,
+      recaptcha: recaptchaKey
     },
     body: JSON.stringify({ address })
   });

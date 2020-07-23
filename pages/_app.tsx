@@ -27,7 +27,9 @@ class SocialPay extends App {
     const isWebp = await supportsWebp();
     let { blockchainInfo, recaptcha } = this.props.pageProps;
 
-    BrowserStore.setRecaptchaKey(recaptcha.RECAPTCHA_SITE_KEY)
+    if (recaptcha && recaptcha.RECAPTCHA_SITE_KEY) {
+      BrowserStore.setRecaptchaKey(recaptcha.RECAPTCHA_SITE_KEY);
+    }
 
     if (!isWebp) {
       BrowserStore.setformat(ImgFormats.png);
