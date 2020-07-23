@@ -38,7 +38,6 @@ module.exports = async function (redisClient) {
 
       if (!Array.isArray(currenInfo.hashtags)) {
         currenInfo.hashtags = String(currenInfo.hashtags)
-          .replace('`', '')
           .split(',')
       }
 
