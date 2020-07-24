@@ -98,6 +98,8 @@ export const FixedWrapper: React.FC = () => {
       recaptchaKey
     });
 
+    setRecaptchaKey('')
+
     if (result.code === ERROR_CODES.unauthorized) {
       EventStore.reset();
       UserStore.clear();
@@ -114,7 +116,7 @@ export const FixedWrapper: React.FC = () => {
     }
 
     EventStore.reset();
-  }, [address, validation, setAddressErr, addressErr, userState, router]);
+  }, [address, validation, setAddressErr, addressErr, userState, router, recaptchaKey]);
   /**
    * Handle input address for Input component.
    * @param event HTMLInput event.

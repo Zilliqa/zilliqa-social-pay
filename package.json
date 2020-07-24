@@ -13,7 +13,7 @@
     "type-check": "tsc",
     "lint:ts": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
     "lint:ts:fix": "npm run lint:ts -- --fix",
-    "precommit": "npm run lint:ts"
+    "precommit": "npm run lint:ts && npm run type-check"
   },
   "browserslist": {
     "production": [

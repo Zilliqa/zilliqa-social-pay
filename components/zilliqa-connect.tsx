@@ -98,8 +98,10 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
       connected();
     }
 
+    setRecaptchaKey('')
+
     EventStore.setEvent(Events.None);
-  }, [setAddressErr, address, connected]);
+  }, [setAddressErr, address, connected, recaptchaKey]);
 
   return (
     <AroundedContainer
@@ -121,13 +123,13 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
         Connect your Zilliqa address
       </Text>
       <Container css="width: 250px;">
-        <FieldInput
+        {Boolean(recaptchaKey) ? <FieldInput
           sizeVariant={SizeComponent.md}
           error={addressErr}
           placeholder="Zilliqa address (zil1)"
           css="::placeholder { font-size: 15px; }"
           onChange={handleAddressChange}
-        />
+        /> : null}
       </Container>
       <Text
         fontColors={FontColors.white}
