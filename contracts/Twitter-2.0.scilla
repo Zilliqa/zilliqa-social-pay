@@ -16,6 +16,17 @@ let f_eq_string =
   fun (a : String) =>
   fun (b : String) =>
     builtin eq a b
+    
+(* Is "a" a subset of "b", as compared by f *)                                                                                                                                                                     
+let list_is_subset : forall 'A. ('A -> 'A -> Bool) -> List 'A -> List 'A -> Bool =                                                                                                                                 
+  tfun 'A =>                                                                                                                                                                                                       
+  fun (f : 'A -> 'A -> Bool) =>                                                                                                                                                                                    
+  fun (a : List 'A) =>                                                                                                                                                                                             
+  fun (b : List 'A) =>                                                                                                                                                                                             
+    let list_mem_A = @list_mem 'A in                                                                                                                                                                               
+    let in_b = fun (a : 'A) => list_mem_A f a b in                                                                                                                                                                 
+    let forall_A = @list_forall 'A in                                                                                                                                                                              
+    forall_A in_b a
 
 (* Custom ADT storing twitter_id, recipient_address, tweet_id, hashtags *)
 type VerifyInfo =
@@ -43,7 +54,6 @@ let make_error_event =
     { _eventname : "Error"; code : result_code }
 
 let tt = True
-let ff = False
 
 (***************************************************)
 (*             The contract definition             *)
@@ -52,9 +62,7 @@ let ff = False
 contract SocialPay
 (
   owner: ByStr20,
-  hashtag_1: String,
-  hashtag_2: String,
-  hashtag_3: String,
+  expected_hashtags: List String,
   zils_per_tweet : Uint128,
   blocks_per_day : Uint32
 )
@@ -67,8 +75,6 @@ field last_claims: Map String BNum = Emp String BNum
 
 (* Map of address to bool status of admin *)
 field admins: Map ByStr20 Bool = Emp ByStr20 Bool
-
-field verdad: Bool = False
 
 procedure EmitError(err: Error)
   e = make_error_event err;
@@ -126,13 +132,8 @@ procedure VerifyTweet(verify_info: VerifyInfo)
         end;
       match not_next_day_yet with
       | False =>
-        list_mem_string = @list_mem String;
-        match_1 = list_mem_string f_eq_string hashtag_1 hashtags;
-        match_2 = list_mem_string f_eq_string hashtag_2 hashtags;
-        match_3 = list_mem_string f_eq_string hashtag_3 hashtags;
-        match_all = 
-          let temp_match = andb match_1 match_2 in
-          andb temp_match match_3;
+        is_subset = @list_is_subset String;
+        match_all = is_subset f_eq_string expected_hashtags hashtags;
         match match_all with
         | True =>
           verified_tweets[tweet_id] := twitter_id;
