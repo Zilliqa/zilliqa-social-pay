@@ -229,9 +229,14 @@ export const Controller: React.FC = () => {
             {fromZil(blockchainState.zilsPerTweet)} $ZIL
         </Text>
         </Text>
-        <Container css="height: 40px;margin: 0;">
+        <Container css="height: 60px;margin: 0;">
+          <Text
+            fontVariant={Fonts.AvenirNextLTProBold}
+            fontColors={FontColors.white}
+          >
+            {blockchainState.hashtags.join(', ')}
+          </Text>
           <TwitterHashtagButton
-            tag={'#Zilliqa'}
             options={{
               size: 'large',
               text: blockchainState.hashtagText
