@@ -25,7 +25,11 @@ class SocialPay extends App {
 
   public async componentDidMount() {
     const isWebp = await supportsWebp();
-    let { blockchainInfo } = this.props.pageProps;
+    let { blockchainInfo, recaptcha } = this.props.pageProps;
+
+    if (recaptcha && recaptcha.RECAPTCHA_SITE_KEY) {
+      BrowserStore.setRecaptchaKey(recaptcha.RECAPTCHA_SITE_KEY);
+    }
 
     if (!isWebp) {
       BrowserStore.setformat(ImgFormats.png);
@@ -79,6 +83,7 @@ class SocialPay extends App {
           <meta name="msapplication-TileColor" content="#ffffff" />
           <meta name="msapplication-TileImage" content="/favicons/ms-icon-144x144.png" />
           <meta name="theme-color" content="#ffffff" />
+          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         </Head>
         <BaseStyles />
         <AnimateStyles />

@@ -43,6 +43,10 @@ export const BaseStyles = createGlobalStyle`
     transition: none;
   }
 
+  #g-recaptcha {
+    height: 100px;
+  }
+
   button {
     cursor: pointer;
     border-radius: 20px;

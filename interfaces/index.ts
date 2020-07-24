@@ -27,6 +27,7 @@ export interface User {
 export interface FetchUpdateAddress {
   address: string;
   jwt: string;
+  recaptchaKey: string;
 }
 
 export interface Twitte {
@@ -50,6 +51,7 @@ export interface Blockchain {
   blocksPerWeek: string | number;
   BlockNum: string | number;
   DSBlockNum: string | number;
+  hashtags: string[];
   rate: string | number;
   balance: string | number;
   initBalance: string | number;

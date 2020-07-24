@@ -27,7 +27,10 @@ const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 const log = bunyan.createLogger({ name: 'next-server' });
 const app = next({ dev, dir: './' });
 const indexRouter = require('./routes/index');
+
 const blockchainCache = require('./middleware/blockchain-cache');
+const recaptcha = require('./middleware/recaptcha');
+
 const handle = app.getRequestHandler();
 const session = cookieSession({
   name: process.env.SESSION,
@@ -59,7 +62,7 @@ server.use(bodyParser.json());
 server.set('redis', redisClientSender);
 server.set('log', log);
 
-server.use('/', blockchainCache, indexRouter);
+server.use('/', recaptcha, blockchainCache, indexRouter);
 
 if (dev) {
   server.use('/swagger.json', (req, res) => {

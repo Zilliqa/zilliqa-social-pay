@@ -29,19 +29,18 @@ const { User, Twittes, Admin, blockchain } = models.sequelize.models;
 const redisSender = redis.createClient(REDIS_CONFIG.url);
 const getAsync = promisify(redisSender.get).bind(redisSender);
 
-function parseHashTags(text, hashTag) {
-  hashTag = hashTag.toLowerCase();
+function parseHashTags(text, hashtags) {
   text = text.toLowerCase();
+  const test = hashtags.every((hashtag) => {
+    hashtag = hashtag.toLowerCase();
+    return text.includes(hashtag)
+  });
 
-  const re = new RegExp(`(${hashTag})`, 'g');
-  let m = null;
+  if (test) {
+    return hashtags
+  }
 
-  do {
-    m = re.exec(text);
-    if (m) return Array.from(new Set(m.filter(Boolean)));
-  } while (m);
-
-  return [];
+  return []
 }
 
 async function taskHandler(task, jobQueue) {
@@ -133,7 +132,7 @@ async function getTasks(admins = AMOUNT_OF_TASKS) {
         tweetId: tweet.idStr,
         userId: tweet.User.profileId,
         zilAddress: tweet.User.zilAddress,
-        tags: parseHashTags(tweet.text, blockchainInfo.hashtag),
+        tags: parseHashTags(tweet.text, blockchainInfo.hashtags),
         localUserId: tweet.User.id,
         localTweetId: tweet.id
       }));

@@ -43,6 +43,7 @@ const initalState: Blockchain = {
   hashtag: null,
   zilsPerTweet: '0',
   blocksPerDay: 0,
+  hashtags: [],
   blocksPerWeek: 0,
   BlockNum: 0,
   DSBlockNum: 0,
@@ -51,7 +52,7 @@ const initalState: Blockchain = {
   initBalance: 0,
   campaignEnd: null,
   now: null,
-  hashtagText: 'I’m supporting this campaign (https://redcross.give.asia/campaign/essentials-delivered-to-migrant-workers/) to raise funds for migrant workers suffering due to #COVID__19. Please help donate to this cause or share this message, thank you! @SGRedCross @Zilliqa @NextIDsg'
+  hashtagText: "Hey, I'm following #Zilliqa & so, driving some engagement for the upcoming #Zil3 third anniversary event for @Zilliqa, which features the legendary #CZBinance as the Guest of Honour! July 30th. Can't wait. Pass it on - and get some $Zil"
 };
 
 export const store = blockchainDomain.store<Blockchain>(initalState)

@@ -33,6 +33,8 @@ Also need to deposit few ZILs, call `Deposit` transition and send few ZIls.
  * `POSTGRES_HOST` # DataBase host for example (127.0.0.1) for production build use 'postgres'.
  * `REDIS_URL` # Redis connection url, for cache.
  * `NODE_ENV` # development, test, production
+ * `RECAPTCHA_SITE_KEY` # recaptcha site key https://www.google.com/recaptcha/admin
+ * `RECAPTCHA_SECRET_KEY` # recaptcha server key https://www.google.com/recaptcha/admin
 
 ## Run:
 for start service need redis server.

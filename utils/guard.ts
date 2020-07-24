@@ -25,10 +25,11 @@ export function authGuard({ res, req }: any) {
       firstStart,
       user,
       isServer,
-      blockchainInfo: req.blockchainInfo
+      blockchainInfo: req.blockchainInfo,
+      recaptcha: req.recaptcha
     };
   } else if (req.url === '/end' && diff > 0) {
-    res.status(STATUS).redirect('/redcross');
+    res.status(STATUS).redirect('/first');
   }
 
   if (req.cookies && (req.cookies['session.sig'] || req.cookies.session)) {
@@ -37,14 +38,15 @@ export function authGuard({ res, req }: any) {
 
   if (!req.session || !req.session.passport) {
     if (req.url === '/') {
-      res.status(STATUS).redirect('/redcross');
+      res.status(STATUS).redirect('/first');
     }
 
     return {
       firstStart,
       user,
       isServer,
-      blockchainInfo: req.blockchainInfo
+      blockchainInfo: req.blockchainInfo,
+      recaptcha: req.recaptcha
     };
   }
 
@@ -54,6 +56,7 @@ export function authGuard({ res, req }: any) {
     firstStart,
     user,
     isServer,
-    blockchainInfo: req.blockchainInfo
+    blockchainInfo: req.blockchainInfo,
+    recaptcha: req.recaptcha
   };
 }

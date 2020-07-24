@@ -146,16 +146,24 @@ module.exports = {
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
     const [
       owner,
-      hashtag,
+      hashtag_1,
+      hashtag_2,
+      hashtag_3,
       zils_per_tweet,
       blocks_per_day,
       blocks_per_week
     ] = await contract.getInit();
+    const hashtags = [
+      hashtag_1.value.toLowerCase(),
+      hashtag_2.value.toLowerCase(),
+      hashtag_3.value.toLowerCase()
+    ]
 
     return {
+      hashtags,
       contract: CONTRACT_ADDRESS,
       owner: toBech32Address(owner.value),
-      hashtag: hashtag.value.toLowerCase(),
+      hashtag: hashtags[0],
       zilsPerTweet: zils_per_tweet.value,
       blocksPerDay: blocks_per_day.value,
       blocksPerWeek: blocks_per_week.value

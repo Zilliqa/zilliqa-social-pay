@@ -4,6 +4,7 @@ import * as Effector from 'effector-react';
 
 import UserStore from 'store/user';
 import EventStore from 'store/event';
+import BrowserStore from 'store/browser';
 
 import { Text } from 'components/text';
 import { Img } from 'components/img';
@@ -13,6 +14,7 @@ import { Button } from 'components/button';
 import { AroundedContainer } from 'components/rounded-container';
 import { TextWarning } from 'components/warning-text';
 import { Link } from 'components/link';
+import Recaptcha from 'react-recaptcha';
 
 import {
   FontColors,
@@ -36,11 +38,13 @@ type Prop = {
  */
 export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
   const userState = Effector.useStore(UserStore.store);
+  const browserState = Effector.useStore(BrowserStore.store);
 
   // State for error handlers.
   const [addressErr, setAddressErr] = React.useState<string | null | undefined>(null);
   // State for address in bech32 (zil1).
   const [address, setAddress] = React.useState<string | null>(null);
+  const [recaptchaKey, setRecaptchaKey] = React.useState<string>('');
 
   /**
    * Handle when address has been changed.
@@ -76,7 +80,8 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
 
     const result = await UserStore.updateAddress({
       address,
-      jwt: userState.jwtToken
+      jwt: userState.jwtToken,
+      recaptchaKey
     });
 
     if (result.code === ERROR_CODES.unauthorized) {
@@ -137,12 +142,23 @@ export const ZilliqaConnect: React.FC<Prop> = ({ show, connected }) => {
           Click here!
         </Link>
       </Text>
-      <Button
-        variant={ButtonVariants.outlet}
-        sizeVariant={SizeComponent.md}
-      >
-        CONNECT
-      </Button>
+      {Boolean(recaptchaKey) ?
+        (
+          <Button
+            variant={ButtonVariants.outlet}
+            sizeVariant={SizeComponent.md}
+          >
+            CONNECT
+          </Button>
+        )
+          :
+        (
+          <Recaptcha
+            sitekey={browserState.recaptchaKey}
+            verifyCallback={setRecaptchaKey}
+          />
+        )
+      }
       <TextWarning fontVariant={Fonts.AvenirNextLTProDemi}>
         DO NOT LINK EXCHANGE ADDRESSES!!!
       </TextWarning>
