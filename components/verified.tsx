@@ -17,9 +17,8 @@ import { Img } from 'components/img';
 import { Container } from 'components/container';
 import { NotificationWarning } from 'components/notification-control';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
-import ClipLoader from 'react-spinners/ClipLoader';
 
-import { Events, FontColors } from 'config';
+import { Events } from 'config';
 import ERROR_CODES from 'config/error-codes';
 import NOTIFICATIONS_TYPES from 'config/notifications-types';
 import { viewTx } from 'utils/viewblock';
@@ -33,7 +32,6 @@ const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
 const PAGE_LIMIT = 3;
 const SLEEP = 100;
-const SPINER_SIZE = 100;
 
 const VerifiedContainer = styled(Container)`
   display: flex;
@@ -81,10 +79,6 @@ export const Verified: React.FC = () => {
   const notificationState = Effector.useStore(NotificationStore.store);
 
   const [paginateOffset, setPaginateOffset] = React.useState(0);
-  const [loadedList, addIndex] = React.useReducer((state: number[], index: number) => {
-    state.push(index);
-    return state;
-  }, []);
   const sortedTweets = React.useMemo(() => {
     const array = deepCopy(twitterState.tweets)
       .sort((a: Twitte, b: Twitte) => {
@@ -199,7 +193,7 @@ export const Verified: React.FC = () => {
     twitterState,
     SLEEP
   ]);
-  const handTweetLoad = React.useCallback(async (loaded, tweete: Twitte, index) => {
+  const handTweetLoad = React.useCallback(async (loaded, tweete: Twitte) => {
     if (!loaded) {
       await TwitterStore.deleteTweet({
         tweete,
@@ -210,9 +204,7 @@ export const Verified: React.FC = () => {
 
       return null;
     }
-
-    addIndex(index);
-  }, [userState.jwtToken, addIndex]);
+  }, [userState.jwtToken]);
 
   /**
    * Effect for loading tweets rewards.
@@ -237,17 +229,6 @@ export const Verified: React.FC = () => {
       );
     }
   }, [notificationState.serverNotifications]);
-  React.useEffect(() => {
-    const sleepBeforeLoadned = 1000;
-
-    const timer = setTimeout(() => {
-      sortedTweets.forEach((_, index) => {
-        addIndex(index);
-      });
-    }, sleepBeforeLoadned);
-
-    return () => clearTimeout(timer);
-  }, [addIndex]);
 
   return (
     <VerifiedContainer>
@@ -296,7 +277,7 @@ export const Verified: React.FC = () => {
               options={{
                 width: isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT
               }}
-              onLoad={(content: any) => handTweetLoad(Boolean(content), tweet, index)}
+              onLoad={(content: any) => handTweetLoad(Boolean(content), tweet)}
             />
             <IconsContainer>
               {(!tweet.claimed && !tweet.approved && !tweet.rejected && isTabletOrMobile) ? (
