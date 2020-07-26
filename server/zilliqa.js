@@ -144,20 +144,15 @@ module.exports = {
   async getInit() {
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
-    const [
+    let [
       owner,
-      hashtag_1,
-      hashtag_2,
-      hashtag_3,
+      hashtags,
       zils_per_tweet,
       blocks_per_day,
       blocks_per_week
     ] = await contract.getInit();
-    const hashtags = [
-      hashtag_1.value.toLowerCase(),
-      hashtag_2.value.toLowerCase(),
-      hashtag_3.value.toLowerCase()
-    ]
+
+    hashtags = hashtags.value
 
     return {
       hashtags,

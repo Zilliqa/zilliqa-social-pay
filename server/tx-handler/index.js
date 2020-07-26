@@ -19,7 +19,7 @@ const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
 const MIN_AMOUNT = '50000000000000';
 const TWEETS_IN_QUEUE = 10;
-const AMOUNT_OF_TASKS = 10;
+const AMOUNT_OF_TASKS = 50;
 
 if (!validation.isBech32(CONTRACT_ADDRESS)) {
   throw new Error('incorect contract address');
@@ -62,7 +62,7 @@ async function taskHandler(task, jobQueue) {
     jobQueue.next(task);
 
     if (err.message.includes('You do not have enough funds')) {
-      // process.kill(process.pid, 'SIGHUP');
+      process.kill(process.pid, 'SIGHUP');
     }
   }
 }
@@ -178,15 +178,17 @@ async function queueFilling() {
     jobQueue.on(jobQueue.events.trigger, async(task) => {
       await taskHandler(task, jobQueue);
 
-      if (worker.jobsLength === 0 && !worker.padding) {
-        const tasks = await getTasks(keys.length * 2);
-        worker.distributeTasks(tasks);
-        log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
-      }
+      setTimeout(async () => {
+        if (worker.jobsLength === 0 && !worker.padding) {
+          const tasks = await getTasks();
+          worker.distributeTasks(tasks);
+          log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
+        }
+      }, 200);
     });
   });
 
-  const tasks = await getTasks(keys.length * 2);
+  const tasks = await getTasks();
   worker.distributeTasks(tasks);
 
   log.info(tasks.length, 'tasks added to queue');
@@ -198,9 +200,11 @@ async function queueFilling() {
       switch (body.type) {
         case JOB_TYPES.verifyTweet:
           if (worker.jobsLength === 0 && !worker.padding) {
-            const tasks = await getTasks(keys.length * 2);
-            worker.distributeTasks(tasks);
-            log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
+            // setTimeout(async () => {
+            //   const tasks = await getTasks(keys.length * 2);
+            //   worker.distributeTasks(tasks);
+            //   log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
+            // }, 4000);
           }
           return null;
         case blockchain.tableName:
