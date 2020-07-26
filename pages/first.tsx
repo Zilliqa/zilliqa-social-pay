@@ -82,7 +82,7 @@ export const RedCross: NextPage<PageProp> = () => {
       <RedCrossContainer>
         <Illustration src={getImg('3x', browserState.format, 'asset')} />
       </RedCrossContainer>
-      <Link href="/about">
+      <Link href="/auth">
         <LinkContainer>
           <NextPageLink
             size={FontSize.lg}
