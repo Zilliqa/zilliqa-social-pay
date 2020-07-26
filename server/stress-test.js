@@ -64,7 +64,7 @@ module.exports = function test() {
       users.forEach(async (user) => {
         const tweet = await Twittes.create({
           idStr: uuids.v4(),
-          text: `#Zilliqa ${uuids.v4()}`,
+          text: blockchainInfo.hashtags.join(', '),
           UserId: user.id,
           claimed: true
         });
