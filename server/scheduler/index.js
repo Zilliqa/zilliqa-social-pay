@@ -41,7 +41,7 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
     .catch((err) => log.error('pedding-tweets ERROR:', err));
 })
 
-if (ENV === 'test') {
-  log.warn('STRESS_TEST has runed!!!');
-  require('../stress-test')();
-}
+// if (ENV === 'test') {
+//   log.warn('STRESS_TEST has runed!!!');
+//   require('../stress-test')();
+// }
