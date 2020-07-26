@@ -88,7 +88,7 @@ export const RedCross: NextPage<PageProp> = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
           >
-            Get $ZIL, Send Goodwill
+            Join the celebrations!
           </NextPageLink>
           <Img
             src="/icons/arrow.svg"
