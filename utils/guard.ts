@@ -29,7 +29,7 @@ export function authGuard({ res, req }: any) {
       recaptcha: req.recaptcha
     };
   } else if (req.url === '/end' && diff > 0) {
-    res.status(STATUS).redirect('/zil3');
+    // res.status(STATUS).redirect('/zil3');
   }
 
   if (req.cookies && (req.cookies['session.sig'] || req.cookies.session)) {
