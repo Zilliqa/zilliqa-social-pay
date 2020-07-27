@@ -201,7 +201,7 @@ async function queueFilling() {
         case JOB_TYPES.verifyTweet:
           setTimeout(async () => {
             if (worker.jobsLength === 0 && !worker.padding) {
-              const tasks = await getTasks(keys.length * 2);
+              const tasks = await getTasks();
               worker.distributeTasks(tasks);
               log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
             }
