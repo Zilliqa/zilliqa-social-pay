@@ -205,7 +205,7 @@ async function queueFilling() {
               worker.distributeTasks(tasks);
               log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
             }
-          }, 1000);
+          }, 300);
           return null;
         case blockchain.tableName:
           // When blockchain has been updated.
