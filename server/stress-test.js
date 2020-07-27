@@ -13,8 +13,8 @@ const JOB_TYPES = require('./config/job-types');
 const redisClientSender = redis.createClient(REDIS_CONFIG.url);
 const getAsync = promisify(redisClientSender.get).bind(redisClientSender);
 
-const USERS_CREATER = 500;
-const TWEET_CREATER = 1000;
+const USERS_CREATER = 2000;
+const TWEET_CREATER = 2000;
 
 module.exports = function test() {
   setInterval(async () => {
@@ -64,7 +64,7 @@ module.exports = function test() {
       users.forEach(async (user) => {
         const tweet = await Twittes.create({
           idStr: uuids.v4(),
-          text: `#Zilliqa ${uuids.v4()}`,
+          text: blockchainInfo.hashtags.join(', '),
           UserId: user.id,
           claimed: true
         });

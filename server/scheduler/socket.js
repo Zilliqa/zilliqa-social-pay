@@ -36,11 +36,6 @@ module.exports = async function (redisClient) {
         rate: defualtRate
       });
 
-      if (!Array.isArray(currenInfo.hashtags)) {
-        currenInfo.hashtags = String(currenInfo.hashtags)
-          .split(',')
-      }
-
       const payload = JSON.stringify({
         model: blockchain.tableName,
         body: currenInfo

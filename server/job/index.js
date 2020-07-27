@@ -85,6 +85,7 @@ class QueueWorker {
       return null;
     }
 
+    this._toRandom();
     this.padding = true;
 
     for (let taskIndex = 0; taskIndex < tasks.length; taskIndex++) {
@@ -103,6 +104,7 @@ class QueueWorker {
     });
 
     this.padding = false;
+    this._toRandom();
   }
 
   addTask(taskJob) {
