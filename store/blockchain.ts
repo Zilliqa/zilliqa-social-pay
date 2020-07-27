@@ -52,7 +52,14 @@ const initalState: Blockchain = {
   initBalance: 0,
   campaignEnd: null,
   now: null,
-  hashtagText: "Hey, I'm following #Zilliqa & so, driving some engagement for the upcoming #Zil3 third anniversary event for @Zilliqa, which features the legendary #CZBinance as the Guest of Honour! July 30th. Can't wait. Pass it on - and get some $Zil"
+  hashtagText: `#Zil3 - Make It Count
+
+Do more with your dApps on #Zilliqa, the high-security, high-performance blockchain. 🌐
+
+Let’s celebrate this ecosystem with our community and guest-of-honour #CZBinance. 🚀
+
+🔽 Going live on 30th July, UTC 13:00 hrs
+https://youtu.be/vdREf5U9_X8`
 };
 
 export const store = blockchainDomain.store<Blockchain>(initalState)
