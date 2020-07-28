@@ -40,7 +40,6 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
 // })
 
 setInterval(() => {
-  log.info(`run job for pedding tweets ${fireDate}`);
   require('./pedding-tweets')(redisClient)
     .catch((err) => log.error('pedding-tweets ERROR:', err));
 }, 3000);
