@@ -27,13 +27,14 @@ module.exports = async function (redisClient) {
       rejected: false,
       claimed: true,
       block: {
-        [Op.lte]: Number(blockchainInfo.BlockNum) - 101
+        [Op.lte]: Number(blockchainInfo.BlockNum) - 101,
+        [Op.not]: 0
       }
     },
     include: {
       model: User
     },
-    limit: 200
+    limit: 500
   });
 
   if (twittes.count === 0) {
