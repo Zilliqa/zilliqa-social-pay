@@ -199,13 +199,13 @@ async function queueFilling() {
 
       switch (body.type) {
         case JOB_TYPES.verifyTweet:
-          setTimeout(async () => {
-            if (worker.jobsLength === 0 && !worker.padding) {
-              const tasks = await getTasks();
-              worker.distributeTasks(tasks);
-              log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
-            }
-          }, 300);
+          // setTimeout(async () => {
+          //   if (worker.jobsLength === 0 && !worker.padding) {
+          //     const tasks = await getTasks();
+          //     worker.distributeTasks(tasks);
+          //     log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
+          //   }
+          // }, 300);
           return null;
         case blockchain.tableName:
           // When blockchain has been updated.
