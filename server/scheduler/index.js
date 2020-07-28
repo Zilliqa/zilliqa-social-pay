@@ -42,7 +42,7 @@ schedule.scheduleJob('* * * * *', (fireDate) => {
 setInterval(() => {
   require('./pedding-tweets')(redisClient)
     .catch((err) => log.error('pedding-tweets ERROR:', err));
-}, 5000);
+}, 10000);
 
 // if (ENV === 'test') {
 //   log.warn('STRESS_TEST has runed!!!');
