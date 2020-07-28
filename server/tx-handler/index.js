@@ -98,9 +98,6 @@ async function getTasks(admins = AMOUNT_OF_TASKS) {
         zilAddress: {
           [Op.not]: null
         },
-        lastAction: {
-          [Op.lte]: blocksForClaim
-        },
         status: new User().statuses.enabled
       },
       attributes: [
