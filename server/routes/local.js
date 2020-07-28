@@ -550,17 +550,17 @@ router.get('/get/stats', async (req, res) => {
     where: {
       approved: false,
       rejected: false,
-      claimed: true
+      claimed: true,
+      txId: {
+        [Op.not]: null
+      }
     }
   });
   const approvedTweet = await Twittes.count({
     where: {
       approved: true,
       rejected: false,
-      claimed: true,
-      txId: {
-        [Op.not]: null
-      }
+      claimed: true
     }
   });
   const tweets = await Twittes.count();
