@@ -1,7 +1,6 @@
 const express = require('express');
 const { Op } = require('sequelize');
 const { fromBech32Address } = require('@zilliqa-js/crypto');
-const { validation } = require('@zilliqa-js/util');
 const request = require('request');
 const checkSession = require('../middleware/check-session');
 const zilliqa = require('../zilliqa');
@@ -12,8 +11,6 @@ const verifyCampaign = require('../middleware/campaign-check');
 const router = express.Router();
 
 const ERROR_CODES = require('../../config/error-codes');
-const { resolve } = require('path');
-const { reject } = require('lodash');
 const ENV = process.env.NODE_ENV || 'development';
 const END_OF_CAMPAIGN = process.env.END_OF_CAMPAIGN;
 const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY;
@@ -560,7 +557,10 @@ router.get('/get/stats', async (req, res) => {
     where: {
       approved: true,
       rejected: false,
-      claimed: true
+      claimed: true,
+      txId: {
+        [Op.not]: null
+      }
     }
   });
   const tweets = await Twittes.count();
