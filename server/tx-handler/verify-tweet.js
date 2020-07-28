@@ -23,6 +23,10 @@ module.exports = async function (task, admin, redisClient) {
   const filtredTask = [];
   const onlyunique = _.uniqBy(task.payload, 'tweetId');
 
+  if (Number(blockchainInfo.balance) <= 30) {
+    return null;
+  }
+
   for (let index = 0; index < onlyunique.length; index++) {
     const argElement = onlyunique[index];
     const registered = await zilliqa.getVerifiedTweets([argElement.tweetId]);
