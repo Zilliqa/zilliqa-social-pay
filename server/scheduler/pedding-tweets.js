@@ -27,10 +27,7 @@ module.exports = async function (redisClient) {
       rejected: false,
       claimed: true,
       block: {
-        [Op.lte]: Number(blockchainInfo.BlockNum) - 50
-      },
-      txId: {
-        [Op.not]: null
+        [Op.lt]: Number(blockchainInfo.BlockNum) - 50
       }
     },
     include: {
