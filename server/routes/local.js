@@ -546,7 +546,7 @@ router.get('/get/accounts', async (req, res) => {
  *               format: int64
  */
 router.get('/get/stats', async (req, res) => {
-  const pendingTweet = await Twittes.findAndCountAll({
+  const pendingTweet = await Twittes.count({
     where: {
       approved: false,
       rejected: false,
@@ -554,8 +554,7 @@ router.get('/get/stats', async (req, res) => {
       txId: {
         [Op.not]: null
       }
-    },
-    limit: 200
+    }
   });
   const approvedTweet = await Twittes.count({
     where: {
