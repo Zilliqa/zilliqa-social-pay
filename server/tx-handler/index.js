@@ -14,6 +14,7 @@ const { Job, QueueWorker } = require('../job');
 const verifyTweet = require('./verify-tweet');
 
 const JOB_TYPES = require('../config/job-types');
+const { test } = require('../config/redis');
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const ENV = process.env.NODE_ENV || 'development';
 const REDIS_CONFIG = require('../config/redis')[ENV];
@@ -97,6 +98,9 @@ async function getTasks(admins = AMOUNT_OF_TASKS) {
         synchronization: false,
         zilAddress: {
           [Op.not]: null
+        },
+        lastAction: {
+          [Op.lte]: blocksForClaim
         },
         status: new User().statuses.enabled
       },
