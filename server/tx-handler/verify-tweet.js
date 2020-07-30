@@ -23,7 +23,7 @@ module.exports = async function (task, admin, redisClient) {
   const filtredTask = [];
   const onlyunique = _.uniqBy(task.payload, 'tweetId');
 
-  if (Number(blockchainInfo.balance) <= 30) {
+  if (Number(blockchainInfo.balance) <= Number(blockchainInfo.zilsPerTweet)) {
     return null;
   }
 
