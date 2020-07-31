@@ -546,6 +546,7 @@ router.get('/get/accounts', async (req, res) => {
  *               format: int64
  */
 router.get('/get/stats', async (req, res) => {
+  const { blockchainInfo } = req;
   const pendingTweet = await Twittes.count({
     where: {
       approved: false,
@@ -553,6 +554,35 @@ router.get('/get/stats', async (req, res) => {
       claimed: true,
       txId: {
         [Op.not]: null
+      }
+    }
+  });
+  const blocksForClaim = Number(blockchainInfo.BlockNum) - (Number(blockchainInfo.blocksPerDay));
+  let txQueue = await Twittes.count({
+    where: {
+      approved: false,
+      rejected: false,
+      txId: null,
+      claimed: true,
+      block: {
+        [Op.lte]: blockchainInfo.BlockNum
+      },
+      UserId: {
+        [Op.not]: null
+      }
+    },
+    include: {
+      model: User,
+      required: false,
+      where: {
+        synchronization: false,
+        zilAddress: {
+          [Op.not]: null
+        },
+        lastAction: {
+          [Op.lte]: blocksForClaim
+        },
+        status: new User().statuses.enabled
       }
     }
   });
@@ -576,6 +606,7 @@ router.get('/get/stats', async (req, res) => {
   return res.json({
     pendingTweet,
     registeredUsers,
+    txQueue,
     approvedTweet,
     tweets
   });
