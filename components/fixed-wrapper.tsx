@@ -104,7 +104,7 @@ export const FixedWrapper: React.FC = () => {
       return null;
     }
 
-    const result = await claimTweet(userState.jwtToken, eventState.content);
+    const result = await claimTweet(userState.jwtToken, eventState.content, key);
 
     if (result.code === ERROR_CODES.lowFavoriteCount || result.code === ERROR_CODES.campaignDown) {
       EventStore.setContent(result);

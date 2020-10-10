@@ -1,21 +1,19 @@
 const express = require('express');
 const { Op } = require('sequelize');
 const { fromBech32Address } = require('@zilliqa-js/crypto');
-const request = require('request');
 const checkSession = require('../middleware/check-session');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
 const verifyJwt = require('../middleware/verify-jwt');
 const verifyCampaign = require('../middleware/campaign-check');
+const verifyRecaptcha = require('../middleware/recaptcha');
 
 const router = express.Router();
 
 const ERROR_CODES = require('../../config/error-codes');
 const ENV = process.env.NODE_ENV || 'development';
 const END_OF_CAMPAIGN = process.env.END_OF_CAMPAIGN;
-const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY;
 const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 3;
-const VERIFICATION_URL = 'https://www.google.com/recaptcha/api/siteverify' 
 
 const dev = ENV !== 'production';
 const {
@@ -198,33 +196,9 @@ if (!END_OF_CAMPAIGN) {
  *         schema:
  *           $ref: '#/definitions/GeneralError'
  */
-router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
+router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, verifyRecaptcha, async (req, res) => {
   const bech32Address = req.params.address;
   const { user } = req.verification;
-  const { recaptcha } = req.headers;
-  const { remoteAddress } = req.connection
-  const url = `${VERIFICATION_URL}?secret=${RECAPTCHA_SECRET_KEY}&response=${recaptcha}&remoteip=${remoteAddress}`;
-  const checkRecaptcha = () => new Promise((resolve, reject) => {
-    request(url, (error, response, body) => {
-      if (error) {
-        return reject(error)
-      }
-      body = JSON.parse(body);
-      if (body.success) {
-        return resolve(body)
-      }
-      return reject(body)
-    });
-  });
-
-  try {
-    await checkRecaptcha();
-  } catch (err) {
-    return res.status(400).json({
-      code: ERROR_CODES.invalidRecaptcha,
-      message: 'Invalid Recaptcha content.'
-    });
-  }
 
   try {
     if (!fromBech32Address(bech32Address)) {
