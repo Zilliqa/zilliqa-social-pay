@@ -187,7 +187,7 @@ export const FixedWrapper: React.FC = () => {
       recaptchaKey
     });
 
-    setRecaptchaKey('')
+    setRecaptchaKey('');
 
     if (result.code === ERROR_CODES.unauthorized) {
       EventStore.reset();
@@ -314,7 +314,7 @@ export const FixedWrapper: React.FC = () => {
       </Modal>
       <Modal
         show={eventState.current === Events.Claimed}
-        onBlur={() => EventStore.reset()}
+        onBlur={handleClickOk}
       >
         <Container css="display: grid;justify-items: center;grid-gap: 15px;min-width: 300px;">
           {Boolean(recaptchaClaim) ? (

@@ -81,6 +81,7 @@ export const RedCross: NextPage<PageProp> = () => {
     <React.Fragment>
       <PageContainer>
         <Illustration src={getImg('3x', browserState.format, 'asset')} />
+        <Illustration src={getImg('3x', 'svg', 'hashtag')} />
       </PageContainer>
       <Link href="/auth">
         <LinkContainer>
