@@ -1,5 +1,6 @@
 import React from 'react';
 import * as Effector from 'effector-react';
+import moment from 'moment';
 import { validation } from '@zilliqa-js/util';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
 import ClipLoader from 'react-spinners/ClipLoader';
@@ -35,6 +36,8 @@ import {
 import ERROR_CODES from 'config/error-codes';
 import { addTweet } from 'utils/update-tweets';
 import { Twitte } from 'interfaces';
+import { claimTweet } from 'utils/claim-tweet';
+import { timerCalc } from 'utils/timer';
 
 const SPINER_SIZE = 150;
 const WIDTH_MOBILE = 250;
@@ -53,6 +56,7 @@ export const FixedWrapper: React.FC = () => {
   const eventState = Effector.useStore(EventStore.store);
   const userState = Effector.useStore(UserStore.store);
   const blockchainState = Effector.useStore(BlockchainStore.store);
+  const twitterState = Effector.useStore(TwitterStore.store);
   // Effector hooks //
 
   // React hooks //*
@@ -64,8 +68,93 @@ export const FixedWrapper: React.FC = () => {
   const [twitterWidth] = React.useState(isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT);
   const [placeholder, setPlaceholder] = React.useState<string>();
   const [recaptchaKey, setRecaptchaKey] = React.useState<string>('');
+  const [recaptchaClaim, setRecaptchaClaim] = React.useState<string>('');
   const [disabledAddress, setDisabledAddress] = React.useState<boolean>();
 
+  const handleClickOk = React.useCallback(() => {
+    EventStore.reset();
+    setRecaptchaClaim('');
+  }, [setRecaptchaClaim, recaptchaClaim]);
+  const handleClickClaim = React.useCallback(async (key: string) => {
+    EventStore.setEvent(Events.Load);
+
+    await UserStore.updateUserState(null);
+    await BlockchainStore.updateBlockchain(null);
+
+    if (userState.synchronization) {
+      EventStore.setContent({
+        message: 'Waiting for address to sync...'
+      });
+      EventStore.setEvent(Events.Error);
+
+      return null;
+    } else if (Boolean(blockchainState.dayTimer)) {
+      EventStore.setContent({
+        message: `You can participate: ${blockchainState.dayTimer}`
+      });
+      EventStore.setEvent(Events.Error);
+
+      return null;
+    } else if (!userState.zilAddress) {
+      EventStore.setContent({
+        message: 'Please configure your Zilliqa address.'
+      });
+      EventStore.setEvent(Events.Error);
+
+      return null;
+    }
+
+    const result = await claimTweet(userState.jwtToken, eventState.content);
+
+    if (result.code === ERROR_CODES.lowFavoriteCount || result.code === ERROR_CODES.campaignDown) {
+      EventStore.setContent(result);
+      EventStore.setEvent(Events.Error);
+
+      return null;
+    } else if (result.code === ERROR_CODES.unauthorized) {
+      router.push('/auth');
+
+      return null;
+    }
+
+    if (result.message) {
+      TwitterStore.setLastBlock(result.lastTweet);
+      BlockchainStore.updateStore({
+        ...blockchainState,
+        BlockNum: result.currentBlock
+      });
+
+      const time = timerCalc(
+        blockchainState,
+        result.lastTweet,
+        Number(blockchainState.blocksPerDay)
+      );
+      EventStore.setContent({
+        message: `You can participate: ${moment(time).fromNow()}`
+      });
+      EventStore.setEvent(Events.Error);
+    } else {
+      const mapetTweets = twitterState.tweets.map((t) => {
+        if (t.id === result.id) {
+          return result;
+        }
+
+        return t;
+      });
+
+      if (Number(result.block) > Number(twitterState.lastBlockNumber)) {
+        TwitterStore.setLastBlock(result.block);
+        BlockchainStore.updateTimer();
+      }
+
+      TwitterStore.setShowTwitterTweetEmbed(false);
+      setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
+
+      TwitterStore.update(mapetTweets);
+
+      setRecaptchaClaim(key);
+    }
+  }, [setRecaptchaClaim, recaptchaClaim, eventState, userState]);
   /**
    * Handle submit (Zilliqa address) form.
    * @param event HTMLForm event.
@@ -228,23 +317,32 @@ export const FixedWrapper: React.FC = () => {
         onBlur={() => EventStore.reset()}
       >
         <Container css="display: grid;justify-items: center;grid-gap: 15px;min-width: 300px;">
-          <Text
-            size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProDemi}
-            fontColors={FontColors.white}
-            align={Sides.center}
-            css="max-width: 300px;"
-          >
-            Claim successful! Your $ZIL reward will be distributed in a while…
-          </Text>
-          <Img src="icons/ok.svg" />
-          <Button
-            sizeVariant={SizeComponent.lg}
-            variant={ButtonVariants.primary}
-            onClick={() => EventStore.reset()}
-          >
-            OK
-          </Button>
+          {Boolean(recaptchaClaim) ? (
+            <React.Fragment>
+              <Text
+                size={FontSize.sm}
+                fontVariant={Fonts.AvenirNextLTProDemi}
+                fontColors={FontColors.white}
+                align={Sides.center}
+                css="max-width: 300px;"
+              >
+                Claim successful! Your $ZIL reward will be distributed in a while…
+              </Text>
+              <Img src="icons/ok.svg" />
+              <Button
+                sizeVariant={SizeComponent.lg}
+                variant={ButtonVariants.primary}
+                onClick={handleClickOk}
+              >
+                OK
+              </Button>
+            </React.Fragment>
+          ) : (
+            <Recaptcha
+              sitekey={browserState.recaptchaKey}
+              verifyCallback={handleClickClaim}
+            />
+          )}
         </Container>
       </Modal>
       <Modal
