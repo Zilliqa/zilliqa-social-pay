@@ -17,12 +17,12 @@ import {
   Fonts
 } from 'config';
 
-const RedCrossContainer = styled.main`
+const PageContainer = styled.main`
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
+  background: linear-gradient(61.84deg, #32FFB4 -10.09%, #090424 79.67%);
   background-repeat: space;
   width: 100%;
   height: 100%;
@@ -71,7 +71,7 @@ const NextPageLink = styled(Text)`
 `;
 
 function getImg(dir: string, format: string, name = 'asset') {
-  return `imgs/redcross_assets/${dir}/${name}.${format}`;
+  return `imgs/assets/${dir}/${name}.${format}`;
 }
 
 export const RedCross: NextPage<PageProp> = () => {
@@ -79,9 +79,9 @@ export const RedCross: NextPage<PageProp> = () => {
 
   return (
     <React.Fragment>
-      <RedCrossContainer>
+      <PageContainer>
         <Illustration src={getImg('3x', browserState.format, 'asset')} />
-      </RedCrossContainer>
+      </PageContainer>
       <Link href="/auth">
         <LinkContainer>
           <NextPageLink
@@ -89,7 +89,7 @@ export const RedCross: NextPage<PageProp> = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
           >
-            Join the celebrations!
+            Next
           </NextPageLink>
           <Img
             src="/icons/arrow.svg"
