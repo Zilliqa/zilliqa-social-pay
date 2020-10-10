@@ -3,7 +3,7 @@ require('dotenv').config();
 const { Op } = require('sequelize');
 const { Zilliqa } = require('@zilliqa-js/zilliqa');
 const { RPCMethod } = require('@zilliqa-js/core');
-const { StatusType, MessageType, SocketState } = require('@zilliqa-js/subscriptions');
+const { StatusType, MessageType } = require('@zilliqa-js/subscriptions');
 const { Account } = require('@zilliqa-js/account');
 const { validation, BN, Long, bytes, units } = require('@zilliqa-js/util');
 const {
@@ -80,7 +80,26 @@ module.exports = {
       return null;
     }
   },
-  async getAccount() {
+  async getLastWithdrawal(profileIds) {
+    const zilliqa = new Zilliqa(httpNode);
+    const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
+    const result = await contract.getSubState(
+      'last_claims',
+      profileIds
+    );
+    const [profileId] = profileIds;
+
+    if (result && result.last_claims && result.last_claims[profileId]) {
+      return Number(result.last_claims[profileId]);
+    }
+
+    return null;
+  },
+  async getAccount(adminAccount) {
+    if (!adminAccount) {
+      throw new Error('admin account is required.');
+    }
+
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
     const statuses = new Admin().statuses;
@@ -89,12 +108,9 @@ module.exports = {
         status: statuses.enabled,
         balance: {
           [Op.gte]: '5000000000000' // 5ZILs
-        }
-      },
-      order: [
-        ['balance', 'DESC'],
-        ['nonce', 'ASC']
-      ]
+        },
+        bech32Address: adminAccount
+      }
     });
 
     if (!account) {
@@ -128,18 +144,21 @@ module.exports = {
   async getInit() {
     const zilliqa = new Zilliqa(httpNode);
     const contract = zilliqa.contracts.at(CONTRACT_ADDRESS);
-    const [
+    let [
       owner,
-      hashtag,
+      hashtags,
       zils_per_tweet,
       blocks_per_day,
       blocks_per_week
     ] = await contract.getInit();
 
+    hashtags = hashtags.value
+
     return {
+      hashtags,
       contract: CONTRACT_ADDRESS,
       owner: toBech32Address(owner.value),
-      hashtag: hashtag.value.toLowerCase(),
+      hashtag: hashtags[0],
       zilsPerTweet: zils_per_tweet.value,
       blocksPerDay: blocks_per_day.value,
       blocksPerWeek: blocks_per_week.value
@@ -175,88 +194,31 @@ module.exports = {
 
     return result;
   },
-  async configureUsers(profileId, address) {
-    if (validation.isBech32(address)) {
-      address = fromBech32Address(address);
-    }
-    const { contract, nonce, zilliqa, account } = await this.getAccount();
+  async verifyTweet(params, adminAccount) {
+    const { contract, nonce, account, zilliqa } = await this.getAccount(adminAccount);
     const version = await this.version();
+    const calcGasLimit = params.length < 6 ? 9000 : 1500 * params.length;
     const data = JSON.stringify({
-      _tag: 'ConfigureUsers',
+      _tag: 'VerifyTweets',
       params: [
         {
-          vname: 'twitter_id',
-          type: 'String',
-          value: `${profileId}`
-        },
-        {
-          vname: 'recipient_address',
-          type: 'ByStr20',
-          value: `${address}`
-        }
-      ]
-    });
-
-    const zilTxData = zilliqa.transactions.new({
-      data,
-      nonce,
-      version,
-      toAddr: contract.address,
-      pubKey: zilliqa.wallet.defaultAccount.publicKey,
-      amount: new BN(0),
-      gasPrice: new BN('1000000000'),
-      gasLimit: Long.fromNumber(9000)
-    });
-    const { txParams } = await zilliqa.wallet.sign(zilTxData);
-    const tx = await zilliqa.provider.send(
-      RPCMethod.CreateTransaction,
-      txParams
-    );
-
-    if (tx.error && tx.error.message.includes(`Nonce (${nonce}) lower than current`)) {
-      const accResult = await this.getCurrentAccount(account.address);
-
-      account.update({
-        nonce: accResult.nonce,
-        balance: accResult.balance
-      });
-    }
-
-    if (tx.error && tx.error.message) {
-      throw new Error(tx.error.message);
-    }
-
-    await account.update({
-      nonce
-    });
-
-    return tx.result;
-  },
-  async verifyTweet({ profileId, tweetId, tweetText, startPos }) {
-    const { contract, nonce, account, zilliqa } = await this.getAccount();
-    const version = await this.version();
-    const data = JSON.stringify({
-      _tag: 'VerifyTweet',
-      params: [
-        {
-          vname: 'twitter_id',
-          type: 'String',
-          value: `${profileId}`
-        },
-        {
-          vname: 'tweet_id',
-          type: 'String',
-          value: `${tweetId}`
-        },
-        {
-          vname: 'tweet_text',
-          type: 'String',
-          value: `${tweetText}`
-        },
-        {
-          vname: 'start_pos',
-          type: 'Uint32',
-          value: `${startPos}`
+          vname: 'verify_infos',
+          type: 'List (VerifyInfo)',
+          value: params.map((arg) => ({
+            constructor: 'VerifyInfo',
+            argtypes: [
+              'String',
+              'ByStr20',
+              'String',
+              'List String'
+            ],
+            arguments: [
+              arg.userId,
+              fromBech32Address(arg.zilAddress),
+              arg.tweetId,
+              arg.tags
+            ]
+          }))
         }
       ]
     });
@@ -268,7 +230,7 @@ module.exports = {
       pubKey: zilliqa.wallet.defaultAccount.publicKey,
       amount: new BN(0),
       gasPrice: new BN('1000000000'),
-      gasLimit: Long.fromNumber(9000)
+      gasLimit: Long.fromNumber(calcGasLimit)
     });
     const { txParams } = await zilliqa.wallet.sign(zilTxData);
     const tx = await zilliqa.provider.send(
@@ -285,7 +247,6 @@ module.exports = {
       });
     }
     if (tx.error && tx.error.message) {
-      console.error(JSON.stringify(txParams, null, 4));
       throw new Error(tx.error.message);
     }
 
@@ -314,7 +275,7 @@ module.exports = {
   async generateAddresses(amount) {
     const count = await Admin.count();
 
-    for (let index = count; index < amount; index++) {
+    for (let index = count; index < Number(amount); index++) {
       const privateKey = schnorr.generatePrivateKey();
       const account = new Account(privateKey);
       let balance = '0';
@@ -355,7 +316,7 @@ module.exports = {
     );
 
     subscriber.emitter.on(StatusType.SUBSCRIBE_NEW_BLOCK, (event) => {
-      console.log('get SubscribeNewBlock echo: ', event);
+      //
     });
 
     subscriber.emitter.on(MessageType.NEW_BLOCK, (event) => {

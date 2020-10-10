@@ -9,7 +9,7 @@ export const AroundedContainer = styled.form`
   flex-direction: column;
   align-items: center;
 
-  background-color: #5c63efb3;
+  background-color: rgba(92, 99, 239, 0.7019607843137254);
   width: 300px;
   min-height: 400px;
   z-index: 1;
@@ -19,10 +19,9 @@ export const AroundedContainer = styled.form`
   padding-top: 70px;
   padding-bottom: 70px;
 
-  transition: all 1s ease-out;
-
-  @media (max-width: 400px) {
+  @media (max-width: 600px) {
     margin: 0;
-    width: 310px;
   }
+
+  ${(props: { css?: string; }) => props.css}
 `;

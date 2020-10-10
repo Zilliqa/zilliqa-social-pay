@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useRouter } from 'next/router';
 import * as Effector from 'effector-react';
 import moment from 'moment';
 
@@ -11,6 +12,7 @@ import { Text } from 'components/text';
 import { Container } from 'components/container';
 
 import { FontColors, FontSize, Fonts } from 'config';
+import ERROR_CODES from 'config/error-codes';
 
 type ShwoType = {
   show: boolean;
@@ -20,7 +22,7 @@ const NotificationContainer = styled.div`
   display: ${(props: ShwoType) => props.show ? 'block' : 'none'};
 
   position: absolute;
-  top: 100px;
+  top: 130px;
 
   transform: translate(-74%, 0);
 
@@ -35,7 +37,7 @@ const NotificationContainer = styled.div`
   animation-name: fadeShow;
 
   @media (max-width: 494px) {
-    transform: translate(0, 0);
+    transform: translate(-18%,15%);
   }
 
   :before {
@@ -53,7 +55,7 @@ const NotificationContainer = styled.div`
     transform: rotate(45deg);
 
     @media (max-width: 494px) {
-      left: 10px;
+      left: 65px;
     }
   }
 `;
@@ -65,6 +67,9 @@ const Closer = styled.a`
   right: 0;
   left: 0;
   z-index: 4;
+
+  animation-duration: .5s;
+  animation-name: fade;
 `;
 const ProfileContainer = styled.div`
   :before {
@@ -76,12 +81,12 @@ const ProfileContainer = styled.div`
 
     background: #00ffff;
 
-    border-radius: 50%;
+    border-radius: 100%;
     transform: translate(-20%, 300%);
   }
 `;
 const ImgContainer = styled(Img)`
-  border-radius: 50%;
+  border-radius: 100%;
 
   ${(props: ShwoType) => props.show ? 'cursor: pointer;' : ''};
   ${(props: ShwoType) => props.show ? 'border: 0.1rem #00ffff solid;' : ''};
@@ -102,6 +107,8 @@ const FooterContainer = styled(Container)`
 `;
 
 export const Profile: React.FC = () => {
+  const router = useRouter();
+
   const userState = Effector.useStore(UserStore.store);
   const notificationState = Effector.useStore(NotificationStore.store);
 
@@ -147,10 +154,21 @@ export const Profile: React.FC = () => {
    * Hanlder for remove all notifications.
    */
   const handleRemoveAllNotifications = React.useCallback(() => {
-    NotificationStore.removeNotifications(userState.jwtToken);
+    NotificationStore
+      .removeNotifications(userState.jwtToken)
+      .then((result) => {
+        if (typeof result !== 'string' && result.code === ERROR_CODES.unauthorized) {
+          setNotificationShow(false);
+          UserStore.clear();
+          router.push('/auth');
+
+          return null;
+        }
+      });
+
     setNotificationShow(false);
     setOfset(Number(notificationState.limit));
-  }, [userState, notificationState.count]);
+  }, [userState, notificationState.count, router]);
 
   /**
    * Handle for Click to More.
@@ -182,7 +200,7 @@ export const Profile: React.FC = () => {
         <HeaderContainer>
           <Text
             size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProMedium}
+            fontVariant={Fonts.AvenirNextLTProDemi}
             css="z-index: 6;"
           >
             Notifications
@@ -205,22 +223,22 @@ export const Profile: React.FC = () => {
             <Text
               fontColors={FontColors.black}
               size={FontSize.sm}
-              fontVariant={Fonts.AvenirNextLTProMedium}
+              fontVariant={Fonts.AvenirNextLTProDemi}
             >
               {item.title}
             </Text>
             <Container css="display: flex;justify-content: space-between;">
               <Text
                 fontColors={FontColors.black}
-                size={FontSize.sm}
-                fontVariant={Fonts.AvenirNextLTProDemi}
+                size={FontSize.xs}
+                fontVariant={Fonts.AvenirNextLTProRegular}
               >
                 {item.description}
               </Text>
               <Text
                 fontColors={FontColors.black}
-                size={FontSize.sm}
-                fontVariant={Fonts.AvenirNextLTProDemi}
+                size={FontSize.xs}
+                fontVariant={Fonts.AvenirNextLTProRegular}
                 css="margin-left: 30px;"
               >
                 {moment(item.createdAt).fromNow()}

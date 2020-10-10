@@ -48,6 +48,7 @@ export function socket() {
     }
 
     UserStore.setUser(user);
+    BlockchainStore.updateTimer();
   });
 
   /**
@@ -58,19 +59,21 @@ export function socket() {
   socketConnector.on(EVENTS.tweetsUpdate, (data: string) => {
     const tweet = JSON.parse(data) as Twitte;
     const tweetsState = TwitterStore.store.getState();
-    const foundIndex = tweetsState.tweets.findIndex((t) => t.idStr === tweet.idStr);
 
-    if (foundIndex < 0) {
-      return null;
-    } else if (JSON.stringify(tweetsState.tweets[foundIndex]) === data) {
-      return null;
+    tweetsState.tweets = tweetsState.tweets.map((t) => {
+      if (t.id === tweet.id) {
+        return tweet;
+      }
+
+      return t;
+    });
+
+    if (Number(tweetsState.lastBlockNumber) < Number(tweet.block)) {
+      TwitterStore.setLastBlock(Number(tweet.block));
+      BlockchainStore.updateTimer();
     }
 
-    tweetsState.tweets[foundIndex] = tweet;
-
     TwitterStore.update(tweetsState.tweets);
-    TwitterStore.setLastBlock(tweet.block);
-    BlockchainStore.updateTimer();
   });
 
   socketConnector.on(EVENTS.notificationCreate, (data: string) => {

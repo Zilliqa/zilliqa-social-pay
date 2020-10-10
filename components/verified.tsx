@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useRouter } from 'next/router';
 import * as Effector from 'effector-react';
 import { useMediaQuery } from 'react-responsive';
-import moment from 'moment';
 import ReactPaginate from 'react-paginate';
 
 import UserStore from 'store/user';
@@ -11,49 +11,63 @@ import BlockchainStore from 'store/blockchain';
 import EventStore from 'store/event';
 import NotificationStore from 'store/notification';
 
-import { Text } from 'components/text';
 import { MinLoader } from 'components/min-loader';
 import { Img } from 'components/img';
 import { Container } from 'components/container';
 import { NotificationWarning } from 'components/notification-control';
-import { TwitterHashtagButton, TwitterTweetEmbed } from 'react-twitter-embed';
+import { TwitterTweetEmbed } from 'react-twitter-embed';
 
-import { FontSize, Fonts, FontColors, Events } from 'config';
+import { Events } from 'config';
 import NOTIFICATIONS_TYPES from 'config/notifications-types';
 import { viewTx } from 'utils/viewblock';
-import { claimTweet } from 'utils/claim-tweet';
 import { Twitte } from 'interfaces';
-import { timerCalc } from 'utils/timer';
 import { deepCopy } from 'utils/deep-copy';
-
-const HaventVerified = styled.div`
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  width: 100%;
-`;
-const TweetEmbedContainer = styled.div`
-  display: grid;
-  align-items: center;
-  grid-template-columns: 100px 1fr;
-  grid-gap: 10px;
-  justify-items: end;
-
-  @media (max-width: 412px) {
-    grid-template-rows: auto 1fr;
-    grid-template-columns: 1fr;
-  }
-`;
+import { toUnique } from 'utils/to-unique';
 
 const WIDTH_MOBILE = 250;
 const WIDTH_DEFAULT = 450;
 const PAGE_LIMIT = 3;
-const SLEEP = 10;
+const SLEEP = 100;
+
+const VerifiedContainer = styled(Container)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: ${WIDTH_MOBILE}px;
+`;
+const IconsContainer = styled.div`
+  min-width: 100px;
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 10px;
+
+  @media (max-width: 562px) {
+    min-width: unset;
+  }
+`;
+const TweetEmbedContainer = styled.div`
+  display: ${(props: { show?: boolean; }) => props.show ? 'flex' : 'none'};
+  align-items: center;
+
+  max-width: 560px;
+
+  animation-duration: 1.3s;
+  animation-name: fadeInDown;
+
+  @media (max-width: 562px) {
+    margin-top: 50px;
+    flex-direction: column;
+    margin-bottom: 10%;
+  }
+`;
+
 /**
  * Show user tweets.
  */
 export const Verified: React.FC = () => {
-  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
+  const router = useRouter();
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 562px)' });
 
   const userState = Effector.useStore(UserStore.store);
   const twitterState = Effector.useStore(TwitterStore.store);
@@ -61,107 +75,24 @@ export const Verified: React.FC = () => {
   const notificationState = Effector.useStore(NotificationStore.store);
 
   const [paginateOffset, setPaginateOffset] = React.useState(0);
-
-  /**
-   * Hash tag from smart contract.
-   */
-  const hashTag = React.useMemo(() => {
-    if (!blockchainState.hashtag) {
-      return null;
-    }
-
-    const splited = blockchainState.hashtag.split('');
-
-    splited[1] = splited[1].toUpperCase();
-
-    return splited.join('');
-  }, [blockchainState]);
-  /**
-   * If user have not any tweets.
-   */
-  const nonTweets = React.useMemo(() => {
-    if (!twitterState.tweets || twitterState.tweets.length === 0) {
-      return 'display: block;';
-    }
-
-    return 'display: none;';
-  }, [twitterState]);
   const sortedTweets = React.useMemo(() => {
-    const maxDateValue = Math.max.apply(Math, twitterState.tweets.map(
-      (tw) => new Date(tw.createdAt).valueOf())
-    );
-
-    return deepCopy(twitterState.tweets)
+    const array = deepCopy(twitterState.tweets)
       .sort((a: Twitte, b: Twitte) => {
-        if (a.claimed) {
-          return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf() + maxDateValue;
-        } else if (b.claimed) {
-          return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf() + maxDateValue;
-        }
-
         return new Date(b.createdAt).valueOf() - new Date(a.createdAt).valueOf();
       })
       .splice(paginateOffset, PAGE_LIMIT);
+
+    return toUnique(array, 'idStr');
   }, [
-    twitterState,
+    twitterState.tweets,
     paginateOffset,
     PAGE_LIMIT
   ]);
 
   const handleClickClaim = React.useCallback(async (tweet: Twitte) => {
-    EventStore.setEvent(Events.Load);
-
-    await UserStore.updateUserState(null);
-    await BlockchainStore.updateBlockchain(null);
-
-    if (userState.synchronization) {
-      EventStore.setContent({
-        message: 'Waiting for address to sync...'
-      });
-      EventStore.setEvent(Events.Error);
-
-      return null;
-    } else if (Boolean(blockchainState.dayTimer)) {
-      EventStore.setContent({
-        message: `You can participate: ${blockchainState.dayTimer}`
-      });
-      EventStore.setEvent(Events.Error);
-
-      return null;
-    } else if (!userState.zilAddress) {
-      EventStore.setContent({
-        message: 'For claim you need configuration Zilliqa address.'
-      });
-      EventStore.setEvent(Events.Error);
-
-      return null;
-    }
-
-    const result = await claimTweet(userState.jwtToken, tweet);
-
-    if (result.message) {
-      TwitterStore.setLastBlock(result.lastTweet);
-      BlockchainStore.updateStore({
-        ...blockchainState,
-        BlockNum: result.currentBlock
-      });
-
-      const time = timerCalc(
-        blockchainState,
-        userState,
-        result.lastTweet,
-        Number(blockchainState.blocksPerDay)
-      );
-      EventStore.setContent({
-        message: `You can participate: ${moment(time).fromNow()}`
-      });
-      EventStore.setEvent(Events.Error);
-    } else {
-      TwitterStore.setLastBlock(result.block);
-      BlockchainStore.updateTimer();
-      EventStore.reset();
-    }
-  }, [userState, blockchainState, twitterState]);
+      EventStore.setContent(tweet);
+      EventStore.setEvent(Events.Claimed);
+  }, [userState, blockchainState, twitterState, router, setPaginateOffset]);
   const handleNextPageClick = React.useCallback(async (data) => {
     const selected = Number(data.selected);
     const offset = Math.ceil(selected * PAGE_LIMIT);
@@ -183,6 +114,18 @@ export const Verified: React.FC = () => {
     twitterState,
     SLEEP
   ]);
+  const handTweetLoad = React.useCallback(async (loaded, tweete: Twitte) => {
+    if (!loaded) {
+      await TwitterStore.deleteTweet({
+        tweete,
+        jwt: userState.jwtToken
+      });
+      TwitterStore.setShowTwitterTweetEmbed(false);
+      setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
+
+      return null;
+    }
+  }, [userState.jwtToken]);
 
   /**
    * Effect for loading tweets rewards.
@@ -209,69 +152,92 @@ export const Verified: React.FC = () => {
   }, [notificationState.serverNotifications]);
 
   return (
-    <Container>
-      <Container css={nonTweets}>
-        <HaventVerified>
-          <Text
-            size={FontSize.sm}
-            fontVariant={Fonts.AvenirNextLTProDemi}
-            fontColors={FontColors.white}
-          >
-            No tweets found.
-          </Text>
-          {hashTag ? <TwitterHashtagButton
-            tag={hashTag}
-            options={{
-              size: 'large',
-              screenName: userState.screenName
-            }}
-          /> : null}
-        </HaventVerified>
-      </Container>
+    <VerifiedContainer>
       {twitterState.showTwitterTweetEmbed ? sortedTweets.map((tweet: Twitte, index: number) => (
-        <TweetEmbedContainer key={index}>
-          {(!tweet.claimed && !tweet.approved && !tweet.rejected) ? (
-            <Img
-              src="/icons/refund.svg"
-              css="cursor: pointer;width: 100px;height: 40px;"
-              onClick={() => handleClickClaim(tweet)}
+        <Container key={index}>
+          <TweetEmbedContainer show={true}>
+            <IconsContainer>
+              {(!tweet.claimed && !tweet.approved && !tweet.rejected && !isTabletOrMobile) ? (
+                <Img
+                  src="/icons/refund.svg"
+                  css="cursor: pointer;width: 100px;height: 40px;"
+                  onClick={() => handleClickClaim(tweet)}
+                />
+              ) : null}
+              {tweet.approved && !isTabletOrMobile ? (
+                <a
+                  href={tweet.txId ? viewTx(tweet.txId) : undefined}
+                  target="_blank"
+                >
+                  <Img src="/icons/ok.svg" />
+                </a>
+              ) : null}
+              {Boolean(tweet.rejected && !isTabletOrMobile) ? (
+                <a
+                  href={tweet.txId ? viewTx(tweet.txId) : undefined}
+                  target="_blank"
+                >
+                  <Img
+                    src="/icons/close.svg"
+                    css="width: 40px;height: 40px;"
+                  />
+                </a>
+              ) : null}
+              {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed && !isTabletOrMobile) ? (
+                <a
+                  href={tweet.txId ? viewTx(tweet.txId) : undefined}
+                  target="_blank"
+                >
+                  <MinLoader width="40" height="40" />
+                </a>
+              ) : null}
+            </IconsContainer>
+            <TwitterTweetEmbed
+              screenName={userState.screenName}
+              tweetId={tweet.idStr}
+              options={{
+                width: isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT
+              }}
+              onLoad={(content: any) => handTweetLoad(Boolean(content), tweet)}
             />
-          ) : null}
-          {tweet.approved ? (
-            <a
-              href={tweet.txId ? viewTx(tweet.txId) : undefined}
-              target="_blank"
-            >
-              <Img src="/icons/ok.svg" />
-            </a>
-          ) : null}
-          {Boolean(tweet.rejected) ? (
-            <a
-              href={tweet.txId ? viewTx(tweet.txId) : undefined}
-              target="_blank"
-            >
-              <Img
-                src="/icons/close.svg"
-                css="width: 40px;height: 40px;"
-              />
-            </a>
-          ) : null}
-          {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed) ? (
-            <a
-              href={tweet.txId ? viewTx(tweet.txId) : undefined}
-              target="_blank"
-            >
-              <MinLoader width="40" height="40" />
-            </a>
-          ) : null}
-          <TwitterTweetEmbed
-            screenName={userState.screenName}
-            tweetId={tweet.idStr}
-            options={{
-              width: isTabletOrMobile ? WIDTH_MOBILE : WIDTH_DEFAULT
-            }}
-          />
-        </TweetEmbedContainer>
+            <IconsContainer>
+              {(!tweet.claimed && !tweet.approved && !tweet.rejected && isTabletOrMobile) ? (
+                <Img
+                  src="/icons/refund.svg"
+                  css="cursor: pointer;width: 100px;height: 40px;"
+                  onClick={() => handleClickClaim(tweet)}
+                />
+              ) : null}
+              {tweet.approved && isTabletOrMobile ? (
+                <a
+                  href={tweet.txId ? viewTx(tweet.txId) : undefined}
+                  target="_blank"
+                >
+                  <Img src="/icons/ok.svg" />
+                </a>
+              ) : null}
+              {Boolean(tweet.rejected && isTabletOrMobile) ? (
+                <a
+                  href={tweet.txId ? viewTx(tweet.txId) : undefined}
+                  target="_blank"
+                >
+                  <Img
+                    src="/icons/close.svg"
+                    css="width: 40px;height: 40px;"
+                  />
+                </a>
+              ) : null}
+              {Boolean(!tweet.approved && !tweet.rejected && tweet.claimed && isTabletOrMobile) ? (
+                <a
+                  href={tweet.txId ? viewTx(tweet.txId) : undefined}
+                  target="_blank"
+                >
+                  <MinLoader width="40" height="40" />
+                </a>
+              ) : null}
+            </IconsContainer>
+          </TweetEmbedContainer>
+        </Container>
       )) : null}
       {twitterState.count > PAGE_LIMIT ? (
         <ReactPaginate
@@ -287,7 +253,7 @@ export const Verified: React.FC = () => {
           activeClassName={'active'}
         />
       ) : null}
-    </Container>
+    </VerifiedContainer>
   );
 };
 

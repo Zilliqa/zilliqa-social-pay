@@ -12,7 +12,8 @@ import {
   FontColors,
   Fonts,
   FontSize,
-  APIs
+  APIs,
+  Sides
 } from 'config';
 
 type Prop = {
@@ -42,8 +43,10 @@ export const TwitterConnect: React.FC<Prop> = ({ show, connected }) => {
         fontColors={FontColors.white}
         fontVariant={Fonts.AvenirNextLTProDemi}
         size={FontSize.md}
+        align={Sides.center}
+        css="max-width: 200px;"
       >
-        Sign In by Twitter
+        Sign in using your Twitter account
       </Text>
       <TwitterLogin
         loginUrl={APIs.twitterAuth}

@@ -1,10 +1,12 @@
 import Head from 'next/head';
 import App from 'next/app';
+import dynamic from 'next/dynamic';
 
 import UserStore from 'store/user';
 import BrowserStore from 'store/browser';
+import BlockchainStore from 'store/blockchain';
 
-import { Container } from 'components/container';
+const Container = dynamic(() => import('components/container'));
 import { FixedWrapper } from 'components/fixed-wrapper';
 
 import { ImgFormats } from 'config';
@@ -13,11 +15,31 @@ import { supportsWebp } from 'utils/webp-support';
 
 import { BaseStyles, AnimateStyles } from 'styles';
 
+import { description } from 'package.json';
+
 class SocialPay extends App {
 
-  public componentDidMount() {
-    supportsWebp()
-      .then((isWebp) => isWebp ? null : BrowserStore.setformat(ImgFormats.png));
+  public state = {
+    loaded: false
+  };
+
+  public async componentDidMount() {
+    const isWebp = await supportsWebp();
+    let { blockchainInfo, recaptcha } = this.props.pageProps;
+
+    if (recaptcha && recaptcha.RECAPTCHA_SITE_KEY) {
+      BrowserStore.setRecaptchaKey(recaptcha.RECAPTCHA_SITE_KEY);
+    }
+
+    if (!isWebp) {
+      BrowserStore.setformat(ImgFormats.png);
+    }
+
+    if (!blockchainInfo) {
+      blockchainInfo = await BlockchainStore.updateBlockchain(null);
+    }
+
+    BlockchainStore.updateStore(blockchainInfo);
 
     if (typeof window !== 'undefined') {
       UserStore.getJWT();
@@ -26,6 +48,8 @@ class SocialPay extends App {
         UserStore.setUser(this.props.pageProps.user);
       }
     }
+
+    this.setState({ loaded: true });
   }
 
   public render() {
@@ -35,7 +59,13 @@ class SocialPay extends App {
       <Container>
         <Head>
           <title>SocialPay</title>
+          <meta name="description" content={description} />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:site" content="https://twitter.com/zilliqa" />
+          <meta name="twitter:creator" content="@zilliqa" />
+          <meta name="twitter:title" content="zilliqa" />
+          <meta name="twitter:description" content="The high-performance, high-security blockchain." />
           <link rel="apple-touch-icon" sizes="57x57" href="/favicons/apple-icon-57x57.png" />
           <link rel="apple-touch-icon" sizes="60x60" href="/favicons/apple-icon-60x60.png" />
           <link rel="apple-touch-icon" sizes="72x72" href="/favicons/apple-icon-72x72.png" />
@@ -53,11 +83,12 @@ class SocialPay extends App {
           <meta name="msapplication-TileColor" content="#ffffff" />
           <meta name="msapplication-TileImage" content="/favicons/ms-icon-144x144.png" />
           <meta name="theme-color" content="#ffffff" />
+          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         </Head>
         <BaseStyles />
         <AnimateStyles />
         <FixedWrapper />
-        <Component {...pageProps} />
+        {this.state.loaded ? <Component {...pageProps} /> : null }
       </Container>
     );
   }

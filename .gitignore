@@ -7,7 +7,10 @@ node_modules
 
 .env
 *.sql
+*.sql*
 .DS_Store
+
+dump.*
 
 # testing
 /coverage

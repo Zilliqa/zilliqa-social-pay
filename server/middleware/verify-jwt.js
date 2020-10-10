@@ -1,5 +1,8 @@
+
 const models = require('../models');
 const { User } = models.sequelize.models;
+
+const ERROR_CODES = require('../../config/error-codes');
 
 module.exports = async function (req, res, next) {
   const jwtToken = req.headers.authorization;
@@ -10,9 +13,15 @@ module.exports = async function (req, res, next) {
     const user = await User.findByPk(decoded.id);
 
     if (!user) {
-      throw new Error('Not found');
+      return res.status(401).json({
+        code: ERROR_CODES.unauthorized,
+        message: 'Unauthorized'
+      });
     } else if (user.status === statuses.baned) {
-      throw new Error('User has been baned');
+      return res.status(401).json({
+        code: ERROR_CODES.ban,
+        message: 'User has been baned'
+      });
     }
 
     req.verification = {
@@ -22,11 +31,14 @@ module.exports = async function (req, res, next) {
 
     next();
   } catch (err) {
+    req.app.settings.log.error('middleware/verify-jwt', err);
+
     res.clearCookie(process.env.SESSION);
     res.clearCookie(`${process.env.SESSION}.sig`);
     res.clearCookie('io');
 
     return res.status(401).json({
+      code: ERROR_CODES.unauthorized,
       message: 'Unauthorized'
     });
   }

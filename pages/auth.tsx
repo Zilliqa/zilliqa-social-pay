@@ -8,12 +8,15 @@ import * as Effector from 'effector-react';
 
 import UserStore from 'store/user';
 import BrowserStore from 'store/browser';
+import NotificationStore from 'store/notification';
 
 import { Container } from 'components/container';
 import { Img } from 'components/img';
 
 const ZilliqaConnect = dynamic(() => import('components/zilliqa-connect'));
 const TwitterConnect = dynamic(() => import('components/twitter-conecter'));
+
+import { PageProp } from 'interfaces';
 
 const AuthContainer = styled(Container)`
   display: flex;
@@ -27,7 +30,6 @@ const AuthContainer = styled(Container)`
 
   @media (max-width: 600px) {
     justify-content: center;
-    align-items: flex-end;
     padding-bottom: 20%;
     background: linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
     background-repeat: round;
@@ -44,7 +46,7 @@ const Background = styled(Img)`
   height: auto;
 `;
 
-export const AuthPage: NextPage = () => {
+export const AuthPage: NextPage<PageProp> = () => {
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 546px)' });
   const router = useRouter();
 
@@ -73,17 +75,19 @@ export const AuthPage: NextPage = () => {
         router.push('/');
       }
     }
+
+    NotificationStore.clearNotification();
   }, [userState, router]);
 
   return (
     <React.Fragment>
       <AuthContainer>
         <TwitterConnect
-          show={Boolean(!userState.jwtToken)}
+          show={Boolean(!userState.jwtToken || !userState.username)}
           connected={handleConnected}
         />
         <ZilliqaConnect
-          show={Boolean(!userState.zilAddress && userState.jwtToken)}
+          show={Boolean(userState.username && !userState.zilAddress && userState.jwtToken)}
           connected={handleConnected}
         />
       </AuthContainer>

@@ -1,38 +1,50 @@
 require('dotenv').config();
 
 const schedule = require('node-schedule');
-const debug = require('debug')('zilliqa-social-pay:scheduler');
+const bunyan = require('bunyan');
+const log = bunyan.createLogger({ name: 'scheduler:blockchain' });
+const redis = require('redis');
+const { validation } = require('@zilliqa-js/util');
 
-require('./blockchain')();
-require('./admin')();
-require('./socket')();
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
+const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 
-schedule.scheduleJob('* * * * *', (fireDate) => {
-  debug(`run blockchain update job ${fireDate}`);
-  require('./blockchain')();
-});
+if (!validation.isBech32(CONTRACT_ADDRESS)) {
+  throw new Error('incorect contract address');
+}
 
-schedule.scheduleJob('0/1 * * * *', (fireDate) => {
-  debug(`run admin accounts update job ${fireDate}`);
-  require('./admin')();
-});
+const redisClient = redis.createClient(REDIS_CONFIG.url);
 
-schedule.scheduleJob('* * * * *', (fireDate) => {
-  debug(`run user address configure ${fireDate}`);
-  require('./user-configure')();
-});
+require('./blockchain')(redisClient)
+  .catch((err) => log.error('BLOCKCHAIN UPDATER:', err));
 
-schedule.scheduleJob('* * * * *', (fireDate) => {
-  debug(`run VerifyTweet job ${fireDate}`);
-  require('./tweets')();
-});
+require('./admin')(redisClient)
+  .catch((err) => log.error('ADMINS UPDATER:', err));
+
+require('./socket')(redisClient);
 
 schedule.scheduleJob('* * * * *', (fireDate) => {
-  debug(`run check broken tweets ${fireDate}`);
-  require('./pedding-tweets')();
+  log.info(`run blockchain update job ${fireDate}`);
+  require('./blockchain')(redisClient)
+    .catch((err) => log.error('BLOCKCHAIN UPDATER:', err));
 });
 
-schedule.scheduleJob('* * * * *', (fireDate) => {
-  debug(`run check broken users ${fireDate}`);
-  require('./pedding-users')();
-});
+// schedule.scheduleJob('0/10 * * * *', (fireDate) => {
+//   log.info(`run admin accounts update job ${fireDate}`);
+//   require('./admin')(redisClient)
+//     .catch((err) => log.error('ADMINS UPDATER:', err));
+// });
+// schedule.scheduleJob('* * * * *', (fireDate) => {
+
+// })
+
+setInterval(() => {
+  require('./pedding-tweets')(redisClient)
+    .catch((err) => log.error('pedding-tweets ERROR:', err));
+}, 2000);
+
+// if (ENV === 'test') {
+//   log.warn('STRESS_TEST has runed!!!');
+//   require('../stress-test')();
+// }

@@ -33,7 +33,12 @@ module.exports = class {
 
         const bodyString = '{ "' + body.replace(/&/g, '", "').replace(/=/g, '": "') + '"}';
 
-        return resolve(JSON.parse(bodyString));
+        try {
+          const parsed = JSON.parse(bodyString);
+          return resolve(parsed);
+        } catch (err) {
+          return reject(body);
+        }
       });
     });
   }
@@ -91,6 +96,13 @@ module.exports = class {
     this.blockchain = blockchain;
   }
 
+  _getHashTags() {
+    return this
+      .blockchain
+      .hashtags
+      .map((hashtag) => hashtag.replace('#', ''))
+  }
+
   _getHashTag() {
     return String(this.blockchain.hashtag)
       .toLowerCase()
@@ -107,7 +119,7 @@ module.exports = class {
       ...opt
     };
     const url = `${API_URL}/1.1/statuses/user_timeline.json`;
-    const hashtag = this._getHashTag();
+    const hashtags = this._getHashTags();
     const tweets = await this.client.get(url, params);
 
     if (!Array.isArray(tweets)) {
@@ -121,11 +133,13 @@ module.exports = class {
         return false;
       }
 
-      const hashtags = tweet.entities.hashtags;
+      const test = hashtags.every(
+        (hashtag) => tweet.entities.hashtags.some(({ text }) => {
+          return String(text).toLowerCase() === String(hashtag).toLowerCase()
+        })
+      );
 
-      return hashtags.some(
-        (tag) => String(tag.text).toLowerCase() === String(hashtag).toLowerCase()
-      ) && userID === profileId;
+      return test && userID === profileId;
     });
   }
 
@@ -138,14 +152,14 @@ module.exports = class {
       include_card_uri: false,
       ...opt
     };
-    const hashtag = this._getHashTag();
+    const hashtags = this._getHashTags();
     const url = `${API_URL}/1.1/statuses/show.json`;
     const tweet = await this.client.get(url, params);
-
-    const hasHashtag = tweet
-      .entities
-      .hashtags
-      .some((tag) => String(tag.text).toLowerCase() === String(hashtag).toLowerCase());
+    const hasHashtag = hashtags.every(
+      (hashtag) => tweet.entities.hashtags.some(({ text }) => {
+        return String(text).toLowerCase() === String(hashtag).toLowerCase()
+      })
+    );
 
     return {
       tweet,

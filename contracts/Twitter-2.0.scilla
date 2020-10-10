@@ -1,0 +1,192 @@
+scilla_version 0
+
+import BoolUtils ListUtils
+
+(***************************************************)
+(*               Associated library                *)
+(***************************************************)
+library SocialPay
+
+let one_msg =
+  fun (msg : Message) =>
+    let nil_msg = Nil {Message} in
+      Cons {Message} msg nil_msg
+      
+let f_eq_string =
+  fun (a : String) =>
+  fun (b : String) =>
+    builtin eq a b
+    
+(* Is "a" a subset of "b", as compared by f *)                                                                                                                                                                     
+let list_is_subset : forall 'A. ('A -> 'A -> Bool) -> List 'A -> List 'A -> Bool =                                                                                                                                 
+  tfun 'A =>                                                                                                                                                                                                       
+  fun (f : 'A -> 'A -> Bool) =>                                                                                                                                                                                    
+  fun (a : List 'A) =>                                                                                                                                                                                             
+  fun (b : List 'A) =>                                                                                                                                                                                             
+    let list_mem_A = @list_mem 'A in                                                                                                                                                                               
+    let in_b = fun (a : 'A) => list_mem_A f a b in                                                                                                                                                                 
+    let forall_A = @list_forall 'A in                                                                                                                                                                              
+    forall_A in_b a
+
+(* Custom ADT storing twitter_id, recipient_address, tweet_id, hashtags *)
+type VerifyInfo =
+| VerifyInfo of String ByStr20 String (List String)
+
+(* Error events *)
+type Error =
+  | CodeNotOwner
+  | CodeNotAdmin
+  | CodeTweetAlreadyExists
+  | CodeTweetNotValid
+  | CodeTweetWithinDay
+
+let make_error_event =
+  fun (result : Error) =>
+    let result_code = 
+      match result with
+      | CodeNotOwner           => Int32 -1
+      | CodeNotAdmin           => Int32 -2
+      | CodeTweetAlreadyExists => Int32 -3
+      | CodeTweetNotValid      => Int32 -4
+      | CodeTweetWithinDay     => Int32 -5
+      end
+    in
+    { _eventname : "Error"; code : result_code }
+
+let tt = True
+
+(***************************************************)
+(*             The contract definition             *)
+(***************************************************)
+
+contract SocialPay
+(
+  owner: ByStr20,
+  expected_hashtags: List String,
+  zils_per_tweet : Uint128,
+  blocks_per_day : Uint32
+)
+
+(* Map of tweet_id to twitter_id *)
+field verified_tweets: Map String String = Emp String String
+
+(* Map of twitter_id to last claim block number *)
+field last_claims: Map String BNum = Emp String BNum
+
+(* Map of address to bool status of admin *)
+field admins: Map ByStr20 Bool = Emp ByStr20 Bool
+
+procedure EmitError(err: Error)
+  e = make_error_event err;
+  event e
+end
+
+procedure IsOwner()
+  is_owner = builtin eq owner _sender;
+  match is_owner with
+  | True =>
+  | False =>
+    err = CodeNotOwner;
+    EmitError err
+  end
+end
+
+procedure IsAdmin()
+  is_admin <- exists admins[_sender];
+  match is_admin with
+  | True =>
+  | False =>
+    err = CodeNotAdmin;
+    EmitError err
+  end
+end
+
+procedure ConfigureAdmin(admin_address: ByStr20)
+  is_admin <- exists admins[admin_address];
+  match is_admin with
+  | True =>
+    delete admins[admin_address];
+    e = {_eventname : "DeletedAdmin"; admin_address: admin_address};
+    event e
+  | False =>
+    admins[admin_address] := tt;
+    e = {_eventname : "AddedAdmin"; admin_address: admin_address};
+    event e
+  end
+end
+
+procedure VerifyTweet(verify_info: VerifyInfo)
+  match verify_info with
+  | VerifyInfo twitter_id recipient_address tweet_id hashtags =>
+    already_verified <- exists verified_tweets[tweet_id];
+    match already_verified with
+    | False =>
+      last_claim <- last_claims[twitter_id];
+      current_block <- & BLOCKNUMBER;
+      not_next_day_yet =
+        match last_claim with
+        | Some last_claim_block =>
+          let next_day_block = builtin badd last_claim_block blocks_per_day in
+            builtin blt current_block next_day_block
+        | None => False
+        end;
+      match not_next_day_yet with
+      | False =>
+        is_subset = @list_is_subset String;
+        match_all = is_subset f_eq_string expected_hashtags hashtags;
+        match match_all with
+        | True =>
+          verified_tweets[tweet_id] := twitter_id;
+          last_claims[twitter_id] := current_block;
+          e = {
+            _eventname : "VerifyTweetSuccessful";
+            twitter_id: twitter_id;
+            recipient: recipient_address;
+            tweet_id: tweet_id;
+            reward: zils_per_tweet
+          };
+          event e;
+          msg = {_tag: ""; _recipient: recipient_address; _amount: zils_per_tweet};
+          msgs = one_msg msg;
+          send msgs
+        | False =>
+          err = CodeTweetNotValid;
+          EmitError err
+        end
+      | True =>
+        err = CodeTweetWithinDay;
+        EmitError err
+      end
+    | True =>
+      err = CodeTweetAlreadyExists;
+      EmitError err
+    end
+  end
+end
+
+transition Deposit()
+  IsOwner;
+  accept;
+  e = {_eventname : "DepositSuccessful"; sender: _sender; deposit_amount: _amount};
+  event e
+end
+
+transition ConfigureAdmins(admin_addresses: List ByStr20)
+  IsOwner;
+  forall admin_addresses ConfigureAdmin
+end
+
+transition VerifyTweets(verify_infos: List VerifyInfo)
+  IsAdmin;
+  forall verify_infos VerifyTweet
+end
+
+transition ReturnFund ()
+  IsOwner;
+  bal <- _balance;
+  e = {_eventname : "ReturnFundSuccessful"; returned_amount: bal};
+  event e;
+  msg = {_tag       : ""; _recipient : owner; _amount    : bal};
+  msgs = one_msg msg;
+  send msgs
+end

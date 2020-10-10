@@ -1,13 +1,17 @@
-const debug = require('debug')('zilliqa-social-pay:scheduler:socket');
+const bunyan = require('bunyan');
 const zilliqa = require('../zilliqa');
 const models = require('../models');
 const eventUtils = require('../event-utils');
+const { strict } = require('assert');
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const ENV = process.env.NODE_ENV || 'development';
+const REDIS_CONFIG = require('../config/redis')[ENV];
 
 const { blockchain } = models.sequelize.models;
+const log = bunyan.createLogger({ name: 'scheduler:socket' });
 
-module.exports = async function () {
+module.exports = async function (redisClient) {
   try {
     await zilliqa.blockSubscribe(async (newBlock) => {
       const currenInfo = await blockchain.findOne({
@@ -18,19 +22,35 @@ module.exports = async function () {
         return null;
       }
 
+      let defualtRate = 60000;
       const { balance } = await zilliqa.getCurrentAccount(CONTRACT_ADDRESS);
-      const rate = new Date() - new Date(currenInfo.updatedAt);
+      const calcRate = new Date().valueOf() - new Date(currenInfo.updatedAt).valueOf();
+
+      if (calcRate > defualtRate) {
+        defualtRate = calcRate;
+      }
 
       await currenInfo.update({
         ...newBlock,
-        rate,
-        balance
+        balance,
+        rate: defualtRate
       });
 
-      debug('next block has been created, block:', newBlock.BlockNum);
+      const payload = JSON.stringify({
+        model: blockchain.tableName,
+        body: currenInfo
+      });
+      redisClient.publish(REDIS_CONFIG.channels.WEB, payload);
+      redisClient.publish(REDIS_CONFIG.channels.TX_HANDLER, JSON.stringify({
+        type: blockchain.tableName,
+        body: currenInfo
+      }));
+      redisClient.set(blockchain.tableName, JSON.stringify(currenInfo));
+
+      log.info('next block has been created, block:', newBlock.BlockNum);
     })
   } catch (err) {
-    debug('ERROR blockchain socket connection:', err);
+    log.error('ERROR blockchain socket connection:', err);
   }
 
   try {
@@ -41,50 +61,48 @@ module.exports = async function () {
         return null;
       }
 
-      debug('Event ', _eventname, 'has been emited');
+      log.info('Event ', _eventname, 'has been emited');
 
       try {
         switch (_eventname) {
           case eventUtils.events.DeletedAdmin:
             const disabledAdmin = await eventUtils.deletedAdmin(params);
-            debug('Admin has been disabled', disabledAdmin);
+            log.info('Admin has been disabled', disabledAdmin);
             break;
 
           case eventUtils.events.AddedAdmin:
-            const addedAdmin = await eventUtils.addedAdmin(params);
-            debug('Admin has been added', addedAdmin);
+            const addedAdmin = await eventUtils.addedAdmin(params, redisClient);
+            log.info('Admin has been added', addedAdmin);
             break;
 
           case eventUtils.events.ConfiguredUserAddress:
-            const userProfileId = await eventUtils.configuredUserAddress(params);
-            debug('User address has been updated, profileID', userProfileId);
+            const userProfileId = await eventUtils.configuredUserAddress(params, redisClient);
+            log.info('User address has been updated, profileID', userProfileId);
             break;
 
           case eventUtils.events.VerifyTweetSuccessful:
-            const tweetID = await eventUtils.verifyTweetSuccessful(params);
-            debug('Tweet with id:', tweetID, 'has been verified.');
+            const tweetID = await eventUtils.verifyTweetSuccessful(params, redisClient);
+            log.info('Tweet with id:', tweetID, 'has been verified.');
             break;
 
           case eventUtils.events.DepositSuccessful:
             await eventUtils.depositSuccessful(params);
-            debug('depositSuccessful');
+            log.info('depositSuccessful');
             break;
 
           case eventUtils.events.Error:
-            debug('Error:', JSON.stringify(params, null, 4));
+            log.error('Error:', JSON.stringify(params, null, 4));
             break;
 
           default:
-            debug('unknown event:', _eventname);
+            log.warn('unknown event:', _eventname);
             break;
         }
       } catch (err) {
-        debug('Event ', _eventname, 'ERROR', err);
+        log.error('Event ', _eventname, 'ERROR', err, 'event:', JSON.stringify(event, null, 4));
       }
-
-      console.log(JSON.stringify(event, null, 4));
     });
   } catch (err) {
-    debug('ERROR contract losg socket connection:', err);
+    log.error('ERROR contract losg socket connection:', err);
   }
 }

@@ -1,5 +1,8 @@
+
 const models = require('../models');
 const { User } = models.sequelize.models;
+
+const ERROR_CODES = require('../../config/error-codes');
 
 module.exports = function (req, res, next) {
   const statuses = new User().statuses;
@@ -10,10 +13,12 @@ module.exports = function (req, res, next) {
     res.clearCookie('io');
 
     return res.status(401).json({
+      code: ERROR_CODES.unauthorized,
       message: 'Unauthorized'
     });
   } else if (req.session.passport.user && req.session.passport.user.status === statuses.baned) {
     return res.status(401).json({
+      code: ERROR_CODES.ban,
       message: 'User has been baned'
     });
   }

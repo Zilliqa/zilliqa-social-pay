@@ -17,6 +17,9 @@ module.exports = {
         type: Sequelize.STRING,
         unique: true
       },
+      hashtags: {
+        type: Sequelize.ARRAY(Sequelize.STRING)
+      },
       zilsPerTweet: {
         type: Sequelize.STRING
       },

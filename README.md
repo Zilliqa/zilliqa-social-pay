@@ -12,26 +12,34 @@ For first need to deploy smart contract via [Editor](https://zilpay.xyz/app/Edit
  * `zils_per_tweet` # Amount of ZIL per tweet in QA, for example (10000000000000) `10ZIL`.
  * `blocks_per_day` # Amount of block per day, for claim tweet.
  * `blocks_per_week` # Amount of block for address change.
- * `MAX_AMOUNT_NOTIFICATIONS` # Amount of notifications count for show user.
 
 When contract has deployed, rename `.env.example` -> `.env` and change `CONTRACT_ADDRESS` to your contract address.
 Also need to deposit few ZILs, call `Deposit` transition and send few ZIls.
 
 ### Environment variables.
- * TWITTER_CONSUMER_KEY # Get from [twitter-apps](https://developer.twitter.com/en/apps).
- * TWITTER_CONSUMER_SECRET # Get from [twitter-apps](https://developer.twitter.com/en/apps).
- * CALLBACk # See on [twitter-apps](https://developer.twitter.com/en/apps).
- * JWT_SECRET # Any string for generate JWT.
- * SESSION # Any string for generate cookies session.
- * NUMBER_OF_ADMINS # Number of admin accounts.
- * CONTRACT_ADDRESS # SocialPay contract address
- * POSTGRES_DB # DataBase name.
- * POSTGRES_PASSWORD # DataBase password.
- * POSTGRES_USER # DataBase username.
- * POSTGRES_HOST # DataBase host for example (127.0.0.1) for production build use 'postgres'.
- * NODE_ENV # development, test, production
+ * `TWITTER_CONSUMER_KEY` # Get from [twitter-apps](https://developer.twitter.com/en/apps).
+ * `TWITTER_CONSUMER_SECRET` # Get from [twitter-apps](https://developer.twitter.com/en/apps).
+ * `CALLBACk` # See on [twitter-apps](https://developer.twitter.com/en/apps).
+ * `LIKES_FOR_CLAIM` #  Amount of Likes for claim tweet. When user click to claim server check amount of likes for tweet.
+ * `MAX_AMOUNT_NOTIFICATIONS` # Amount of notifications count for show user. Maximum number of notifications for show user.
+ * `END_OF_CAMPAIGN` # Date time when compaign has end. When comapaign had end, then all claim and serch tweet just disable.
+ * `JWT_SECRET` # Any string for generate JWT.
+ * `SESSION` # Any string for generate cookies session.
+ * `NUMBER_OF_ADMINS` # Number of admin accounts.
+ * `CONTRACT_ADDRESS` # SocialPay contract address
+ * `POSTGRES_DB` # DataBase name.
+ * `POSTGRES_PASSWORD` # DataBase password.
+ * `POSTGRES_USER` # DataBase username.
+ * `POSTGRES_HOST` # DataBase host for example (127.0.0.1) for production build use 'postgres'.
+ * `REDIS_URL` # Redis connection url, for cache.
+ * `DAYS_TO_KILL` # (if account created < DAYS_TO_KILL) then user will be kill. default value is 30.
+ * `NODE_ENV` # development, test, production
+ * `RECAPTCHA_SITE_KEY` # recaptcha site key https://www.google.com/recaptcha/admin
+ * `RECAPTCHA_SECRET_KEY` # recaptcha server key https://www.google.com/recaptcha/admin
 
 ## Run:
+for start service need redis server.
+
 Create database for only test or `test`, `production` mode.
 ```bash
 $ npm run db:create
@@ -47,16 +55,35 @@ $ npx sequelize db:migrate
 ```
 More info on [sequelize/cli](https://github.com/sequelize/cli).
 
-Runing for dev mode.
+Or can just run ./run.sh
 ```bash
-$ npm run dev
+$./run.sh
+```
+for start service need start 3 instances.
+
+ * `scheduler` Create socket connection with Zilliqa node.
+ * `next-server` (REST API, user socket connection) 
+ * `tx:handler` Queue for checking and sending tranasctions.
+
+Run `scheduler`:
+```bash
+$ npm run scheduler
 ```
 
-Runing for production mode.
+Run `tx:handler`:
 ```bash
-$ npm run build
-$ npm run start
+$ npm run tx:handler
 ```
+
+Run `next-server`:
+```bash
+$ npm run build # for test and production ENV, should be has built.
+$ npm start
+```
+
+### API:
+
+Swagger can use by `/api-doc/`, this router available only `development` mode.
 
 when server has runing server create admin account by `NUMBER_OF_ADMINS` env.
 ```bash

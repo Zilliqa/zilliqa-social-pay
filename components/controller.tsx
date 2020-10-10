@@ -14,6 +14,7 @@ import { Img } from 'components/img';
 import { Input, InputIcons } from 'components/Input';
 import { Button } from 'components/button';
 import { Container } from 'components/container';
+import { TwitterHashtagButton } from 'react-twitter-embed';
 
 import {
   FontSize,
@@ -29,11 +30,11 @@ import { SearchTweet } from 'utils/get-tweets';
 const ControlContainer = styled(AroundedContainer)`
   padding: 30px;
   margin-top: 7px;
-  margin-bottom: 30px;
   align-items: flex-start;
 
-  @media (max-width: 440px) {
+  @media (max-width: 1023px) {
     margin-bottom: 30px;
+    margin: 0;
   }
 `;
 const DashboardContainer = styled(Container)`
@@ -97,6 +98,7 @@ export const Controller: React.FC = () => {
     // If value is valid than update `value` state.
     setValue(foundTweetId);
   }, [setValue]);
+
   /**
    * Handle when form has been submited and send tweet ID to server.
    * @param event - HTMLForm event.
@@ -110,26 +112,34 @@ export const Controller: React.FC = () => {
 
     EventStore.setEvent(Events.Load);
     // Send to server tweet ID (`value`).
-    const tweet = await SearchTweet(
+    const result = await SearchTweet(
       value,
       userState.jwtToken
     );
     EventStore.reset();
 
-    // Show result from server.
-    EventStore.setContent(tweet);
-
-    // If server responsed error.
-    if (tweet.message) {
+    if (result.message) {
+      EventStore.setContent(result);
       EventStore.setEvent(Events.Error);
+
       return null;
     }
 
+    EventStore.setContent(result);
     EventStore.setEvent(Events.Twitter);
   }, [value, userState]);
 
   React.useEffect(() => {
-    if (userState.synchronization) {
+    const tweetClaiming = twitterState.tweets.some(
+      (t) => Boolean(t.claimed && !t.approved && !t.rejected)
+    );
+
+    if (tweetClaiming) {
+      setValue('');
+      setPlaceholder('Claiming tweet in progress...');
+      setDisabled(true);
+      setIcon(InputIcons.refresh);
+    } else if (userState.synchronization) {
       setValue('');
       setPlaceholder('Waiting for address to sync...');
       setDisabled(true);
@@ -141,18 +151,18 @@ export const Controller: React.FC = () => {
       setIcon(InputIcons.timer);
     } else if (!Boolean(blockchainState.dayTimer) && !userState.synchronization) {
       setDisabled(false);
-      setPlaceholder('Paste your tweet link here');
+      setPlaceholder('Paste the link to your tweet here');
       setIcon(InputIcons.search);
     }
   }, [
     setIcon,
     setDisabled,
-    disabled,
     setPlaceholder,
-    value,
-    userState,
     setValue,
-    blockchainState
+    twitterState.tweets,
+    userState.synchronization,
+    blockchainState.dayTimer,
+    blockchainState.dayTimer
   ]);
 
   /**
@@ -166,91 +176,94 @@ export const Controller: React.FC = () => {
   }, [UserStore]);
 
   return (
-    <ControlContainer onSubmit={handleSearch}>
-      <DashboardContainer>
-        <ProgressCircle
-          pct={twitterState.verifiedCount}
-          count={twitterState.count}
-        />
-        <Text
-          size={FontSize.sm}
-          fontColors={FontColors.white}
-        >
-          Verified tweets
-        </Text>
-      </DashboardContainer>
-      <Text
-        size={FontSize.md}
-        fontVariant={Fonts.AvenirNextLTProRegular}
-        fontColors={FontColors.white}
-      >
-        Dashboard
-      </Text>
-      <Text
-        size={FontSize.xs}
-        fontVariant={Fonts.AvenirNextLTProRegular}
-        fontColors={FontColors.gray}
-      >
-        BALANCE
-        <Text
-          fontVariant={Fonts.AvenirNextLTProBold}
-          fontColors={FontColors.white}
-          css="font-size: 15px;"
-        >
-          {fromZil(userState.balance)} ZIL <Img
-            src="/icons/refresh.svg"
-            css="cursor: pointer;font-size: 15px;"
-            onClick={handleUpdateUser}
+    <Container>
+      <ControlContainer onSubmit={handleSearch}>
+        <DashboardContainer>
+          <ProgressCircle
+            pct={twitterState.verifiedCount}
+            count={twitterState.count}
           />
+          <Text
+            size={FontSize.sm}
+            fontColors={FontColors.white}
+          >
+            Verified Tweets
         </Text>
-      </Text>
-      <Text
-        size={FontSize.xs}
-        fontVariant={Fonts.AvenirNextLTProRegular}
-        fontColors={FontColors.gray}
-      >
-        $ZIL PER TWEET
+        </DashboardContainer>
         <Text
-          fontVariant={Fonts.AvenirNextLTProBold}
+          size={FontSize.md}
+          fontVariant={Fonts.AvenirNextLTProRegular}
           fontColors={FontColors.white}
-          css="font-size: 15px;"
         >
-          {fromZil(blockchainState.zilsPerTweet)} $ZIL
-        </Text>
+          Dashboard
       </Text>
-      <Text
-        size={FontSize.xs}
-        fontVariant={Fonts.AvenirNextLTProRegular}
-        fontColors={FontColors.gray}
-      >
-        HASHTAG
         <Text
-          fontVariant={Fonts.AvenirNextLTProBold}
-          fontColors={FontColors.white}
-          css="text-transform: capitalize;font-size: 15px;"
+          size={FontSize.xs}
+          fontVariant={Fonts.AvenirNextLTProRegular}
+          fontColors={FontColors.gray}
         >
-          {blockchainState.hashtag}
+          BALANCE
+        <Text
+            fontVariant={Fonts.AvenirNextLTProBold}
+            fontColors={FontColors.white}
+            css="font-size: 15px;"
+          >
+            {fromZil(userState.balance)} ZIL <Img
+              src="/icons/refresh.svg"
+              css="cursor: pointer;font-size: 15px;"
+              onClick={handleUpdateUser}
+            />
+          </Text>
         </Text>
-      </Text>
-      <Input
-        sizeVariant={SizeComponent.md}
-        value={value}
-        icon={icon}
-        disabled={disabled}
-        onChange={handleInput}
-        placeholder={placeholder}
-        css="font-size: 12px;height: 40px;"
-      />
-      {!disabled ? (
-        <Button
+        <Text
+          size={FontSize.xs}
+          fontVariant={Fonts.AvenirNextLTProRegular}
+          fontColors={FontColors.gray}
+        >
+          $ZIL PER TWEET
+        <Text
+            fontVariant={Fonts.AvenirNextLTProBold}
+            fontColors={FontColors.white}
+            css="font-size: 15px;"
+          >
+            {fromZil(blockchainState.zilsPerTweet)} $ZIL
+        </Text>
+        </Text>
+        <Container css="height: 60px;margin: 0;">
+          <Text
+            fontVariant={Fonts.AvenirNextLTProBold}
+            fontColors={FontColors.white}
+          >
+            {blockchainState.hashtags.join(', ')}
+          </Text>
+          <TwitterHashtagButton
+            tag={blockchainState.hashtags[0]}
+            options={{
+              size: 'large',
+              text: blockchainState.hashtagText
+            }}
+          />
+        </Container>
+        <Input
           sizeVariant={SizeComponent.md}
-          variant={ButtonVariants.outlet}
-          css="margin-top: 10px;"
-        >
-          Search
-        </Button>
-      ) : null}
-    </ControlContainer>
+          value={value}
+          icon={icon}
+          disabled={disabled}
+          onChange={handleInput}
+          placeholder={placeholder}
+          css="font-size: 12px;height: 40px;"
+        />
+        {!disabled ? (
+          <Button
+            sizeVariant={SizeComponent.md}
+            variant={ButtonVariants.outlet}
+            css="margin-top: 10px;"
+          >
+            Search
+          </Button>
+        ) : null}
+      </ControlContainer>
+    </Container>
   );
 };
 

@@ -19,13 +19,12 @@ const getTime = (blockchain: Blockchain) => {
   const twitterState = twitterStore.store.getState();
   const week = timerCalc(
     blockchain,
-    userState,
-    twitterState.lastBlockNumber,
-    Number(blockchain.blocksPerWeek)
+    0,
+    Number(blockchain.blocksPerWeek),
+    userState.lastAction
   );
   const day = timerCalc(
     blockchain,
-    userState,
     twitterState.lastBlockNumber,
     Number(blockchain.blocksPerDay)
   );
@@ -44,12 +43,23 @@ const initalState: Blockchain = {
   hashtag: null,
   zilsPerTweet: '0',
   blocksPerDay: 0,
+  hashtags: [],
   blocksPerWeek: 0,
   BlockNum: 0,
   DSBlockNum: 0,
   rate: 0,
   balance: 0,
-  initBalance: 0
+  initBalance: 0,
+  campaignEnd: null,
+  now: null,
+  hashtagText: `#Zil3 - Make It Count
+
+Do more with your dApps on #Zilliqa, the high-security, high-performance blockchain. 🌐
+
+Let’s celebrate this ecosystem with our community and guest-of-honour #CZBinance. 🚀
+
+🔽 Going live on 30th July, UTC 13:00 hrs
+https://youtu.be/vdREf5U9_X8`
 };
 
 export const store = blockchainDomain.store<Blockchain>(initalState)

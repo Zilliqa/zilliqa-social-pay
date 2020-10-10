@@ -14,6 +14,7 @@ export interface User {
   zilAddress: string;
   jwtToken: string;
   message?: string;
+  code?: number;
   profileId: string;
   balance: string;
   lastAction: string;
@@ -26,6 +27,7 @@ export interface User {
 export interface FetchUpdateAddress {
   address: string;
   jwt: string;
+  recaptchaKey: string;
 }
 
 export interface Twitte {
@@ -49,17 +51,24 @@ export interface Blockchain {
   blocksPerWeek: string | number;
   BlockNum: string | number;
   DSBlockNum: string | number;
+  hashtags: string[];
   rate: string | number;
   balance: string | number;
   initBalance: string | number;
+  campaignEnd: Date | null;
+  now: Date | null;
   message?: string;
+  code?: number;
   dayTimer?: string | null;
   weekTimer?: string | null;
+  hashtagText?: string;
 }
 
 export interface PageProp {
   user?: User | null;
   firstStart: boolean;
+  isServer: boolean;
+  blockchainInfo: Blockchain;
 }
 
 export interface EventState {
@@ -105,4 +114,9 @@ export interface FetchTweets {
   tweets: Twitte[];
   count: number;
   verifiedCount: number;
+}
+
+export interface ErrorResponse {
+  code: number;
+  message: string;
 }

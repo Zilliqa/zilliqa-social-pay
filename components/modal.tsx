@@ -6,7 +6,7 @@ import { Img } from 'components/img';
 import { Container } from 'components/container';
 
 const ContentContainer = styled(Container)`
-  background-color: #CCD1FF;
+  background-color: #3c42c2;
   border-radius: 15px;
   padding: 15px;
 `;

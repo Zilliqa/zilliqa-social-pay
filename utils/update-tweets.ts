@@ -1,6 +1,7 @@
 import fetch from 'isomorphic-unfetch';
 
 import { APIs, HttpMethods, Errors } from 'config';
+import { Twitte } from 'interfaces';
 
 export const fetchTweetsUpdate = async (jwt: string) => {
   if (!jwt || jwt.length < 1) {
@@ -19,8 +20,8 @@ export const fetchTweetsUpdate = async (jwt: string) => {
   return result;
 };
 
-export const addTweet = async (jwt: string, tweet: object) => {
-  if (!jwt || jwt.length < 1) {
+export const addTweet = async (body: { tweete: Twitte; jwt: string; }) => {
+  if (!body.jwt || body.jwt.length < 1) {
     throw new Error(Errors.JWT_IS_NULL);
   }
 
@@ -29,9 +30,9 @@ export const addTweet = async (jwt: string, tweet: object) => {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: jwt
+      Authorization: body.jwt
     },
-    body: JSON.stringify(tweet)
+    body: JSON.stringify(body.tweete)
   });
   const result = await res.json();
 

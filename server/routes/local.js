@@ -1,36 +1,227 @@
 const express = require('express');
 const { Op } = require('sequelize');
-const { validation } = require('@zilliqa-js/util');
+const { fromBech32Address } = require('@zilliqa-js/crypto');
 const checkSession = require('../middleware/check-session');
+const zilliqa = require('../zilliqa');
 const models = require('../models');
 const verifyJwt = require('../middleware/verify-jwt');
+const verifyCampaign = require('../middleware/campaign-check');
+const verifyRecaptcha = require('../middleware/recaptcha');
+
 const router = express.Router();
 
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
+const ERROR_CODES = require('../../config/error-codes');
+const ENV = process.env.NODE_ENV || 'development';
+const END_OF_CAMPAIGN = process.env.END_OF_CAMPAIGN;
 const MAX_AMOUNT_NOTIFICATIONS = process.env.MAX_AMOUNT_NOTIFICATIONS || 3;
-const BLOCK_FOR_CONFIRM = 2;
 
+const dev = ENV !== 'production';
 const {
   User,
   Twittes,
-  blockchain,
   Notification,
   Admin
 } = models.sequelize.models;
 
 const actions = new User().actions;
-const notificationTypes = new Notification().types;
 
-router.put('/update/address/:address', checkSession, verifyJwt, async (req, res) => {
+if (!END_OF_CAMPAIGN) {
+  throw new Error('ENV: END_OF_CAMPAIGN is required!!!');
+}
+
+/**
+ * @swagger
+ *
+ * definitions:
+ *   User:
+ *     type: object
+ *     required:
+ *       - id
+ *       - profileId
+ *       - profileImageUrl
+ *       - screenName
+ *       - status
+ *       - synchronization
+ *       - username
+ *       - zilAddress
+ *     properties:
+ *       id:
+ *         type: integer
+ *         format: int64
+ *       profileId:
+ *         type: string
+ *       profileImageUrl:
+ *         type: string
+ *       screenName:
+ *         type: string
+ *       status:
+ *         type: boolean
+ *       synchronization:
+ *         type: boolean
+ *         default: false
+ *       username:
+ *         type: string
+ *       zilAddress:
+ *         type: string
+ *         format: bech32
+ *   Tweet:
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: integer
+ *         format: int64
+ *       idStr:
+ *         type: string
+ *       UserId:
+ *         type: integer
+ *         format: int64
+ *       approved:
+ *         type: boolean
+ *         default: false
+ *       block:
+ *         type: string
+ *       claimed:
+ *         type: boolean
+ *         default: false
+ *       rejected:
+ *         type: boolean
+ *         default: false
+ *       createdAt:
+ *         type: string
+ *       txId:
+ *         type: string
+ *   Blockchain:
+ *     description: "Blockchain information."
+ *     type: object
+ *     properties:
+ *       id:
+ *         type: string
+ *         format: int64
+ *       contract:
+ *         type: integer
+ *         format: bech32
+ *       hashtag:
+ *         type: string
+ *       zilsPerTweet:
+ *         type: string
+ *       blocksPerDay:
+ *         type: string
+ *       blocksPerWeek:
+ *         type: string
+ *       BlockNum:
+ *         type: string
+ *       DSBlockNum:
+ *         type: string
+ *       rate:
+ *         type: string
+ *         default: 60000
+ *       balance:
+ *         type: string
+ *       initBalance:
+ *         type: string
+ *       createdAt:
+ *         type: string
+ *       updatedAt:
+ *         type: string
+ *       campaignEnd:
+ *         type: string
+ *       now:
+ *         type: string
+ *   GeneralError:
+ *     description: "Bad request."
+ *     type: object
+ *     properties:
+ *       code:
+ *         type: integer
+ *         format: int8
+ *       message:
+ *         type: string
+ *   Admin:
+ *     description: "Admin account"
+ *     type: object
+ *     properties:
+ *       bech32Address:
+ *         type: string
+ *         format: bech32
+ *       address:
+ *         type: string
+ *         format: base16
+ *       balance:
+ *         type: string
+ *       status:
+ *         type: boolean
+ *       nonce:
+ *         type: integer
+ *         format: int64
+ *   JWT:
+ *     authorization:
+ *       description: The JWT token.
+ *       schema:
+ *         type: string
+ */
+
+/**
+ * @swagger
+ *
+ * /update/address/:
+ *   put:
+ *     description: Create or update ZIL address(zil1).
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: address
+ *         description: User Zilliqa bech32 address.
+ *         required: true
+ *         type: string
+ *         format: bech32
+ *     headers:
+ *       $ref: '#/definitions/JWT'
+ *     responses:
+ *       200:
+ *         description: Address has changed.
+ *         type: object
+ *         schema:
+ *           type: object
+ *           properties:
+ *             user:
+ *               $ref: '#/definitions/User'
+ *             message:
+ *               type: string
+ *       400:
+ *         description: Invalid address format. or address is already registered.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       401:
+ *         description: Unauthorized or bun.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ */
+router.put('/update/address/:address', checkSession, verifyJwt, verifyCampaign, verifyRecaptcha, async (req, res) => {
   const bech32Address = req.params.address;
   const { user } = req.verification;
 
   try {
-    if (!validation.isBech32(bech32Address)) {
-      return res.status(401).json({
+    if (!fromBech32Address(bech32Address)) {
+      return res.status(400).json({
+        code: ERROR_CODES.invalidAddressFormat,
         message: 'Invalid address format.'
       });
     }
+  } catch (err) {
+    return res.status(400).json({
+      code: ERROR_CODES.invalidAddressFormat,
+      message: 'Invalid address format.'
+    });
+  }
+
+  try {
+    if (!fromBech32Address(bech32Address)) {
+      return res.status(400).json({
+        code: ERROR_CODES.invalidAddressFormat,
+        message: 'Invalid address format.'
+      });
+    }
+
     const userExist = await User.count({
       where: {
         zilAddress: bech32Address
@@ -38,33 +229,17 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
     });
 
     if (userExist > 0) {
-      return res.status(401).json({
+      return res.status(400).json({
+        code: ERROR_CODES.alreadyExists,
         message: 'This address is already registered.'
       });
-    }
-
-    const blockchainInfo = await blockchain.findOne({
-      where: { contract: CONTRACT_ADDRESS }
-    });
-    let block = BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerWeek);
-
-    if (!user.actionName) {
-      block = 0;
     }
 
     await user.update({
       zilAddress: bech32Address,
       hash: null,
-      synchronization: true,
-      actionName: actions.configureUsers,
-      lastAction: block
-    });
-
-    await Notification.create({
-      UserId: user.id,
-      type: notificationTypes.addressConfiguring,
-      title: 'Account',
-      description: 'Syncing Address...'
+      synchronization: false,
+      actionName: actions.configureUsers
     });
 
     delete user.dataValues.tokenSecret;
@@ -75,12 +250,34 @@ router.put('/update/address/:address', checkSession, verifyJwt, async (req, res)
       message: 'ConfiguredUserAddress',
     });
   } catch (err) {
-    return res.status(501).json({
-      message: 'Address must be unique!'
+    return res.status(400).json({
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
 
+/**
+ * @swagger
+ * /sing/out:
+ *   put:
+ *     description: Sign out, clear all sessions.
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       200:
+ *         description: cleared.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             message:
+ *               type: string
+ *       401:
+ *         description: Unauthorized or bun.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ */
 router.put('/sing/out', checkSession, (req, res) => {
   res.clearCookie(process.env.SESSION);
   res.clearCookie(`${process.env.SESSION}.sig`);
@@ -91,79 +288,54 @@ router.put('/sing/out', checkSession, (req, res) => {
   });
 });
 
-router.put('/claim/tweet', checkSession, verifyJwt, async (req, res) => {
-  const { user } = req.verification;
-  const tweet = req.body;
-  let foundTweet = null;
-
-  if (!user.zilAddress) {
-    return res.status(401).json({
-      message: 'need to sync zilAddress.'
-    });
-  } else if (user.synchronization) {
-    return res.status(401).json({
-      message: 'User zilAddress is not synchronized.'
-    });
-  }
-
-  try {
-    foundTweet = await Twittes.findOne({
-      where: {
-        UserId: user.id,
-        idStr: tweet.idStr,
-        id: tweet.id,
-        rejected: false,
-        approved: false,
-        claimed: false
-      },
-      attributes: {
-        exclude: [
-          'text',
-          'updatedAt'
-        ]
-      }
-    });
-  } catch (err) {
-    return res.status(401).json({
-      message: 'Bad request.'
-    });
-  }
-
-  const blockchainInfo = await blockchain.findOne({
-    where: { contract: CONTRACT_ADDRESS }
-  });
-  const lastTweet = await Twittes.findOne({
-    where: {
-      block: {
-        [Op.gt]: Number(blockchainInfo.BlockNum) - Number(blockchainInfo.blocksPerDay)
-      },
-      UserId: user.id
-    }
-  });
-
-  if (lastTweet && lastTweet.block > 0) {
-    return res.status(502).json({
-      message: `Last tweet have block ${lastTweet.block} but current ${blockchainInfo.BlockNum}.`,
-      lastTweet: lastTweet.block,
-      currentBlock: BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay)
-    });
-  }
-
-  await foundTweet.update({
-    block: blockchainInfo.BlockNum,
-    claimed: true
-  });
-
-  await Notification.create({
-    UserId: user.id,
-    type: notificationTypes.tweetClaiming,
-    title: 'Tweet',
-    description: 'Claiming rewards…'
-  });
-
-  return res.status(201).json(foundTweet);
-});
-
+/**
+ * @swagger
+ * /get/tweets:
+ *   get:
+ *     description: Get tweets by user seesion.
+ *     parameters:
+ *       - name: limit
+ *         description: Max records to return.
+ *         required: false
+ *         in: query
+ *         type: integer
+ *         format: int32
+ *       - name: offset
+ *         description: Number of items to skip.
+ *         required: false
+ *         in: query
+ *         type: integer
+ *         format: int32
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       400:
+ *         description: Incorrect seesion params.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       401:
+ *         description: Unauthorized or bun.
+ *         schema:
+ *           $ref: '#/definitions/GeneralError'
+ *       200:
+ *         description: User tweets.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             count:
+ *               type: integer
+ *               format: int64
+ *             verifiedCount:
+ *               type: integer
+ *               format: int64
+ *             lastBlockNumber:
+ *               type: integer
+ *               format: int64
+ *             tweets:
+ *               type: array
+ *               items:
+ *                 $ref: '#/definitions/Tweet'
+ */
 router.get('/get/tweets', checkSession, async (req, res) => {
   const UserId = req.session.passport.user.id;
   const limit = req.query.limit || 3;
@@ -181,17 +353,9 @@ router.get('/get/tweets', checkSession, async (req, res) => {
         approved: true
       }
     });
-    const lastActionTweet = await Twittes.findOne({
-      order: [
-        ['block', 'DESC']
-      ],
-      where: {
-        UserId
-      },
-      attributes: [
-        'block'
-      ]
-    });
+    const lastActionTweet = await zilliqa.getLastWithdrawal([
+      req.session.passport.user.profileId
+    ]);
     const tweets = await Twittes.findAll({
       limit,
       offset,
@@ -213,29 +377,32 @@ router.get('/get/tweets', checkSession, async (req, res) => {
       tweets,
       count,
       verifiedCount,
-      lastBlockNumber: !lastActionTweet ? 0 : lastActionTweet.block
+      lastBlockNumber: !lastActionTweet ? 0 : Number(lastActionTweet) + 1
     });
   } catch (err) {
     return res.status(400).json({
-      message: err.message
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
 
-router.get('/get/blockchain', checkSession, async (req, res) => {
-  try {
-    const blockchainInfo = await blockchain.findOne({
-      where: {
-        contract: CONTRACT_ADDRESS
-      }
-    });
-
-    return res.status(200).json(blockchainInfo);
-  } catch (err) {
-    return res.status(400).json({
-      message: err.message
-    });
-  }
+/**
+ * @swagger
+ * /get/blockchain:
+ *   get:
+ *     description: Get the current blockchain info and contract init info.
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       200:
+ *         description: blockchain info.
+ *         schema:
+ *           $ref: '#/definitions/Blockchain'
+ */
+router.get('/get/blockchain', async (req, res) => {
+  return res.status(200).json(req.blockchainInfo);
 });
 
 router.get('/get/notifications', checkSession, async (req, res) => {
@@ -272,7 +439,9 @@ router.get('/get/notifications', checkSession, async (req, res) => {
     });
   } catch (err) {
     return res.status(400).json({
-      message: err.message
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
@@ -290,12 +459,27 @@ router.delete('/delete/notifications', checkSession, verifyJwt, async (req, res)
     return res.status(204);
   } catch (err) {
     return res.status(400).json({
-      message: err.message
+      code: ERROR_CODES.badRequest,
+      message: 'Bad request.',
+      debug: dev ? (err.message || err) : undefined
     });
   }
 });
 
-router.get('/get/accounts', checkSession, async (req, res) => {
+/**
+ * @swagger
+ * /get/accounts:
+ *   get:
+ *     description: Show some information about admin accounts.
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       200:
+ *         description: Admin accounts info.
+ *         schema:
+ *           $ref: '#/definitions/Admin'
+ */
+router.get('/get/accounts', async (req, res) => {
   const accounts = await Admin.findAll({
     attributes: [
       'bech32Address',
@@ -307,6 +491,99 @@ router.get('/get/accounts', checkSession, async (req, res) => {
   });
 
   return res.json(accounts);
+});
+
+/**
+ * @swagger
+ * /get/stats:
+ *   get:
+ *     description: Show some stats about users and tweets.
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       200:
+ *         description: SocialPay stats.
+ *         schema:
+ *           type: object
+ *           properties:
+ *             pendingTweet:
+ *               type: integer
+ *               format: int64
+ *             registeredUsers:
+ *               type: integer
+ *               format: int64
+ *             approvedTweet:
+ *               type: integer
+ *               format: int64
+ *             tweets:
+ *               type: integer
+ *               format: int64
+ */
+router.get('/get/stats', async (req, res) => {
+  const { blockchainInfo } = req;
+  const pendingTweet = await Twittes.count({
+    where: {
+      approved: false,
+      rejected: false,
+      claimed: true,
+      txId: {
+        [Op.not]: null
+      }
+    }
+  });
+  const blocksForClaim = Number(blockchainInfo.BlockNum) - (Number(blockchainInfo.blocksPerDay));
+  let txQueue = await Twittes.count({
+    where: {
+      approved: false,
+      rejected: false,
+      txId: null,
+      claimed: true,
+      block: {
+        [Op.lte]: blockchainInfo.BlockNum
+      },
+      UserId: {
+        [Op.not]: null
+      }
+    },
+    include: {
+      model: User,
+      required: false,
+      where: {
+        synchronization: false,
+        zilAddress: {
+          [Op.not]: null
+        },
+        lastAction: {
+          [Op.lte]: blocksForClaim
+        },
+        status: new User().statuses.enabled
+      }
+    }
+  });
+  const approvedTweet = await Twittes.count({
+    where: {
+      approved: true,
+      rejected: false,
+      claimed: true
+    }
+  });
+  const tweets = await Twittes.count();
+  const registeredUsers = await User.count({
+    where: {
+      synchronization: false,
+      zilAddress: {
+        [Op.not]: null
+      }
+    }
+  });
+
+  return res.json({
+    pendingTweet,
+    registeredUsers,
+    txQueue,
+    approvedTweet,
+    tweets
+  });
 });
 
 module.exports = router;

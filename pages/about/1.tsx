@@ -1,6 +1,6 @@
 import React from 'react';
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
+import Link from 'next/link';
 import * as Effector from 'effector-react';
 
 import BrowserStore from 'store/browser';
@@ -24,13 +24,7 @@ import {
 } from 'config';
 
 export const SecondAboutPage: NextPage = () => {
-  const router = useRouter();
-
   const browserState = Effector.useStore(BrowserStore.store);
-
-  const handleNext = React.useCallback(() => {
-    router.push('/auth');
-  }, [router]);
 
   return (
     <React.Fragment>
@@ -42,19 +36,20 @@ export const SecondAboutPage: NextPage = () => {
             size={FontSize.md}
           >
             <p>
-              Every time you Tweet a Zilliqa-related message, you are able to earn rewards. These rewards can vary depending on the hashtag and campaign <Span>#Zilliqa</Span> is running.
+              Every time you tweet a SocialPay campaign related message, you can earn rewards. The reward amount will vary depending on the type of campaign <Span>Zilliqa</Span> might be running at a given time.
             </p>
             <p>
-              Make sure to always check out what hashtag and campaign is available while you take part in our events!
+              We recommend always checking the details of any on-going campaigns before you tweet.
             </p>
           </DescriptionText>
-          <Button
-            sizeVariant={SizeComponent.lg}
-            variant={ButtonVariants.outlet}
-            onClick={handleNext}
-          >
-            CONTINUE
-          </Button>
+          <Link href="/auth">
+            <Button
+              sizeVariant={SizeComponent.lg}
+              variant={ButtonVariants.outlet}
+            >
+              CONTINUE
+            </Button>
+          </Link>
         </InfoContainer>
         <Illustration src={`/imgs/illustration-5.${browserState.format}`} />
       </AboutContainer>

@@ -1,5 +1,5 @@
 export enum ButtonVariants {
-  primary = 'background: #5C63EF;color: #fff;',
+  primary = 'background: #5C63EF;color: #fff;border: 1px solid #5C63EF;',
   success = 'background: #2FA84F;color: #fff;',
   info = 'background: #9FA9FF;color: #fff;',
   danger = 'background: #FA5D50;color: #fff;',

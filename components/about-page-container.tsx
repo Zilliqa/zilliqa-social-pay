@@ -23,13 +23,20 @@ export const AboutContainer = styled(Container)`
   justify-content: space-evenly;
 
   background-image: linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
-  height: 100vh;
+  min-height: 100vh;
   width: 100vw;
 
   @media (max-width: 650px) {
     text-align: center;
     font-size: 30px;
     align-items: unset;
+    padding-top: 15vh;
+    padding-bottom: 20vh;
+  }
+
+  @media (max-width: 321px) {
+    padding-top: 5vh;
+    padding-bottom: 5vh;
   }
 `;
 /**
@@ -93,8 +100,8 @@ export const Illustration = styled(Img)`
   height: 43vw;
 
   @media (max-width: 640px) {
-    width: 80vw;
-    height: 80vw;
+    width: 60vw;
+    height: 60vw;
   }
 `;
 /**

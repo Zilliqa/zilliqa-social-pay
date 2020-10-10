@@ -1,7 +1,7 @@
 import fetch from 'isomorphic-unfetch';
 
 import { APIs, HttpMethods, NUMBER_OF_TWEETS } from 'config';
-import { FetchTweets } from 'interfaces';
+import { FetchTweets, Twitte } from 'interfaces';
 
 export const fetchTweets = async ({
   limit = NUMBER_OF_TWEETS,
@@ -21,6 +21,19 @@ export const SearchTweet = async (query: string, jwt: string) => {
     credentials: 'include',
     headers: {
       Authorization: jwt
+    }
+  });
+  const result = await res.json();
+
+  return result;
+};
+
+export const removeTweete = async (payload: { tweete: Twitte; jwt: string; }) => {
+  const res = await fetch(`${APIs.rmTweet}/${payload.tweete.id}`, {
+    method: HttpMethods.DELETE,
+    credentials: 'include',
+    headers: {
+      Authorization: payload.jwt
     }
   });
   const result = await res.json();
