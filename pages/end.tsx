@@ -69,7 +69,10 @@ export const EndPage: NextPage<PageProp> = () => {
   return (
     <EndPageContainer>
       <Background src={imgURL('bg', browserState.format)} />
-      <Background2 src={imgURL('asset', browserState.format)} />
+      <Background2
+        src={imgURL('asset', browserState.format)}
+        css="margin-top: 1%;"
+      />
       <Background2 src={imgURL('thanks', browserState.format)} />
       <Background2 src={imgURL('man', browserState.format)} />
       <StakeLink href="https://stake.zilliqa.com/">
