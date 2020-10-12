@@ -8,6 +8,7 @@ import BrowserStore from 'store/browser';
 
 import { Img } from 'components/img';
 
+import { FontColors } from 'config';
 import { PageProp } from 'interfaces';
 
 const EndPageContainer = styled.main`
@@ -16,7 +17,7 @@ const EndPageContainer = styled.main`
   justify-content: center;
   flex-wrap: wrap;
 
-  background: linear-gradient(180.35deg, #7882F3 -3.17%, #7882F3 42.83%, #7882F3 80.35%, #5352EE 98.93%);
+  background: linear-gradient(61.84deg, #32FFB4 -10.09%, #090424 79.67%);
   background-repeat: space;
 
   width: 100%;
@@ -27,6 +28,29 @@ const Background = styled(Img)`
   height: auto;
   width: 100%;
   max-width: 1000px;
+`;
+
+const StakeLink = styled.a`
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+
+  border-radius: 15px;
+
+  background: ${FontColors.white};
+  color: ${FontColors.black};
+  font-family: AvenirNextLTPro-Regular;
+  font-size: 20px;
+
+  padding: 15px;
+
+  text-decoration: none;
+
+  @media (max-width: 1200px) {
+    position: relative;
+    right: 0;
+    bottom: 0;
+  }
 `;
 
 export const EndPage: NextPage<PageProp> = () => {
@@ -41,14 +65,9 @@ export const EndPage: NextPage<PageProp> = () => {
   return (
     <EndPageContainer>
       <Background src={backgroundImg} />
-      <iframe
-        width="560"
-        height="315"
-        src="https://www.youtube.com/embed/vdREf5U9_X8"
-        frameBorder="0"
-        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-      />
+      <StakeLink href="https://stake.zilliqa.com/">
+        Stake your $ZIL now!
+      </StakeLink>
     </EndPageContainer>
   );
 };
