@@ -237,6 +237,7 @@ export const Controller: React.FC = () => {
             {blockchainState.hashtags.join(', ')}
           </Text>
           <TwitterHashtagButton
+            tag={blockchainState.hashtags[0]}
             options={{
               size: 'large',
               text: blockchainState.hashtagText

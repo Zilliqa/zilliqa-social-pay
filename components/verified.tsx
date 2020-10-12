@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { useRouter } from 'next/router';
 import * as Effector from 'effector-react';
 import { useMediaQuery } from 'react-responsive';
-import moment from 'moment';
 import ReactPaginate from 'react-paginate';
 
 import UserStore from 'store/user';
@@ -19,12 +18,9 @@ import { NotificationWarning } from 'components/notification-control';
 import { TwitterTweetEmbed } from 'react-twitter-embed';
 
 import { Events } from 'config';
-import ERROR_CODES from 'config/error-codes';
 import NOTIFICATIONS_TYPES from 'config/notifications-types';
 import { viewTx } from 'utils/viewblock';
-import { claimTweet } from 'utils/claim-tweet';
 import { Twitte } from 'interfaces';
-import { timerCalc } from 'utils/timer';
 import { deepCopy } from 'utils/deep-copy';
 import { toUnique } from 'utils/to-unique';
 
@@ -94,83 +90,8 @@ export const Verified: React.FC = () => {
   ]);
 
   const handleClickClaim = React.useCallback(async (tweet: Twitte) => {
-    EventStore.setEvent(Events.Load);
-
-    await UserStore.updateUserState(null);
-    await BlockchainStore.updateBlockchain(null);
-
-    if (userState.synchronization) {
-      EventStore.setContent({
-        message: 'Waiting for address to sync...'
-      });
-      EventStore.setEvent(Events.Error);
-
-      return null;
-    } else if (Boolean(blockchainState.dayTimer)) {
-      EventStore.setContent({
-        message: `You can participate: ${blockchainState.dayTimer}`
-      });
-      EventStore.setEvent(Events.Error);
-
-      return null;
-    } else if (!userState.zilAddress) {
-      EventStore.setContent({
-        message: 'Please configure your Zilliqa address.'
-      });
-      EventStore.setEvent(Events.Error);
-
-      return null;
-    }
-
-    const result = await claimTweet(userState.jwtToken, tweet);
-
-    if (result.code === ERROR_CODES.lowFavoriteCount || result.code === ERROR_CODES.campaignDown) {
-      EventStore.setContent(result);
-      EventStore.setEvent(Events.Error);
-
-      return null;
-    } else if (result.code === ERROR_CODES.unauthorized) {
-      router.push('/auth');
-
-      return null;
-    }
-
-    if (result.message) {
-      TwitterStore.setLastBlock(result.lastTweet);
-      BlockchainStore.updateStore({
-        ...blockchainState,
-        BlockNum: result.currentBlock
-      });
-
-      const time = timerCalc(
-        blockchainState,
-        result.lastTweet,
-        Number(blockchainState.blocksPerDay)
-      );
-      EventStore.setContent({
-        message: `You can participate: ${moment(time).fromNow()}`
-      });
-      EventStore.setEvent(Events.Error);
-    } else {
-      const mapetTweets = twitterState.tweets.map((t) => {
-        if (t.id === result.id) {
-          return result;
-        }
-
-        return t;
-      });
-
-      if (Number(result.block) > Number(twitterState.lastBlockNumber)) {
-        TwitterStore.setLastBlock(result.block);
-        BlockchainStore.updateTimer();
-      }
-
-      TwitterStore.setShowTwitterTweetEmbed(false);
-      setTimeout(() => TwitterStore.setShowTwitterTweetEmbed(true), SLEEP);
-
-      TwitterStore.update(mapetTweets);
+      EventStore.setContent(tweet);
       EventStore.setEvent(Events.Claimed);
-    }
   }, [userState, blockchainState, twitterState, router, setPaginateOffset]);
   const handleNextPageClick = React.useCallback(async (data) => {
     const selected = Number(data.selected);

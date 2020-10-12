@@ -2,7 +2,7 @@ import fetch from 'isomorphic-unfetch';
 import { APIs, HttpMethods, Errors } from 'config';
 import { Twitte } from 'interfaces';
 
-export const claimTweet = async (jwt: string, tweet: Twitte) => {
+export const claimTweet = async (jwt: string, tweet: Twitte, recaptchaKey: string) => {
   if (!jwt || jwt.length < 1) {
     throw new Error(Errors.JWT_IS_NULL);
   }
@@ -12,7 +12,8 @@ export const claimTweet = async (jwt: string, tweet: Twitte) => {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: jwt
+      Authorization: jwt,
+      recaptcha: recaptchaKey
     },
     body: JSON.stringify(tweet)
   });

@@ -38,7 +38,7 @@ export function authGuard({ res, req }: any) {
 
   if (!req.session || !req.session.passport) {
     if (req.url === '/') {
-      res.status(STATUS).redirect('/zil3');
+      res.status(STATUS).redirect('/first');
     }
 
     return {

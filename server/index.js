@@ -29,7 +29,7 @@ const app = next({ dev, dir: './' });
 const indexRouter = require('./routes/index');
 
 const blockchainCache = require('./middleware/blockchain-cache');
-const recaptcha = require('./middleware/recaptcha');
+const siteKey = require('./middleware/site-key');
 
 const handle = app.getRequestHandler();
 const session = cookieSession({
@@ -62,7 +62,7 @@ server.use(bodyParser.json());
 server.set('redis', redisClientSender);
 server.set('log', log);
 
-server.use('/', recaptcha, blockchainCache, indexRouter);
+server.use('/', siteKey, blockchainCache, indexRouter);
 
 if (dev) {
   server.use('/swagger.json', (req, res) => {

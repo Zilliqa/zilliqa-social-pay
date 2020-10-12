@@ -7,6 +7,8 @@ const checkSession = require('../middleware/check-session');
 const Twitter = require('../twitter');
 const verifyJwt = require('../middleware/verify-jwt');
 const verifyCampaign = require('../middleware/campaign-check');
+const verifyRecaptcha = require('../middleware/recaptcha');
+
 const ERROR_CODES = require('../../config/error-codes');
 
 const LIKES_FOR_CLAIM = Number(process.env.LIKES_FOR_CLAIM) || 5;
@@ -637,7 +639,7 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
  *         schema:
  *           $ref: '#/definitions/Tweet'
  */
-router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
+router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, verifyRecaptcha, async (req, res) => {
   const { user } = req.verification;
   const { redis } = req.app.settings;
   const { blockchainInfo } = req;
