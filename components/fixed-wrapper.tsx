@@ -153,6 +153,7 @@ export const FixedWrapper: React.FC = () => {
       TwitterStore.update(mapetTweets);
 
       setRecaptchaClaim(key);
+      EventStore.setEvent(Events.Claimed);
     }
   }, [setRecaptchaClaim, recaptchaClaim, eventState, userState]);
   /**
