@@ -52,14 +52,14 @@ const initalState: Blockchain = {
   initBalance: 0,
   campaignEnd: null,
   now: null,
-  hashtagText: `Next up #Zil3 - Make It Count 🚀
-
-#Zilliqa invites you to celebrate the growth of its community with GoH #CZBinance.
-
-🔽 Join our 3rd Anniversary on the 30th July, 13:00 UTC 
-social.zilliqa.com/zil3
-
-Share this news and claim 30 ZIL as a token of appreciation! 😎`
+  hashtagText: `#Zilliqa's non-custodial staking is LIVE and I'm #StakingWithZIL 🚀
+ 
+  Join me and stake your $ZIL today! 🎉
+   
+  👉 zilliqa.com/staking
+   
+  #SocialStaking  
+  `
 };
 
 export const store = blockchainDomain.store<Blockchain>(initalState)

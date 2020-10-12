@@ -7,7 +7,7 @@ import BrowserStore from 'store/browser';
 
 import { Img } from 'components/img';
 
-import { FontColors } from 'config';
+import { FontColors, Fonts } from 'config';
 import { PageProp } from 'interfaces';
 
 const EndPageContainer = styled.main`
@@ -30,7 +30,7 @@ const Background = styled(Img)`
   width: 100%;
 `;
 const Background2 = styled(Background)`
-  max-width: 1000px;
+  max-width: 1500px;
 `;
 
 const StakeLink = styled.a`
@@ -38,14 +38,16 @@ const StakeLink = styled.a`
   right: 20px;
   bottom: 20px;
 
-  border-radius: 15px;
+  border-radius: 40px;
 
   background: ${FontColors.white};
-  color: ${FontColors.black};
-  font-family: AvenirNextLTPro-Regular;
-  font-size: 20px;
+  color: #00A5E0;
+  font-family: ${Fonts.AvenirNextLTProDemi};
+  font-size: 30px;
 
   padding: 15px;
+  padding-left: 30px;
+  padding-right: 30px;
 
   text-decoration: none;
 
@@ -67,7 +69,10 @@ export const EndPage: NextPage<PageProp> = () => {
   return (
     <EndPageContainer>
       <Background src={imgURL('bg', browserState.format)} />
-      <Background2 src={imgURL('asset', browserState.format)} />
+      <Background2
+        src={imgURL('asset', browserState.format)}
+        css="margin-top: 1%;"
+      />
       <Background2 src={imgURL('thanks', browserState.format)} />
       <Background2 src={imgURL('man', browserState.format)} />
       <StakeLink href="https://stake.zilliqa.com/">

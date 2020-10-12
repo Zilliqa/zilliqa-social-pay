@@ -230,12 +230,14 @@ export const Controller: React.FC = () => {
         </Text>
         </Text>
         <Container css="height: 60px;margin: 0;">
-          <Text
-            fontVariant={Fonts.AvenirNextLTProBold}
-            fontColors={FontColors.white}
-          >
-            {blockchainState.hashtags.join(', ')}
-          </Text>
+          {blockchainState.hashtags.length > 1 ? (
+            <Text
+              fontVariant={Fonts.AvenirNextLTProBold}
+              fontColors={FontColors.white}
+            >
+              {blockchainState.hashtags.join(', ')}
+            </Text>
+          ) : null}
           <TwitterHashtagButton
             tag={blockchainState.hashtags[0]}
             options={{
