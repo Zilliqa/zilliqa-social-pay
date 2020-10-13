@@ -53,13 +53,12 @@ const initalState: Blockchain = {
   campaignEnd: null,
   now: null,
   hashtagText: `#Zilliqa's non-custodial staking is LIVE and I'm #StakingWithZIL 🚀
- 
+
   Join me and stake your $ZIL today! 🎉
-   
+
   👉 zilliqa.com/staking
-   
-  #SocialStaking  
-  `
+
+  #SocialStaking`
 };
 
 export const store = blockchainDomain.store<Blockchain>(initalState)

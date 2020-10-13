@@ -6,6 +6,8 @@ const TwitterTokenStrategy = require('passport-twitter-token');
 const models = require('./models');
 
 const DAYS_TO_KILL = process.env.DAYS_TO_KILL || 30;
+const ENV = process.env.NODE_ENV;
+const IS_DEV = ENV === 'development' || ENV === 'test';
 
 // serialize the user.id to save in the cookie session
 // so the browser will remember the user when login
@@ -40,7 +42,7 @@ passport.use(
         Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay))
       );
 
-      if (Number(diffDays) < Number(DAYS_TO_KILL)) {
+      if (Number(diffDays) < Number(DAYS_TO_KILL) && !IS_DEV) {
         status = statuses.baned;
       }
 

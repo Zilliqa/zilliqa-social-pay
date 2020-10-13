@@ -235,11 +235,11 @@ export const Controller: React.FC = () => {
               fontVariant={Fonts.AvenirNextLTProBold}
               fontColors={FontColors.white}
             >
-              {blockchainState.hashtags.join(', ')}
+              {blockchainState.hashtags.join(', ')}, $ZIL
             </Text>
           ) : null}
           <TwitterHashtagButton
-            tag={blockchainState.hashtags[0]}
+            tag={''}
             options={{
               size: 'large',
               text: blockchainState.hashtagText
