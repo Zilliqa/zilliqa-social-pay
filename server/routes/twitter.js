@@ -565,9 +565,7 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
     const createdTweet = await Twittes.create({
       idStr: tweet.id_str,
       text: tweet.full_text.toLowerCase(),
-      UserId: user.id,
-      block: blockchainInfo.BlockNum,
-      claimed: true
+      UserId: user.id
     });
 
     await user.update({
@@ -662,8 +660,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, verifyRecapt
     foundTweet = await Twittes.findOne({
       where: {
         UserId: user.id,
-        idStr: tweet.idStr,
-        id: tweet.id,
+        idStr: tweet.id_str,
         rejected: false,
         approved: false,
         claimed: false
