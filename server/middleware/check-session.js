@@ -19,7 +19,7 @@ module.exports = function (req, res, next) {
   } else if (req.session.passport.user && req.session.passport.user.status === statuses.baned) {
     return res.status(401).json({
       code: ERROR_CODES.ban,
-      message: 'User has been baned'
+      message: 'User has been banned'
     });
   }
 

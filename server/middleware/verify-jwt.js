@@ -20,7 +20,7 @@ module.exports = async function (req, res, next) {
     } else if (user.status === statuses.baned) {
       return res.status(401).json({
         code: ERROR_CODES.ban,
-        message: 'User has been baned'
+        message: 'User has been banned'
       });
     }
 
