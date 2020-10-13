@@ -229,7 +229,7 @@ module.exports = {
       toAddr: contract.address,
       pubKey: zilliqa.wallet.defaultAccount.publicKey,
       amount: new BN(0),
-      gasPrice: new BN('1000000000'),
+      gasPrice: new BN('2000000000'),
       gasLimit: Long.fromNumber(calcGasLimit)
     });
     const { txParams } = await zilliqa.wallet.sign(zilTxData);
