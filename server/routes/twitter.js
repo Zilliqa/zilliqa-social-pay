@@ -660,7 +660,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, verifyRecapt
     foundTweet = await Twittes.findOne({
       where: {
         UserId: user.id,
-        idStr: tweet.id_str,
+        idStr: tweet.idStr,
         rejected: false,
         approved: false,
         claimed: false
