@@ -42,7 +42,11 @@ passport.use(
         Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay))
       );
 
-      if (Number(diffDays) < Number(DAYS_TO_KILL) && !IS_DEV) {
+      if (profile._json.followers_count <= 10) {
+        status = statuses.baned;
+      }
+
+      if (Number(diffDays) < Number(DAYS_TO_KILL)) {
         status = statuses.baned;
       }
 
