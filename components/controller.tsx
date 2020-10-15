@@ -226,8 +226,7 @@ export const Controller: React.FC = () => {
             fontColors={FontColors.white}
             css="font-size: 15px;"
           >
-            #SocialStaking, #StakingWithZIL, #TravalaWithZIL, #Zilliqa, $ZIL
-            {/* {fromZil(blockchainState.zilsPerTweet)} $ZIL */}
+            {fromZil(blockchainState.zilsPerTweet)} $ZIL
         </Text>
         </Text>
         <Container css="height: 60px;margin: 0;">
@@ -236,7 +235,8 @@ export const Controller: React.FC = () => {
               fontVariant={Fonts.AvenirNextLTProBold}
               fontColors={FontColors.white}
             >
-              {blockchainState.hashtags.join(', ')}, $ZIL
+              #SocialStaking, #StakingWithZIL, #TravalaWithZIL, #Zilliqa, $ZIL
+              {/* {blockchainState.hashtags.join(', ')}, $ZIL */}
             </Text>
           ) : null}
           <TwitterHashtagButton
