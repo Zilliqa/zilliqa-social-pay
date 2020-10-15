@@ -226,7 +226,8 @@ export const Controller: React.FC = () => {
             fontColors={FontColors.white}
             css="font-size: 15px;"
           >
-            {fromZil(blockchainState.zilsPerTweet)} $ZIL
+            #SocialStaking, #StakingWithZIL, #TravalaWithZIL, #Zilliqa, $ZIL
+            {/* {fromZil(blockchainState.zilsPerTweet)} $ZIL */}
         </Text>
         </Text>
         <Container css="height: 60px;margin: 0;">
