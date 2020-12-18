@@ -16,7 +16,7 @@ const EndPageContainer = styled.main`
   justify-content: center;
   flex-wrap: wrap;
 
-  background: linear-gradient(90deg, #13D6A9 0%, #00A5E0 100%);
+  background: #001623;
   background-repeat: space;
 
   width: 100%;
@@ -68,13 +68,11 @@ export const EndPage: NextPage<PageProp> = () => {
 
   return (
     <EndPageContainer>
-      <Background src={imgURL('bg', browserState.format)} />
       <Background2
         src={imgURL('asset', browserState.format)}
         css="margin-top: 1%;"
       />
-      <Background2 src={imgURL('thanks', browserState.format)} />
-      <Background2 src={imgURL('man', browserState.format)} />
+      <Background2 src={imgURL('hashtag', 'svg')} />
       <StakeLink href="https://stake.zilliqa.com/">
         Stake your $ZIL now!
       </StakeLink>

@@ -22,7 +22,7 @@ const PageContainer = styled.main`
   align-items: center;
   justify-content: center;
 
-  background: linear-gradient(61.84deg, #32FFB4 -10.09%, #090424 79.67%);
+  background: #001623;
   background-repeat: space;
   width: 100%;
   height: 100%;
@@ -90,7 +90,7 @@ export const RedCross: NextPage<PageProp> = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
           >
-            Stake with Zilliqa!
+            Get ZIL
           </NextPageLink>
           <Img
             src="/icons/arrow.svg"
