@@ -76,7 +76,7 @@ export const EndPage: NextPage<PageProp> = () => {
         src={imgURL('asset', browserState.format)}
         css="margin-top: 1%;"
       />
-      <StakeLink href="https://stake.zilliqa.com/">
+      <StakeLink href="https://www.travala.com/payment/zilliqa-zil">
         TravalaWithZIL
       </StakeLink>
     </EndPageContainer>
