@@ -80,8 +80,14 @@ export const RedCross: NextPage<PageProp> = () => {
   return (
     <React.Fragment>
       <PageContainer>
-        <Illustration src={getImg('3x', browserState.format, 'asset')} />
-        <Illustration src={getImg('3x', 'svg', 'hashtag')} />
+        <Illustration
+          src={getImg('3x', 'svg', 'hashtag')}
+          css="top: 10%;"
+        />
+        <Illustration
+          src={getImg('3x', browserState.format, 'asset')}
+          css="top: 15%;"
+        />
       </PageContainer>
       <Link href="/auth">
         <LinkContainer>
@@ -90,7 +96,7 @@ export const RedCross: NextPage<PageProp> = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
           >
-            Get ZIL
+            Tweet with us to earn ZIL!
           </NextPageLink>
           <Img
             src="/icons/arrow.svg"

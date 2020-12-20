@@ -69,12 +69,15 @@ export const EndPage: NextPage<PageProp> = () => {
   return (
     <EndPageContainer>
       <Background2
+        css="top: 10%;"
+        src={imgURL('hashtag', 'svg')}
+      />
+      <Background2
         src={imgURL('asset', browserState.format)}
         css="margin-top: 1%;"
       />
-      <Background2 src={imgURL('hashtag', 'svg')} />
       <StakeLink href="https://stake.zilliqa.com/">
-        Stake your $ZIL now!
+        TravalaWithZIL
       </StakeLink>
     </EndPageContainer>
   );
