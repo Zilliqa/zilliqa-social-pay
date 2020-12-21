@@ -207,10 +207,6 @@ module.exports = {
           value: params.map((arg) => ({
             constructor: 'VerifyInfo',
             argtypes: [
-              'String',
-              'ByStr20',
-              'String',
-              'List String'
             ],
             arguments: [
               arg.userId,
