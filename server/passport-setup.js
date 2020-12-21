@@ -43,7 +43,7 @@ passport.use(
         Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay))
       );
 
-      if (profile._json.followers_count <= Number(MIN_FLOWERS)) {
+      if (profile._json.followers_count < Number(MIN_FLOWERS)) {
         status = statuses.baned;
       }
 
