@@ -56,7 +56,7 @@ passport.use(
         .User
         .findOrCreate({
           where:{
-            profileId: profile._json.id_str
+            profileId: profile.id
           },
           defaults: {
             token,

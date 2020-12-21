@@ -22,7 +22,7 @@ const PageContainer = styled.main`
   align-items: center;
   justify-content: center;
 
-  background: linear-gradient(61.84deg, #32FFB4 -10.09%, #090424 79.67%);
+  background: #001623;
   background-repeat: space;
   width: 100%;
   height: 100%;
@@ -80,8 +80,14 @@ export const RedCross: NextPage<PageProp> = () => {
   return (
     <React.Fragment>
       <PageContainer>
-        <Illustration src={getImg('3x', browserState.format, 'asset')} />
-        <Illustration src={getImg('3x', 'svg', 'hashtag')} />
+        <Illustration
+          src={getImg('3x', 'svg', 'hashtag')}
+          css="top: 10%;"
+        />
+        <Illustration
+          src={getImg('3x', browserState.format, 'asset')}
+          css="top: 15%;"
+        />
       </PageContainer>
       <Link href="/auth">
         <LinkContainer>
@@ -90,7 +96,7 @@ export const RedCross: NextPage<PageProp> = () => {
             fontVariant={Fonts.AvenirNextLTProDemi}
             fontColors={FontColors.white}
           >
-            Stake with Zilliqa!
+            Tweet with us to earn ZIL!
           </NextPageLink>
           <Img
             src="/icons/arrow.svg"
