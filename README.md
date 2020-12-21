@@ -30,6 +30,7 @@ Also need to deposit few ZILs, call `Deposit` transition and send few ZIls.
  * `POSTGRES_DB` # DataBase name.
  * `POSTGRES_PASSWORD` # DataBase password.
  * `POSTGRES_USER` # DataBase username.
+ * `MIN_FLOWERS` # Check minimum flowwers of twitter account.
  * `POSTGRES_HOST` # DataBase host for example (127.0.0.1) for production build use 'postgres'.
  * `REDIS_URL` # Redis connection url, for cache.
  * `DAYS_TO_KILL` # (if account created < DAYS_TO_KILL) then user will be kill. default value is 30.
