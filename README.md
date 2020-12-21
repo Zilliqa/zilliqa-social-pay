@@ -2,6 +2,7 @@
 
 SocialPay is advertising platform, for each tweet with #zilliqa shoreham you can get rewards.
 
+
 # Get started.
 
 For first need to deploy smart contract via [Editor](https://zilpay.xyz/app/Editor).
