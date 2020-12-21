@@ -52,15 +52,15 @@ const initalState: Blockchain = {
   initBalance: 0,
   campaignEnd: null,
   now: null,
-  hashtagText: `Tis the season for giving 🎉 🎁
+  hashtagText: `This the season for giving 🎉 🎁
 
-  This holiday, #Zilliqa is partnering with #Travala to gift you $ZIL! 💰
+This holiday, #Zilliqa is partnering with #Travala to gift you $ZIL! 💰
 
-  What's more - you can enjoy up to 15% in cashback (or ZIL-back) when you pay for your holidays on @travalacom with ZIL! ✈️ 🏨
+What's more - you can enjoy up to 15% in cashback (or ZIL-back) when you pay for your holidays on @travalacom with ZIL! ✈️ 🏨
 
-  #TravalaWithZIL
-  #HappyZILdays
-  #HappyHolidayZ `
+#TravalaWithZIL
+#HappyZILdays
+#HappyHolidayZ`
 };
 
 export const store = blockchainDomain.store<Blockchain>(initalState)

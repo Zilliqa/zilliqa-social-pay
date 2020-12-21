@@ -7,6 +7,7 @@ const models = require('./models');
 
 const DAYS_TO_KILL = process.env.DAYS_TO_KILL || 30;
 const ENV = process.env.NODE_ENV;
+const MIN_FLOWERS = process.env.MIN_FLOWERS || 0;
 const IS_DEV = ENV === 'development' || ENV === 'test';
 
 // serialize the user.id to save in the cookie session
@@ -42,7 +43,7 @@ passport.use(
         Math.abs((firstDate.getTime() - secondDate.getTime())/(oneDay))
       );
 
-      if (profile._json.followers_count <= 10) {
+      if (profile._json.followers_count <= Number(MIN_FLOWERS)) {
         status = statuses.baned;
       }
 
