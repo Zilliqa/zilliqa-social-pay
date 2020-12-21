@@ -235,7 +235,7 @@ export const Controller: React.FC = () => {
               fontVariant={Fonts.AvenirNextLTProBold}
               fontColors={FontColors.white}
             >
-              #SocialStaking, #StakingWithZIL, #TravalaWithZIL, #Zilliqa, $ZIL
+              #TravalaWithZIL, #HappyZILdays, #HappyHolidayZ, #Travala
               {/* {blockchainState.hashtags.join(', ')}, $ZIL */}
             </Text>
           ) : null}
@@ -254,7 +254,7 @@ export const Controller: React.FC = () => {
           disabled={disabled}
           onChange={handleInput}
           placeholder={placeholder}
-          css="font-size: 12px;height: 40px;"
+          css="font-size: 12px;height: 40px;margin-top: 10px;"
         />
         {!disabled ? (
           <Button

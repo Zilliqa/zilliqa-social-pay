@@ -39,6 +39,7 @@ const Illustration = styled(Img)`
     width: 90%;
     max-width: calc(100vw - 5vw);
   }
+  
 `;
 const LinkContainer = styled(Container)`
   position: fixed;
