@@ -30,7 +30,7 @@ export const BaseStyles = createGlobalStyle`
   body, html {
     margin: 0;
     padding: 0;
-
+    background: #001623;
     font-family: ${Fonts.AvenirNextLTProRegular};
   }
 
