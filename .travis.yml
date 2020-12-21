@@ -1,38 +1,20 @@
 language: generic
 sudo: required
-services:
-  - docker
 
-matrix:
+
+
+jobs:
   include:
     - os: linux
-      dist: xenial
+      dist: bionic
+      node_js:
+        - 12.10
+    - os: osx
+      osx_image: xcode12
+      node_js:
+        - 12.10
 
-addons:
-  apt:
-    update: true
-    package:
-    - build-essential
-    - git
-    - curl
+script: ./scripts/ci_build.sh
 
-before_cache:
-  - docker save -o docker_images/images.tar $(docker images -aq)
 
-cache:
-  directories:
-  - docker_images
-
-before_deploy:
-  - pip install --user awscli
-  - export PATH=$PATH:$HOME/.local/bin
-  - docker load -i docker_images/images.tar || true
-
-deploy:
-  provider: script
-  skip_cleanup: true
-  script:
-    - ./scripts/ci_build.sh
-  on:
-    branch: master
 
