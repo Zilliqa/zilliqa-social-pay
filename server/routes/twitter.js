@@ -656,6 +656,15 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, verifyRecapt
     });
   }
 
+  const lastTweet = await Twittes.findOne({
+    where: {
+      block: {
+        [Op.gt]: Number(blockchainInfo.BlockNum) - Number(blockchainInfo.blocksPerDay)
+      },
+      UserId: user.id
+    }
+  });
+
   try {
     foundTweet = await Twittes.findOne({
       where: {
@@ -676,18 +685,11 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, verifyRecapt
     return res.status(400).json({
       code: ERROR_CODES.badRequest,
       message: 'Bad request.',
-      debug: dev ? (err.message || err) : undefined
+      lastTweet: Number(lastTweet.block),
+      currentBlock: BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay),
+      debug: (err.message || err)
     });
   }
-
-  const lastTweet = await Twittes.findOne({
-    where: {
-      block: {
-        [Op.gt]: Number(blockchainInfo.BlockNum) - Number(blockchainInfo.blocksPerDay)
-      },
-      UserId: user.id
-    }
-  });
 
   if (lastTweet && Number(lastTweet.block) > 0) {
     return res.status(200).json({
@@ -741,7 +743,9 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, verifyRecapt
     return res.status(400).json({
       code: ERROR_CODES.badRequest,
       message: 'Bad request.',
-      debug: dev ? (err.message || err) : undefined
+      lastTweet: blockchainInfo.BlockNum,
+      currentBlock: BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay),
+      debug: (err.message || err)
     });
   }
 });
