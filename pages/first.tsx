@@ -7,15 +7,9 @@ import Link from 'next/link';
 import BrowserStore from 'store/browser';
 
 import { Img } from 'components/img';
-import { Text } from 'components/text';
 import { Container } from 'components/container';
 
 import { PageProp } from 'interfaces';
-import {
-  FontColors,
-  FontSize,
-  Fonts
-} from 'config';
 
 const PageContainer = styled.main`
   display: flex;
@@ -51,6 +45,7 @@ const LinkContainer = styled(Container)`
   bottom: 50px;
   right: 50px;
 
+  cursor: pointer;
   display: flex;
   align-items: center;
 
@@ -59,14 +54,12 @@ const LinkContainer = styled(Container)`
     right: 10px;
   }
 `;
-const NextPageLink = styled(Text)`
-  margin: 0;
-  cursor: pointer;
-  border-bottom: 2px solid ${FontColors.white};
-  z-index: 99;
+const LeftLinkContainer = styled(LinkContainer)`
+  left: 50px;
+  right: auto;
 
-  @media (max-width: 350px) {
-    font-size: 20px;
+  @media (max-width: 656px) {
+    bottom: 100px;
   }
 `;
 
@@ -81,6 +74,10 @@ export const RedCross: NextPage<PageProp> = () => {
     <React.Fragment>
       <PageContainer>
         <Illustration
+          src="/imgs/assets/paperplanes.svg"
+          css="top: 15%;"
+        />
+        <Illustration
           src={getImg('3x', 'svg', 'hashtag')}
           css="top: 10%;"
         />
@@ -89,18 +86,17 @@ export const RedCross: NextPage<PageProp> = () => {
           css="top: 15%;"
         />
       </PageContainer>
+      <LeftLinkContainer>
+        <Img
+          src="/imgs/assets/travala.svg"
+          css="height: 90px;width: 300px;"
+        />
+      </LeftLinkContainer>
       <Link href="/auth">
         <LinkContainer>
-          <NextPageLink
-            size={FontSize.lg}
-            fontVariant={Fonts.AvenirNextLTProDemi}
-            fontColors={FontColors.white}
-          >
-            Tweet with us to earn ZIL!
-          </NextPageLink>
           <Img
-            src="/icons/arrow.svg"
-            css="height: 20px;width: 30px;margin-left: 10px;"
+            src="/imgs/assets/button.svg"
+            css="height: 100px;width: 300px;"
           />
         </LinkContainer>
       </Link>

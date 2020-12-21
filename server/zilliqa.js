@@ -206,7 +206,8 @@ module.exports = {
           type: 'List (VerifyInfo)',
           value: params.map((arg) => ({
             constructor: 'VerifyInfo',
-            argtypes: [],
+            argtypes: [
+            ],
             arguments: [
               arg.userId,
               fromBech32Address(arg.zilAddress),
