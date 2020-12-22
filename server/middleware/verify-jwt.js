@@ -3,6 +3,8 @@ const models = require('../models');
 const { User } = models.sequelize.models;
 
 const ERROR_CODES = require('../../config/error-codes');
+const ENV = process.env.NODE_ENV || 'development';
+const prod = ENV === 'production';
 
 module.exports = async function (req, res, next) {
   const jwtToken = req.headers.authorization;
@@ -17,7 +19,7 @@ module.exports = async function (req, res, next) {
         code: ERROR_CODES.unauthorized,
         message: 'Unauthorized'
       });
-    } else if (user.status === statuses.baned) {
+    } else if (user.status === statuses.baned && prod) {
       return res.status(401).json({
         code: ERROR_CODES.ban,
         message: 'User has been banned'
