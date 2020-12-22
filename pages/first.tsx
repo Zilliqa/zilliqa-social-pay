@@ -63,6 +63,11 @@ const LeftLinkContainer = styled(LinkContainer)`
     bottom: 100px;
   }
 `;
+const LogoContainer = styled(LinkContainer)`
+  top: 20px;
+  right: 50px;
+  bottom: auto;
+`;
 
 function getImg(dir: string, format: string, name = 'asset') {
   return `imgs/assets/${dir}/${name}.${format}`;
@@ -73,6 +78,12 @@ export const RedCross: NextPage<PageProp> = () => {
 
   return (
     <React.Fragment>
+      <LogoContainer>
+        <img
+          width="50"
+          src="/imgs/assets/3x/zil_logo.svg"
+        />
+      </LogoContainer>
       <PageContainer>
         <Illustration
           src="/imgs/assets/paperplanes.svg"
@@ -84,7 +95,7 @@ export const RedCross: NextPage<PageProp> = () => {
         />
         <Illustration
           src={getImg('3x', browserState.format, 'asset')}
-          css="top: 15%;"
+          css="top: 20%;width: 70%;"
         />
       </PageContainer>
       <LeftLinkContainer>
