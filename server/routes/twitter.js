@@ -685,7 +685,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, verifyRecapt
     return res.status(400).json({
       code: ERROR_CODES.badRequest,
       message: 'Bad request.',
-      lastTweet: Number(lastTweet && lastTweet.block || 0),
+      lastTweet: Number(blockchainInfo.BlockNum),
       currentBlock: BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay),
       debug: (err.message || err)
     });
@@ -695,7 +695,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, verifyRecapt
     return res.status(200).json({
       code: ERROR_CODES.countdown,
       message: `Last tweet have block ${lastTweet.block} but current ${blockchainInfo.BlockNum}.`,
-      lastTweet: Number(lastTweet.block),
+      lastTweet: Number(lastTweet.block || blockchainInfo.BlockNum),
       currentBlock: BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay)
     });
   }
