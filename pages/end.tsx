@@ -36,7 +36,7 @@ const StakeLink = styled.a`
   background: #ffffff80;
   color: #2e306d;
   font-family: ${Fonts.AvenirNextLTProRegular};
-  font-size: 30px;
+  font-size: 50px;
 
   padding: 15px;
   padding-left: 30px;
@@ -64,6 +64,12 @@ const LogoContainer = styled(Container)`
 export const EndPage: NextPage<PageProp> = () => {
   return (
     <EndPageContainer>
+      <LogoContainer css="left: 50px;right: auto;top: 60px;">
+        <img
+          width="50"
+          src="/imgs/assets/3x/zil_logo.svg"
+        />
+      </LogoContainer>
       <LogoContainer>
         <Img
           src="/imgs/assets/2x/logo.svg"

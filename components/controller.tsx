@@ -235,7 +235,7 @@ export const Controller: React.FC = () => {
               fontVariant={Fonts.AvenirNextLTProBold}
               fontColors={FontColors.white}
             >
-              #TravalaWithZIL, #HappyZILdays, #HappyHolidayZ, #Travala
+              #TravalaWithZIL, #HappyZILdays, #HappyHolidayZ, #Travala, #Zilliqa, $ZIL
               {/* {blockchainState.hashtags.join(', ')}, $ZIL */}
             </Text>
           ) : null}
