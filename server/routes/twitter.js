@@ -685,7 +685,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, verifyRecapt
     return res.status(400).json({
       code: ERROR_CODES.badRequest,
       message: 'Bad request.',
-      lastTweet: Number(lastTweet.block),
+      lastTweet: Number(lastTweet && lastTweet.block || 0),
       currentBlock: BLOCK_FOR_CONFIRM + Number(blockchainInfo.BlockNum) + Number(blockchainInfo.blocksPerDay),
       debug: (err.message || err)
     });
