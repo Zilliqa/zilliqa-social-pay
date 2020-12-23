@@ -178,13 +178,11 @@ async function queueFilling() {
     jobQueue.on(jobQueue.events.trigger, async(task) => {
       await taskHandler(task, jobQueue);
 
-      setTimeout(async () => {
-        if (worker.jobsLength === 0 && !worker.padding) {
-          const tasks = await getTasks();
-          worker.distributeTasks(tasks);
-          log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
-        }
-      }, 200);
+      if (worker.jobsLength === 0 && !worker.padding) {
+        const tasks = await getTasks();
+        worker.distributeTasks(tasks);
+        log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
+      }
     });
   });
 
@@ -199,13 +197,11 @@ async function queueFilling() {
 
       switch (body.type) {
         case JOB_TYPES.verifyTweet:
-          setTimeout(async () => {
-            if (worker.jobsLength === 0 && !worker.padding) {
-              const tasks = await getTasks();
-              worker.distributeTasks(tasks);
-              log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
-            }
-          }, 300);
+          if (worker.jobsLength === 0 && !worker.padding) {
+            const tasks = await getTasks();
+            worker.distributeTasks(tasks);
+            log.info(tasks.length, 'tasks added to queue', worker.jobsLength);
+          }
           return null;
         case blockchain.tableName:
           // When blockchain has been updated.
