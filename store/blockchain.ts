@@ -52,7 +52,7 @@ const initalState: Blockchain = {
   initBalance: 0,
   campaignEnd: null,
   now: null,
-  hashtagText: `Tis the season for giving 🎉 🎁
+  hashtagText: `'Tis the season for giving 🎉 🎁
 
 This holiday, #Zilliqa is partnering with #Travala to gift you $ZIL! 💰
 
