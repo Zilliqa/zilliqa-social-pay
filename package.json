@@ -1,7 +1,7 @@
 {
   "name": "zilliqa-social-pay",
   "version": "0.0.3",
-  "description": "Rewarding Twitter users with ZIL for spreading the joy / love / positivity.",
+  "description": "Rewarding Twitter users with ZIL for spreading the positivity.",
   "scripts": {
     "db:migrate": "npx sequelize db:migrate",
     "db:seed": "npx sequelize db:seed:all",
