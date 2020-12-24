@@ -419,7 +419,7 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, as
     }
 
     const foundTwittes = await Twittes.findOne({
-      where: { idStr: tweet.id_str },
+      where: { idStr: tweet.id_str || tweet.idStr },
       attributes: [
         'id',
         'idStr'
