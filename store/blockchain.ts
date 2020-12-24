@@ -58,7 +58,8 @@ This holiday, #Zilliqa is partnering with #Travala to gift you $ZIL! 💰
 
 What's more - you can enjoy up to 15% in cashback (or ZIL-back) when you pay for your holidays on @travalacom with ZIL! ✈️ 🏨
 
-#TravalaWithZIL
+#Zilliqa
+#TravalaWithZIL 
 #HappyZILdays`
 };
 
