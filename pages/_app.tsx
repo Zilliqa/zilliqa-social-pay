@@ -64,7 +64,7 @@ class SocialPay extends App {
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:site" content="https://twitter.com/zilliqa" />
           <meta name="twitter:creator" content="@zilliqa" />
-          <meta name="twitter:title" content="SocialPay by Zilliqa (Instead of Zilliqa)" />
+          <meta name="twitter:title" content="SocialPay by Zilliqa" />
           <meta name="twitter:description" content="Rewarding Twitter users with ZIL for spreading the positivity." />
           <link rel="apple-touch-icon" sizes="57x57" href="/favicons/apple-icon-57x57.png" />
           <link rel="apple-touch-icon" sizes="60x60" href="/favicons/apple-icon-60x60.png" />
