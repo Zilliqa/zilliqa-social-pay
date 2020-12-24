@@ -80,7 +80,7 @@ export const EndPage: NextPage<PageProp> = () => {
         css="top: 15%;"
         src="/imgs/assets/2x/Hashtag.svg"
       />
-      <StakeLink href="https://www.travala.com/payment/zilliqa-zil">
+      <StakeLink href="https://www.travala.com/?ref=milanzilliqa">
         Book your 2021 holidays on Travala with $ZIL now!
         <svg
           width="56"
