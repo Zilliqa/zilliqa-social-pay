@@ -586,4 +586,21 @@ router.get('/get/stats', async (req, res) => {
   });
 });
 
+router.get('/get/buns', async (req, res) => {
+  const users = await User.findAll({
+    where: {
+      status: new User().statuses.baned
+    },
+    attributes: [
+      'zilAddress',
+      'profileId',
+      'id',
+      'status',
+      'username'
+    ]
+  });
+
+  return res.json(users);
+});
+
 module.exports = router;
