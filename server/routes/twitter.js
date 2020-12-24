@@ -510,7 +510,7 @@ router.post('/search/tweets/:query', checkSession, verifyJwt, verifyCampaign, as
  */
 router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, res) => {
   const { user } = req.verification;
-  const { id_str } = req.body;
+  const { id_str, idStr } = req.body;
   const { redis } = req.app.settings;
   const { blockchainInfo } = req;
 
@@ -523,10 +523,10 @@ router.post('/add/tweet', checkSession, verifyJwt, verifyCampaign, async (req, r
 
   try {
     const twitter = new Twitter(user.token, user.tokenSecret, blockchainInfo);
-    const { tweet, hasHashtag } = await twitter.showTweet(id_str);
+    const { tweet, hasHashtag } = await twitter.showTweet(id_str || idStr);
     const favoriteCount = Number(tweet.favorite_count);
     const foundTwittes = await Twittes.findOne({
-      where: { idStr: id_str },
+      where: { idStr: id_str || idStr },
       attributes: [
         'id',
         'idStr'
@@ -669,7 +669,7 @@ router.put('/claim/tweet', checkSession, verifyJwt, verifyCampaign, verifyRecapt
     foundTweet = await Twittes.findOne({
       where: {
         UserId: user.id,
-        idStr: tweet.id_str,
+        idStr: tweet.id_str || tweet.idStr,
         rejected: false,
         approved: false,
         claimed: false
