@@ -59,8 +59,7 @@ This holiday, #Zilliqa is partnering with #Travala to gift you $ZIL! 💰
 What's more - you can enjoy up to 15% in cashback (or ZIL-back) when you pay for your holidays on @travalacom with ZIL! ✈️ 🏨
 
 #TravalaWithZIL
-#HappyZILdays
-#HappyHolidayZ`
+#HappyZILdays`
 };
 
 export const store = blockchainDomain.store<Blockchain>(initalState)
