@@ -64,7 +64,7 @@
     "react-twitter-embed": "^3.0.3",
     "redis": "^3.0.2",
     "sequelize": "^5.21.8",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.4.0",
     "styled-components": "^5.1.1",
     "swagger-jsdoc": "^4.0.0",
     "swagger-ui-express": "^4.1.4",
